@@ -40,12 +40,7 @@ export default function OpportunitiesPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Opportunities</h1>
-        <Link href="/opportunities/new">
-          <Button>Create Opportunity</Button>
-        </Link>
-      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {opportunities.map(opp => (
           <div key={opp.id} className="p-4 border rounded-lg">

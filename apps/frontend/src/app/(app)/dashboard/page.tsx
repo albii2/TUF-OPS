@@ -25,17 +25,7 @@ export default function DashboardPage() {
 
   return (
     <main className="p-6" data-testid="page-dashboard">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-semibold">Dashboard</h2>
-        <div className="space-x-4">
-          <Link href="/organizations/new" data-testid="new-organization-link">
-            <Button>New Organization</Button>
-          </Link>
-          <Link href="/opportunities/new">
-            <Button>New Opportunity</Button>
-          </Link>
-        </div>
-      </div>
+
       <p>Welcome, you are logged in.</p>
 
       <div className="mt-6">

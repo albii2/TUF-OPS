@@ -41,12 +41,7 @@ export default function OrganizationsPage() {
 
   return (
     <div className="container mx-auto py-10" data-testid="page-organizations">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Organizations</h1>
-        <Link href="/organizations/new" data-testid="create-organization-link">
-          <Button>Create Organization</Button>
-        </Link>
-      </div>
+
 
       {loading ? (
         <p>Loading...</p>
