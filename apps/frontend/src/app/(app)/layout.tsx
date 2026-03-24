@@ -1,11 +1,16 @@
 import { requireSession } from "@/lib/auth/session";
+import { AppShellClient } from "@/components/app-shell/app-shell-client";
 
 export default async function AppLayout({ 
   children,
 }: {
   children: React.ReactNode;
 }) {
-  await requireSession();
+  const session = await requireSession();
 
-  return <>{children}</>;
+  return (
+    <AppShellClient user={session.user}>
+      {children}
+    </AppShellClient>
+  );
 }
