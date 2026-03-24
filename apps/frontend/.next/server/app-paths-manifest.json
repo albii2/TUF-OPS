@@ -1,0 +1,7 @@
+{
+  "/opportunities/new/page": "app/opportunities/new/page.js",
+  "/organizations/page": "app/organizations/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/opportunities/page": "app/opportunities/page.js",
+  "/settings/page": "app/settings/page.js"
+}
