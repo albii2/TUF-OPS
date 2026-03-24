@@ -1,24 +1,22 @@
 # Dependencies
-/node_modules
+node_modules/
 
-# Next.js
-/.next/
-/out/
+# Build artifacts
+.next/
+out/
 
-# Production
-.env
-.env.local
+# Environment variables
+.env*
+!/.env.example
 
 # Logs
 *.log
 
 # Test artifacts
-/test-results/
-/playwright-report/
+test-results/
+playwright-report/
 
-# IDE
+# IDE & OS
 .vscode/
 .idea/
-
-# OS
 .DS_Store
