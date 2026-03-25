@@ -1,8 +1,10 @@
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { PageActions } from "@/components/ui/page-actions";
 import { prisma } from "@/lib/prisma";
 import { StatCard } from "@/components/stat-card";
 import { Building, Briefcase } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 export default async function DashboardPage() {
   const orgCount = await prisma.organization.count();
@@ -10,16 +12,21 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end items-center">
-        <div className="space-x-4">
-          <Link href="/organizations/new">
-            <Button>New Organization</Button>
-          </Link>
-          <Link href="/opportunities/new">
-            <Button>New Opportunity</Button>
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Today’s Focus"
+        description="Monitor activity and quickly create the records that drive your pipeline."
+        actions={
+          <PageActions>
+            <Button asChild>
+              <Link href="/organizations/new">New Organization</Link>
+            </Button>
+            <Button asChild variant="secondary">
+              <Link href="/opportunities/new">New Opportunity</Link>
+            </Button>
+          </PageActions>
+        }
+      />
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard 
           title="Total Organizations"
