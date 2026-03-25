@@ -1,4 +1,4 @@
-import { LayoutDashboard, Building, Briefcase } from "lucide-react";
+import { LayoutDashboard, Building, Briefcase, Settings } from "lucide-react";
 import type { NavItem } from "@/types/navigation";
 
 export const PRIMARY_NAV: NavItem[] = [
@@ -19,5 +19,11 @@ export const PRIMARY_NAV: NavItem[] = [
     href: "/opportunities",
     icon: Briefcase,
     roles: ["admin", "regional_director", "sales_rep"],
+  },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: Settings,
+    roles: ["admin"],
   },
 ];

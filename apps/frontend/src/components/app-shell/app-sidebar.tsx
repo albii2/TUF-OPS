@@ -1,3 +1,5 @@
+import Image from "next/image";
+import Link from "next/link";
 import { PRIMARY_NAV } from "@/config/navigation";
 import type { AppRole } from "@/types/auth";
 import { NavMain } from "./nav-main";
@@ -13,12 +15,17 @@ export function AppSidebar({
 
   return (
     <aside className="hidden w-64 border-r bg-card md:block">
-      <div className="border-b p-4">
-        <div className="text-lg font-semibold">TUF Ops</div>
-      </div>
-
-      <div className="p-4">
-        <NavMain items={items} pathname={pathname} />
+      <div className="flex h-full max-h-screen flex-col gap-2">
+        <div className="flex h-16 items-center border-b px-6">
+          <Link href="/dashboard">
+            <Image src="/tuf-ops-logo.png" alt="TUF Ops Logo" width={100} height={25} />
+          </Link>
+        </div>
+        <div className="flex-1 overflow-auto py-2">
+          <nav className="grid items-start px-4 text-sm font-medium">
+            <NavMain items={items} pathname={pathname} />
+          </nav>
+        </div>
       </div>
     </aside>
   );
