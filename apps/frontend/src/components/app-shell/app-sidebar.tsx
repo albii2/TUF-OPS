@@ -1,4 +1,4 @@
-import { APP_NAV } from "@/config/navigation";
+import { PRIMARY_NAV } from "@/config/navigation";
 import type { AppRole } from "@/types/auth";
 import { NavMain } from "./nav-main";
 
@@ -9,7 +9,7 @@ export function AppSidebar({
   role: AppRole;
   pathname: string;
 }) {
-  const items = APP_NAV.filter((item) => item.roles.includes(role));
+  const items = PRIMARY_NAV.filter((item) => item.roles.includes(role));
 
   return (
     <aside className="hidden w-64 border-r bg-card md:block">
