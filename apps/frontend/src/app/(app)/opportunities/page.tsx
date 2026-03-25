@@ -1,55 +1,43 @@
-'use client'
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
+import { PageActions } from "@/components/ui/page-actions";
+import { prisma } from "@/lib/prisma";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-
-interface Opportunity {
-  id: number
-  name: string
-  stage: string
-  estimated_value: number | null
+async function getOpportunities() {
+  return await prisma.opportunity.findMany();
 }
 
-export default function OpportunitiesPage() {
-  const [opportunities, setOpportunities] = useState<Opportunity[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function fetchOpportunities() {
-      setLoading(true)
-      try {
-        const response = await fetch('/api/opportunities')
-        if (response.ok) {
-          const data = await response.json()
-          setOpportunities(data.opportunities)
-        } else {
-          console.error('Failed to fetch opportunities')
-        }
-      } catch (error) {
-        console.error('Failed to fetch opportunities', error)
-      }
-      setLoading(false)
-    }
-    fetchOpportunities()
-  }, [])
-
-  if (loading) {
-    return <p>Loading opportunities...</p>
-  }
+export default async function OpportunitiesPage() {
+  const opportunities = await getOpportunities();
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="space-y-6">
+      <PageHeader
+        title="Opportunities"
+        description="Track deals, active pursuits, and next sales actions."
+        actions={
+          <PageActions>
+            <Button asChild>
+              <Link href="/opportunities/new">New Opportunity</Link>
+            </Button>
+          </PageActions>
+        }
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {opportunities.map(opp => (
           <div key={opp.id} className="p-4 border rounded-lg">
-            <h2 className="text-xl font-semibold">{opp.name}</h2>
+            <h2 className="text-xl font-semibold">
+              <Link href={`/opportunities/${opp.id}`} className="hover:underline">
+                {opp.name}
+              </Link>
+            </h2>
             <p>Stage: {opp.stage}</p>
             <p>Value: ${opp.estimated_value?.toLocaleString() || 'N/A'}</p>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }
