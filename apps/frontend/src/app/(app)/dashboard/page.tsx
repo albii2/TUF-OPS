@@ -1,43 +1,37 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { getDashboardData } from "@/lib/dashboard/get-dashboard-data";
 import { PageHeader } from "@/components/ui/page-header";
-import { PageActions } from "@/components/ui/page-actions";
-import { prisma } from "@/lib/prisma";
-import { StatCard } from "@/components/stat-card";
-import { Building, Briefcase } from "lucide-react";
+import { DashboardFocusStrip } from "@/components/dashboard/dashboard-focus-strip";
+import { DashboardNextActions } from "@/components/dashboard/dashboard-next-actions";
+import { DashboardPipelineSnapshot } from "@/components/dashboard/dashboard-pipeline-snapshot";
+import { DashboardRevenuePanel } from "@/components/dashboard/dashboard-revenue-panel";
+import { DashboardNearClose } from "@/components/dashboard/dashboard-near-close";
 
 export default async function DashboardPage() {
-  const orgCount = await prisma.organization.count();
-  const oppCount = await prisma.opportunity.count();
+  const data = await getDashboardData();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         title="Today’s Focus"
-        description="Monitor activity and quickly create the records that drive your pipeline."
-        actions={
-          <PageActions>
-            <Link href="/organizations/new">
-              <Button>New Organization</Button>
-            </Link>
-            <Link href="/opportunities/new">
-              <Button variant="secondary">New Opportunity</Button>
-            </Link>
-          </PageActions>
-        }
+        description="What you should do right now to move deals and generate revenue."
       />
+      
+      <DashboardFocusStrip metrics={data.focusMetrics} />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard 
-          title="Total Organizations"
-          value={orgCount}
-          icon={<Building className="h-4 w-4 text-muted-foreground" />}
-        />
-        <StatCard 
-          title="Total Opportunities"
-          value={oppCount}
-          icon={<Briefcase className="h-4 w-4 text-muted-foreground" />}
-        />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="col-span-1 lg:col-span-1">
+          <DashboardNextActions actions={data.nextActions} />
+        </div>
+        <div className="col-span-1 lg:col-span-1">
+          <DashboardPipelineSnapshot snapshot={data.pipelineSnapshot} />
+        </div>
+        <div className="col-span-1 lg:col-span-1">
+          <DashboardRevenuePanel summary={data.revenueSummary} />
+        </div>
+      </div>
+
+      <div>
+        <DashboardNearClose deals={data.dealsNearClose} />
       </div>
     </div>
   );
