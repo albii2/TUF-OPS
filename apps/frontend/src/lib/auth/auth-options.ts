@@ -13,6 +13,7 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     CredentialsProvider({
+      id: "credentials",
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -22,10 +23,7 @@ export const authOptions: NextAuthOptions = {
         const email = credentials?.email?.toString().trim().toLowerCase();
         const password = credentials?.password?.toString();
 
-        console.log("[AUTH] authorize called", { email });
-
         if (!email || !password) {
-          console.log("[AUTH] missing email or password");
           return null;
         }
 
@@ -33,18 +31,15 @@ export const authOptions: NextAuthOptions = {
           where: { email },
         });
 
-        console.log("[AUTH] user found?", !!user);
-
         if (!user || !user.password_hash) {
-          console.log("[AUTH] user missing or no password_hash");
           return null;
         }
 
-        const valid = await bcrypt.compare(password, user.password_hash);
+        const passwordsMatch = await bcrypt.compare(password, user.password_hash);
 
-        console.log("[AUTH] password valid?", valid);
-
-        if (!valid) return null;
+        if (!passwordsMatch) {
+          return null;
+        }
 
         return {
           id: user.id.toString(),
