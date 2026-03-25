@@ -30,7 +30,7 @@ export default async function OpportunitiesPage() {
       <DataTable 
         columns={columns} 
         data={opportunities} 
-        getRowId={(row: Opportunity) => `/opportunities/${row.id}`}
+        rowHrefPrefix="/opportunities/"
       />
     </div>
   );

@@ -31,7 +31,7 @@ export default async function OrganizationsPage() {
       <DataTable 
         columns={columns} 
         data={organizations} 
-        getRowId={(row: Organization) => `/organizations/${row.id}`}
+        rowHrefPrefix="/organizations/"
       />
     </div>
   );

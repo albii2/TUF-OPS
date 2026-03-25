@@ -21,13 +21,13 @@ import {
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  getRowId: (row: TData) => string;
+  rowHrefPrefix: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  getRowId,
+  rowHrefPrefix,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const table = useReactTable({
@@ -63,7 +63,7 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && "selected"}
-                onClick={() => router.push(getRowId(row.original))}
+                onClick={() => router.push(`${rowHrefPrefix}${(row.original as any).id}`)}
                 className="cursor-pointer"
               >
                 {row.getVisibleCells().map((cell) => (
