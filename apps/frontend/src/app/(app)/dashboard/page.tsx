@@ -17,12 +17,12 @@ export default async function DashboardPage() {
         description="Monitor activity and quickly create the records that drive your pipeline."
         actions={
           <PageActions>
-            <Button asChild>
-              <Link href="/organizations/new">New Organization</Link>
-            </Button>
-            <Button asChild variant="secondary">
-              <Link href="/opportunities/new">New Opportunity</Link>
-            </Button>
+            <Link href="/organizations/new">
+              <Button>New Organization</Button>
+            </Link>
+            <Link href="/opportunities/new">
+              <Button variant="secondary">New Opportunity</Button>
+            </Link>
           </PageActions>
         }
       />
