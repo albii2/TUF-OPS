@@ -1,4 +1,4 @@
-import Image from "next/image";
+
 import Link from "next/link";
 import { PRIMARY_NAV } from "@/config/navigation";
 import type { AppRole } from "@/types/auth";
@@ -18,7 +18,7 @@ export function AppSidebar({
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-16 items-center border-b px-6">
           <Link href="/dashboard">
-            <Image src="/tuf-ops-logo.png" alt="TUF Ops Logo" width={100} height={25} />
+                        <h1 className="font-vcr text-2xl font-bold text-white">TUF <span className="text-blue-500">//</span> OPS</h1>
           </Link>
         </div>
         <div className="flex-1 overflow-auto py-2">

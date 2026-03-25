@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
+
 
 function SignInForm() {
   const router = useRouter();
@@ -38,7 +38,7 @@ function SignInForm() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
       <div className="w-full max-w-md space-y-8 px-4">
         <div className="flex justify-center">
-          <Image src="/tuf-ops-logo.png" alt="TUF Ops Logo" width={200} height={50} />
+                    <h1 className="font-vcr text-4xl text-white">TUF <span className="text-blue-500">//</span> OPS</h1>
         </div>
         <div className="space-y-6">
           <form onSubmit={onSubmit} className="space-y-6">
