@@ -1,4 +1,4 @@
-import { Opportunity, Organization } from "@prisma/client";
+import { Opportunity } from "@prisma/client";
 import { 
   DashboardData,
   FocusMetric,
@@ -8,26 +8,53 @@ import {
   DealNearClose,
   RecentActivity
 } from "@/types/dashboard";
-
-// Placeholder selectors - these will be replaced with real logic
+import {
+    needsOpportunityAction,
+    isNextStepOverdue
+} from "@/lib/workflow/opportunity-workflow";
 
 export function selectFocusMetrics(opportunities: Opportunity[]): FocusMetric[] {
+  const dealsNeedAction = opportunities.filter(opp => needsOpportunityAction(opp)).length;
+  const nearClose = opportunities.filter(opp => ["invoice_ready", "invoice_sent", "awaiting_approval"].includes(opp.stage || "")).length;
+  const paymentsPending = opportunities.filter(opp => opp.stage === "payment_pending").length;
+
   return [
-    { label: "Deals Need Action", value: 6 },
-    { label: "Near Close", value: 3 },
-    { label: "Payments Pending", value: 4 },
+    { label: "Deals Need Action", value: dealsNeedAction },
+    { label: "Near Close", value: nearClose },
+    { label: "Payments Pending", value: paymentsPending },
   ];
 }
 
 export function selectNextActions(opportunities: Opportunity[]): NextAction[] {
-  return [
-    { id: "1", opportunityName: "Maple Grove Football", organizationName: "Maple Grove HS", description: "Send Invoice", dueDate: new Date(), value: 3240 },
-    { id: "2", opportunityName: "Eden Prairie Football", organizationName: "Eden Prairie HS", description: "Follow Up (3 days)", dueDate: new Date(), value: 5100 },
-    { id: "3", opportunityName: "Wayzata Basketball", organizationName: "Wayzata HS", description: "Send Mockup", dueDate: new Date(), value: 2800 },
-  ];
+    const actions = opportunities
+        .filter(opp => needsOpportunityAction({
+            stage: opp.stage,
+            nextStep: opp.nextStep,
+            nextStepDueDate: opp.nextStepDueDate,
+            updatedAt: opp.updated_at,
+        }))
+        .sort((a, b) => {
+            const aIsOverdue = isNextStepOverdue(a);
+            const bIsOverdue = isNextStepOverdue(b);
+            if (aIsOverdue && !bIsOverdue) return -1;
+            if (!aIsOverdue && bIsOverdue) return 1;
+            return (b.estimated_value ? Number(b.estimated_value) : 0) - (a.estimated_value ? Number(a.estimated_value) : 0);
+        })
+        .map(opp => ({
+            id: opp.id.toString(),
+            opportunityName: opp.name,
+            // @ts-ignore - Prisma types are not perfect here
+            organizationName: opp.organization?.name || "-",
+            description: opp.nextStep || "Define next step",
+            dueDate: opp.nextStepDueDate || new Date(),
+            value: opp.estimated_value ? Number(opp.estimated_value) : 0,
+        }));
+
+  return actions;
 }
 
 export function selectPipelineSnapshot(opportunities: Opportunity[]): PipelineStageSummary[] {
+  // Placeholder logic remains for now
   return [
     { stage: "Contacted", count: 42, totalValue: 42000 },
     { stage: "Mockup Created", count: 33, totalValue: 331000 },
@@ -37,6 +64,7 @@ export function selectPipelineSnapshot(opportunities: Opportunity[]): PipelineSt
 }
 
 export function selectRevenueSummary(opportunities: Opportunity[]): RevenueSummary {
+  // Placeholder logic remains for now
   return {
     total: 38400,
     pending: 21200,
@@ -45,13 +73,20 @@ export function selectRevenueSummary(opportunities: Opportunity[]): RevenueSumma
 }
 
 export function selectDealsNearClose(opportunities: Opportunity[]): DealNearClose[] {
-  return [
-    { id: "1", opportunityName: "Maple Grove Football", organizationName: "Maple Grove HS", value: 6200, closingDate: new Date() },
-    { id: "2", opportunityName: "Lakeville North", organizationName: "Lakeville North HS", value: 6200, closingDate: new Date() },
-  ];
+    return opportunities
+        .filter(opp => ["invoice_ready", "invoice_sent", "awaiting_approval"].includes(opp.stage || ""))
+        .map(opp => ({
+            id: opp.id.toString(),
+            opportunityName: opp.name,
+            // @ts-ignore
+            organizationName: opp.organization?.name || "-",
+            value: opp.estimated_value ? Number(opp.estimated_value) : 0,
+            closingDate: opp.close_date || new Date(),
+        }));
 }
 
 export function selectRecentActivity(opportunities: Opportunity[]): RecentActivity[] {
+  // Placeholder logic remains for now
   return [
     { id: "1", type: "invoice", description: "You sent invoice", timestamp: new Date(), link: "/invoices/1" },
     { id: "2", type: "sample", description: "Sample approved", timestamp: new Date(), link: "/samples/1" },
