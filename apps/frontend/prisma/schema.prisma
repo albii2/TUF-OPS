@@ -62,11 +62,13 @@ model Opportunity {
   name               String
   stage              String
   last_contact_date  DateTime?
-  next_action_date   DateTime?
   probability        Int?
-  estimated_value    Decimal?
-  created_at         DateTime @default(now())
-  updated_at         DateTime @updatedAt
+  estimated_value    Decimal?  @db.Decimal(10, 2)
+  nextStep           String?   @map("next_step")
+  nextStepDueDate    DateTime? @map("next_step_due_date")
+
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
   zoho_deal_id       String?
   organization       Organization? @relation(fields: [organization_id], references: [id])
   team               Team? @relation(fields: [team_id], references: [id])

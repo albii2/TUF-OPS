@@ -10,7 +10,7 @@ import { DetailFieldList } from "@/components/detail/detail-field-list";
 import { DetailField } from "@/components/detail/detail-field";
 import { OpportunityStageBadge } from "@/components/opportunities/opportunity-stage-badge";
 import { OpportunityHealthBadge } from "@/components/opportunities/opportunity-health-badge";
-import { OpportunityNextStepCard } from "@/components/opportunities/opportunity-next-step-card";
+import { OpportunityWorkflowForm } from "@/components/opportunities/opportunity-workflow-form";
 
 async function getOpportunity(id: string) {
     const opportunity = await prisma.opportunity.findUnique({
@@ -39,7 +39,6 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
     const createdLabel = opportunity.created_at?.toLocaleDateString() || "-";
     const updatedLabel = opportunity.updated_at?.toLocaleDateString() || "-";
 
-    // Create a workflow-compatible object for our helpers
     const workflowOpp = {
         stage: opportunity.stage,
         nextStep: opportunity.nextStep,
@@ -51,50 +50,37 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
         <>
           <PageHeader
             title={opportunity.name}
-            description={`Review the current state of this deal with ${organization.name}`}
+            description={`Review and update the current state of this deal with ${organization.name}`}
           />
    
-          <DetailPageShell>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
-                <DetailSummaryCard label="Stage" value={<OpportunityStageBadge stage={opportunity.stage} />} />
-                <DetailSummaryCard label="Health" value={<OpportunityHealthBadge {...workflowOpp} />} />
-                <DetailSummaryCard label="Value" value={formattedValue} />
-                <DetailSummaryCard label="Next Step Due" value={opportunity.nextStepDueDate?.toLocaleDateString() || "-"} />
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            <div className="col-span-1 lg:col-span-2">
+                <DetailPageShell>
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+                        <DetailSummaryCard label="Stage" value={<OpportunityStageBadge stage={opportunity.stage} />} />
+                        <DetailSummaryCard label="Health" value={<OpportunityHealthBadge {...workflowOpp} />} />
+                        <DetailSummaryCard label="Value" value={formattedValue} />
+                        <DetailSummaryCard label="Next Step Due" value={opportunity.nextStepDueDate?.toLocaleDateString() || "-"} />
+                    </div>
+
+                    <DetailSection title="Commercial Details">
+                        <DetailFieldList>
+                            <DetailField label="Value">{formattedValue}</DetailField>
+                            <DetailField label="Probability">{opportunity.probability ? `${opportunity.probability}%` : "-"}</DetailField>
+                        </DetailFieldList>
+                    </DetailSection>
+
+                    <DetailSection title="Organization">
+                        <Link href={`/organizations/${organization.id}`} className="font-semibold text-blue-600 hover:underline">
+                            {organization.name}
+                        </Link>
+                    </DetailSection>
+                </DetailPageShell>
             </div>
-
-            <OpportunityNextStepCard
-              nextStep={opportunity.nextStep}
-              nextStepDueDate={opportunity.nextStepDueDate}
-              ownerName={null} // Placeholder for now
-            />
-
-            <DetailSection title="Deal Status">
-              <DetailFieldList>
-                <DetailField label="Stage"><OpportunityStageBadge stage={opportunity.stage} /></DetailField>
-                <DetailField label="Health"><OpportunityHealthBadge {...workflowOpp} /></DetailField>
-                <DetailField label="Created">{createdLabel}</DetailField>
-                <DetailField label="Last Updated">{updatedLabel}</DetailField>
-              </DetailFieldList>
-            </DetailSection>
-   
-            <DetailSection title="Organization Relationship">
-              <DetailFieldList>
-                <DetailField label="Organization">
-                    <Link href={`/organizations/${organization.id}`} className="underline-offset-4 hover:underline">
-                      {organization.name}
-                    </Link>
-                </DetailField>
-              </DetailFieldList>
-            </DetailSection>
-   
-            <DetailSection title="Commercial Details">
-              <DetailFieldList>
-                <DetailField label="Value">{formattedValue}</DetailField>
-                <DetailField label="Probability">{opportunity.probability ? `${opportunity.probability}%` : "-"}</DetailField>
-              </DetailFieldList>
-            </DetailSection>
-
-          </DetailPageShell>
+            <div className="col-span-1">
+                <OpportunityWorkflowForm opportunity={opportunity} />
+            </div>
+          </div>
         </>
       );
 }
