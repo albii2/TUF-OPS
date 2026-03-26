@@ -4,9 +4,9 @@ import { NewOrganizationForm } from "@/components/organizations/new-organization
 export default function NewOrganizationPage() {
   return (
     <div className="space-y-6">
-      <PageHeader
+      <PageHeader 
         title="New Organization"
-        description="Create a new organization record for a school, team, or account."
+        description="Create a new school, team, or institutional account."
       />
       <NewOrganizationForm />
     </div>

@@ -1,22 +1,56 @@
-"use server";
+'use server'
 
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
+import { prisma } from '@/lib/prisma'
+import { z } from 'zod'
 
-export async function createOpportunity(formData: FormData) {
-  const data = {
-    name: formData.get("name") as string,
-    organization_id: parseInt(formData.get("organizationId") as string, 10),
-    stage: formData.get("stage") as string,
-    estimated_value: parseFloat(formData.get("estimatedValue") as string),
-    probability: parseInt(formData.get("probability") as string, 10),
-  };
+const FormSchema = z.object({
+    id: z.string(),
+    name: z.string().min(3, { message: 'Must be 3 or more characters long' }),
+    organization_id: z.coerce.number(),
+    stage: z.string(),
+    estimated_value: z.coerce.number(),
+    probability: z.coerce.number(),
+});
 
-  // In a real app, you would add validation here (e.g., with Zod)
+const CreateOpportunity = FormSchema.omit({ id: true });
 
-  await prisma.opportunity.create({ data });
+export type State = {
+    errors?: {
+      name?: string[];
+      organization_id?: string[];
+      // add other fields as necessary
+    };
+    message?: string | null;
+};
 
-  revalidatePath("/opportunities");
-  redirect("/opportunities");
+export async function createOpportunity(prevState: State, formData: FormData) {
+    const validatedFields = CreateOpportunity.safeParse({
+        name: formData.get('name'),
+        organization_id: formData.get('organizationId'),
+        stage: formData.get('stage'),
+        estimated_value: formData.get('estimatedValue'),
+        probability: formData.get('probability'),
+    });
+
+    if (!validatedFields.success) {
+        return {
+          errors: validatedFields.error.flatten().fieldErrors,
+          message: 'Missing Fields. Failed to Create Opportunity.',
+        };
+    }
+
+    try {
+        await prisma.opportunity.create({
+            data: validatedFields.data,
+        });
+    } catch (error) {
+        return {
+            message: 'Database Error: Failed to Create Opportunity.',
+        };
+    }
+
+    revalidatePath('/opportunities');
+    redirect('/opportunities');
 }
