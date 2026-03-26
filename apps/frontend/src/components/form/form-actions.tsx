@@ -1,19 +1,19 @@
 import { Button } from "@/components/ui/button";
 
 export function FormActions({ 
-  isSubmitting, 
-  submitLabel = "Save", 
+  isPending, 
+  submitLabel = "Save Changes", 
 }: { 
-  isSubmitting?: boolean; 
+  isPending?: boolean; 
   submitLabel?: string; 
 }) {
   return (
     <div className="flex justify-end">
       <Button
         type="submit"
-        disabled={isSubmitting}
+        disabled={isPending}
       >
-        {isSubmitting ? "Saving..." : submitLabel}
+        {isPending ? "Saving..." : submitLabel}
       </Button>
     </div>
   );
