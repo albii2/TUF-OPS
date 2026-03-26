@@ -1,22 +1,22 @@
-"use server";
-
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { OrganizationStatus } from "@prisma/client";
 
-export async function updateOrganizationOwner(input: {
+type UpdateOrganizationInput = {
   id: number;
+  name: string;
+  status: OrganizationStatus;
   ownerId?: number | null;
-}) {
-  const updated = await prisma.organization.update({
+  zohoAccountId?: string | null;
+};
+
+export async function updateOrganization(input: UpdateOrganizationInput) {
+  return prisma.organization.update({
     where: { id: input.id },
     data: {
-      ownerId: input.ownerId,
+      name: input.name,
+      status: input.status,
+      ownerId: input.ownerId ?? null,
+      zoho_account_id: input.zohoAccountId ?? null,
     },
   });
-
-  revalidatePath(`/organizations/${input.id}`);
-  revalidatePath("/organizations");
-  revalidatePath("/dashboard");
-
-  return updated;
 }

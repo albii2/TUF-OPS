@@ -1,14 +1,23 @@
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+
+// We are using this to ensure we are always fetching the same data shape
+const organizationWithIncludes = {
+    include: { opportunities: true, owner: true },
+};
+
+export async function getOrganizations() {
+  return await prisma.organization.findMany(organizationWithIncludes);
+}
 
 export async function getOrganization(id: number) {
     const organization = await prisma.organization.findUnique({
         where: { id },
-        include: { opportunities: true, owner: true },
+        ...organizationWithIncludes,
     });
     
     if (!organization) {
-        notFound();
+        // Adhering to the 'return null' contract for not found records
+        return null;
     }
     return organization;
 }
