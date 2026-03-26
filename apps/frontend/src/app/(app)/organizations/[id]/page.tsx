@@ -1,5 +1,3 @@
-import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { DetailPageShell } from "@/components/detail/detail-page-shell";
 import { DetailSection } from "@/components/detail/detail-section";
@@ -9,18 +7,7 @@ import Link from "next/link";
 import { getAssignableUsers } from "@/lib/users/queries";
 import { OrganizationOwnerCard } from "@/components/organizations/organization-owner-card";
 import { OwnerBadge } from "@/components/shared/owner-badge";
-
-async function getOrganization(id: number) {
-  const organization = await prisma.organization.findUnique({
-    where: { id },
-    include: { opportunities: true, owner: true },
-  });
-
-  if (!organization) {
-    throw notFound();
-  }
-  return organization;
-}
+import { getOrganization } from "@/lib/organizations/queries";
 
 export default async function OrganizationDetailsPage({ params }: { params: { id: string } }) {
   const organization = await getOrganization(parseInt(params.id, 10));
