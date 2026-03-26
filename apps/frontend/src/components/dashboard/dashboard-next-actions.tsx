@@ -1,6 +1,7 @@
 import { NextAction } from "@/types/dashboard";
 import { DashboardSectionCard } from "./dashboard-section-card";
 import { DashboardActionItem } from "./dashboard-action-item";
+import { EmptyState } from "@/components/state/empty-state";
 
 export function DashboardNextActions({ actions }: { actions: NextAction[] }) {
   return (
@@ -12,7 +13,10 @@ export function DashboardNextActions({ actions }: { actions: NextAction[] }) {
           ))}
         </div>
       ) : (
-        <p className="text-sm text-muted-foreground">No immediate actions required. Well done!</p>
+        <EmptyState
+          title="No immediate actions"
+          description="Your owned pipeline is clear right now."
+        />
       )}
     </DashboardSectionCard>
   );

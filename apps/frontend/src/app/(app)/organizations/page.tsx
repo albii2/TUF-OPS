@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { DataTable } from "@/components/data-table/data-table";
 import { columns } from "@/components/organizations/columns";
 import { Organization } from "@prisma/client";
+import { EmptyListState } from "@/components/state/empty-list-state";
 
 export type OrganizationWithOwner = Organization & { owner: { name: string | null } | null };
 
@@ -16,6 +17,26 @@ async function getOrganizations(): Promise<OrganizationWithOwner[]> {
 
 export default async function OrganizationsPage() {
   const organizations = await getOrganizations();
+
+  if (organizations.length === 0) {
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title="Organizations"
+                description="Manage schools, teams, and institutional accounts."
+            />
+            <EmptyListState
+                resourceName="Organizations"
+                description="Create your first organization to start tracking schools, teams, and accounts."
+                action={
+                    <Button asChild>
+                    <Link href="/organizations/new">New Organization</Link>
+                    </Button>
+                }
+            />
+        </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

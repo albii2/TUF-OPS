@@ -17,7 +17,7 @@ async function getOrganization(id: number) {
   });
 
   if (!organization) {
-    notFound();
+    throw notFound();
   }
   return organization;
 }

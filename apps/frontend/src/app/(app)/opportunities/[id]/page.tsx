@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
-
 import { PageHeader } from "@/components/ui/page-header";
 import { DetailPageShell } from "@/components/detail/detail-page-shell";
 import { DetailSummaryCard } from "@/components/detail/detail-summary-card";
@@ -14,18 +11,7 @@ import { OpportunityWorkflowForm } from "@/components/opportunities/opportunity-
 import { getAssignableUsers } from "@/lib/users/queries";
 import { OpportunityOwnerCard } from "@/components/opportunities/opportunity-owner-card";
 import { OwnerBadge } from "@/components/shared/owner-badge";
-
-async function getOpportunity(id: string) {
-    const opportunity = await prisma.opportunity.findUnique({
-      where: { id: parseInt(id, 10) },
-      include: { organization: true, owner: true },
-    });
-  
-    if (!opportunity || !opportunity.organization) {
-      notFound();
-    }
-    return opportunity;
-}
+import { getOpportunity } from "@/lib/opportunities/queries";
 
 export default async function OpportunityDetailPage({ params }: { params: { id: string } }) {
     const opportunity = await getOpportunity(params.id);
