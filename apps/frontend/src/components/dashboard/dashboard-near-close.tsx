@@ -2,7 +2,7 @@ import { DealNearClose } from "@/types/dashboard";
 import { DashboardSectionCard } from "./dashboard-section-card";
 import { EmptyState } from "@/components/state/empty-state";
 
-export function DashboardDealsNearClose({ deals }: { deals: DealNearClose[] }) {
+export function DashboardNearClose({ deals }: { deals: DealNearClose[] }) {
   return (
     <DashboardSectionCard title="Deals Near Close">
       {deals.length > 0 ? (
