@@ -11,11 +11,14 @@ import { DetailField } from "@/components/detail/detail-field";
 import { OpportunityStageBadge } from "@/components/opportunities/opportunity-stage-badge";
 import { OpportunityHealthBadge } from "@/components/opportunities/opportunity-health-badge";
 import { OpportunityWorkflowForm } from "@/components/opportunities/opportunity-workflow-form";
+import { getAssignableUsers } from "@/lib/users/queries";
+import { OpportunityOwnerCard } from "@/components/opportunities/opportunity-owner-card";
+import { OwnerBadge } from "@/components/shared/owner-badge";
 
 async function getOpportunity(id: string) {
     const opportunity = await prisma.opportunity.findUnique({
       where: { id: parseInt(id, 10) },
-      include: { organization: true },
+      include: { organization: true, owner: true },
     });
   
     if (!opportunity || !opportunity.organization) {
@@ -27,6 +30,7 @@ async function getOpportunity(id: string) {
 export default async function OpportunityDetailPage({ params }: { params: { id: string } }) {
     const opportunity = await getOpportunity(params.id);
     const { organization } = opportunity;
+    const users = await getAssignableUsers();
 
     const estimatedValue = opportunity.estimated_value ? Number(opportunity.estimated_value) : 0;
 
@@ -60,7 +64,7 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
                         <DetailSummaryCard label="Stage" value={<OpportunityStageBadge stage={opportunity.stage} />} />
                         <DetailSummaryCard label="Health" value={<OpportunityHealthBadge {...workflowOpp} />} />
                         <DetailSummaryCard label="Value" value={formattedValue} />
-                        <DetailSummaryCard label="Next Step Due" value={opportunity.nextStepDueDate?.toLocaleDateString() || "-"} />
+                        <DetailSummaryCard label="Owner" value={<OwnerBadge ownerName={opportunity.owner?.name} />} />
                     </div>
 
                     <DetailSection title="Commercial Details">
@@ -77,8 +81,9 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
                     </DetailSection>
                 </DetailPageShell>
             </div>
-            <div className="col-span-1">
+            <div className="col-span-1 space-y-6">
                 <OpportunityWorkflowForm opportunity={opportunity} />
+                <OpportunityOwnerCard opportunity={opportunity} users={users} />
             </div>
           </div>
         </>

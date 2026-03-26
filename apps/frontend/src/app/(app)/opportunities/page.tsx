@@ -7,8 +7,10 @@ import { DataTable } from "@/components/data-table/data-table";
 import { columns } from "@/components/opportunities/columns";
 import { Opportunity } from "@prisma/client";
 
-async function getOpportunities() {
-  return await prisma.opportunity.findMany();
+export type OpportunityWithOwner = Opportunity & { owner: { name: string | null } | null };
+
+async function getOpportunities(): Promise<OpportunityWithOwner[]> {
+  return await prisma.opportunity.findMany({ include: { owner: true } });
 }
 
 export default async function OpportunitiesPage() {
@@ -28,7 +30,7 @@ export default async function OpportunitiesPage() {
         }
       />
       <DataTable 
-        columns={columns} 
+        columns={columns}
         data={opportunities} 
         rowHrefPrefix="/opportunities/"
       />

@@ -1,59 +1,57 @@
-import bcrypt from "bcryptjs"
-import { prisma } from "@/lib/prisma"
+const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
+
+const prisma = new PrismaClient();
 
 async function main() {
   console.log("Starting seed...");
 
-  // Teardown in reverse order of dependency
   console.log("Deleting existing data...");
-  await prisma.repActivity.deleteMany({});
-  await prisma.opportunityNote.deleteMany({});
-  await prisma.invoice.deleteMany({});
-  await prisma.uniformOrderLine.deleteMany({});
-  await prisma.rosterRow.deleteMany({});
-  await prisma.rosterUpload.deleteMany({});
-  await prisma.uniformOrder.deleteMany({});
-  await prisma.mockupVersion.deleteMany({});
-  await prisma.mockup.deleteMany({});
-  await prisma.sampleRequest.deleteMany({});
-  await prisma.storeProductPricing.deleteMany({});
-  await prisma.fundraisingPayout.deleteMany({});
-  await prisma.teamStore.deleteMany({});
-  await prisma.orderItem.deleteMany({});
-  await prisma.order.deleteMany({});
-  await prisma.ordersRaw.deleteMany({});
-  await prisma.teamAsset.deleteMany({});
   await prisma.opportunity.deleteMany({});
-  await prisma.team.deleteMany({});
-  await prisma.contact.deleteMany({});
   await prisma.organization.deleteMany({});
   await prisma.user.deleteMany({});
-  console.log("Finished deleting data.");
 
-  // Seed one clean admin user
-  console.log("Seeding admin user...");
-  const email = "admin@tufops.com"
-  const plainPassword = "admin123"
-  const password_hash = await bcrypt.hash(plainPassword, 10)
-
-  await prisma.user.create({
+  console.log("Creating user...");
+  const hashedPassword = await bcrypt.hash("admin123", 10);
+  const user = await prisma.user.create({
     data: {
-      email,
-      password_hash,
-      full_name: "TUF Admin",
+      email: "admin@tufops.com",
+      password_hash: hashedPassword,
+      name: "Admin User",
       role: "admin",
     },
-  })
+  });
 
-  console.log(`Seeded 1 admin user: ${email}`)
+  console.log("Creating organization...");
+  const organization = await prisma.organization.create({
+    data: {
+      name: "Test Organization",
+      ownerId: user.id,
+    },
+  });
+
+  console.log("Creating opportunity...");
+  await prisma.opportunity.create({
+    data: {
+      organization_id: organization.id,
+      name: "Test Opportunity",
+      stage: "discovery",
+      ownerId: user.id,
+      estimated_value: 10000,
+      probability: 50,
+      nextStep: "Follow up call",
+      nextStepDueDate: new Date(),
+    },
+  });
+
   console.log("Seed finished.");
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

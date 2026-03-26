@@ -7,9 +7,11 @@ import { DataTable } from "@/components/data-table/data-table";
 import { columns } from "@/components/organizations/columns";
 import { Organization } from "@prisma/client";
 
-async function getOrganizations() {
+export type OrganizationWithOwner = Organization & { owner: { name: string | null } | null };
+
+async function getOrganizations(): Promise<OrganizationWithOwner[]> {
   // For now, we fetch all. Later, this will be paginated.
-  return await prisma.organization.findMany();
+  return await prisma.organization.findMany({ include: { owner: true } });
 }
 
 export default async function OrganizationsPage() {
@@ -29,7 +31,7 @@ export default async function OrganizationsPage() {
         }
       />
       <DataTable 
-        columns={columns} 
+        columns={columns}
         data={organizations} 
         rowHrefPrefix="/organizations/"
       />

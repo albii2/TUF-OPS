@@ -8,7 +8,6 @@ export async function updateOpportunityWorkflow(data: UpdateOpportunityWorkflowD
   const validation = UpdateOpportunityWorkflowSchema.safeParse(data);
 
   if (!validation.success) {
-    // In a real app, you'd return a structured error
     throw new Error("Invalid input.");
   }
 
@@ -20,14 +19,30 @@ export async function updateOpportunityWorkflow(data: UpdateOpportunityWorkflowD
       data: workflowData,
     });
 
-    // Revalidate the path to show the updated data immediately
     revalidatePath(`/opportunities/${id}`);
 
     return { success: true };
 
   } catch (error) {
     console.error("Failed to update opportunity workflow:", error);
-    // In a real app, you'd return a structured error
     throw new Error("Database operation failed.");
   }
 }
+
+export async function updateOpportunityOwner(input: {
+    id: number;
+    ownerId?: number | null;
+  }) {
+    const updated = await prisma.opportunity.update({
+      where: { id: input.id },
+      data: {
+        ownerId: input.ownerId,
+      },
+    });
+  
+    revalidatePath(`/opportunities/${input.id}`);
+    revalidatePath("/opportunities");
+    revalidatePath("/dashboard");
+
+    return updated;
+  }

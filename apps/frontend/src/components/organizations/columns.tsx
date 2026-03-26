@@ -3,8 +3,9 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Organization } from "@prisma/client";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { OwnerBadge } from "@/components/shared/owner-badge";
 
-export const columns: ColumnDef<Organization>[] = [
+export const columns: ColumnDef<Organization & { owner: { name: string | null } | null }>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -12,9 +13,10 @@ export const columns: ColumnDef<Organization>[] = [
     ),
   },
   {
-    accessorKey: "zoho_account_id",
+    accessorKey: "owner",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Zoho ID" />
+      <DataTableColumnHeader column={column} title="Owner" />
     ),
+    cell: ({ row }) => <OwnerBadge ownerName={row.original.owner?.name} />,
   },
 ];

@@ -1,4 +1,4 @@
-import { Opportunity } from "@prisma/client";
+import { Opportunity, User } from "@prisma/client";
 import { 
   DashboardData,
   FocusMetric,
@@ -13,20 +13,22 @@ import {
     isNextStepOverdue
 } from "@/lib/workflow/opportunity-workflow";
 
-export function selectFocusMetrics(opportunities: Opportunity[]): FocusMetric[] {
-  const dealsNeedAction = opportunities.filter(opp => needsOpportunityAction(opp)).length;
-  const nearClose = opportunities.filter(opp => ["invoice_ready", "invoice_sent", "awaiting_approval"].includes(opp.stage || "")).length;
-  const paymentsPending = opportunities.filter(opp => opp.stage === "payment_pending").length;
+export function selectFocusMetrics(opportunities: Opportunity[], user: User | null): FocusMetric[] {
+  const myOpps = opportunities.filter(opp => opp.ownerId === user?.id);
+  const dealsNeedAction = myOpps.filter(opp => needsOpportunityAction(opp)).length;
+  const nearClose = myOpps.filter(opp => ["invoice_ready", "invoice_sent", "awaiting_approval"].includes(opp.stage || "")).length;
+  const paymentsPending = myOpps.filter(opp => opp.stage === "payment_pending").length;
 
   return [
-    { label: "Deals Need Action", value: dealsNeedAction },
-    { label: "Near Close", value: nearClose },
-    { label: "Payments Pending", value: paymentsPending },
+    { label: "My Deals Need Action", value: dealsNeedAction },
+    { label: "My Deals Near Close", value: nearClose },
+    { label: "My Payments Pending", value: paymentsPending },
   ];
 }
 
-export function selectNextActions(opportunities: Opportunity[]): NextAction[] {
-    const actions = opportunities
+export function selectNextActions(opportunities: (Opportunity & { organization: { name: string } | null})[], user: User | null): NextAction[] {
+    const myOpps = opportunities.filter(opp => opp.ownerId === user?.id);
+    const actions = myOpps
         .filter(opp => needsOpportunityAction({
             stage: opp.stage,
             nextStep: opp.nextStep,
@@ -43,7 +45,6 @@ export function selectNextActions(opportunities: Opportunity[]): NextAction[] {
         .map(opp => ({
             id: opp.id.toString(),
             opportunityName: opp.name,
-            // @ts-ignore - Prisma types are not perfect here
             organizationName: opp.organization?.name || "-",
             description: opp.nextStep || "Define next step",
             dueDate: opp.nextStepDueDate || new Date(),
@@ -53,7 +54,7 @@ export function selectNextActions(opportunities: Opportunity[]): NextAction[] {
   return actions;
 }
 
-export function selectPipelineSnapshot(opportunities: Opportunity[]): PipelineStageSummary[] {
+export function selectPipelineSnapshot(opportunities: Opportunity[], user: User | null): PipelineStageSummary[] {
   // Placeholder logic remains for now
   return [
     { stage: "Contacted", count: 42, totalValue: 42000 },
@@ -63,7 +64,7 @@ export function selectPipelineSnapshot(opportunities: Opportunity[]): PipelineSt
   ];
 }
 
-export function selectRevenueSummary(opportunities: Opportunity[]): RevenueSummary {
+export function selectRevenueSummary(opportunities: Opportunity[], user: User | null): RevenueSummary {
   // Placeholder logic remains for now
   return {
     total: 38400,
@@ -72,20 +73,20 @@ export function selectRevenueSummary(opportunities: Opportunity[]): RevenueSumma
   };
 }
 
-export function selectDealsNearClose(opportunities: Opportunity[]): DealNearClose[] {
-    return opportunities
+export function selectDealsNearClose(opportunities: (Opportunity & { organization: { name: string } | null})[], user: User | null): DealNearClose[] {
+    const myOpps = opportunities.filter(opp => opp.ownerId === user?.id);
+    return myOpps
         .filter(opp => ["invoice_ready", "invoice_sent", "awaiting_approval"].includes(opp.stage || ""))
         .map(opp => ({
             id: opp.id.toString(),
             opportunityName: opp.name,
-            // @ts-ignore
             organizationName: opp.organization?.name || "-",
             value: opp.estimated_value ? Number(opp.estimated_value) : 0,
             closingDate: opp.close_date || new Date(),
         }));
 }
 
-export function selectRecentActivity(opportunities: Opportunity[]): RecentActivity[] {
+export function selectRecentActivity(opportunities: Opportunity[], user: User | null): RecentActivity[] {
   // Placeholder logic remains for now
   return [
     { id: "1", type: "invoice", description: "You sent invoice", timestamp: new Date(), link: "/invoices/1" },

@@ -7,16 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-const TUF_STAGES = [
-  'Prospect',
-  'Engage',
-  'Design the Win',
-  'Prove the Gear',
-  'Invoice & Secure Payment',
-  'Commit to the Team',
-  'Execute the Order',
-  'Expand the Program'
-]
+import { OPPORTUNITY_STAGES, OPPORTUNITY_STAGE_LABELS } from "@/lib/workflow/opportunity-stages";
 
 interface Organization {
   id: number
@@ -25,7 +16,7 @@ interface Organization {
 
 export function NewOpportunityForm({ organizations }: { organizations: Organization[] }) {
   const [name, setName] = useState('')
-  const [stage, setStage] = useState('Prospect')
+  const [stage, setStage] = useState(OPPORTUNITY_STAGES[0])
   const [estimatedValue, setEstimatedValue] = useState('')
   const [probability, setProbability] = useState('')
   const [organizationId, setOrganizationId] = useState<number | null>(null)
@@ -101,8 +92,8 @@ export function NewOpportunityForm({ organizations }: { organizations: Organizat
             <SelectValue placeholder="Select a stage" />
           </SelectTrigger>
           <SelectContent>
-            {TUF_STAGES.map(s => (
-              <SelectItem key={s} value={s}>{s}</SelectItem>
+            {OPPORTUNITY_STAGES.map(s => (
+              <SelectItem key={s} value={s}>{OPPORTUNITY_STAGE_LABELS[s]}</SelectItem>
             ))}
           </SelectContent>
         </Select>

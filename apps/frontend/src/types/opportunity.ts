@@ -1,4 +1,5 @@
 import type { OpportunityStage } from "@/lib/workflow/opportunity-stages";
+import type { AppUserRecord } from "./user";
 
 export type OpportunityRecord = {
   id: string;
@@ -11,4 +12,6 @@ export type OpportunityRecord = {
   createdAt?: string | Date | null;
   organizationId?: string | null;
   organizationName?: string | null;
+  ownerId?: string | null;
+  owner?: AppUserRecord | null;
 };
