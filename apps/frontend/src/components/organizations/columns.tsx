@@ -1,18 +1,27 @@
-"use client";
+'use client'
 
-import { ColumnDef } from "@tanstack/react-table";
-import { Organization } from "@prisma/client";
+import { ColumnDef } from "@tanstack/react-table"
 import { OrganizationWithOwner } from "@/app/(app)/organizations/page";
 import { OrganizationStatusBadge } from "./organization-status-badge";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import Link from "next/link";
 
 export const columns: ColumnDef<OrganizationWithOwner>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+    ),
+    cell: ({ row }) => {
+        const org = row.original;
+        return <Link href={`/organizations/${org.id}`} className="font-semibold hover:underline">{org.name}</Link>
+    }
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+    ),
     cell: ({ row }) => {
         const org = row.original;
         return <OrganizationStatusBadge status={org.status} />;
