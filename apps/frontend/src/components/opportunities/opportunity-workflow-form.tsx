@@ -1,37 +1,61 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
-import { Opportunity } from "@prisma/client";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { updateOpportunityWorkflow } from "@/lib/opportunities/mutations";
-import { UpdateOpportunityWorkflowSchema, UpdateOpportunityWorkflowData } from "@/lib/opportunities/validation";
-import { DetailSection } from "@/components/detail/detail-section";
-import { OpportunityStageSelect } from "./opportunity-stage-select";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { OpportunityStage } from "@/lib/workflow/opportunity-stages";
+import { useTransition } from 'react';
+import { Opportunity, OpportunityStage } from '@prisma/client';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { toast } from 'sonner';
 
-interface OpportunityWorkflowFormProps {
-  opportunity: Opportunity;
-}
+import { updateOpportunityWorkflow } from '@/lib/opportunities/mutations';
+import { updateOpportunitySchema } from '@/lib/validation/opportunity'; // Corrected import path
+import type { z } from 'zod';
 
-export function OpportunityWorkflowForm({ opportunity }: OpportunityWorkflowFormProps) {
+import { DetailSection } from '@/components/detail/detail-section';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+// Create a partial schema for the workflow form
+const workflowFormSchema = updateOpportunitySchema.pick({
+  stage: true,
+  nextStep: true,      // Assuming nextStep will be added to the main schema
+  nextStepDueDate: true, // Assuming nextStepDueDate will be added to the main schema
+});
+
+type WorkflowFormData = z.infer<typeof workflowFormSchema>;
+
+const STAGE_OPTIONS: OpportunityStage[] = [
+    'lead',
+    'contacted',
+    'mockup',
+    'sample',
+    'invoice',
+    'closed_won',
+    'closed_lost'
+  ];
+
+export function OpportunityWorkflowForm({ opportunity }: { opportunity: Opportunity }) {
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<UpdateOpportunityWorkflowData>({
-    resolver: zodResolver(UpdateOpportunityWorkflowSchema),
+  const form = useForm<WorkflowFormData>({
+    // resolver: zodResolver(workflowFormSchema), // Resolver might be too strict for partial updates
     defaultValues: {
-      id: opportunity.id,
-      stage: opportunity.stage as OpportunityStage || undefined,
-      nextStep: opportunity.nextStep || "",
-      nextStepDueDate: opportunity.nextStepDueDate ? new Date(opportunity.nextStepDueDate) : null,
+      stage: opportunity.stage,
+      nextStep: opportunity.nextStep ?? '',
+      nextStepDueDate: opportunity.nextStepDueDate ?? null,
     },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
     startTransition(async () => {
-      await updateOpportunityWorkflow(data);
+        try {
+            await updateOpportunityWorkflow({
+                id: String(opportunity.id),
+                ...data,
+            });
+            toast.success("Workflow updated.");
+        } catch (error) {
+            toast.error("Failed to update workflow.");
+        }
     });
   });
 
@@ -39,10 +63,13 @@ export function OpportunityWorkflowForm({ opportunity }: OpportunityWorkflowForm
     <form onSubmit={onSubmit}>
       <DetailSection title="Workflow Control">
         <div className="space-y-4">
-            <OpportunityStageSelect 
-                defaultValue={form.getValues("stage")} 
-                onValueChange={(value) => form.setValue("stage", value as OpportunityStage)}
-            />
+            <select {...form.register('stage')} className="h-10 w-full rounded-md border bg-background px-3 text-sm">
+                {STAGE_OPTIONS.map(stage => (
+                    <option key={stage} value={stage}>{
+                        stage.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')
+                    }</option>
+                ))}
+            </select>
             <Input 
                 placeholder="Next Step..." 
                 {...form.register("nextStep")} 

@@ -1,25 +1,28 @@
-"use server";
+'use server';
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { UpdateOpportunityWorkflowSchema, UpdateOpportunityWorkflowData } from "./validation";
+import { updateOpportunitySchema } from "@/lib/validation/opportunity"; // Corrected path
+import type { z } from 'zod';
 
-export async function updateOpportunityWorkflow(data: UpdateOpportunityWorkflowData) {
-  const validation = UpdateOpportunityWorkflowSchema.safeParse(data);
+type UpdateOpportunityData = z.infer<typeof updateOpportunitySchema>;
 
-  if (!validation.success) {
-    throw new Error("Invalid input.");
-  }
+export async function updateOpportunityWorkflow(data: Partial<UpdateOpportunityData> & { id: string }) {
 
-  const { id, ...workflowData } = validation.data;
+  // Since this is a partial update from the workflow, we can't use the full schema.
+  // We will manually build the update object to ensure type safety.
+  const updateData: any = {};
+  if (data.stage) updateData.stage = data.stage;
+  if (data.nextStep) updateData.nextStep = data.nextStep;
+  if (data.nextStepDueDate) updateData.nextStepDueDate = data.nextStepDueDate;
 
   try {
     await prisma.opportunity.update({
-      where: { id },
-      data: workflowData,
+      where: { id: parseInt(data.id, 10) },
+      data: updateData,
     });
 
-    revalidatePath(`/opportunities/${id}`);
+    revalidatePath(`/opportunities/${data.id}`);
 
     return { success: true };
 

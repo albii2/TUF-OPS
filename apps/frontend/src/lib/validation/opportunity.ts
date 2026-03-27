@@ -14,5 +14,7 @@ export const updateOpportunitySchema = z.object({
     'closed_lost'
   ]),
   estimatedValue: z.number().min(0), // Changed from expectedValue
-  closeDate: z.date().nullable().optional()
+  closeDate: z.date().nullable().optional(),
+  nextStep: z.string().nullable().optional(),
+  nextStepDueDate: z.date().nullable().optional(),
 });
