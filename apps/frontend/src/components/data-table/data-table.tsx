@@ -6,8 +6,11 @@ import {
   ColumnDef,
   ColumnFiltersState,
   SortingState,
+  VisibilityState,
   flexRender,
   getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -24,38 +27,46 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  rowHrefPrefix: string
   searchKey: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  rowHrefPrefix,
   searchKey,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [rowSelection, setRowSelection] = React.useState({})
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    getFilteredRowModel: getFilteredRowModel(),
     state: {
       sorting,
+      columnVisibility,
+      rowSelection,
       columnFilters,
     },
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
   return (
@@ -87,8 +98,6 @@ export function DataTable<TData, TValue>({
                     <TableRow
                         key={row.id}
                         data-state={row.getIsSelected() && "selected"}
-                        onClick={() => router.push(`${rowHrefPrefix}${(row.original as any).id}`)}
-                        className="cursor-pointer"
                     >
                         {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
@@ -107,6 +116,7 @@ export function DataTable<TData, TValue>({
                 </TableBody>
             </Table>
         </div>
+        <DataTablePagination table={table} />
     </div>
   )
 }
