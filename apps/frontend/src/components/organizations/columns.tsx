@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { OrganizationWithOwner } from "@/app/(app)/organizations/page";
 import { OrganizationStatusBadge } from "./organization-status-badge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import Link from "next/link";
+import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 
 export const columns: ColumnDef<OrganizationWithOwner>[] = [
   {
@@ -13,8 +13,7 @@ export const columns: ColumnDef<OrganizationWithOwner>[] = [
         <DataTableColumnHeader column={column} title="Name" />
     ),
     cell: ({ row }) => {
-        const org = row.original;
-        return <Link href={`/organizations/${org.id}`} className="font-semibold hover:underline">{org.name}</Link>
+        return <div>{row.getValue("name")}</div>
     }
   },
   {
@@ -34,5 +33,15 @@ export const columns: ColumnDef<OrganizationWithOwner>[] = [
       const org = row.original;
       return org.owner?.name ?? <span className="text-muted-foreground">-</span>;
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <DataTableRowActions 
+        row={row} 
+        viewHref={`/organizations/${row.original.id}`}
+        editHref={`/organizations/${row.original.id}/edit`}
+      />
+    ),
   },
 ];

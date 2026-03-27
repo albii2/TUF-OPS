@@ -5,6 +5,7 @@ import { Opportunity } from "@/lib/types/opportunity";
 import { OpportunityWithOwner } from "@/app/(app)/opportunities/page";
 import { StageBadge } from "./StageBadge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import Link from "next/link";
 
 export const columns: ColumnDef<OpportunityWithOwner>[] = [
@@ -14,8 +15,7 @@ export const columns: ColumnDef<OpportunityWithOwner>[] = [
         <DataTableColumnHeader column={column} title="Name" />
     ),
     cell: ({ row }) => {
-        const opp = row.original;
-        return <Link href={`/opportunities/${opp.id}`} className="font-semibold hover:underline">{opp.name}</Link>
+        return <div>{row.getValue("name")}</div>
     }
   },
   {
@@ -61,5 +61,15 @@ export const columns: ColumnDef<OpportunityWithOwner>[] = [
       }).format(Number(opp.estimated_value));
       return formattedValue;
     },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <DataTableRowActions 
+        row={row} 
+        viewHref={`/opportunities/${row.original.id}`}
+        editHref={`/opportunities/${row.original.id}/edit`}
+      />
+    ),
   },
 ];

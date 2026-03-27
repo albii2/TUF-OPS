@@ -63,7 +63,6 @@ export default function OpportunitiesPage() {
       <DataTable 
         columns={columns}
         data={opportunities} 
-        rowHrefPrefix="/opportunities/"
         searchKey="name"
       />
     </div>
