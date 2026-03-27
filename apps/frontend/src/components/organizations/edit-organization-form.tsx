@@ -10,7 +10,7 @@ import type { Organization, User } from "@prisma/client";
 import { updateOrganizationSchema } from "@/lib/organizations/validation";
 import type { z } from "zod";
 
-import { updateOrganizationAction } from "./actions";
+import { updateOrganizationAction } from "@/app/(app)/organizations/[id]/actions";
 import { FormShell } from "@/components/form/form-shell";
 import { FormSection } from "@/components/form/form-section";
 import { FormField } from "@/components/form/form-field";
