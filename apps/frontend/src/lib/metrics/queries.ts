@@ -3,6 +3,56 @@
 import { prisma } from "@/lib/prisma";
 import { subDays } from "date-fns";
 
+export async function getMyDashboardMetrics(userId: number) {
+    const whereClause = { ownerId: userId, stage: { notIn: ['closed_won', 'closed_lost'] } };
+
+    const myOppCounts = await prisma.opportunity.aggregate({
+        where: whereClause,
+        _count: {
+            id: true,
+        },
+    });
+
+    const thirtyDaysAgo = subDays(new Date(), 30);
+    const myStaleCount = await prisma.opportunity.count({
+        where: {
+            ...whereClause,
+            updated_at: { 
+                lt: thirtyDaysAgo 
+            },
+        },
+    });
+
+    const myMissingNextStepCount = await prisma.opportunity.count({
+        where: {
+            ...whereClause,
+            nextStep: null,
+        }
+    });
+
+    const myOverdueNextStepCount = await prisma.opportunity.count({
+        where: {
+            ...whereClause,
+            nextStepDueDate: { 
+                lt: new Date() 
+            },
+        }
+    });
+    
+    const myOrgCount = await prisma.organization.count({
+        where: { ownerId: userId },
+    });
+
+    return {
+        myOppCount: myOppCounts._count.id,
+        myStaleCount,
+        myMissingNextStepCount,
+        myOverdueNextStepCount,
+        myOrgCount,
+    };
+}
+
+// The global getDashboardMetrics function remains unchanged below
 export async function getDashboardMetrics() {
     const orgCounts = await prisma.organization.groupBy({
         by: ['status'],
