@@ -12,6 +12,7 @@ import { OrganizationOwnerCard } from "@/components/organizations/organization-o
 import { OwnerBadge } from "@/components/shared/owner-badge";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
 import { OrganizationStatusBadge } from "@/components/organizations/organization-status-badge";
+import { OrganizationOpportunitiesList } from "@/components/organizations/OrganizationOpportunitiesList";
 
 export default async function OrganizationDetailsPage({ params }: { params: { id: string } }) {
   const organization = await getOrganization(parseInt(params.id, 10));
@@ -52,19 +53,7 @@ export default async function OrganizationDetailsPage({ params }: { params: { id
                 </DetailSection>
 
                 <DetailSection title={`Linked Opportunities (${organization.opportunities.length})`}>
-                    {organization.opportunities.length > 0 ? (
-                    <ul className="space-y-2">
-                        {organization.opportunities.map(opp => (
-                        <li key={opp.id} className="rounded-md p-3 hover:bg-muted">
-                            <Link href={`/opportunities/${opp.id}`} className="font-semibold">
-                            {opp.name}
-                            </Link>
-                        </li>
-                        ))}
-                    </ul>
-                    ) : (
-                    <p className="text-sm text-muted-foreground">No opportunities are linked to this organization.</p>
-                    )}
+                    <OrganizationOpportunitiesList opportunities={organization.opportunities} />
                 </DetailSection>
             </div>
             <div className="col-span-1">

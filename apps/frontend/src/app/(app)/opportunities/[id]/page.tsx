@@ -15,6 +15,7 @@ import { OpportunityOwnerCard } from "@/components/opportunities/opportunity-own
 import { OwnerBadge } from "@/components/shared/owner-badge";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
 import { StageBadge } from "@/components/opportunities/StageBadge";
+import { OrganizationSummaryCard } from "@/components/opportunities/OrganizationSummaryCard";
 
 export default async function OpportunityDetailPage({ params }: { params: { id: string } }) {
     const opportunity = await getOpportunity(params.id);
@@ -72,11 +73,7 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
                         </DetailFieldList>
                     </DetailSection>
 
-                    <DetailSection title="Organization">
-                        <Link href={`/organizations/${organization.id}`} className="font-semibold text-blue-600 hover:underline">
-                            {organization.name}
-                        </Link>
-                    </DetailSection>
+                    <OrganizationSummaryCard organization={organization} />
                 </DetailPageShell>
             </div>
             <div className="col-span-1 space-y-6">
