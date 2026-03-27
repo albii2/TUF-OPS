@@ -8,10 +8,13 @@ import { columns } from "@/components/opportunities/columns";
 import { Opportunity } from "@prisma/client";
 import { EmptyListState } from "@/components/state/empty-list-state";
 
-export type OpportunityWithOwner = Opportunity & { owner: { name: string | null } | null };
+export type OpportunityWithOwner = Opportunity & { 
+    owner: { name: string | null } | null; 
+    organization: { id: number, name: string };
+};
 
 async function getOpportunities(): Promise<OpportunityWithOwner[]> {
-  return await prisma.opportunity.findMany({ include: { owner: true } });
+  return await prisma.opportunity.findMany({ include: { owner: true, organization: true } });
 }
 
 export default async function OpportunitiesPage() {
