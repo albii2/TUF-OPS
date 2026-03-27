@@ -11,7 +11,7 @@ generator client {
 model User {
   id                 Int            @id @default(autoincrement())
   email              String         @unique
-  password_hash      String         @map("password_hash")
+  password_hash      String?        @map("password_hash")
   name               String?
   role               String         @default("user")
   created_at         DateTime       @default(now()) @map("created_at")
@@ -29,27 +29,44 @@ model Organization {
   owner           User?         @relation("OrganizationOwner", fields: [ownerId], references: [id])
   opportunities   Opportunity[]
   zoho_account_id String?       @unique @map("zoho_account_id")
+  status          OrganizationStatus @default(active)
 
   @@map("organizations")
 }
 
 model Opportunity {
-  id              Int           @id @default(autoincrement())
-  organization_id Int?
-  organization    Organization? @relation(fields: [organization_id], references: [id])
-  name            String
-  stage           String
-  ownerId         Int?
-  owner           User?         @relation("OpportunityOwner", fields: [ownerId], references: [id])
-  last_contact_date DateTime?   @map("last_contact_date")
-  probability     Int?
-  estimated_value Decimal?      @db.Decimal(10, 2) @map("estimated_value")
-  nextStep        String?       @map("next_step")
-  nextStepDueDate DateTime?     @map("next_step_due_date")
-  close_date      DateTime?     @map("close_date")
-  created_at      DateTime      @default(now()) @map("created_at")
-  updated_at      DateTime      @updatedAt @map("updated_at")
-  zoho_deal_id    String?       @unique @map("zoho_deal_id")
+  id                 Int                 @id @default(autoincrement())
+  organization_id    Int?
+  organization       Organization?       @relation(fields: [organization_id], references: [id])
+  name               String
+  stage              OpportunityStage    @default(lead)
+  ownerId            Int?
+  owner              User?               @relation("OpportunityOwner", fields: [ownerId], references: [id])
+  last_contact_date  DateTime?           @map("last_contact_date")
+  probability        Int?
+  estimated_value    Decimal             @default(0) @db.Decimal(10, 2) @map("estimated_value")
+  nextStep           String?             @map("next_step")
+  nextStepDueDate    DateTime?           @map("next_step_due_date")
+  close_date         DateTime?           @map("close_date")
+  created_at         DateTime            @default(now()) @map("created_at")
+  updated_at         DateTime            @updatedAt @map("updated_at")
+  zoho_deal_id       String?             @unique @map("zoho_deal_id")
 
   @@map("opportunities")
+}
+
+enum OrganizationStatus {
+  active
+  inactive
+  archived
+}
+
+enum OpportunityStage {
+  lead
+  contacted
+  mockup
+  sample
+  invoice
+  closed_won
+  closed_lost
 }
