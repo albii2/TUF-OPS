@@ -1,11 +1,12 @@
 'use server'
 
 import { prisma } from "@/lib/prisma";
+import { requireSession } from "@/lib/auth/session";
+import { getVisibleOpportunities } from "@/lib/auth/visibility";
 
 export async function getOpportunities() {
-    const opportunities = await prisma.opportunity.findMany({ 
-        include: { owner: true, organization: true } 
-    });
-    // Filter out opportunities that do not have an organization
-    return opportunities.filter(opp => opp.organization);
+    const session = await requireSession();
+    // The getVisibleOpportunities function handles all role-based logic
+    // @ts-ignore
+    return await getVisibleOpportunities(session.user);
 }
