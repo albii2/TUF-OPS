@@ -1,16 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function DashboardPipelineSnapshot({ snapshot }: { snapshot: any }) {
+export function DashboardOwnerLeaderboard({ owners }: { owners: any[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pipeline Snapshot</CardTitle>
+        <CardTitle>Owner Leaderboard</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-            {snapshot.map((item: any) => (
-                <div key={item.stage} className="flex justify-between">
-                    <span className="capitalize text-muted-foreground">{item.stage.replace('_', ' ')}</span>
+            {owners.map((item: any) => (
+                <div key={item.ownerName} className="flex justify-between">
+                    <span className="capitalize text-muted-foreground">{item.ownerName}</span>
                     <span className="font-semibold">{item.count}</span>
                 </div>
             ))}
