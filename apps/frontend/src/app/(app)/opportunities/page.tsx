@@ -1,24 +1,31 @@
+'use client'
+
+import { useEffect, useState } from 'react';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageActions } from "@/components/ui/page-actions";
-import { prisma } from "@/lib/prisma";
 import { DataTable } from "@/components/data-table/data-table";
 import { columns } from "@/components/opportunities/columns";
-import { Opportunity } from "@prisma/client";
+import { Opportunity, User, Organization } from "@prisma/client";
 import { EmptyListState } from "@/components/state/empty-list-state";
+import { getOpportunities } from './actions';
 
 export type OpportunityWithOwner = Opportunity & { 
-    owner: { name: string | null } | null; 
-    organization: { id: number, name: string };
+    owner: User | null; 
+    organization: Organization;
 };
 
-async function getOpportunities(): Promise<OpportunityWithOwner[]> {
-  return await prisma.opportunity.findMany({ include: { owner: true, organization: true } });
-}
+export default function OpportunitiesPage() {
+    const [opportunities, setOpportunities] = useState<OpportunityWithOwner[]>([]);
 
-export default async function OpportunitiesPage() {
-  const opportunities = await getOpportunities();
+    useEffect(() => {
+        async function fetchData() {
+            const opps = await getOpportunities();
+            setOpportunities(opps as OpportunityWithOwner[]);
+        }
+        fetchData();
+    }, []);
 
   if (opportunities.length === 0) {
     return (
@@ -57,6 +64,7 @@ export default async function OpportunitiesPage() {
         columns={columns}
         data={opportunities} 
         rowHrefPrefix="/opportunities/"
+        searchKey="name"
       />
     </div>
   );

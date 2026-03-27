@@ -1,15 +1,18 @@
-"use client";
+'use client'
 
-import { ColumnDef } from "@tanstack/react-table";
+import { ColumnDef } from "@tanstack/react-table"
 import { Opportunity } from "@/lib/types/opportunity";
 import { OpportunityWithOwner } from "@/app/(app)/opportunities/page";
 import { StageBadge } from "./StageBadge";
+import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import Link from "next/link";
 
 export const columns: ColumnDef<OpportunityWithOwner>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Name" />
+    ),
     cell: ({ row }) => {
         const opp = row.original;
         return <Link href={`/opportunities/${opp.id}`} className="font-semibold hover:underline">{opp.name}</Link>
@@ -28,7 +31,9 @@ export const columns: ColumnDef<OpportunityWithOwner>[] = [
   },
   {
     accessorKey: "stage",
-    header: "Stage",
+    header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Stage" />
+    ),
     cell: ({ row }) => {
       const opp = row.original;
       return <StageBadge stage={opp.stage} />;
@@ -44,7 +49,9 @@ export const columns: ColumnDef<OpportunityWithOwner>[] = [
   },
   {
     accessorKey: "estimated_value",
-    header: "Value",
+    header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Value" />
+    ),
     cell: ({ row }) => {
       const opp = row.original;
       const formattedValue = new Intl.NumberFormat("en-US", {
