@@ -7,6 +7,6 @@ import { getVisibleOpportunities } from "@/lib/auth/visibility";
 export async function getOpportunities() {
     const session = await requireSession();
     // The getVisibleOpportunities function handles all role-based logic
-    // @ts-ignore
+
     return await getVisibleOpportunities(session.user);
 }

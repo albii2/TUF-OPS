@@ -3,8 +3,9 @@
 import { prisma } from "@/lib/prisma";
 import { subDays } from "date-fns";
 
-export async function getMyDashboardMetrics(userId: number) {
-    const whereClause = { ownerId: userId, stage: { notIn: ['closed_won', 'closed_lost'] } };
+export async function getMyDashboardMetrics(userId: string) {
+    const parsedUserId = parseInt(userId, 10);
+    const whereClause = { ownerId: parsedUserId, stage: { notIn: ['closed_won', 'closed_lost'] } };
 
     const myOppCounts = await prisma.opportunity.aggregate({
         where: whereClause,

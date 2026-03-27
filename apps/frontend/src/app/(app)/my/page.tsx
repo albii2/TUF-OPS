@@ -5,7 +5,7 @@ import { StatCard } from "@/components/ui/stat-card";
 
 export default async function MyWorkspacePage() {
     const session = await requireSession();
-    // @ts-ignore
+
     const data = await getMyDashboardMetrics(session.user.id);
 
     return (

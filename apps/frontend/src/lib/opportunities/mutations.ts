@@ -1,41 +1,38 @@
-'use server';
+'use server'
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { updateOpportunitySchema } from "@/lib/validation/opportunity"; // Corrected path
-import type { z } from 'zod';
+import { requireSession } from "@/lib/auth/session";
 
-type UpdateOpportunityData = z.infer<typeof updateOpportunitySchema>;
-
-export async function updateOpportunityWorkflow(data: Partial<UpdateOpportunityData> & { id: string }) {
-
-  // Since this is a partial update from the workflow, we can't use the full schema.
-  // We will manually build the update object to ensure type safety.
-  const updateData: any = {};
-  if (data.stage) updateData.stage = data.stage;
-  if (data.nextStep) updateData.nextStep = data.nextStep;
-  if (data.nextStepDueDate) updateData.nextStepDueDate = data.nextStepDueDate;
-
-  try {
-    await prisma.opportunity.update({
-      where: { id: parseInt(data.id, 10) },
-      data: updateData,
-    });
-
-    revalidatePath(`/opportunities/${data.id}`);
-
-    return { success: true };
-
-  } catch (error) {
-    console.error("Failed to update opportunity workflow:", error);
-    throw new Error("Database operation failed.");
-  }
-}
+// NOTE: This file previously contained updateOpportunityWorkflow, which was moved to a more specific action file.
 
 export async function updateOpportunityOwner(input: {
     id: number;
     ownerId?: number | null;
   }) {
+    const session = await requireSession();
+
+    const user = session.user;
+
+    if (user.role === 'rep') {
+        throw new Error("Unauthorized: Reps cannot reassign opportunities.");
+    }
+
+    if (user.role === 'director') {
+        const subordinates = await prisma.user.findMany({
+            where: { managerId: user.id },
+            select: { id: true },
+        });
+        const subordinateIds = subordinates.map(s => s.id);
+        const allowedOwnerIds = [user.id, ...subordinateIds];
+
+        if (input.ownerId && !allowedOwnerIds.includes(input.ownerId)) {
+            throw new Error("Unauthorized: Directors can only assign to themselves or their direct reports.");
+        }
+    }
+
+    // Admins have no restrictions
+
     const updated = await prisma.opportunity.update({
       where: { id: input.id },
       data: {

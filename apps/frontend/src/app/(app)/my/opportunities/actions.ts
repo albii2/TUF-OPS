@@ -5,7 +5,7 @@ import { requireSession } from "@/lib/auth/session";
 
 export async function getMyOpportunities() {
     const session = await requireSession();
-    // @ts-ignore
+
     const userId = parseInt(session.user.id, 10);
 
     const opportunities = await prisma.opportunity.findMany({ 
