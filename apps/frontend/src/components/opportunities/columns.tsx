@@ -2,41 +2,41 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Opportunity } from "@prisma/client";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
-import { OwnerBadge } from "@/components/shared/owner-badge";
+import { OpportunityWithOwner } from "@/app/(app)/opportunities/page";
+import { StageBadge } from "./StageBadge";
 
-export const columns: ColumnDef<Opportunity & { owner: { name: string | null } | null }>[] = [
+export const columns: ColumnDef<OpportunityWithOwner>[] = [
   {
     accessorKey: "name",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
-    ),
+    header: "Name",
   },
   {
     accessorKey: "stage",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Stage" />
-    ),
+    header: "Stage",
+    cell: ({ row }) => {
+      const opp = row.original;
+      return <StageBadge stage={opp.stage} />;
+    },
   },
   {
-    accessorKey: "owner",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Owner" />
-    ),
-    cell: ({ row }) => <OwnerBadge ownerName={row.original.owner?.name} />,
+    accessorKey: "owner.name",
+    header: "Owner",
+    cell: ({ row }) => {
+      const opp = row.original;
+      return opp.owner?.name ?? <span className="text-muted-foreground">-</span>;
+    },
   },
   {
     accessorKey: "estimated_value",
-    header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Value" />
-    ),
+    header: "Value",
     cell: ({ row }) => {
-      const amount = row.original.estimated_value ? Number(row.original.estimated_value) : 0;
-      const formatted = new Intl.NumberFormat("en-US", {
+      const opp = row.original;
+      const formattedValue = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
-      }).format(amount);
-      return <div className="text-right font-medium">{formatted}</div>;
+        maximumFractionDigits: 0,
+      }).format(Number(opp.estimated_value));
+      return formattedValue;
     },
   },
 ];
