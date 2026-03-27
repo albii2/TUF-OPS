@@ -5,7 +5,7 @@ import { DetailSection } from "@/components/detail/detail-section";
 import { OwnerBadge } from "@/components/shared/owner-badge";
 import { OwnerSelect } from "@/components/shared/owner-select";
 import { Button } from "@/components/ui/button";
-import { updateOrganizationOwner } from "@/lib/organizations/mutations";
+import { updateOrganizationOwner } from "@/app/(app)/organizations/actions";
 
 export function OrganizationOwnerCard({ organization, users }: { organization: any, users: any[] }) {
     const [ownerId, setOwnerId] = useState(organization.ownerId);
