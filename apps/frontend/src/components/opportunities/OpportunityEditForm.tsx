@@ -5,6 +5,7 @@ import { useTransition } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 import type { Opportunity, User, OpportunityStage } from '@prisma/client';
 import { updateOpportunitySchema } from '@/lib/validation/opportunity';
@@ -38,7 +39,9 @@ export function OpportunityEditForm({
     assignableUsers: User[] 
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
+  const isRep = session?.user?.role === "rep";
 
   const { 
     register, 
@@ -117,24 +120,26 @@ export function OpportunityEditForm({
         </FormField>
       </FormSection>
 
-      <FormSection
-        title="Ownership"
-        description="Assign an owner to this opportunity."
-      >
-        <FormField label="Owner">
-          <Controller
-            name="ownerId"
-            control={control}
-            render={({ field }) => (
-              <UserSelect 
-                users={assignableUsers} 
-                value={field.value ?? undefined}
-                onChange={field.onChange} 
-              />
-            )}
-          />
-        </FormField>
-      </FormSection>
+      {!isRep && (
+        <FormSection
+          title="Ownership"
+          description="Assign an owner to this opportunity."
+        >
+          <FormField label="Owner">
+            <Controller
+              name="ownerId"
+              control={control}
+              render={({ field }) => (
+                <UserSelect 
+                  users={assignableUsers} 
+                  value={field.value ?? undefined}
+                  onChange={field.onChange} 
+                />
+              )}
+            />
+          </FormField>
+        </FormSection>
+      )}
 
       <FormActions isPending={isPending} />
     </FormShell>

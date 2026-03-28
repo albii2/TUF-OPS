@@ -1,7 +1,4 @@
-'use client'
-
-import { useEffect, useState } from 'react';
-import { getOpportunities } from "../actions"; // We can reuse the main action, as it's now role-aware
+import { getTeamOpportunities } from "../actions";
 import { PageHeader } from "@/components/ui/page-header";
 import { DataTable } from "@/components/data-table/data-table";
 import { columns } from "@/components/opportunities/columns";
@@ -12,16 +9,8 @@ export type OpportunityWithOwner = Opportunity & {
     organization: Organization;
 };
 
-export default function TeamOpportunitiesPage() {
-    const [opportunities, setOpportunities] = useState<OpportunityWithOwner[]>([]);
-
-    useEffect(() => {
-        async function fetchData() {
-            const opps = await getOpportunities();
-            setOpportunities(opps as OpportunityWithOwner[]);
-        }
-        fetchData();
-    }, []);
+export default async function TeamOpportunitiesPage() {
+    const opportunities = await getTeamOpportunities();
 
   return (
     <div className="space-y-6">
@@ -31,7 +20,7 @@ export default function TeamOpportunitiesPage() {
       />
       <DataTable 
         columns={columns}
-        data={opportunities} 
+        data={opportunities as OpportunityWithOwner[]} 
         searchKey="name"
       />
     </div>

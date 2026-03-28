@@ -1,17 +1,13 @@
 'use server'
 
-import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/auth/session";
+import { getVisibleOpportunities } from "@/lib/auth/visibility";
 
 export async function getMyOpportunities() {
     const session = await requireSession();
-
-    const userId = parseInt(session.user.id, 10);
-
-    const opportunities = await prisma.opportunity.findMany({ 
-        where: { ownerId: userId },
-        include: { owner: true, organization: true } 
+    const opportunities = await getVisibleOpportunities(session.user, {
+        includeUnassignedForDirector: false,
     });
     
-    return opportunities.filter(opp => opp.organization);
+    return opportunities.filter((opp) => opp.organization && opp.ownerId === parseInt(session.user.id, 10));
 }

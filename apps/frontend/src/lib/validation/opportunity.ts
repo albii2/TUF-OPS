@@ -18,3 +18,19 @@ export const updateOpportunitySchema = z.object({
   nextStep: z.string().nullable().optional(),
   nextStepDueDate: z.date().nullable().optional(),
 });
+
+export const quickUpdateOpportunitySchema = z.object({
+  id: z.string(),
+  stage: z.enum([
+    'lead',
+    'contacted',
+    'mockup',
+    'sample',
+    'invoice',
+    'closed_won',
+    'closed_lost'
+  ]),
+  nextStep: z.string().nullable().optional(),
+  nextStepDueDate: z.date().nullable().optional(),
+});
+

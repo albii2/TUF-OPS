@@ -1,7 +1,16 @@
 'use server'
 
 import { prisma } from "@/lib/prisma";
-import { User } from "@prisma/client";
+import type { UserRole } from "@prisma/client";
+
+type VisibilityUser = {
+    id: string | number;
+    role: UserRole;
+};
+
+type VisibilityOptions = {
+    includeUnassignedForDirector?: boolean;
+};
 
 /**
  * Retrieves opportunities based on the user's role and hierarchy.
@@ -9,27 +18,38 @@ import { User } from "@prisma/client";
  * - Directors see their own opportunities, their team's opportunities, and unassigned leads.
  * - Reps see only their own assigned opportunities.
  */
-export async function getVisibleOpportunities(user: User) {
+export async function getVisibleOpportunities(
+    user: VisibilityUser,
+    options?: VisibilityOptions
+) {
     const standardIncludes = { owner: true, organization: true };
+    const userId = typeof user.id === "string" ? parseInt(user.id, 10) : user.id;
+
+    if (Number.isNaN(userId)) {
+        throw new Error("Invalid user id.");
+    }
 
     if (user.role === 'admin') {
         return await prisma.opportunity.findMany({ include: standardIncludes });
     }
 
     if (user.role === 'director') {
+        const includeUnassigned = options?.includeUnassignedForDirector ?? true;
         const subordinateIds = await prisma.user.findMany({
-            where: { managerId: user.id },
+            where: { managerId: userId },
             select: { id: true },
         }).then(users => users.map(u => u.id));
 
-        const visibleOwnerIds = [user.id, ...subordinateIds];
+        const visibleOwnerIds = [userId, ...subordinateIds];
+        const directorVisibilityFilters = [{ ownerId: { in: visibleOwnerIds } }];
+
+        if (includeUnassigned) {
+            directorVisibilityFilters.push({ ownerId: null });
+        }
 
         return await prisma.opportunity.findMany({
             where: {
-                OR: [
-                    { ownerId: { in: visibleOwnerIds } },
-                    { ownerId: null } // Directors can see unassigned leads
-                ]
+                OR: directorVisibilityFilters
             },
             include: standardIncludes
         });
@@ -37,7 +57,7 @@ export async function getVisibleOpportunities(user: User) {
 
     // Default to rep visibility
     return await prisma.opportunity.findMany({
-        where: { ownerId: user.id },
+        where: { ownerId: userId },
         include: standardIncludes
     });
 }

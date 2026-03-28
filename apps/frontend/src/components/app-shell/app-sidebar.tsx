@@ -1,31 +1,33 @@
 import Link from "next/link";
 import { Home, Users, Briefcase, User } from "lucide-react";
-import { NavMain, type NavItem } from "./nav-main";
+import { NavMain } from "./nav-main";
+import type { NavItem } from "@/types/navigation";
+import type { AppRole } from "@/types/auth";
 
 const PRIMARY_NAV: NavItem[] = [
     {
         label: "Dashboard",
         href: "/dashboard",
-        icon: <Home className="h-5 w-5" />,
-        allowedRoles: ["user", "admin"],
+        icon: Home,
+        roles: ["admin", "director", "rep"],
     },
     {
         label: "My Workspace",
-        href: "/my",
-        icon: <User className="h-5 w-5" />,
-        allowedRoles: ["user", "admin"],
+        href: "/opportunities/my",
+        icon: User,
+        roles: ["admin", "director", "rep"],
     },
     {
         label: "Organizations",
         href: "/organizations",
-        icon: <Users className="h-5 w-5" />,
-        allowedRoles: ["user", "admin"],
+        icon: Users,
+        roles: ["admin", "director", "rep"],
     },
     {
         label: "Opportunities",
         href: "/opportunities",
-        icon: <Briefcase className="h-5 w-5" />,
-        allowedRoles: ["user", "admin"],
+        icon: Briefcase,
+        roles: ["admin", "director", "rep"],
     },
 ];
 
@@ -33,10 +35,10 @@ export function AppSidebar({
   role,
   pathname,
 }: {
-  role: string;
+  role: AppRole;
   pathname: string;
 }) {
-  const items = PRIMARY_NAV.filter((item) => item.allowedRoles.includes(role));
+  const items = PRIMARY_NAV.filter((item) => item.roles.includes(role));
 
   return (
     <aside className="hidden w-64 border-r bg-card md:block">

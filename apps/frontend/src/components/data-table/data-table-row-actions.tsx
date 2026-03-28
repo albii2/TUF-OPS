@@ -15,11 +15,12 @@ import {
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>
-  viewHref: string
-  editHref: string
+  viewHref?: string
+  editHref?: string
+  children?: React.ReactNode
 }
 
-export function DataTableRowActions<TData>({ row, viewHref, editHref }: DataTableRowActionsProps<TData>) {
+export function DataTableRowActions<TData>({ row, viewHref, editHref, children }: DataTableRowActionsProps<TData>) {
 
   return (
     <DropdownMenu>
@@ -33,12 +34,13 @@ export function DataTableRowActions<TData>({ row, viewHref, editHref }: DataTabl
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem asChild>
+        {viewHref && <DropdownMenuItem asChild>
             <Link href={viewHref}>View</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
+        </DropdownMenuItem>}
+        {editHref && <DropdownMenuItem asChild>
             <Link href={editHref}>Edit</Link>
-        </DropdownMenuItem>
+        </DropdownMenuItem>}
+        {children}
       </DropdownMenuContent>
     </DropdownMenu>
   )
