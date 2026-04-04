@@ -8,11 +8,11 @@ import { FormField } from '@/components/form/form-field';
 import { FormActions } from '@/components/form/form-actions';
 import { Input } from '@/components/ui/input';
 
-const initialState = { message: null, errors: {} };
+const initialState = { message: "", errors: {} };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
-    return <FormActions isSubmitting={pending} submitLabel="Create Organization" />;
+    return <FormActions isPending={pending} submitLabel="Create Program" />;
 }
 
 export function NewOrganizationForm() {
@@ -20,12 +20,13 @@ export function NewOrganizationForm() {
 
   return (
     <form action={dispatch}>
-        <FormShell 
-            title="Create New Organization" 
-            description="Organizations are the schools, teams, or other entities you sell to."
-        >
+        <FormShell>
+            <div className="mb-6">
+                <h1 className="text-2xl font-bold">Create New Program</h1>
+                <p className="text-muted-foreground">Programs are the schools, teams, or other entities you sell to.</p>
+            </div>
             <FormSection>
-                <FormField label="Organization Name" error={state.errors?.name?.[0]}>
+                <FormField label="Program Name" error={state.errors?.name?.[0]}>
                     <Input name="name" required />
                 </FormField>
             </FormSection>

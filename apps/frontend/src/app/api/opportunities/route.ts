@@ -40,11 +40,6 @@ export async function POST(request: NextRequest) {
         organization: {
           connect: { id: organization_id },
         },
-        rep_activities: {
-          create: [
-            { user: { connect: { id: parseInt((session.user as any).id) } }, activity_type: 'Created' },
-          ],
-        },
       },
     })
     return NextResponse.json(opportunity, { status: 201 })

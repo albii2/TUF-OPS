@@ -15,10 +15,7 @@ export async function GET(
   const opportunity = await prisma.opportunity.findUnique({
     where: { id: parseInt(params.id) },
     include: { 
-      organization: true, 
-      team: true, 
-      opportunity_notes: { include: { user: { select: { full_name: true } } } }, 
-      rep_activities: { include: { user: { select: { full_name: true } } } }
+      organization: true
     }
   })
   if (!opportunity) {
@@ -48,9 +45,6 @@ export async function PUT(
   if (body.next_action_date) dataToUpdate.next_action_date = body.next_action_date;
   if (body.organization_id) {
     dataToUpdate.organization = { connect: { id: body.organization_id } };
-  }
-  if (body.team_id) {
-    dataToUpdate.team = { connect: { id: body.team_id } };
   }
 
   const opportunity = await prisma.opportunity.update({

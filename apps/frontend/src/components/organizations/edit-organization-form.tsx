@@ -57,7 +57,7 @@ export function EditOrganizationForm({
           ownerId: data.ownerId ? parseInt(data.ownerId, 10) : null,
           zohoAccountId: data.zohoAccountId,
         });
-        toast.success("Organization updated successfully.");
+        toast.success("Program updated successfully.");
         router.push(`/organizations/${organization.id}`);
       } catch (error) {
         toast.error("An error occurred. Please try again.");
@@ -66,53 +66,55 @@ export function EditOrganizationForm({
   };
 
   return (
-    <FormShell onSubmit={handleSubmit(onSubmit)}>
-      <FormSection
-        title="Organization Details"
-        description="Update the core details for this account record."
-      >
-        <FormField label="Organization Name" error={errors.name?.message}>
-          <Input {...register("name")} />
-        </FormField>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FormShell>
+        <FormSection
+          title="Program Details"
+        >
+          <p className="text-sm text-muted-foreground">Update the core details for this account record.</p>
+          <FormField label="Program Name" error={errors.name?.message}>
+            <Input {...register("name")} />
+          </FormField>
 
-        <FormField label="Status">
-          <Controller
-            name="status"
-            control={control}
-            render={({ field }) => (
-              <OrganizationStatusSelect
-                value={field.value}
-                onChange={field.onChange}
-              />
-            )}
-          />
-        </FormField>
-
-        <FormField label="Zoho Account ID" error={errors.zohoAccountId?.message}>
-          <Input {...register("zohoAccountId")} />
-        </FormField>
-      </FormSection>
-
-      <FormSection
-        title="Ownership"
-        description="Assign an owner to this account."
-      >
-        <FormField label="Owner">
+          <FormField label="Status">
             <Controller
-                name="ownerId"
-                control={control}
-                render={({ field }) => (
-                    <UserSelect 
-                        users={assignableUsers} 
-                        value={field.value ?? undefined}
-                        onChange={field.onChange} 
-                    />
-                )}
+              name="status"
+              control={control}
+              render={({ field }) => (
+                <OrganizationStatusSelect
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
             />
-        </FormField>
-      </FormSection>
+          </FormField>
 
-      <FormActions isPending={isPending} />
-    </FormShell>
+          <FormField label="Zoho Account ID" error={errors.zohoAccountId?.message}>
+            <Input {...register("zohoAccountId")} />
+          </FormField>
+        </FormSection>
+
+        <FormSection
+          title="Ownership"
+        >
+          <p className="text-sm text-muted-foreground">Assign an owner to this account.</p>
+          <FormField label="Owner">
+              <Controller
+                  name="ownerId"
+                  control={control}
+                  render={({ field }) => (
+                      <UserSelect 
+                          users={assignableUsers} 
+                          value={field.value ?? undefined}
+                          onChange={field.onChange} 
+                      />
+                  )}
+              />
+          </FormField>
+        </FormSection>
+
+        <FormActions isPending={isPending} />
+      </FormShell>
+    </form>
   );
 }

@@ -11,7 +11,7 @@ export default async function EditOrganizationPage({ params }: { params: { id: s
     if (!organization) {
         return (
             <RecordNotFoundState
-                recordLabel="Organization"
+                recordLabel="Program"
                 backHref="/organizations"
             />
         );

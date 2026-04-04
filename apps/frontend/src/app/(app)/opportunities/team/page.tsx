@@ -1,39 +1,48 @@
-'use client'
-
-import { useEffect, useState } from 'react';
-import { getOpportunities } from "../actions"; // We can reuse the main action, as it's now role-aware
+import { requireSession } from "@/lib/auth/session";
+import { findTeamOpportunities } from "@/lib/opportunities/queries";
 import { PageHeader } from "@/components/ui/page-header";
 import { DataTable } from "@/components/data-table/data-table";
-import { columns } from "@/components/opportunities/columns";
-import { Opportunity, User, Organization } from "@prisma/client";
+import { getTeamColumns } from "@/components/opportunities/team-columns";
+import { getAssignableUsers } from "@/lib/users/queries";
+import { User } from "@prisma/client";
+import { Opportunity, Organization } from "@prisma/client";
 
 export type OpportunityWithOwner = Opportunity & { 
     owner: User | null; 
     organization: Organization;
 };
 
-export default function TeamOpportunitiesPage() {
-    const [opportunities, setOpportunities] = useState<OpportunityWithOwner[]>([]);
+export default async function TeamOpportunitiesPage() {
+    const session = await requireSession();
+    const user = session.user;
 
-    useEffect(() => {
-        async function fetchData() {
-            const opps = await getOpportunities();
-            setOpportunities(opps as OpportunityWithOwner[]);
-        }
-        fetchData();
-    }, []);
+    if (user.role !== 'director') {
+        return (
+            <div className="space-y-6">
+                <PageHeader
+                    title="Unauthorized"
+                    description="You are not authorized to view this page."
+                />
+            </div>
+        );
+    }
 
-  return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Team Opportunities"
-        description="A view of all deals owned by you and your direct reports."
-      />
-      <DataTable 
-        columns={columns}
-        data={opportunities} 
-        searchKey="name"
-      />
-    </div>
-  );
+    const opportunities = await findTeamOpportunities(parseInt(user.id));
+    const assignableUsers = await getAssignableUsers();
+
+    const columns = getTeamColumns(assignableUsers);
+
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title="Team Opportunities"
+                description="All opportunities visible to you and your team."
+            />
+            <DataTable 
+                columns={columns}
+                data={opportunities as OpportunityWithOwner[]} 
+                searchKey="name"
+            />
+        </div>
+    );
 }

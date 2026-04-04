@@ -23,21 +23,7 @@ export function OpportunityOwnerCard({ opportunity, users }: OpportunityOwnerCar
 
   const userRole = session?.user?.role;
   const isRep = userRole === 'rep';
-
-  const getAssignableUsers = () => {
-    if (userRole === 'admin') {
-      return users;
-    }
-    if (userRole === 'director') {
-        // A real implementation would fetch subordinates, but for now, we filter from the passed users.
-        // This assumes the initial `users` prop contains all possible users.
-      
-        return users.filter(u => u.managerId === session?.user?.id || u.id === session?.user?.id);
-    }
-    return [];
-  }
-
-  const assignableUsers = getAssignableUsers();
+  const assignableUsers = users;
 
   const handleSave = () => {
     startTransition(async () => {
@@ -56,7 +42,10 @@ export function OpportunityOwnerCard({ opportunity, users }: OpportunityOwnerCar
         <OwnerBadge ownerName={opportunity.owner?.name} />
         {!isRep && (
             <div className="space-y-2">
-                <Select onValueChange={(value) => setOwnerId(Number(value))} defaultValue={String(ownerId)}>
+                <Select
+                    onValueChange={(value) => setOwnerId(value === "null" ? null : Number(value))}
+                    value={ownerId === null ? "null" : String(ownerId)}
+                >
                     <SelectTrigger>
                         <SelectValue placeholder="Assign an owner..." />
                     </SelectTrigger>

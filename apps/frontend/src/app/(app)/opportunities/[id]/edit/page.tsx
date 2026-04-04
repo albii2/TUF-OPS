@@ -2,7 +2,7 @@ import { getOpportunity } from "@/lib/opportunities/queries";
 import { getAssignableUsers } from "@/lib/users/queries";
 import { PageHeader } from "@/components/ui/page-header";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
-import { OpportunityEditForm } from "@/components/opportunities/OpportunityEditForm";
+import { OpportunityEditForm, PlainOpportunity } from "@/components/opportunities/OpportunityEditForm";
 
 export default async function EditOpportunityPage({ params }: { params: { id: string } }) {
     const opportunity = await getOpportunity(params.id);
@@ -17,6 +17,12 @@ export default async function EditOpportunityPage({ params }: { params: { id: st
         );
     }
 
+    // Convert Decimal to number for client-side use
+    const plainOpportunity: PlainOpportunity = {
+        ...opportunity,
+        estimated_value: opportunity.estimated_value ? opportunity.estimated_value.toNumber() : null,
+    };
+
     return (
         <div className="space-y-6">
             <PageHeader
@@ -25,7 +31,7 @@ export default async function EditOpportunityPage({ params }: { params: { id: st
             />
 
             <OpportunityEditForm
-                opportunity={opportunity}
+                opportunity={plainOpportunity}
                 assignableUsers={users}
             />
         </div>

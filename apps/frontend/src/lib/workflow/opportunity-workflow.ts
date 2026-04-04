@@ -1,3 +1,4 @@
+import { differenceInDays } from "date-fns";
 import {
   NON_ACTIONABLE_OPPORTUNITY_STAGES,
   OPPORTUNITY_STAGE_LABELS,
@@ -36,6 +37,12 @@ export function isNextStepOverdue(opportunity: WorkflowOpportunityLike, now = ne
   if (!opportunity.nextStepDueDate) return false;
   const due = new Date(opportunity.nextStepDueDate);
   return due.getTime() < now.getTime();
+}
+
+export function isOpportunityAtRisk(opportunity: WorkflowOpportunityLike, now = new Date()): boolean {
+    if (!opportunity.nextStepDueDate) return false;
+    const due = new Date(opportunity.nextStepDueDate);
+    return differenceInDays(due, now) <= 3;
 }
 
 export function getOpportunityStaleThresholdDays(stage?: string | null): number | null {
@@ -79,6 +86,15 @@ export function needsOpportunityAction(opportunity: WorkflowOpportunityLike, now
   if (isNextStepOverdue(opportunity, now)) return true;
   if (isOpportunityStale(opportunity, now)) return true;
   return false;
+}
+
+export function getOpportunityHealth(opportunity: WorkflowOpportunityLike, now = new Date()): "overdue" | "at_risk" | "missing_step" | "healthy" {
+    if (isNonActionableOpportunityStage(opportunity.stage)) return "healthy";
+    if (isNextStepOverdue(opportunity, now)) return "overdue";
+    if (!hasNextStep(opportunity)) return "missing_step";
+    if (isOpportunityStale(opportunity, now)) return "at_risk";
+    if (isOpportunityAtRisk(opportunity, now)) return "at_risk";
+    return "healthy";
 }
 
 export function getOpportunityHealthState(opportunity: WorkflowOpportunityLike, now = new Date()): "healthy" | "warning" | "urgent" | "inactive" {

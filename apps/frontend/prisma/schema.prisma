@@ -1,11 +1,82 @@
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  relationMode = "foreignKeys"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
   provider = "prisma-client-js"
+}
+
+enum LeadStatus {
+  NEW
+  ASSIGNED
+  CONVERTED
+}
+
+enum OrderStatus {
+  Pending
+  AwaitingMockup
+  MockupApproved
+  AwaitingSample
+  SampleDelivered
+  AwaitingRoster
+  RosterConfirmed
+  AwaitingPayment
+  InProduction
+  Shipped
+  Completed
+  Cancelled
+}
+
+enum MockupRequestStatus {
+  Requested
+  InProgress
+  Approved
+  Rejected
+}
+
+enum SampleRequestStatus {
+  Requested
+  Ordered
+  Shipped
+  Delivered
+  Completed
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PAID
+  VOID
+}
+
+enum OrganizationStatus {
+  active
+  inactive
+  archived
+}
+
+enum OpportunityStage {
+  lead
+  contacted
+  mockup
+  sample
+  invoice
+  closed_won
+  closed_lost
+}
+
+enum UserRole {
+    admin
+    director
+    rep
+    coach
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
 }
 
 model User {
@@ -22,8 +93,104 @@ model User {
   subordinates       User[]         @relation("ManagerToSubordinates")
   ownedOrganizations Organization[] @relation("OrganizationOwner")
   ownedOpportunities Opportunity[]  @relation("OpportunityOwner")
+  leadsAssigned      Lead[]         @relation("UserLeads")
+  loggedActivities   Activity[]     @relation("UserActivities")
 
   @@map("users")
+}
+
+model Lead {
+  id                String      @id @default(cuid())
+  organizationName  String
+  contactName       String?
+  contactInfo       String?
+  sport             String?
+  notes             String?
+  source            String?
+  status            LeadStatus  @default(NEW)
+  assignedToId      Int?
+  createdAt         DateTime    @default(now())
+
+  assignedTo        User?       @relation("UserLeads", fields: [assignedToId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  @@map("leads")
+}
+
+model UniformOrder {
+  id                String      @id @default(cuid())
+  status            OrderStatus @default(Pending)
+  opportunityId     Int
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  opportunity       Opportunity @relation(fields: [opportunityId], references: [id])
+  roster            RosterUpload?
+
+  @@map("uniform_orders")
+}
+
+model MockupRequest {
+  id              String      @id @default(cuid())
+  status          MockupRequestStatus @default(Requested)
+  notes           String?
+  jerseyNumber    String?
+  logo            String?
+  colors          String?
+  opportunityId   Int
+  createdAt       DateTime    @default(now())
+
+  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
+
+  @@map("mockup_requests")
+}
+
+model SampleRequest {
+  id              String      @id @default(cuid())
+  status          SampleRequestStatus @default(Requested)
+  notes           String?
+  trackingNumber  String?
+  playerName      String?
+  playerNumber    String?
+  size            String?
+  opportunityId   Int
+  createdAt       DateTime    @default(now())
+
+  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
+
+  @@map("sample_requests")
+}
+
+model RosterUpload {
+  id              String      @id @default(cuid())
+  fileUrl         String
+  rosterData      Json?
+  orderId         String      @unique
+  createdAt       DateTime    @default(now())
+
+  order           UniformOrder @relation(fields: [orderId], references: [id])
+
+  @@map("roster_uploads")
+}
+
+model Invoice {
+  id              String      @id @default(cuid())
+  invoiceNumber   String      @unique
+  status          InvoiceStatus @default(DRAFT) // e.g., Draft, Sent, Paid
+  amount          Float
+  dueDate         DateTime?
+  customerName    String
+  teamName        String
+  streetAddress   String?
+  customerPhone   String?
+  paymentTerms    String?
+  salesperson     String?
+  orderType       String?
+  opportunityId   Int         @unique // An invoice is tied to one opportunity
+  createdAt       DateTime    @default(now())
+
+  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
+
+  @@map("invoices")
 }
 
 model Organization {
@@ -32,6 +199,7 @@ model Organization {
   ownerId         Int?
   owner           User?         @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   opportunities   Opportunity[]
+  contacts        Contact[]
   zoho_account_id String?       @unique @map("zoho_account_id")
   status          OrganizationStatus @default(active)
 
@@ -56,27 +224,45 @@ model Opportunity {
   updated_at         DateTime            @updatedAt @map("updated_at")
   zoho_deal_id       String?             @unique @map("zoho_deal_id")
 
+  uniformOrder    UniformOrder[]
+  mockupRequests  MockupRequest[]
+  sampleRequests  SampleRequest[]
+  invoices        Invoice[]
+  activities      Activity[]
+
   @@map("opportunities")
 }
 
-enum OrganizationStatus {
-  active
-  inactive
-  archived
+model Contact {
+  id              Int           @id @default(autoincrement())
+  name            String
+  title           String?
+  email           String?       @unique
+  phone           String?
+  organizationId  Int
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  activities      Activity[]
+
+  @@map("contacts")
 }
 
-enum OpportunityStage {
-  lead
-  contacted
-  mockup
-  sample
-  invoice
-  closed_won
-  closed_lost
-}
+model Activity {
+  id            Int          @id @default(autoincrement())
+  type          ActivityType
+  notes         String       @db.Text
+  opportunityId Int
+  contactId     Int?
+  userId        Int
 
-enum UserRole {
-    admin
-    director
-    rep
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  opportunity   Opportunity  @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  contact       Contact?     @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  user          User         @relation("UserActivities", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("activities")
 }

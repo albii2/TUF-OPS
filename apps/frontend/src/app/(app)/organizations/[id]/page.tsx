@@ -13,15 +13,21 @@ import { OwnerBadge } from "@/components/shared/owner-badge";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
 import { OrganizationStatusBadge } from "@/components/organizations/organization-status-badge";
 import { OrganizationOpportunitiesList } from "@/components/organizations/OrganizationOpportunitiesList";
+import { OrganizationContactsCard } from "@/components/organizations/organization-contacts-card";
 
 export default async function OrganizationDetailsPage({ params }: { params: { id: string } }) {
   const organization = await getOrganization(parseInt(params.id, 10));
   
   if (!organization) {
-    return <RecordNotFoundState recordLabel="Organization" backHref="/organizations" />;
+    return <RecordNotFoundState recordLabel="Program" backHref="/organizations" />;
   }
   
   const users = await getAssignableUsers();
+
+  const opportunities = organization.opportunities.map(opp => ({
+    ...opp,
+    estimated_value: opp.estimated_value.toNumber(),
+  }));
 
   return (
     <DetailPageShell>
@@ -30,7 +36,7 @@ export default async function OrganizationDetailsPage({ params }: { params: { id
         actions={
             <PageActions>
                 <Link href={`/organizations/${organization.id}/edit`}>
-                    <Button>Edit Organization</Button>
+                    <Button>Edit Program</Button>
                 </Link>
             </PageActions>
         }
@@ -53,11 +59,12 @@ export default async function OrganizationDetailsPage({ params }: { params: { id
                 </DetailSection>
 
                 <DetailSection title={`Linked Opportunities (${organization.opportunities.length})`}>
-                    <OrganizationOpportunitiesList opportunities={organization.opportunities} />
+                    <OrganizationOpportunitiesList opportunities={opportunities} />
                 </DetailSection>
             </div>
             <div className="col-span-1">
                 <OrganizationOwnerCard organization={organization} users={users} />
+                <OrganizationContactsCard organizationId={organization.id} contacts={organization.contacts} />
             </div>
         </div>
     </DetailPageShell>

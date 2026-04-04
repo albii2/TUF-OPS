@@ -1,24 +1,36 @@
-import { LayoutDashboard, Building, Briefcase, Settings } from "lucide-react";
+import { LayoutDashboard, Building, Briefcase, Settings, Users, ClipboardList } from "lucide-react";
 import type { NavItem } from "@/types/navigation";
 
 export const PRIMARY_NAV: NavItem[] = [
   {
-    label: "Dashboard",
+    label: "HQ",
     href: "/dashboard",
     icon: LayoutDashboard,
-    roles: ["admin", "regional_director", "sales_rep"],
+    roles: ["admin", "director", "rep"],
   },
   {
-    label: "Organizations",
+    label: "Leads",
+    href: "/leads",
+    icon: ClipboardList,
+    roles: ["admin", "director"],
+  },
+  {
+    label: "Programs",
     href: "/organizations",
     icon: Building,
-    roles: ["admin", "regional_director", "sales_rep"],
+    roles: ["admin", "director", "rep"],
   },
   {
     label: "Opportunities",
     href: "/opportunities",
     icon: Briefcase,
-    roles: ["admin", "regional_director", "sales_rep"],
+    roles: ["admin", "director", "rep"],
+  },
+  {
+    label: "Team",
+    href: "/opportunities/team",
+    icon: Users,
+    roles: ["admin", "director"],
   },
   {
     label: "Settings",
@@ -26,4 +38,17 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: Settings,
     roles: ["admin"],
   },
+];
+
+export const FOCUS_NAV: NavItem[] = [
+    {
+        label: "My Programs",
+        href: "/my/organizations",
+        roles: ["admin", "director", "rep"],
+    },
+    {
+        label: "My Opportunities",
+        href: "/my/opportunities",
+        roles: ["admin", "director", "rep"],
+    },
 ];

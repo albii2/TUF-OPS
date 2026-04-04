@@ -17,28 +17,29 @@ export async function GET() {
     },
   });
 
-  const totalRevenueResult = await prisma.invoice.aggregate({
-    where: { status: "Paid" },
-    _sum: {
-      amount: true,
-    },
-  });
+  // const totalRevenueResult = await prisma.invoice.aggregate({
+  //   where: { status: "Paid" },
+  //   _sum: {
+  //     amount: true,
+  //   },
+  // });
 
-  const totalRevenue = totalRevenueResult._sum.amount?.toNumber() || 0;
+  // const totalRevenue = totalRevenueResult._sum.amount?.toNumber() || 0;
+  const totalRevenue = 0;
 
   let directorData = null;
   if (session.user.role === "director" || session.user.role === "admin") {
-    const totalCostResult = await prisma.uniformOrder.aggregate({
-      _sum: {
-        vendor_cost: true,
-      },
-    });
-    const totalCost = totalCostResult._sum.vendor_cost?.toNumber() || 0;
-    const grossMargin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue) * 100 : 0;
+    // const totalCostResult = await prisma.uniformOrder.aggregate({
+    //   _sum: {
+    //     vendor_cost: true,
+    //   },
+    // });
+    // const totalCost = totalCostResult._sum.vendor_cost?.toNumber() || 0;
+    // const grossMargin = totalRevenue > 0 ? ((totalRevenue - totalCost) / totalRevenue) * 100 : 0;
 
     directorData = {
-      totalCost,
-      grossMargin: grossMargin.toFixed(2) + '%',
+      totalCost: 0,
+      grossMargin: "0.00%",
     };
   }
 

@@ -5,6 +5,7 @@ import { useTransition } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
+import { useSession } from 'next-auth/react';
 
 import type { Opportunity, User, OpportunityStage } from '@prisma/client';
 import { updateOpportunitySchema } from '@/lib/validation/opportunity';
@@ -14,9 +15,9 @@ import { updateOpportunity } from '@/app/(app)/opportunities/_actions/updateOppo
 import { FormShell } from '@/components/form/form-shell';
 import { FormSection } from '@/components/form/form-section';
 import { FormField } from '@/components/form/form-field';
-import { FormActions } from '@/components/form/form-actions';
 import { Input } from '@/components/ui/input';
 import { UserSelect } from '@/components/users/user-select';
+import { Button } from "@/components/ui/button";
 
 const STAGE_OPTIONS: OpportunityStage[] = [
   'lead',
@@ -28,17 +29,24 @@ const STAGE_OPTIONS: OpportunityStage[] = [
   'closed_lost'
 ];
 
+// Create a plain Opportunity type that is safe for client components
+export type PlainOpportunity = Omit<Opportunity, 'estimated_value'> & {
+    estimated_value: number | null;
+}
+
 type FormData = z.infer<typeof updateOpportunitySchema>;
 
 export function OpportunityEditForm({ 
     opportunity, 
     assignableUsers 
 }: { 
-    opportunity: Opportunity, 
+    opportunity: PlainOpportunity, 
     assignableUsers: User[] 
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
+  const isRep = session?.user?.role === "rep";
 
   const { 
     register, 
@@ -48,95 +56,109 @@ export function OpportunityEditForm({
   } = useForm<FormData>({
     resolver: zodResolver(updateOpportunitySchema),
     defaultValues: {
-      id: String(opportunity.id),
+      id: opportunity.id,
       name: opportunity.name,
       stage: opportunity.stage,
-      ownerId: String(opportunity.ownerId ?? ''),
-      estimatedValue: opportunity.estimated_value ? Number(opportunity.estimated_value) : 0,
+      ownerId: opportunity.ownerId,
+      estimatedValue: opportunity.estimated_value ?? 0,
       closeDate: opportunity.close_date,
+      // These fields are required by the schema but not part of this specific form
+      // We provide them here to satisfy the validation
+      nextStep: opportunity.nextStep ?? "Update details",
+      nextStepDueDate: opportunity.nextStepDueDate ?? new Date(),
     },
   });
 
   const onSubmit = (data: FormData) => {
     startTransition(async () => {
       try {
-        await updateOpportunity(data);
+        // Ensure the ID is passed to the update action
+        await updateOpportunity({ ...data, id: opportunity.id });
         toast.success("Opportunity updated successfully.");
         router.push(`/opportunities/${opportunity.id}`);
       } catch (error) {
+        console.error("Update failed:", error);
         toast.error("An error occurred. Please try again.");
       }
     });
   };
 
   return (
-    <FormShell onSubmit={handleSubmit(onSubmit)}>
-      <FormSection
-        title="General Information"
-        description="Update the core details of this opportunity."
-      >
-        <FormField label="Opportunity Name" error={errors.name?.message}>
-          <Input {...register('name')} />
-        </FormField>
-      </FormSection>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FormShell>
+        <FormSection
+          title="General Information"
+        >
+          <p className="text-sm text-muted-foreground">Update the core details of this opportunity.</p>
+          <FormField label="Opportunity Name" error={errors.name?.message}>
+            <Input {...register('name')} />
+          </FormField>
+        </FormSection>
 
-      <FormSection
-        title="Deal Information"
-        description="Manage the stage, value, and timeline of this deal."
-      >
-        <FormField label="Stage">
-          <Controller
-            name="stage"
-            control={control}
-            render={({ field }) => (
-                <select {...field} className="h-10 w-full rounded-md border bg-background px-3 text-sm">
-                    {STAGE_OPTIONS.map(stage => (
-                        <option key={stage} value={stage}>{
-                            stage.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')
-                        }</option>
-                    ))}
-                </select>
-            )}
-          />
-        </FormField>
-        <FormField label="Estimated Value" error={errors.estimatedValue?.message}>
-            <Input type="number" {...register('estimatedValue', { valueAsNumber: true })} />
-        </FormField>
-        <FormField label="Close Date">
-          <Controller
-            name="closeDate"
-            control={control}
-            render={({ field }) => (
-                <Input 
-                    type="date" 
-                    value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
-                    onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
-                />
-            )}
-          />
-        </FormField>
-      </FormSection>
+        <FormSection
+          title="Deal Information"
+        >
+          <p className="text-sm text-muted-foreground">Manage the stage, value, and timeline of this deal.</p>
+          <FormField label="Stage">
+            <Controller
+              name="stage"
+              control={control}
+              render={({ field }) => (
+                  <select {...field} className="h-10 w-full rounded-md border bg-background px-3 text-sm">
+                      {STAGE_OPTIONS.map(stage => (
+                          <option key={stage} value={stage}>{
+                              stage.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')
+                          }</option>
+                      ))}
+                  </select>
+              )}
+            />
+          </FormField>
+          <FormField label="Estimated Value" error={errors.estimatedValue?.message}>
+              <Input type="number" {...register('estimatedValue', { valueAsNumber: true })} />
+          </FormField>
+          <FormField label="Close Date">
+            <Controller
+              name="closeDate"
+              control={control}
+              render={({ field }) => (
+                  <Input 
+                      type="date" 
+                      value={field.value ? new Date(field.value).toISOString().split('T')[0] : ''}
+                      onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : null)}
+                  />
+              )}
+            />
+          </FormField>
+        </FormSection>
 
-      <FormSection
-        title="Ownership"
-        description="Assign an owner to this opportunity."
-      >
-        <FormField label="Owner">
-          <Controller
-            name="ownerId"
-            control={control}
-            render={({ field }) => (
-              <UserSelect 
-                users={assignableUsers} 
-                value={field.value ?? undefined}
-                onChange={field.onChange} 
+        {!isRep && (
+          <FormSection
+            title="Ownership"
+          >
+            <p className="text-sm text-muted-foreground">Assign an owner to this opportunity.</p>
+            <FormField label="Owner">
+              <Controller
+                name="ownerId"
+                control={control}
+                render={({ field }) => (
+                  <UserSelect 
+                    users={assignableUsers} 
+                    value={field.value ?? undefined}
+                    onChange={field.onChange} 
+                  />
+                )}
               />
-            )}
-          />
-        </FormField>
-      </FormSection>
+            </FormField>
+          </FormSection>
+        )}
 
-      <FormActions isPending={isPending} />
-    </FormShell>
+        <div className="mt-6 flex justify-end">
+            <Button type="submit" disabled={isPending}>
+                {isPending ? "Saving..." : "Save Changes"}
+            </Button>
+        </div>
+      </FormShell>
+    </form>
   );
 }
