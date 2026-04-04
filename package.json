@@ -6,6 +6,7 @@
     "dev:backend": "pnpm --filter backend dev",
     "postinstall": "cd apps/frontend && pnpm prisma generate",
     "test:e2e": "playwright test",
+    "test:smoke": "playwright test e2e/auth.spec.ts",
     "test:e2e:prod": "pnpm --filter frontend build && playwright test"
   },
   "devDependencies": {

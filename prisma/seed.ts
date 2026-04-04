@@ -35,7 +35,7 @@ async function main() {
     data: {
       organization_id: organization.id,
       name: "Test Opportunity",
-      stage: "discovery",
+      stage: "lead",
       ownerId: user.id,
       estimated_value: 10000,
       probability: 50,
