@@ -70,7 +70,6 @@ enum UserRole {
     admin
     director
     rep
-    coach
 }
 
 enum ActivityType {
@@ -116,82 +115,82 @@ model Lead {
   @@map("leads")
 }
 
-model UniformOrder {
-  id                String      @id @default(cuid())
-  status            OrderStatus @default(Pending)
-  opportunityId     Int
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-
-  opportunity       Opportunity @relation(fields: [opportunityId], references: [id])
-  roster            RosterUpload?
-
-  @@map("uniform_orders")
-}
-
-model MockupRequest {
-  id              String      @id @default(cuid())
-  status          MockupRequestStatus @default(Requested)
-  notes           String?
-  jerseyNumber    String?
-  logo            String?
-  colors          String?
-  opportunityId   Int
-  createdAt       DateTime    @default(now())
-
-  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
-
-  @@map("mockup_requests")
-}
-
-model SampleRequest {
-  id              String      @id @default(cuid())
-  status          SampleRequestStatus @default(Requested)
-  notes           String?
-  trackingNumber  String?
-  playerName      String?
-  playerNumber    String?
-  size            String?
-  opportunityId   Int
-  createdAt       DateTime    @default(now())
-
-  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
-
-  @@map("sample_requests")
-}
-
-model RosterUpload {
-  id              String      @id @default(cuid())
-  fileUrl         String
-  rosterData      Json?
-  orderId         String      @unique
-  createdAt       DateTime    @default(now())
-
-  order           UniformOrder @relation(fields: [orderId], references: [id])
-
-  @@map("roster_uploads")
-}
-
-model Invoice {
-  id              String      @id @default(cuid())
-  invoiceNumber   String      @unique
-  status          InvoiceStatus @default(DRAFT) // e.g., Draft, Sent, Paid
-  amount          Float
-  dueDate         DateTime?
-  customerName    String
-  teamName        String
-  streetAddress   String?
-  customerPhone   String?
-  paymentTerms    String?
-  salesperson     String?
-  orderType       String?
-  opportunityId   Int         @unique // An invoice is tied to one opportunity
-  createdAt       DateTime    @default(now())
-
-  opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
-
-  @@map("invoices")
-}
+// model UniformOrder {
+//   id                String      @id @default(cuid())
+//   status            OrderStatus @default(Pending)
+//   opportunityId     Int
+//   createdAt         DateTime    @default(now())
+//   updatedAt         DateTime    @updatedAt
+//
+//   opportunity       Opportunity @relation(fields: [opportunityId], references: [id])
+//   roster            RosterUpload?
+//
+//   @@map("uniform_orders")
+// }
+//
+// model MockupRequest {
+//   id              String      @id @default(cuid())
+//   status          MockupRequestStatus @default(Requested)
+//   notes           String?
+//   jerseyNumber    String?
+//   logo            String?
+//   colors          String?
+//   opportunityId   Int
+//   createdAt       DateTime    @default(now())
+//
+//   opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
+//
+//   @@map("mockup_requests")
+// }
+//
+// model SampleRequest {
+//   id              String      @id @default(cuid())
+//   status          SampleRequestStatus @default(Requested)
+//   notes           String?
+//   trackingNumber  String?
+//   playerName      String?
+//   playerNumber    String?
+//   size            String?
+//   opportunityId   Int
+//   createdAt       DateTime    @default(now())
+//
+//   opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
+//
+//   @@map("sample_requests")
+// }
+//
+// model RosterUpload {
+//   id              String      @id @default(cuid())
+//   fileUrl         String
+//   rosterData      Json?
+//   orderId         String      @unique
+//   createdAt       DateTime    @default(now())
+//
+//   order           UniformOrder @relation(fields: [orderId], references: [id])
+//
+//   @@map("roster_uploads")
+// }
+//
+// model Invoice {
+//   id              String      @id @default(cuid())
+//   invoiceNumber   String      @unique
+//   status          InvoiceStatus @default(DRAFT) // e.g., Draft, Sent, Paid
+//   amount          Float
+//   dueDate         DateTime?
+//   customerName    String
+//   teamName        String
+//   streetAddress   String?
+//   customerPhone   String?
+//   paymentTerms    String?
+//   salesperson     String?
+//   orderType       String?
+//   opportunityId   Int         @unique // An invoice is tied to one opportunity
+//   createdAt       DateTime    @default(now())
+//
+//   opportunity     Opportunity @relation(fields: [opportunityId], references: [id])
+//
+//   @@map("invoices")
+// }
 
 model Organization {
   id              Int           @id @default(autoincrement())
@@ -224,10 +223,10 @@ model Opportunity {
   updated_at         DateTime            @updatedAt @map("updated_at")
   zoho_deal_id       String?             @unique @map("zoho_deal_id")
 
-  uniformOrder    UniformOrder[]
-  mockupRequests  MockupRequest[]
-  sampleRequests  SampleRequest[]
-  invoices        Invoice[]
+  // uniformOrder    UniformOrder[]
+  // mockupRequests  MockupRequest[]
+  // sampleRequests  SampleRequest[]
+  // invoices        Invoice[]
   activities      Activity[]
 
   @@map("opportunities")
