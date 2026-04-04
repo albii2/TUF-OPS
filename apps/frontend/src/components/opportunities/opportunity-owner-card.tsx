@@ -26,6 +26,7 @@ export function OpportunityOwnerCard({ opportunity, users }: OpportunityOwnerCar
   const assignableUsers = users;
 
   const handleSave = () => {
+    console.log("Saving opportunity with id:", opportunity.id, "and ownerId:", ownerId);
     startTransition(async () => {
       try {
         await updateOpportunityOwner({ id: opportunity.id, ownerId });

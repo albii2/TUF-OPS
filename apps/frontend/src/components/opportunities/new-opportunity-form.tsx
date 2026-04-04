@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { OPPORTUNITY_STAGES, OPPORTUNITY_STAGE_LABELS } from "@/lib/workflow/opportunity-stages";
 import { Button } from "@/components/ui/button";
 
-interface Organization {
+interface Program {
   id: number
   name: string
 }
@@ -23,7 +23,7 @@ function SubmitButton() {
     return <Button type="submit" disabled={pending}>Create Opportunity</Button>;
 }
 
-export function NewOpportunityForm({ organizations }: { organizations: Organization[] }) {
+export function NewOpportunityForm({ programs }: { programs: Program[] }) {
   const [state, dispatch] = useFormState(createOpportunity, initialState);
 
   return (
@@ -31,22 +31,22 @@ export function NewOpportunityForm({ organizations }: { organizations: Organizat
         <FormShell>
             <div className="mb-6">
                 <h1 className="text-2xl font-bold">Create New Opportunity</h1>
-                <p className="text-muted-foreground">Create a new opportunity and connect it to an organization.</p>
+                <p className="text-muted-foreground">Create a new opportunity and connect it to an program.</p>
             </div>
             <FormSection>
                 <FormField label="Opportunity Name" error={state.errors?.name?.[0]}>
                     <Input name="name" required />
                 </FormField>
 
-                <FormField label="Organization" error={state.errors?.organization_id?.[0]}>
-                    <Select name="organizationId" required>
+                <FormField label="Program" error={state.errors?.program_id?.[0]}>
+                    <Select name="programId" required>
                         <SelectTrigger>
-                            <SelectValue placeholder="Select an organization" />
+                            <SelectValue placeholder="Select an program" />
                         </SelectTrigger>
                         <SelectContent>
-                            {organizations.map(org => (
-                            <SelectItem key={org.id} value={org.id.toString()}>
-                                {org.name}
+                            {programs.map(prog => (
+                            <SelectItem key={prog.id} value={prog.id.toString()}>
+                                {prog.name}
                             </SelectItem>
                             ))}
                         </SelectContent>

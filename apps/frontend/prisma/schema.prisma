@@ -50,7 +50,7 @@ enum InvoiceStatus {
   VOID
 }
 
-enum OrganizationStatus {
+enum ProgramStatus {
   active
   inactive
   archived
@@ -91,7 +91,7 @@ model User {
 
   manager            User?          @relation("ManagerToSubordinates", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   subordinates       User[]         @relation("ManagerToSubordinates")
-  ownedOrganizations Organization[] @relation("OrganizationOwner")
+  ownedPrograms      Program[]      @relation("ProgramOwner")
   ownedOpportunities Opportunity[]  @relation("OpportunityOwner")
   leadsAssigned      Lead[]         @relation("UserLeads")
   loggedActivities   Activity[]     @relation("UserActivities")
@@ -195,23 +195,23 @@ model Invoice {
   @@map("invoices")
 }
 
-model Organization {
+model Program {
   id              Int           @id @default(autoincrement())
   name            String
   ownerId         Int?
-  owner           User?         @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  owner           User?         @relation("ProgramOwner", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
   opportunities   Opportunity[]
   contacts        Contact[]
   zoho_account_id String?       @unique @map("zoho_account_id")
-  status          OrganizationStatus @default(active)
+  status          ProgramStatus @default(active)
 
-  @@map("organizations")
+  @@map("programs")
 }
 
 model Opportunity {
   id                 Int                 @id @default(autoincrement())
-  organization_id    Int?
-  organization       Organization?       @relation(fields: [organization_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  program_id    Int?
+  program       Program?       @relation(fields: [program_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
   name               String
   stage              OpportunityStage    @default(lead)
   ownerId            Int?
@@ -241,11 +241,11 @@ model Contact {
   title           String?
   email           String?       @unique
   phone           String?
-  organizationId  Int
+  programId       Int
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  program         Program       @relation(fields: [programId], references: [id], onDelete: Cascade)
   activities      Activity[]
 
   @@map("contacts")

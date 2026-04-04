@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Opportunity } from "@/lib/types/opportunity";
-import { OpportunityWithOwner } from "@/app/(app)/opportunities/page";
+import { OpportunityWithProgram } from "@/app/(app)/opportunities/page";
 import { StageBadge } from "./StageBadge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
@@ -21,7 +21,7 @@ const onOwnerChange = async (oppId: number, newOwnerId: number | null) => {
     }
 }
 
-export const getTeamColumns = (assignableUsers: User[]): ColumnDef<OpportunityWithOwner>[] => [
+export const getTeamColumns = (assignableUsers: User[]): ColumnDef<OpportunityWithProgram>[] => [
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -32,14 +32,14 @@ export const getTeamColumns = (assignableUsers: User[]): ColumnDef<OpportunityWi
     }
   },
   {
-    accessorKey: "organization.name",
-    header: "Organization",
+    accessorKey: "program.name",
+    header: "Program",
     cell: ({ row }) => {
         const opp = row.original;
-        if (!opp.organization) {
+        if (!opp.program) {
             return <span className="text-muted-foreground">-</span>
         }
-        return <Link href={`/organizations/${opp.organization.id}`} className="hover:underline">{opp.organization.name}</Link>
+        return <Link href={`/programs/${opp.program.id}`} className="hover:underline">{opp.program.name}</Link>
     }
   },
   {

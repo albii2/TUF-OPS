@@ -6,7 +6,7 @@ export async function getMyDashboardMetrics(userId: string) {
     where: { ownerId: parseInt(userId) },
   });
 
-  const myOrgCount = await prisma.organization.count({
+  const myProgramCount = await prisma.program.count({
     where: { ownerId: parseInt(userId) },
   });
 
@@ -36,7 +36,7 @@ export async function getMyDashboardMetrics(userId: string) {
 
   return {
     myOppCount,
-    myOrgCount,
+    myProgramCount,
     myStaleCount,
     myMissingNextStepCount,
     myOverdueNextStepCount,

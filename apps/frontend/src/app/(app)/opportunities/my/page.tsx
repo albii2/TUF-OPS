@@ -35,7 +35,7 @@ export default async function MyOpportunitiesPage() {
                 description="Your personal pipeline and daily focus."
             />
 
-            <PressureHeader opportunities={opportunities as RepOpportunity[]} />
+            <PressureHeader opportunities={opportunities as any as RepOpportunity[]} />
 
             <OpportunityFocusSection 
                 mustActToday={mustActToday}
@@ -45,7 +45,7 @@ export default async function MyOpportunitiesPage() {
 
             <DataTable 
                 columns={repColumns}
-                data={opportunities as RepOpportunity[]} 
+                data={opportunities as any as RepOpportunity[]} 
                 searchKey="name"
                 emptyStateMessage="Your pipeline is clear! New opportunities assigned to you will appear here."
             />

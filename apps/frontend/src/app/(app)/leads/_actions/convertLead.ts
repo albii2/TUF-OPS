@@ -17,7 +17,7 @@ export async function convertLead(input: unknown) {
     throw new Error("Lead not found");
   }
 
-  const organization = await prisma.organization.create({
+  const program = await prisma.program.create({
     data: {
       name: lead.organizationName,
       ownerId: lead.assignedToId,
@@ -27,7 +27,7 @@ export async function convertLead(input: unknown) {
   const opportunity = await prisma.opportunity.create({
     data: {
       name: `${lead.organizationName} - New Opportunity`,
-      organization_id: organization.id,
+      program_id: program.id,
       ownerId: lead.assignedToId,
     },
   });

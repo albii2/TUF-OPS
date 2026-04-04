@@ -6,7 +6,7 @@ export async function getOrderById(orderId: string) {
         include: {
             opportunity: {
                 include: {
-                    organization: true,
+                    program: true,
                     owner: true,
                     mockupRequests: true,
                     sampleRequests: true,
@@ -25,7 +25,7 @@ export async function getOrders() {
         include: {
             opportunity: {
                 include: {
-                    organization: true,
+                    program: true,
                 }
             }
         },

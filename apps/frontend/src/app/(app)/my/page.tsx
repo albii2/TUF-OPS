@@ -16,7 +16,7 @@ export default async function MyWorkspacePage() {
             />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-5">
                 <StatCard label="My Active Deals" value={data.myOppCount} />
-                <StatCard label="My Accounts" value={data.myOrgCount} />
+                <StatCard label="My Accounts" value={data.myProgramCount} />
                 <StatCard label="Stale Deals" value={data.myStaleCount} />
                 <StatCard label="Missing Next Step" value={data.myMissingNextStepCount} />
                 <StatCard label="Overdue Next Step" value={data.myOverdueNextStepCount} />

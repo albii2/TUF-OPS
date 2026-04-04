@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import Link from "next/link"
-import { UniformOrder, Opportunity, Organization } from "@prisma/client"
+import { UniformOrder, Opportunity, Program } from "@prisma/client"
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 // Define the shape of the data for the table
 type OrderRow = UniformOrder & {
     opportunity: Opportunity & {
-        organization: Organization
+        program: Program
     }
 }
 
@@ -21,7 +21,7 @@ export const columns: ColumnDef<OrderRow>[] = [
         cell: ({ row }) => <p className="font-mono">#{row.original.id.substring(0, 7)}</p>
     },
     {
-        accessorKey: "opportunity.organization.name",
+        accessorKey: "opportunity.program.name",
         header: ({ column }) => <DataTableColumnHeader column={column} title="Customer" />,
     },
     {

@@ -15,7 +15,7 @@ export async function GET(
   const opportunity = await prisma.opportunity.findUnique({
     where: { id: parseInt(params.id) },
     include: { 
-      organization: true
+      program: true
     }
   })
   if (!opportunity) {
@@ -43,8 +43,8 @@ export async function PUT(
   if (body.probability) dataToUpdate.probability = body.probability;
   if (body.last_contact_date) dataToUpdate.last_contact_date = body.last_contact_date;
   if (body.next_action_date) dataToUpdate.next_action_date = body.next_action_date;
-  if (body.organization_id) {
-    dataToUpdate.organization = { connect: { id: body.organization_id } };
+  if (body.program_id) {
+    dataToUpdate.program = { connect: { id: body.program_id } };
   }
 
   const opportunity = await prisma.opportunity.update({

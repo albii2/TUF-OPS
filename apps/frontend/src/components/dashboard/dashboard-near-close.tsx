@@ -10,7 +10,7 @@ export function DashboardNearClose({ deals }: { deals: DealNearClose[] }) {
           {deals.map((deal) => (
             <div key={deal.id} className="p-2 rounded-lg hover:bg-muted">
               <p className="font-semibold">{deal.opportunityName}</p>
-              <p className="text-sm text-muted-foreground">{deal.organizationName}</p>
+              <p className="text-sm text-muted-foreground">{deal.programName}</p>
             </div>
           ))}
         </div>

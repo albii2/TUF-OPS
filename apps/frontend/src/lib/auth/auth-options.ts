@@ -6,7 +6,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  secret: process.env.NEXTAUTH_SECRET,
+  url: process.env.NEXTAUTH_URL,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/auth/signin",
@@ -73,14 +73,10 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (token.id) {
-        const user = await prisma.user.findUnique({ where: { id: parseInt(token.id) } });
-        if (user) {
-          session.user.id = user.id.toString();
-          session.user.role = user.role;
-          session.user.managerId = user.managerId ? user.managerId.toString() : null;
-          session.user.email = user.email;
-        }
+      if (session.user && token.id) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.managerId = token.managerId;
       }
       return session;
     },

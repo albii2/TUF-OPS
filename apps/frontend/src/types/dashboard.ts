@@ -1,4 +1,4 @@
-import { Opportunity, Organization, User } from "@prisma/client";
+import { Opportunity, Program, User } from "@prisma/client";
 
 export type DashboardData = {
   metrics: {
@@ -11,7 +11,7 @@ export type DashboardData = {
     totalValue: number;
     byStage: Record<string, number>;
   };
-  deals: (Opportunity & { organization: Organization | null })[];
+  deals: (Opportunity & { program: Program | null })[];
   owners: { ownerId: number; count: number; ownerName: string }[];
 };
 
@@ -23,7 +23,7 @@ export type FocusMetric = {
 export type NextAction = {
   id: string;
   opportunityName: string;
-  organizationName: string;
+  programName: string;
   description: string;
   dueDate: Date;
   value: number;
@@ -44,7 +44,7 @@ export type RevenueSummary = {
 export type DealNearClose = {
   id: string;
   opportunityName: string;
-  organizationName: string;
+  programName: string;
   value: number;
   closingDate: Date;
 };

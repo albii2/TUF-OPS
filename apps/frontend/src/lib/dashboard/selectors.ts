@@ -24,7 +24,7 @@ export function selectFocusMetrics(opportunities: Opportunity[], user: User | nu
   ];
 }
 
-export function selectNextActions(opportunities: (Opportunity & { organization: { name: string } | null})[], user: User | null): NextAction[] {
+export function selectNextActions(opportunities: (Opportunity & { program: { name: string } | null})[], user: User | null): NextAction[] {
     const myOpps = opportunities.filter(opp => opp.ownerId === user?.id);
     const actions = myOpps
         .filter(opp => needsOpportunityAction({
@@ -43,7 +43,7 @@ export function selectNextActions(opportunities: (Opportunity & { organization: 
         .map(opp => ({
             id: opp.id.toString(),
             opportunityName: opp.name,
-            organizationName: opp.organization?.name || "-",
+            programName: opp.program?.name || "-",
             description: opp.nextStep || "Define next step",
             dueDate: opp.nextStepDueDate || new Date(),
             value: opp.estimated_value ? Number(opp.estimated_value) : 0,
@@ -71,14 +71,14 @@ export function selectRevenueSummary(opportunities: Opportunity[], user: User | 
   };
 }
 
-export function selectDealsNearClose(opportunities: (Opportunity & { organization: { name: string } | null})[], user: User | null): DealNearClose[] {
+export function selectDealsNearClose(opportunities: (Opportunity & { program: { name: string } | null})[], user: User | null): DealNearClose[] {
     const myOpps = opportunities.filter(opp => opp.ownerId === user?.id);
     return myOpps
         .filter(opp => ["invoice"].includes(opp.stage || ""))
         .map(opp => ({
             id: opp.id.toString(),
             opportunityName: opp.name,
-            organizationName: opp.organization?.name || "-",
+            programName: opp.program?.name || "-",
             value: opp.estimated_value ? Number(opp.estimated_value) : 0,
             closingDate: opp.close_date || new Date(),
         }));

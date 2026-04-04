@@ -12,6 +12,9 @@ type VisibilityOptions = {
 };
 
 export async function getTeamOpportunityFilter(directorId: string | number, includeUnassigned = true) {
+    if (!directorId) {
+        throw new Error("A valid director ID must be provided.");
+    }
     const directorIdNum = typeof directorId === 'string' ? parseInt(directorId, 10) : directorId;
     if (Number.isNaN(directorIdNum)) {
         throw new Error("Invalid director id.");
@@ -44,7 +47,7 @@ export async function getVisibleOpportunities(
     user: VisibilityUser,
     options?: VisibilityOptions
 ) {
-    const standardIncludes = { owner: true, organization: true };
+    const standardIncludes = { owner: true, program: true };
     const userId = typeof user.id === "string" ? parseInt(user.id, 10) : user.id;
 
     if (Number.isNaN(userId)) {

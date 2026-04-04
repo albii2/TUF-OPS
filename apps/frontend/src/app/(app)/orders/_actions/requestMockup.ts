@@ -20,7 +20,7 @@ export async function requestMockup(input: unknown) {
 
     const opportunity = await prisma.opportunity.findUnique({
         where: { id: opportunityId },
-        include: { organization: true },
+        include: { program: true },
     });
 
     if (!opportunity) {
@@ -40,7 +40,7 @@ export async function requestMockup(input: unknown) {
 
     // Create Trello Card
     const cardDescription = `
-Organization: ${opportunity.organization?.name}
+Program: ${opportunity.program?.name}
 
 **Jersey Number(s):**
 ${jerseyNumber || 'N/A'}

@@ -7,22 +7,22 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PageActions } from "@/components/ui/page-actions";
 import { DataTable } from "@/components/data-table/data-table";
 import { columns } from "@/components/opportunities/columns";
-import { Opportunity, User, Organization } from "@prisma/client";
+import { Opportunity, User, Program } from "@prisma/client";
 import { EmptyListState } from "@/components/state/empty-list-state";
 import { getOpportunities } from './actions';
 
-export type OpportunityWithOwner = Opportunity & { 
+export type OpportunityWithProgram = Opportunity & { 
     owner: User | null; 
-    organization: Organization;
+    program: Program;
 };
 
 export default function OpportunitiesPage() {
-    const [opportunities, setOpportunities] = useState<OpportunityWithOwner[]>([]);
+    const [opportunities, setOpportunities] = useState<OpportunityWithProgram[]>([]);
 
     useEffect(() => {
         async function fetchData() {
             const opps = await getOpportunities();
-            setOpportunities(opps as OpportunityWithOwner[]);
+            setOpportunities(opps as any as OpportunityWithProgram[]);
         }
         fetchData();
     }, []);

@@ -12,7 +12,7 @@ export function DashboardActionItem({ action }: { action: NextAction }) {
     <Link href={`/opportunities/${action.id}`} className="flex items-center justify-between rounded-md p-3 hover:bg-muted">
       <div>
         <p className="font-semibold">{action.description}</p>
-        <p className="text-sm text-muted-foreground">{action.opportunityName} @ {action.organizationName}</p>
+        <p className="text-sm text-muted-foreground">{action.opportunityName} @ {action.programName}</p>
       </div>
       <div className="flex items-center gap-4">
         <span className="font-semibold">{formattedValue}</span>

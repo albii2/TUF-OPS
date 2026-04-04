@@ -9,7 +9,7 @@ export async function getMyOpportunities(repId: number) {
             ownerId: repId,
         },
         include: {
-            organization: true,
+            program: true,
         },
         orderBy: {
             updated_at: 'desc',
@@ -23,7 +23,7 @@ export async function findTeamOpportunities(directorId: number) {
         where,
         include: {
             owner: true,
-            organization: true,
+            program: true,
         },
         orderBy: {
             updated_at: 'desc',
@@ -68,14 +68,14 @@ export async function getOpportunity(id: string) {
     const opportunity = await prisma.opportunity.findFirst({
         where: whereClause,
         include: { 
-            organization: { include: { contacts: true } }, 
+            program: { include: { contacts: true } }, 
             owner: true, 
             uniformOrder: true,
             activities: { include: { user: true, contact: true }, orderBy: { createdAt: 'desc' } },
         },
     });
     
-    if (!opportunity || !opportunity.organization) {
+    if (!opportunity || !opportunity.program) {
         notFound();
     }
     return opportunity;

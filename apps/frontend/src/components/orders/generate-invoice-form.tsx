@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Opportunity as PrismaOpportunity, Organization, Invoice } from "@prisma/client";
+import { Opportunity as PrismaOpportunity, Program, Invoice } from "@prisma/client";
 import { generateInvoice } from "@/app/(app)/orders/_actions/generateInvoice";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -13,7 +13,7 @@ import { createPaypalOrder, capturePaypalOrder } from "@/app/(app)/orders/_actio
 
 type OpportunityWithRelations = Omit<PrismaOpportunity, 'estimated_value'> & {
   estimated_value: number;
-  organization: Organization;
+  program: Program;
   invoices: Invoice[];
 };
 
@@ -36,7 +36,7 @@ export function GenerateInvoiceForm({ opportunity, children, disabled = false, d
       toast.info("Generating invoice...");
       generateInvoice({ 
           opportunityId: opportunity.id, 
-          customerName: opportunity.organization.name,
+          customerName: opportunity.program.name,
           teamName: opportunity.name,
           amount: opportunity.estimated_value,
       })

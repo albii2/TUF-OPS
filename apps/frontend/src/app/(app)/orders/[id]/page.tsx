@@ -40,7 +40,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         <div className="space-y-6">
             <PageHeader 
                 title={`Order #${order.id.substring(0, 7)}`}
-                description={`Manage the fulfillment process for ${order.opportunity.organization?.name}`}
+                description={`Manage the fulfillment process for ${order.opportunity.program?.name}`}
             />
 
             <OrderStatusTracker orderId={order.id} currentStatus={order.status} />

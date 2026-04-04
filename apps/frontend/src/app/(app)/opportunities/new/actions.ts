@@ -10,7 +10,7 @@ import { OpportunityStage } from '@prisma/client';
 const FormSchema = z.object({
     id: z.string(),
     name: z.string().min(3, { message: 'Must be 3 or more characters long' }),
-    organization_id: z.coerce.number(),
+    program_id: z.coerce.number(),
     stage: z.nativeEnum(OpportunityStage),
     estimated_value: z.coerce.number(),
     probability: z.coerce.number(),
@@ -23,7 +23,7 @@ const CreateOpportunity = FormSchema.omit({ id: true });
 export type State = {
     errors?: {
       name?: string[];
-      organization_id?: string[];
+      program_id?: string[];
       nextStep?: string[];
       nextStepDueDate?: string[];
       // add other fields as necessary
@@ -34,7 +34,7 @@ export type State = {
 export async function createOpportunity(prevState: State, formData: FormData) {
     const validatedFields = CreateOpportunity.safeParse({
         name: formData.get('name'),
-        organization_id: formData.get('organizationId'),
+        program_id: formData.get('programId'),
         stage: formData.get('stage'),
         estimated_value: formData.get('estimatedValue'),
         probability: formData.get('probability'),

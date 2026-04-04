@@ -18,7 +18,7 @@ import { OpportunityOwnerCard } from "@/components/opportunities/opportunity-own
 import { OwnerBadge } from "@/components/shared/owner-badge";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
 import { StageBadge } from "@/components/opportunities/StageBadge";
-import { OrganizationSummaryCard } from "@/components/opportunities/OrganizationSummaryCard";
+import { ProgramSummaryCard } from "@/components/opportunities/ProgramSummaryCard";
 import { CreateOrderButton } from "@/app/(app)/orders/_components/create-order-button";
 import { ActivityTimeline } from "@/components/opportunities/activity-timeline";
 import { LogActivityForm } from "@/components/opportunities/log-activity-form";
@@ -26,11 +26,11 @@ import { LogActivityForm } from "@/components/opportunities/log-activity-form";
 export default async function OpportunityDetailPage({ params }: { params: { id: string } }) {
     const opportunity = await getOpportunity(params.id);
     
-    if (!opportunity || !opportunity.organization) {
+    if (!opportunity || !opportunity.program) {
         return <RecordNotFoundState recordLabel="Opportunity" backHref="/opportunities" />;
     }
 
-    const { organization, activities } = opportunity;
+    const { program, activities } = opportunity;
     const users = await getAssignableUsers();
 
     // Convert Decimal to number for client-side use
@@ -57,7 +57,7 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
         <>
           <PageHeader
             title={opportunity.name}
-            description={`Review and update the current state of this deal with ${organization.name}`}
+            description={`Review and update the current state of this deal with ${program.name}`}
             actions={
                 <PageActions>
                     {opportunity.stage === 'closed_won' && opportunity.uniformOrder && (
@@ -92,13 +92,13 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
                         </DetailFieldList>
                     </DetailSection>
 
-                    <OrganizationSummaryCard organization={organization} />
+                    <ProgramSummaryCard program={program} />
                 </DetailPageShell>
                 <ActivityTimeline activities={activities} />
             </div>
             <div className="col-span-1 space-y-6">
                 <OpportunityWorkflowForm opportunity={plainOpportunity} />
-                <LogActivityForm opportunityId={opportunity.id} contacts={organization.contacts} />
+                <LogActivityForm opportunityId={opportunity.id} contacts={program.contacts} />
                 <OpportunityOwnerCard opportunity={opportunity} users={users} />
             </div>
           </div>

@@ -8,9 +8,15 @@ import { DashboardNearClose } from "@/components/dashboard/dashboard-near-close"
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/auth-options";
 
+import { redirect } from "next/navigation";
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
-  const data = await getDashboardData(session!);
+  if (!session) {
+    redirect("/auth/signin");
+  }
+
+  const data = await getDashboardData(session);
 
   return (
     <div className="space-y-8">
@@ -33,7 +39,7 @@ export default async function DashboardPage() {
           <DashboardOwnerLeaderboard owners={data.owners} />
         </div>
         <div className="lg:col-span-3">
-          <DashboardNearClose deals={data.deals.map(d => ({...d, id: d.id.toString(), value: d.estimated_value.toNumber(), closingDate: d.close_date!, opportunityName: d.name, organizationName: d.organization?.name ?? ''}))} />
+          <DashboardNearClose deals={data.deals.map(d => ({...d, id: d.id.toString(), value: d.estimated_value.toNumber(), closingDate: d.close_date!, opportunityName: d.name, programName: d.program?.name ?? ''}))} />
         </div>
       </div>
     </div>

@@ -3,11 +3,11 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-    console.log('Seeding 10 test organizations...')
+    console.log('Seeding 10 test programs...')
     for (let i = 1; i <= 10; i++) {
-        await prisma.organization.create({
+        await prisma.program.create({
             data: {
-                name: `Test Organization ${i}`,
+                name: `Test Program ${i}`,
                 status: 'active',
             },
         })

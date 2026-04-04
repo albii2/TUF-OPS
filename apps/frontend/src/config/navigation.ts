@@ -16,7 +16,7 @@ export const PRIMARY_NAV: NavItem[] = [
   },
   {
     label: "Programs",
-    href: "/organizations",
+    href: "/programs",
     icon: Building,
     roles: ["admin", "director", "rep"],
   },
@@ -43,7 +43,7 @@ export const PRIMARY_NAV: NavItem[] = [
 export const FOCUS_NAV: NavItem[] = [
     {
         label: "My Programs",
-        href: "/my/organizations",
+        href: "/my/programs",
         roles: ["admin", "director", "rep"],
     },
     {

@@ -4,10 +4,12 @@ import { requireSession } from "@/lib/auth/session";
 import { getTeamOpportunityFilter } from "@/lib/auth/visibility";
 import { OpportunityStage } from "@prisma/client";
 
-export async function getDashboardData(session: any): Promise<DashboardData> {
+import { Session } from "next-auth";
+
+export async function getDashboardData(session: Session): Promise<DashboardData> {
   const userId = session.user.id;
 
-  const where = await getTeamOpportunityFilter(userId);
+  const where = session.user.role === 'admin' ? {} : await getTeamOpportunityFilter(userId);
 
   const [totalOpportunities, totalValue, opportunitiesByStage, dealsNearClose, ownerLeaderboard, needsAction, needsNextStep, needsUpdate] = await Promise.all([
     prisma.opportunity.count({ where }),
@@ -24,7 +26,7 @@ export async function getDashboardData(session: any): Promise<DashboardData> {
         where: { ...where, stage: OpportunityStage.invoice },
         orderBy: { estimated_value: 'desc' },
         take: 5,
-        include: { organization: true, owner: true }
+        include: { program: true, owner: true }
     }),
     prisma.opportunity.groupBy({
         by: ['ownerId'],
@@ -60,7 +62,7 @@ export async function getDashboardData(session: any): Promise<DashboardData> {
         totalValue: totalValue._sum.estimated_value?.toNumber() ?? 0,
         byStage: opportunitiesByStage.reduce((acc, { stage, _count }) => ({ ...acc, [stage]: _count.id }), {} as any)
     },
-    deals: dealsNearClose.map(d => ({ ...d, value: d.estimated_value?.toNumber() ?? 0, closingDate: d.close_date, opportunityName: d.name, organizationName: d.organization?.name ?? ''})),
+    deals: dealsNearClose.map(d => ({ ...d, value: d.estimated_value?.toNumber() ?? 0, closingDate: d.close_date, opportunityName: d.name, programName: d.program?.name ?? ''})),
     owners: ownerLeaderboard.map(o => ({ 
         ownerId: o.ownerId!,
         count: o._count.id,

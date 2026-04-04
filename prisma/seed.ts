@@ -9,7 +9,7 @@ async function main() {
   console.log("Deleting existing data...");
   await prisma.activity.deleteMany({});
   await prisma.opportunity.deleteMany({});
-  await prisma.organization.deleteMany({});
+  await prisma.program.deleteMany({});
   await prisma.user.deleteMany({});
 
   console.log("Creating users...");
@@ -47,7 +47,7 @@ async function main() {
   console.log("Creating sample programs and opportunities...");
 
   // Program owned by the Director
-  const prog1 = await prisma.organization.create({
+  const prog1 = await prisma.program.create({
     data: {
       name: "Northwood High School",
       ownerId: director.id,
@@ -67,7 +67,7 @@ async function main() {
   });
 
   // Program owned by the Rep
-  const prog2 = await prisma.organization.create({
+  const prog2 = await prisma.program.create({
     data: {
       name: "Southside Youth Soccer League",
       ownerId: rep.id,

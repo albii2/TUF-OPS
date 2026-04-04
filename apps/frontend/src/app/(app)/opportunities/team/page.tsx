@@ -5,11 +5,11 @@ import { DataTable } from "@/components/data-table/data-table";
 import { getTeamColumns } from "@/components/opportunities/team-columns";
 import { getAssignableUsers } from "@/lib/users/queries";
 import { User } from "@prisma/client";
-import { Opportunity, Organization } from "@prisma/client";
+import { Opportunity, Program } from "@prisma/client";
 
-export type OpportunityWithOwner = Opportunity & { 
+export type OpportunityWithProgram = Opportunity & { 
     owner: User | null; 
-    organization: Organization;
+    program: Program;
 };
 
 export default async function TeamOpportunitiesPage() {
@@ -40,7 +40,7 @@ export default async function TeamOpportunitiesPage() {
             />
             <DataTable 
                 columns={columns}
-                data={opportunities as OpportunityWithOwner[]} 
+                data={opportunities as OpportunityWithProgram[]} 
                 searchKey="name"
             />
         </div>

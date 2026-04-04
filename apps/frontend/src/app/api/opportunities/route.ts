@@ -24,9 +24,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { name, stage, estimated_value, probability, organization_id } = await request.json()
+  const { name, stage, estimated_value, probability, program_id } = await request.json()
 
-  if (!name || !stage || !organization_id) {
+  if (!name || !stage || !program_id) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
   }
 
@@ -37,8 +37,8 @@ export async function POST(request: NextRequest) {
         stage,
         estimated_value,
         probability,
-        organization: {
-          connect: { id: organization_id },
+        program: {
+          connect: { id: program_id },
         },
       },
     })
