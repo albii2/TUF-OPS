@@ -10,12 +10,18 @@ import { DetailSection } from "@/components/detail/detail-section";
 import { DetailFieldList } from "@/components/detail/detail-field-list";
 import { DetailField } from "@/components/detail/detail-field";
 import { OpportunityHealthBadge } from "@/components/opportunities/opportunity-health-badge";
-import { OpportunityWorkflowForm } from "@/components/opportunities/opportunity-workflow-form";
+import {
+    OpportunityWorkflowForm, 
+    type OpportunityForWorkflow 
+} from "@/components/opportunities/opportunity-workflow-form";
 import { OpportunityOwnerCard } from "@/components/opportunities/opportunity-owner-card";
 import { OwnerBadge } from "@/components/shared/owner-badge";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
 import { StageBadge } from "@/components/opportunities/StageBadge";
 import { OrganizationSummaryCard } from "@/components/opportunities/OrganizationSummaryCard";
+import { CreateOrderButton } from "@/app/(app)/orders/_components/create-order-button";
+import { ActivityTimeline } from "@/components/opportunities/activity-timeline";
+import { LogActivityForm } from "@/components/opportunities/log-activity-form";
 
 export default async function OpportunityDetailPage({ params }: { params: { id: string } }) {
     const opportunity = await getOpportunity(params.id);
@@ -24,16 +30,21 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
         return <RecordNotFoundState recordLabel="Opportunity" backHref="/opportunities" />;
     }
 
-    const { organization } = opportunity;
+    const { organization, activities } = opportunity;
     const users = await getAssignableUsers();
 
-    const estimatedValue = opportunity.estimated_value ? Number(opportunity.estimated_value) : 0;
+    // Convert Decimal to number for client-side use
+    const plainOpportunity: OpportunityForWorkflow = {
+        ...opportunity,
+        estimated_value: opportunity.estimated_value ? opportunity.estimated_value.toNumber() : 0,
+        close_date: opportunity.close_date ? opportunity.close_date.toISOString() : null,
+    };
 
     const formattedValue = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
         maximumFractionDigits: 0,
-    }).format(estimatedValue);
+    }).format(plainOpportunity.estimated_value);
 
     const workflowOpp = {
         stage: opportunity.stage,
@@ -49,15 +60,23 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
             description={`Review and update the current state of this deal with ${organization.name}`}
             actions={
                 <PageActions>
+                    {opportunity.stage === 'closed_won' && opportunity.uniformOrder && (
+                        <Link href={`/orders/${opportunity.uniformOrder.id}`}>
+                            <Button>View Order</Button>
+                        </Link>
+                    )}
+                    {opportunity.stage === 'closed_won' && !opportunity.uniformOrder && (
+                        <CreateOrderButton opportunityId={opportunity.id} />
+                    )}
                     <Link href={`/opportunities/${opportunity.id}/edit`}>
-                        <Button>Edit Opportunity</Button>
+                        <Button variant="secondary">Edit Opportunity</Button>
                     </Link>
                 </PageActions>
             }
           />
    
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-            <div className="col-span-1 lg:col-span-2">
+            <div className="col-span-1 lg:col-span-2 space-y-6">
                 <DetailPageShell>
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
                         <DetailSummaryCard label="Stage" value={<StageBadge stage={opportunity.stage} />} />
@@ -75,9 +94,11 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
 
                     <OrganizationSummaryCard organization={organization} />
                 </DetailPageShell>
+                <ActivityTimeline activities={activities} />
             </div>
             <div className="col-span-1 space-y-6">
-                <OpportunityWorkflowForm opportunity={opportunity} />
+                <OpportunityWorkflowForm opportunity={plainOpportunity} />
+                <LogActivityForm opportunityId={opportunity.id} contacts={organization.contacts} />
                 <OpportunityOwnerCard opportunity={opportunity} users={users} />
             </div>
           </div>

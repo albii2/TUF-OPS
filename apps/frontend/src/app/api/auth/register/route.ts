@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       data: {
         email,
         password_hash: passwordHash,
-        full_name: fullName,
+        name: fullName,
         role
       }
     })
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        fullName: user.full_name,
+        name: user.name,
         role: user.role
       }
     })

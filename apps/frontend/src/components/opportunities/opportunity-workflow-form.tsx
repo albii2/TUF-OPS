@@ -6,19 +6,24 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import { updateOpportunityWorkflow } from '@/lib/opportunities/mutations';
-import { updateOpportunitySchema } from '@/lib/validation/opportunity'; // Corrected import path
+import { updateOpportunity } from '@/app/(app)/opportunities/_actions/updateOpportunity';
+import { updateOpportunitySchema } from '@/lib/validation/opportunity';
 import type { z } from 'zod';
 
 import { DetailSection } from '@/components/detail/detail-section';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
-// Create a partial schema for the workflow form
+// Create a plain object type that is safe to pass to the client
+export type OpportunityForWorkflow = Omit<Opportunity, 'estimated_value' | 'close_date'> & {
+    estimated_value: number;
+    close_date: string | null;
+  };
+
 const workflowFormSchema = updateOpportunitySchema.pick({
   stage: true,
-  nextStep: true,      // Assuming nextStep will be added to the main schema
-  nextStepDueDate: true, // Assuming nextStepDueDate will be added to the main schema
+  nextStep: true,
+  nextStepDueDate: true,
 });
 
 type WorkflowFormData = z.infer<typeof workflowFormSchema>;
@@ -33,25 +38,22 @@ const STAGE_OPTIONS: OpportunityStage[] = [
     'closed_lost'
   ];
 
-export function OpportunityWorkflowForm({ opportunity }: { opportunity: Opportunity }) {
+export function OpportunityWorkflowForm({ opportunity }: { opportunity: OpportunityForWorkflow }) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<WorkflowFormData>({
-    // resolver: zodResolver(workflowFormSchema), // Resolver might be too strict for partial updates
+    resolver: zodResolver(workflowFormSchema),
     defaultValues: {
       stage: opportunity.stage,
       nextStep: opportunity.nextStep ?? '',
-      nextStepDueDate: opportunity.nextStepDueDate ?? null,
+      nextStepDueDate: opportunity.nextStepDueDate ?? undefined,
     },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
     startTransition(async () => {
         try {
-            await updateOpportunityWorkflow({
-                id: String(opportunity.id),
-                ...data,
-            });
+            await updateOpportunity({ id: opportunity.id, ...data });
             toast.success("Workflow updated.");
         } catch (error) {
             toast.error("Failed to update workflow.");
@@ -76,8 +78,9 @@ export function OpportunityWorkflowForm({ opportunity }: { opportunity: Opportun
             />
             <Input 
                 type="date" 
-                defaultValue={form.getValues("nextStepDueDate") ? new Date(form.getValues("nextStepDueDate")!).toISOString().split('T')[0] : ""}
-                onChange={(e) => form.setValue("nextStepDueDate", e.target.value ? new Date(e.target.value) : null)}
+                defaultValue={opportunity.nextStepDueDate ? new Date(opportunity.nextStepDueDate).toISOString().split('T')[0] : ""}
+
+                {...form.register("nextStepDueDate", { valueAsDate: true })}
             />
             <Button type="submit" disabled={isPending}>
                 {isPending ? "Saving..." : "Update Workflow"}

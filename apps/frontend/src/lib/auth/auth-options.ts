@@ -20,10 +20,12 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        console.log("AUTHORIZE: Credentials received:", credentials);
         const email = credentials?.email?.toString().trim().toLowerCase();
         const password = credentials?.password?.toString();
 
         if (!email || !password) {
+          console.log("AUTHORIZE: Missing email or password");
           return null;
         }
 
@@ -31,23 +33,31 @@ export const authOptions: NextAuthOptions = {
           where: { email },
         });
 
+        console.log("AUTHORIZE: User found in DB:", user);
+
         if (!user || !user.password_hash) {
+          console.log("AUTHORIZE: User not found or no password hash");
           return null;
         }
 
         const passwordsMatch = await bcrypt.compare(password, user.password_hash);
+        console.log("AUTHORIZE: Passwords match:", passwordsMatch);
 
         if (!passwordsMatch) {
+          console.log("AUTHORIZE: Passwords do not match");
           return null;
         }
 
-        return {
+        const authorizedUser = {
           id: user.id.toString(),
           email: user.email,
           name: user.name,
           role: user.role,
-          managerId: user.managerId?.toString() ?? null,
+          managerId: user.managerId ? user.managerId.toString() : null,
         };
+
+        console.log("AUTHORIZE: Returning authorized user:", authorizedUser);
+        return authorizedUser;
       },
     }),
   ],

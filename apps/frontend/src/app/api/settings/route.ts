@@ -18,7 +18,7 @@ export async function PUT(request: NextRequest) {
   try {
     const updatedUser = await prisma.user.update({
       where: { id: parseInt((session.user as any).id) },
-      data: { full_name: name },
+      data: { name: name },
     })
     return NextResponse.json(updatedUser)
   } catch (error) {

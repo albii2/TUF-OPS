@@ -1,16 +1,38 @@
 'use server'
 
 import { prisma } from "@/lib/prisma";
-import type { UserRole } from "@prisma/client";
 
 type VisibilityUser = {
     id: string | number;
-    role: UserRole;
+    role: any;
 };
 
 type VisibilityOptions = {
     includeUnassignedForDirector?: boolean;
 };
+
+export async function getTeamOpportunityFilter(directorId: string | number, includeUnassigned = true) {
+    const directorIdNum = typeof directorId === 'string' ? parseInt(directorId, 10) : directorId;
+    if (Number.isNaN(directorIdNum)) {
+        throw new Error("Invalid director id.");
+    }
+
+    const subordinateIds = await prisma.user.findMany({
+        where: { managerId: directorIdNum },
+        select: { id: true },
+    }).then(users => users.map(u => u.id));
+
+    const visibleOwnerIds = [directorIdNum, ...subordinateIds];
+    const directorVisibilityFilters: any[] = [{ ownerId: { in: visibleOwnerIds } }];
+
+    if (includeUnassigned) {
+        directorVisibilityFilters.push({ ownerId: null });
+    }
+
+    return {
+        OR: directorVisibilityFilters
+    }
+}
 
 /**
  * Retrieves opportunities based on the user's role and hierarchy.
@@ -34,23 +56,9 @@ export async function getVisibleOpportunities(
     }
 
     if (user.role === 'director') {
-        const includeUnassigned = options?.includeUnassignedForDirector ?? true;
-        const subordinateIds = await prisma.user.findMany({
-            where: { managerId: userId },
-            select: { id: true },
-        }).then(users => users.map(u => u.id));
-
-        const visibleOwnerIds = [userId, ...subordinateIds];
-        const directorVisibilityFilters = [{ ownerId: { in: visibleOwnerIds } }];
-
-        if (includeUnassigned) {
-            directorVisibilityFilters.push({ ownerId: null });
-        }
-
+        const where = await getTeamOpportunityFilter(userId, options?.includeUnassignedForDirector ?? true);
         return await prisma.opportunity.findMany({
-            where: {
-                OR: directorVisibilityFilters
-            },
+            where,
             include: standardIncludes
         });
     }
@@ -61,3 +69,4 @@ export async function getVisibleOpportunities(
         include: standardIncludes
     });
 }
+

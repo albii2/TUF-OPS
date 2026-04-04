@@ -8,48 +8,28 @@ import { validateAssignment } from '@/lib/opportunities/mutations'
 
 export async function updateOpportunity(input: unknown) {
   const session = await requireSession()
-  const parsed = updateOpportunitySchema.parse(input)
-  const parsedOpportunityId = parseInt(parsed.id, 10)
-  const parsedOwnerId =
-    parsed.ownerId && parsed.ownerId.trim() !== ''
-      ? parseInt(parsed.ownerId, 10)
-      : null;
-
-  if (Number.isNaN(parsedOpportunityId)) {
-    throw new Error('Invalid opportunity id.')
-  }
-
-  if (parsedOwnerId !== null && Number.isNaN(parsedOwnerId)) {
-    throw new Error('Invalid owner id.')
-  }
+  const data = updateOpportunitySchema.parse(input)
 
   const opp = await prisma.opportunity.findUnique({
-    where: { id: parsedOpportunityId } // Corrected for integer ID
+    where: { id: data.id }
   })
 
-  if (!opp) return null
+  if (!opp) throw new Error('Opportunity not found.')
 
-  if (parsedOwnerId !== null) {
-    const ownerExists = await prisma.user.findUnique({
-      where: { id: parsedOwnerId },
-      select: { id: true },
-    })
-
-    if (!ownerExists) {
-      throw new Error('Owner not found.')
-    }
+  if (data.ownerId !== null && data.ownerId !== undefined) {
+    await validateAssignment(session.user, data.ownerId)
   }
 
-  await validateAssignment(session.user, parsedOwnerId)
-
   const updated = await prisma.opportunity.update({
-    where: { id: parsedOpportunityId }, // Corrected for integer ID
+    where: { id: data.id }, 
     data: {
-      name: parsed.name,
-      ownerId: parsedOwnerId, // Corrected for integer ID
-      stage: parsed.stage,
-      estimated_value: parsed.estimatedValue, // Corrected field name
-      close_date: parsed.closeDate // Corrected field name
+      name: data.name,
+      ownerId: data.ownerId,
+      stage: data.stage,
+      estimated_value: data.estimatedValue,
+      close_date: data.closeDate,
+      nextStep: data.nextStep,
+      nextStepDueDate: data.nextStepDueDate,
     }
   })
   

@@ -34,12 +34,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   searchKey: string
+  emptyStateMessage?: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchKey,
+  emptyStateMessage = "No results."
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const [rowSelection, setRowSelection] = React.useState({})
@@ -109,7 +111,7 @@ export function DataTable<TData, TValue>({
                 ) : (
                     <TableRow>
                     <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No results.
+                        {emptyStateMessage}
                     </TableCell>
                     </TableRow>
                 )}

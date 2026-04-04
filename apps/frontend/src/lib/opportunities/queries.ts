@@ -67,7 +67,12 @@ export async function getOpportunity(id: string) {
 
     const opportunity = await prisma.opportunity.findFirst({
         where: whereClause,
-        include: { organization: true, owner: true },
+        include: { 
+            organization: { include: { contacts: true } }, 
+            owner: true, 
+            uniformOrder: true,
+            activities: { include: { user: true, contact: true }, orderBy: { createdAt: 'desc' } },
+        },
     });
     
     if (!opportunity || !opportunity.organization) {

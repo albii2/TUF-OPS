@@ -7,6 +7,8 @@ declare module "next-auth" {
    */
   interface Session {
     user: {
+      /** The user's id. */
+      id: string;
       /** The user's role. */
       role: AppRole
       managerId?: string | null
@@ -14,6 +16,8 @@ declare module "next-auth" {
   }
 
   interface User {
+    /** The user's id. */
+    id: string;
     /** The user's role. */
     role: AppRole
     managerId?: string | null
@@ -22,6 +26,7 @@ declare module "next-auth" {
 
 declare module "next-auth/jwt" {
   interface JWT {
+    id: string;
     role: AppRole
     managerId?: string | null
   }

@@ -1,35 +1,8 @@
 import Link from "next/link";
-import { Home, Users, Briefcase, User } from "lucide-react";
 import { NavMain } from "./nav-main";
 import type { NavItem } from "@/types/navigation";
 import type { AppRole } from "@/types/auth";
-
-const PRIMARY_NAV: NavItem[] = [
-    {
-        label: "Dashboard",
-        href: "/dashboard",
-        icon: Home,
-        roles: ["admin", "director", "rep"],
-    },
-    {
-        label: "My Workspace",
-        href: "/opportunities/my",
-        icon: User,
-        roles: ["admin", "director", "rep"],
-    },
-    {
-        label: "Organizations",
-        href: "/organizations",
-        icon: Users,
-        roles: ["admin", "director", "rep"],
-    },
-    {
-        label: "Opportunities",
-        href: "/opportunities",
-        icon: Briefcase,
-        roles: ["admin", "director", "rep"],
-    },
-];
+import { PRIMARY_NAV, FOCUS_NAV } from "@/config/navigation";
 
 export function AppSidebar({ 
   role,
@@ -38,7 +11,8 @@ export function AppSidebar({
   role: AppRole;
   pathname: string;
 }) {
-  const items = PRIMARY_NAV.filter((item) => item.roles.includes(role));
+  const primaryItems = PRIMARY_NAV.filter((item) => item.roles.includes(role));
+  const focusItems = FOCUS_NAV.filter((item) => item.roles.includes(role));
 
   return (
     <aside className="hidden w-64 border-r bg-card md:block">
@@ -50,8 +24,14 @@ export function AppSidebar({
         </div>
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid items-start px-4 text-sm font-medium">
-            <NavMain items={items} pathname={pathname} />
+            <NavMain items={primaryItems} pathname={pathname} />
           </nav>
+          <div className="mt-4 px-4">
+            <h2 className="mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Focus</h2>
+            <nav className="grid items-start text-sm font-medium">
+              <NavMain items={focusItems} pathname={pathname} />
+            </nav>
+          </div>
         </div>
       </div>
     </aside>

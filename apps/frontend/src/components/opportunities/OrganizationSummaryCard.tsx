@@ -4,7 +4,7 @@ import { DetailSection } from '@/components/detail/detail-section';
 
 export function OrganizationSummaryCard({ organization }: { organization: Organization }) {
     return (
-        <DetailSection title="Organization">
+        <DetailSection title="Program">
             <Link href={`/organizations/${organization.id}`} className="font-semibold text-blue-600 hover:underline">
                 {organization.name}
             </Link>

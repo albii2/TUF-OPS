@@ -5,6 +5,8 @@
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
     "postinstall": "cd apps/frontend && pnpm prisma generate",
+    "db:seed": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- tsx ../../prisma/seed.ts",
+    "db:push": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- prisma db push",
     "test:e2e": "playwright test",
     "test:e2e:prod": "pnpm --filter frontend build && playwright test"
   },

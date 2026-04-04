@@ -5,7 +5,7 @@ export default function NewOrganizationPage() {
   return (
     <div className="space-y-6">
       <PageHeader 
-        title="New Organization"
+        title="New Program"
         description="Create a new school, team, or institutional account."
       />
       <NewOrganizationForm />

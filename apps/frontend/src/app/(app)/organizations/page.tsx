@@ -28,15 +28,15 @@ export default function OrganizationsPage() {
     return (
         <div className="space-y-6">
             <PageHeader
-                title="Organizations"
+                title="Programs"
                 description="Manage accounts, associated deals, and key contacts."
             />
             <EmptyListState
-                resourceName="Organizations"
+                resourceName="Programs"
                 description="Create your first organization to begin managing accounts."
                 action={
                     <Button asChild>
-                        <Link href="/organizations/new">New Organization</Link>
+                        <Link href="/organizations/new">New Program</Link>
                     </Button>
                 }
             />
@@ -47,12 +47,12 @@ export default function OrganizationsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Organizations"
+        title="Programs"
         description="Manage accounts, associated deals, and key contacts."
         actions={
           <PageActions>
             <Link href="/organizations/new">
-              <Button>New Organization</Button>
+              <Button>New Program</Button>
             </Link>
           </PageActions>
         }

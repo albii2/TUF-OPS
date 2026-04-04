@@ -18,25 +18,11 @@ export async function getAssignableUsers() {
       where: {
         OR: [{ id: actorId }, { managerId: actorId }],
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        managerId: true,
-      },
       orderBy: [{ name: "asc" }],
     });
   }
 
   return prisma.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      managerId: true,
-    },
     orderBy: [{ name: "asc" }],
   });
 }

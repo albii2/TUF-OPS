@@ -1,13 +1,17 @@
 import Link from 'next/link';
-import { Opportunity } from '@prisma/client';
+import { Opportunity as PrismaOpportunity, OpportunityStage } from '@prisma/client';
 import { StageBadge } from '@/components/opportunities/StageBadge';
 
-function OpportunityRow({ opportunity }: { opportunity: Opportunity }) {
+type OpportunityWithNumberValue = Omit<PrismaOpportunity, 'estimated_value'> & {
+  estimated_value: number;
+};
+
+function OpportunityRow({ opportunity }: { opportunity: OpportunityWithNumberValue }) {
     const formattedValue = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
         maximumFractionDigits: 0,
-    }).format(Number(opportunity.estimated_value));
+    }).format(opportunity.estimated_value);
 
     return (
         <Link href={`/opportunities/${opportunity.id}`} className="block p-3 hover:bg-muted rounded-lg">
@@ -26,7 +30,7 @@ function OpportunityRow({ opportunity }: { opportunity: Opportunity }) {
     );
 }
 
-export function OrganizationOpportunitiesList({ opportunities }: { opportunities: Opportunity[] }) {
+export function OrganizationOpportunitiesList({ opportunities }: { opportunities: OpportunityWithNumberValue[] }) {
     if (opportunities.length === 0) {
         return <p className="text-sm text-muted-foreground">No opportunities are linked to this organization.</p>
     }

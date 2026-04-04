@@ -27,7 +27,7 @@ export function QuickUpdateOpportunityForm({ opportunity, onSuccess }: { opportu
       id: String(opportunity.id),
       stage: opportunity.stage as any, // TODO: Fix type
       nextStep: opportunity.nextStep ?? '',
-      nextStepDueDate: opportunity.nextStepDueDate ?? null,
+      nextStepDueDate: opportunity.nextStepDueDate ?? undefined,
     },
   });
 
@@ -58,11 +58,11 @@ export function QuickUpdateOpportunityForm({ opportunity, onSuccess }: { opportu
             </Select>
         </FormField>
       
-        <FormField label="Next Step">
+        <FormField label="Next Step" error={form.formState.errors.nextStep?.message}>
             <Input {...form.register("nextStep")} />
         </FormField>
 
-        <FormField label="Next Step Due Date">
+        <FormField label="Next Step Due Date" error={form.formState.errors.nextStepDueDate?.message}>
             <Input 
                 type="date" 
                 defaultValue={form.getValues("nextStepDueDate") ? new Date(form.getValues("nextStepDueDate")!).toISOString().split('T')[0] : ""}

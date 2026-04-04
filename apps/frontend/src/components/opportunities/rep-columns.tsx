@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from "react";
-import { ColumnDef } from "@tanstack/react-table"
+import { getOpportunityHealth } from "@/lib/workflow/opportunity-workflow";
+import { cn } from "@/lib/utils";
 import { Opportunity } from "@prisma/client";
+import { ColumnDef } from "@tanstack/react-table";
+import { useState } from "react";
 import Link from "next/link";
-
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";
 import { StageBadge } from "./StageBadge";
@@ -45,7 +46,20 @@ export const columns: ColumnDef<RepOpportunity>[] = [
         <DataTableColumnHeader column={column} title="Name" />
     ),
     cell: ({ row }) => {
-        return <Link href={`/opportunities/${row.original.id}`} className="hover:underline">{row.getValue("name")}</Link>
+        const health = getOpportunityHealth(row.original);
+        const healthColor = {
+            overdue: 'bg-red-500',
+            at_risk: 'bg-yellow-500',
+            missing_step: 'bg-yellow-500',
+            healthy: 'bg-transparent'
+        }[health];
+
+        return (
+            <div className="flex items-center space-x-2">
+                <span className={cn("h-2 w-2 rounded-full", healthColor)} />
+                <Link href={`/opportunities/${row.original.id}`} className="hover:underline">{row.getValue("name")}</Link>
+            </div>
+        )
     }
   },
   {

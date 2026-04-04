@@ -16,13 +16,11 @@ import {
 export function selectFocusMetrics(opportunities: Opportunity[], user: User | null): FocusMetric[] {
   const myOpps = opportunities.filter(opp => opp.ownerId === user?.id);
   const dealsNeedAction = myOpps.filter(opp => needsOpportunityAction(opp)).length;
-  const nearClose = myOpps.filter(opp => ["invoice_ready", "invoice_sent", "awaiting_approval"].includes(opp.stage || "")).length;
-  const paymentsPending = myOpps.filter(opp => opp.stage === "payment_pending").length;
+  const nearClose = myOpps.filter(opp => ["invoice"].includes(opp.stage || "")).length;
 
   return [
     { label: "My Deals Need Action", value: dealsNeedAction },
     { label: "My Deals Near Close", value: nearClose },
-    { label: "My Payments Pending", value: paymentsPending },
   ];
 }
 
@@ -76,7 +74,7 @@ export function selectRevenueSummary(opportunities: Opportunity[], user: User | 
 export function selectDealsNearClose(opportunities: (Opportunity & { organization: { name: string } | null})[], user: User | null): DealNearClose[] {
     const myOpps = opportunities.filter(opp => opp.ownerId === user?.id);
     return myOpps
-        .filter(opp => ["invoice_ready", "invoice_sent", "awaiting_approval"].includes(opp.stage || ""))
+        .filter(opp => ["invoice"].includes(opp.stage || ""))
         .map(opp => ({
             id: opp.id.toString(),
             opportunityName: opp.name,
