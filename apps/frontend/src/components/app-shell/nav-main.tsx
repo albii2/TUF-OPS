@@ -16,7 +16,7 @@ export function NavMain({
     const opportunitiesIndex = allItems.findIndex(
       (item) => item.href === "/opportunities"
     );
-    const orderItem = { href: "/orders", label: "Orders", icon: Package };
+    const orderItem = { href: "/orders", label: "Orders", icon: Package, roles: ["admin", "director", "rep"] as any };
     if (opportunitiesIndex !== -1) {
       allItems.splice(opportunitiesIndex + 1, 0, orderItem);
     } else {

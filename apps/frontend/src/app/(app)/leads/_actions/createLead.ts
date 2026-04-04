@@ -1,25 +1,12 @@
 'use server'
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { requireSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { createLeadSchema } from "@/lib/validation/lead";
 
-export type State = {
-  errors?: {
-    organizationName?: string[];
-  };
-  message?: string | null;
-};
-
-export async function createLead(prevState: State, formData: FormData) {
+export async function createLead(prevState: any, formData: FormData) {
   const session = await requireSession();
-  if (session.user.role !== "admin") {
-    return {
-      message: "Unauthorized",
-    };
-  }
 
   const validatedFields = createLeadSchema.safeParse({
     organizationName: formData.get("organizationName"),
@@ -33,18 +20,22 @@ export async function createLead(prevState: State, formData: FormData) {
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: "Failed to create lead.",
+      message: "Missing Fields. Failed to Create Lead.",
     };
   }
 
-  try {
-    await prisma.lead.create({
-      data: validatedFields.data,
-    });
-  } catch (e) {
-    return { message: "Database Error: Failed to create lead." };
-  }
+  await prisma.lead.create({
+    data: {
+      organizationName: validatedFields.data.organizationName,
+      contactName: validatedFields.data.contactName,
+      contactInfo: validatedFields.data.contactInfo,
+      sport: validatedFields.data.sport,
+      notes: validatedFields.data.notes,
+      source: validatedFields.data.source,
+    },
+  });
 
   revalidatePath("/leads");
-  redirect("/leads");
+
+  return { message: "Successfully created lead" };
 }

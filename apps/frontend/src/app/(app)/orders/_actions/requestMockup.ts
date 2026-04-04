@@ -40,7 +40,7 @@ export async function requestMockup(input: unknown) {
 
     // Create Trello Card
     const cardDescription = `
-Organization: ${opportunity.organization.name}
+Organization: ${opportunity.organization?.name}
 
 **Jersey Number(s):**
 ${jerseyNumber || 'N/A'}

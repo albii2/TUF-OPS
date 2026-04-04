@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+
 import { toast } from 'sonner';
 import { useSession } from 'next-auth/react';
 
@@ -54,7 +54,7 @@ export function OpportunityEditForm({
     control, 
     formState: { errors } 
   } = useForm<FormData>({
-    resolver: zodResolver(updateOpportunitySchema),
+
     defaultValues: {
       id: opportunity.id,
       name: opportunity.name,

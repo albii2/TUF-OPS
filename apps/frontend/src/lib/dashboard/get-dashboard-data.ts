@@ -4,8 +4,7 @@ import { requireSession } from "@/lib/auth/session";
 import { getTeamOpportunityFilter } from "@/lib/auth/visibility";
 import { OpportunityStage } from "@prisma/client";
 
-export async function getDashboardData(): Promise<DashboardData> {
-  const session = await requireSession();
+export async function getDashboardData(session: any): Promise<DashboardData> {
   const userId = session.user.id;
 
   const where = await getTeamOpportunityFilter(userId);
@@ -22,7 +21,7 @@ export async function getDashboardData(): Promise<DashboardData> {
       where,
     }),
     prisma.opportunity.findMany({
-        where: { ...where, stage: OpportunityStage.closing },
+        where: { ...where, stage: OpportunityStage.invoice },
         orderBy: { estimated_value: 'desc' },
         take: 5,
         include: { organization: true, owner: true }
@@ -51,18 +50,18 @@ export async function getDashboardData(): Promise<DashboardData> {
   });
 
   return {
-    focusMetrics: {
+    metrics: {
         needsAction,
         needsNextStep,
         needsUpdate,
     },
-    pipelineSnapshot: {
+    snapshot: {
         totalOpportunities,
         totalValue: totalValue._sum.estimated_value?.toNumber() ?? 0,
         byStage: opportunitiesByStage.reduce((acc, { stage, _count }) => ({ ...acc, [stage]: _count.id }), {} as any)
     },
-    dealsNearClose: dealsNearClose.map(d => ({ ...d, estimated_value: d.estimated_value?.toNumber() ?? 0})),
-    ownerLeaderboard: ownerLeaderboard.map(o => ({ 
+    deals: dealsNearClose.map(d => ({ ...d, value: d.estimated_value?.toNumber() ?? 0, closingDate: d.close_date, opportunityName: d.name, organizationName: d.organization?.name ?? ''})),
+    owners: ownerLeaderboard.map(o => ({ 
         ownerId: o.ownerId!,
         count: o._count.id,
         ownerName: owners.find(u => u.id === o.ownerId)?.name ?? 'Unknown'

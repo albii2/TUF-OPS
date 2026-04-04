@@ -77,7 +77,7 @@ export function GenerateInvoiceForm({ opportunity, children, disabled = false, d
             <div>
               <p>An invoice has been generated for this order. You can now proceed to payment.</p>
               <p className="font-semibold text-lg my-4">Amount: ${invoice.amount.toFixed(2)}</p>
-              <PayPalScriptProvider options={{ "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! }}>
+              <PayPalScriptProvider options={{ clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID! }}>
                 <PayPalButtons 
                     style={{ layout: "vertical" }}
                     createOrder={async (data, actions) => {

@@ -105,7 +105,7 @@ export function EditOrganizationForm({
                   render={({ field }) => (
                       <UserSelect 
                           users={assignableUsers} 
-                          value={field.value ?? undefined}
+                          value={field.value ? parseInt(field.value) : undefined}
                           onChange={field.onChange} 
                       />
                   )}

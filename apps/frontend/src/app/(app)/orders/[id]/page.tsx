@@ -40,7 +40,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         <div className="space-y-6">
             <PageHeader 
                 title={`Order #${order.id.substring(0, 7)}`}
-                description={`Manage the fulfillment process for ${order.opportunity.organization.name}`}
+                description={`Manage the fulfillment process for ${order.opportunity.organization?.name}`}
             />
 
             <OrderStatusTracker orderId={order.id} currentStatus={order.status} />
@@ -116,7 +116,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                             <p className="text-sm text-muted-foreground">Status: {invoice.status}</p>
                         </div>
                     ) : (
-                        <GenerateInvoiceForm opportunity={opportunityForInvoice} disabled={!canGenerateInvoice} disabledReason="An invoice can only be generated after a mockup is approved or a sample has been delivered.">
+                        <GenerateInvoiceForm opportunity={opportunityForInvoice as any} disabled={!canGenerateInvoice} disabledReason="An invoice can only be generated after a mockup is approved or a sample has been delivered.">
                             <div className="hover:bg-muted p-4 -m-4 rounded-md cursor-pointer">
                                 <p>No invoice has been generated for this order yet. Click here to create one.</p>
                             </div>

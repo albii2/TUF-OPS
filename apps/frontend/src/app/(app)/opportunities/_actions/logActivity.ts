@@ -20,7 +20,7 @@ export async function logActivity(input: unknown) {
   const activity = await prisma.activity.create({
     data: {
       ...data,
-      userId: session.user.id,
+      userId: parseInt(session.user.id),
     },
   });
 

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PipelineSnapshot } from "@/types/dashboard";
 
-export function DashboardPipelineSnapshot({ snapshot }: { snapshot: PipelineSnapshot }) {
+
+export function DashboardPipelineSnapshot({ snapshot }: { snapshot: any }) {
   const { totalOpportunities, totalValue, byStage } = snapshot;
 
   const formattedValue = new Intl.NumberFormat("en-US", {
@@ -24,7 +24,7 @@ export function DashboardPipelineSnapshot({ snapshot }: { snapshot: PipelineSnap
             {Object.entries(byStage).map(([stage, count]) => (
                 <div key={stage} className="flex justify-between">
                     <span className="capitalize text-muted-foreground">{stage.replace('_', ' ')}</span>
-                    <span className="font-semibold">{count}</span>
+                    <span className="font-semibold">{count as any}</span>
                 </div>
             ))}
              <div className="flex justify-between font-semibold border-t pt-2">

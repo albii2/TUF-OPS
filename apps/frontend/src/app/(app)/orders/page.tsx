@@ -13,7 +13,7 @@ export default async function OrdersPage() {
                 description="Review and manage all post-sale fulfillment orders."
             />
             <DataTable 
-                columns={columns} 
+                columns={columns as any} 
                 data={orders} 
                 searchKey="opportunity.organization.name"
                 emptyStateMessage="No orders found. Create an order from a 'Closed Won' opportunity to get started."

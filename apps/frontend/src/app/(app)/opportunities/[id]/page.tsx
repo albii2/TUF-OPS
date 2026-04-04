@@ -61,7 +61,7 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
             actions={
                 <PageActions>
                     {opportunity.stage === 'closed_won' && opportunity.uniformOrder && (
-                        <Link href={`/orders/${opportunity.uniformOrder.id}`}>
+                        <Link href={`/orders/${opportunity.uniformOrder[0].id}`}>
                             <Button>View Order</Button>
                         </Link>
                     )}

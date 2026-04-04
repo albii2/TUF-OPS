@@ -42,7 +42,7 @@ export async function generateInvoice(input: unknown) {
         data: {
             ...data,
             invoiceNumber,
-            status: "Draft",
+            status: "DRAFT",
         }
     });
 
