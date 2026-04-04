@@ -5,7 +5,7 @@ import { DetailSection } from "@/components/detail/detail-section";
 import { OwnerBadge } from "@/components/shared/owner-badge";
 import { OwnerSelect } from "@/components/shared/owner-select";
 import { Button } from "@/components/ui/button";
-import { updateProgramOwner } from "@/app/(app)/organizations/actions";
+import { updateProgramOwner } from "@/app/(app)/programs/actions";
 
 export function ProgramOwnerCard({ program, users }: { program: any, users: any[] }) {
     const [ownerId, setOwnerId] = useState(program.ownerId);

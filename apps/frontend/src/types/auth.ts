@@ -1,4 +1,6 @@
-export type AppRole = "admin" | "director" | "rep";
+import { UserRole } from "@prisma/client";
+
+export type AppRole = UserRole;
 
 export type AppSessionUser = {
   id: string;
@@ -6,8 +8,4 @@ export type AppSessionUser = {
   email?: string | null;
   role: AppRole;
   managerId?: string | null;
-};
-
-export type AppSession = {
-  user: AppSessionUser;
 };

@@ -1,7 +1,7 @@
 'use client'
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ProgramWithOwner } from "@/app/(app)/organizations/page";
+import { ProgramWithOwner } from "@/app/(app)/programs/page";
 import { ProgramStatusBadge } from "./program-status-badge";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { DataTableRowActions } from "@/components/data-table/data-table-row-actions";

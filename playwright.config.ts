@@ -1,13 +1,15 @@
-import { defineConfig } from '@playwright/test';
+import { PlaywrightTestConfig } from '@playwright/test';
 
-export default defineConfig({
-  testDir: './e2e',
+const config: PlaywrightTestConfig = {
   webServer: {
-    command: 'pnpm --filter frontend dev',
-    url: 'http://localhost:3000',
+    command: 'pnpm dev:frontend',
+    port: 3000,
+    timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
   },
   use: {
     baseURL: 'http://localhost:3000',
   },
-});
+};
+
+export default config;

@@ -4,7 +4,7 @@
   "scripts": {
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
-    "postinstall": "cd apps/frontend && pnpm prisma generate",
+    "prisma:validate": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- prisma validate",
     "db:seed": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- tsx ../../prisma/seed.ts",
     "db:push": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- prisma db push",
     "test:e2e": "playwright test",
@@ -20,6 +20,7 @@
     "dotenv-cli": "^11.0.0",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
+    "jest-playwright-preset": "^4.0.0",
     "pnpm": "^9.1.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

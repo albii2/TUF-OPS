@@ -1,7 +1,7 @@
 'use client'
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { createProgram } from '@/app/(app)/organizations/new/actions';
+import { createProgram } from '@/app/(app)/programs/new/actions';
 import { FormShell } from '@/components/form/form-shell';
 import { FormSection } from '@/components/form/form-section';
 import { FormField } from '@/components/form/form-field';

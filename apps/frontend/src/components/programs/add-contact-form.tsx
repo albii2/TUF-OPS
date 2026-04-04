@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 
-import { addContact } from "@/app/(app)/organizations/_actions/addContact";
+import { addContact } from "@/app/(app)/programs/_actions/addContact";
 import { addContactSchema } from "@/lib/validation/program";
 import { Button } from "@/components/ui/button";
 import { 

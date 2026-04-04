@@ -55,7 +55,7 @@ async function main() {
         create: [
           {
             name: "Varsity Football Uniforms",
-            stage: OpportunityStage.lead, // Corrected from 'discovery'
+            stage: OpportunityStage.lead,
             ownerId: director.id,
             estimated_value: 25000,
             probability: 20,
@@ -75,7 +75,7 @@ async function main() {
         create: [
           {
             name: "U12 Travel Team Kits",
-            stage: OpportunityStage.mockup, // Corrected from 'proposal'
+            stage: OpportunityStage.mockup,
             ownerId: rep.id,
             estimated_value: 12000,
             probability: 60,

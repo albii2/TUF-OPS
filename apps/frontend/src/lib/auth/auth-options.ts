@@ -1,3 +1,4 @@
+import { AppRole, AppSessionUser } from "@/types/auth";
 import { prisma } from "@/lib/prisma";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
@@ -6,7 +7,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
-  url: process.env.NEXTAUTH_URL,
+  secret: process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/auth/signin",
@@ -48,10 +49,9 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const authorizedUser = {
+        const authorizedUser: AppSessionUser = {
           id: user.id.toString(),
-          email: user.email,
-          name: user.name,
+
           role: user.role,
           managerId: user.managerId ? user.managerId.toString() : null,
         };
@@ -63,20 +63,18 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log("JWT CB: user", user);
-      console.log("JWT CB: token", token);
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-        token.managerId = user.managerId;
+        token.role = (user as any).role;
+        token.managerId = (user as any).managerId;
       }
       return token;
     },
     async session({ session, token }) {
-      if (session.user && token.id) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-        session.user.managerId = token.managerId;
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as AppRole;
+        session.user.managerId = token.managerId as string | null;
       }
       return session;
     },
