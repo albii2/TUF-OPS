@@ -4,8 +4,8 @@ export type AppRole = UserRole;
 
 export type AppSessionUser = {
   id: string;
-  name: string | null;
-  email: string | null;
+  name?: string | null;
+  email?: string | null;
   role: AppRole;
-  managerId: string | null;
+  managerId?: string | null;
 };
