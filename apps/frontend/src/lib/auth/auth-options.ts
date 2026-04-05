@@ -1,5 +1,5 @@
-import { AppRole, AppSessionUser } from "@/types/auth";
 import { prisma } from "@/lib/prisma";
+import { AppRole, AppSessionUser } from "@/types/auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { NextAuthOptions } from "next-auth";
@@ -51,13 +51,14 @@ export const authOptions: NextAuthOptions = {
 
         const authorizedUser: AppSessionUser = {
           id: user.id.toString(),
-
+          name: user.name,
+          email: user.email,
           role: user.role,
           managerId: user.managerId ? user.managerId.toString() : null,
         };
 
         console.log("AUTHORIZE: Returning authorized user:", authorizedUser);
-        return authorizedUser;
+        return authorizedUser as any;
       },
     }),
   ],
@@ -65,6 +66,8 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
+        token.name = user.name;
+        token.email = user.email;
         token.role = (user as any).role;
         token.managerId = (user as any).managerId;
       }
@@ -73,6 +76,8 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
         session.user.role = token.role as AppRole;
         session.user.managerId = token.managerId as string | null;
       }
