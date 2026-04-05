@@ -58,7 +58,7 @@ export const authOptions: NextAuthOptions = {
         };
 
         console.log("AUTHORIZE: Returning authorized user:", authorizedUser);
-        return authorizedUser as any;
+        return authorizedUser;
       },
     }),
   ],
@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (session.user && token.id) {
         session.user.id = token.id as string;
         session.user.name = token.name as string;
         session.user.email = token.email as string;

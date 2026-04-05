@@ -7,7 +7,7 @@
     "prisma:validate": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- prisma validate",
     "db:seed": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- tsx ../../prisma/seed.ts",
     "db:push": "cd apps/frontend && pnpm exec dotenv -e ../../.env -- prisma db push",
-    "test:e2e": "playwright test",
+    "test:e2e": "start-server-and-test dev:frontend http://localhost:3000 \"pnpm playwright test --timeout=180000\"",
     "test:smoke": "playwright test e2e/auth.spec.ts",
     "test:e2e:prod": "pnpm --filter frontend build && playwright test"
   },
@@ -22,6 +22,7 @@
     "jest-environment-jsdom": "^30.3.0",
     "jest-playwright-preset": "^4.0.0",
     "pnpm": "^9.1.0",
+    "start-server-and-test": "^3.0.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.4.5"
