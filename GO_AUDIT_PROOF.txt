@@ -1,0 +1,111 @@
+=== BRANCH ===
+stabilization/foundational-hardening
+e939ad7b4e4b103a5cbf2ca69e0a74ff1834664d
+e939ad7 docs: Update readiness report with final verification
+a5d69c4 feat: Complete foundational hardening sprint
+6fc9b97 fix: Correct session user type for typecheck
+3887523 refactor: Unify session and JWT typing contracts
+c55bfea feat: Harden application and add CI gates
+=== GATES ===
+Prisma schema loaded from prisma/schema.prisma
+The schema at /Users/coachbradshaw/Documents/trae_projects/TUF/apps/frontend/prisma/schema.prisma is valid 🚀
+
+> frontend@0.1.0 lint /Users/coachbradshaw/Documents/trae_projects/TUF/apps/frontend
+> next lint
+
+◇ injecting env (7) from ../../.env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+✔ No ESLint warnings or errors
+
+> frontend@0.1.0 build /Users/coachbradshaw/Documents/trae_projects/TUF/apps/frontend
+> next build
+
+◇ injecting env (7) from ../../.env // tip: ⌘ enable debugging { debug: true }
+  ▲ Next.js 14.2.3
+
+   Creating an optimized production build ...
+◇ injecting env (0) from ../../.env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injecting env (0) from ../../.env // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injecting env (0) from ../../.env // tip: ⌁ auth for agents [www.vestauth.com]
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/23) ...
+   Generating static pages (5/23) 
+   Generating static pages (11/23) 
+prisma:query SELECT "public"."uniform_orders"."id", "public"."uniform_orders"."status"::text, "public"."uniform_orders"."opportunityId", "public"."uniform_orders"."createdAt", "public"."uniform_orders"."updatedAt" FROM "public"."uniform_orders" WHERE 1=1 ORDER BY "public"."uniform_orders"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."uniform_orders"."id", "public"."uniform_orders"."status"::text, "public"."uniform_orders"."opportunityId", "public"."uniform_orders"."createdAt", "public"."uniform_orders"."updatedAt" FROM "public"."uniform_orders" WHERE 1=1 ORDER BY "public"."uniform_orders"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."programs"."id", "public"."programs"."name", "public"."programs"."ownerId", "public"."programs"."zoho_account_id", "public"."programs"."status"::text FROM "public"."programs" WHERE 1=1 OFFSET $1
+prisma:query SELECT "public"."programs"."id", "public"."programs"."name", "public"."programs"."ownerId", "public"."programs"."zoho_account_id", "public"."programs"."status"::text FROM "public"."programs" WHERE 1=1 OFFSET $1
+   Generating static pages (17/23) 
+prisma:query SELECT "public"."leads"."id", "public"."leads"."organizationName", "public"."leads"."contactName", "public"."leads"."contactInfo", "public"."leads"."sport", "public"."leads"."notes", "public"."leads"."source", "public"."leads"."status"::text, "public"."leads"."assignedToId", "public"."leads"."createdAt" FROM "public"."leads" WHERE 1=1 ORDER BY "public"."leads"."createdAt" DESC OFFSET $1
+prisma:query SELECT "public"."leads"."id", "public"."leads"."organizationName", "public"."leads"."contactName", "public"."leads"."contactInfo", "public"."leads"."sport", "public"."leads"."notes", "public"."leads"."source", "public"."leads"."status"::text, "public"."leads"."assignedToId", "public"."leads"."createdAt" FROM "public"."leads" WHERE 1=1 ORDER BY "public"."leads"."createdAt" DESC OFFSET $1
+ ✓ Generating static pages (23/23)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ƒ /                                    162 B          87.2 kB
+├ ○ /_not-found                          874 B          87.9 kB
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/auth/register                   0 B                0 B
+├ ƒ /api/opportunities                   0 B                0 B
+├ ƒ /api/opportunities/[id]              0 B                0 B
+├ ƒ /api/programs                        0 B                0 B
+├ ƒ /api/programs/[id]                   0 B                0 B
+├ ƒ /api/settings                        0 B                0 B
+├ ○ /auth/register                       1.31 kB        88.4 kB
+├ ○ /auth/signin                         1.01 kB        97.9 kB
+├ ƒ /dashboard                           162 B          87.2 kB
+├ ○ /forbidden                           185 B            94 kB
+├ ƒ /leads                               1.53 kB         147 kB
+├ ƒ /leads/new                           2.71 kB        98.3 kB
+├ ƒ /my                                  162 B          87.2 kB
+├ ƒ /my/programs                         2.13 kB         156 kB
+├ ƒ /opportunities                       2.56 kB         157 kB
+├ ƒ /opportunities/[id]                  7.21 kB         209 kB
+├ ƒ /opportunities/[id]/edit             3.5 kB          130 kB
+├ ƒ /opportunities/my                    6.57 kB         206 kB
+├ ƒ /opportunities/new                   2.77 kB         126 kB
+├ ƒ /opportunities/team                  2.14 kB         161 kB
+├ ƒ /orders                              901 B           148 kB
+├ ƒ /orders/[id]                         16.6 kB         218 kB
+├ ƒ /programs                            2.5 kB          157 kB
+├ ƒ /programs/[id]                       7.7 kB          183 kB
+├ ƒ /programs/[id]/edit                  3.4 kB          151 kB
+├ ƒ /programs/new                        2.66 kB        98.2 kB
+└ ƒ /settings                            162 B          87.2 kB
++ First Load JS shared by all            87.1 kB
+  ├ chunks/39e83f7d-f084853f926e72b0.js  53.6 kB
+  ├ chunks/5684-aba39483cda25dbf.js      31.5 kB
+  └ other shared chunks (total)          1.96 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+=== TREE ===
+## stabilization/foundational-hardening...origin/stabilization/foundational-hardening
+ M docs/repo-foundational-readiness-report-2026-04-04.md
+?? GO_AUDIT_PROOF.txt
+=== DIFF PROOF ===
+e939ad7 docs: Update readiness report with final verification
+apps/frontend/tsconfig.tsbuildinfo
+docs/repo-foundational-readiness-report-2026-04-04.md
+apps/frontend/src/components/programs/add-contact-form.tsx
+apps/frontend/src/components/programs/columns.tsx
+apps/frontend/src/components/programs/edit-program-form.tsx
+apps/frontend/src/components/programs/new-program-form.tsx
+apps/frontend/src/components/programs/program-owner-card.tsx
+apps/frontend/src/lib/auth/auth-options.ts
+apps/frontend/src/lib/auth/visibility.test.ts
+apps/frontend/src/lib/opportunities/mutations.test.ts
+apps/frontend/src/types/auth.ts
+apps/frontend/src/types/next-auth.d.ts
+apps/frontend/tsconfig.tsbuildinfo
+docs/repo-foundational-readiness-report-2026-04-04.md
+e2e/auth-state-test.spec.ts
+e2e/auth.spec.ts
+package.json
+playwright.config.ts
+pnpm-lock.yaml
+prisma/seed.ts
