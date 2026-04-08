@@ -4,10 +4,12 @@ export function FormActions({
   isPending,
   isSubmitting,
   submitLabel = 'Save Changes',
+  disabled = false,
 }: {
   isPending?: boolean
   isSubmitting?: boolean
   submitLabel?: string
+  disabled?: boolean
 }) {
   const pending = isPending ?? isSubmitting ?? false
 
