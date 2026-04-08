@@ -1,28 +1,31 @@
-"use client";
+'use client'
 
-import type { User } from "@prisma/client";
+type AssignableUser = {
+  id: number
+  name: string | null
+}
 
-export function UserSelect({ 
-    users, 
-    value, 
-    onChange 
+export function UserSelect({
+  users,
+  value,
+  onChange,
 }: {
-    users: User[];
-    value?: string | null;
-    onChange: (value: string) => void;
+  users: AssignableUser[]
+  value?: string | null
+  onChange: (value: string) => void
 }) {
-    return (
-        <select
-            className="h-10 w-full rounded-md border bg-background px-3 text-sm"
-            value={value ?? ""}
-            onChange={(e) => onChange(e.target.value)}
-        >
-            <option value="">Unassigned</option>
-            {users.map((user) => (
-                <option key={user.id} value={String(user.id)}>
-                    {user.name}
-                </option>
-            ))}
-        </select>
-    );
+  return (
+    <select
+      className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+      value={value ?? ''}
+      onChange={(e) => onChange(e.target.value)}
+    >
+      <option value="">Unassigned</option>
+      {users.map((user) => (
+        <option key={user.id} value={String(user.id)}>
+          {user.name ?? user.id}
+        </option>
+      ))}
+    </select>
+  )
 }
