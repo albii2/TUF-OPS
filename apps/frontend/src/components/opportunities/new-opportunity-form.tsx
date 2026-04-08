@@ -16,7 +16,7 @@ interface Organization {
   name: string
 }
 
-const initialState = { message: null, errors: {} };
+const initialState = { message: '', errors: {} };
 
 function SubmitButton() {
     const { pending } = useFormStatus();

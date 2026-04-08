@@ -1,9 +1,6 @@
 import '@/styles/globals.css'
-import { Inter } from 'next/font/google'
 
 import { AuthProvider } from '@/components/auth-provider'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'TUF Ops',
@@ -17,11 +14,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className}>
-        <AuthProvider>
-
-          {children}
-        </AuthProvider>
+      <body className="font-sans">
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   )
