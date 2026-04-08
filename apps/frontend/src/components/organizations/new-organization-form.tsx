@@ -8,7 +8,7 @@ import { FormField } from '@/components/form/form-field';
 import { FormActions } from '@/components/form/form-actions';
 import { Input } from '@/components/ui/input';
 
-const initialState = { message: null, errors: {} };
+const initialState = { message: '', errors: {} };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
