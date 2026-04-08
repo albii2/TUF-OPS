@@ -3,23 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { requireSession } from '@/lib/auth/session'
-import { Prisma, OpportunityStage } from '@prisma/client'
-import { canTransitionOpportunityStage, getAllowedOpportunityStageTransitions } from '@/lib/workflow/transitions'
-
-
-async function recordOpportunityEvent(params: {
-  opportunityId: number
-  actorUserId: number
-  eventType: 'stage_changed' | 'owner_changed'
-  fromStage?: OpportunityStage | null
-  toStage?: OpportunityStage | null
-  metadata?: Record<string, unknown>
-}) {
-  await prisma.$executeRaw(
-    Prisma.sql`INSERT INTO "opportunity_events" ("opportunity_id", "actor_user_id", "event_type", "from_stage", "to_stage", "metadata")
-               VALUES (${params.opportunityId}, ${params.actorUserId}, CAST(${params.eventType} AS "OpportunityEventType"), ${params.fromStage ?? null}, ${params.toStage ?? null}, ${params.metadata ? JSON.stringify(params.metadata) : null}::jsonb)`,
-  )
-}
+import { OpportunityStage } from '@prisma/client'
 
 export async function updateOpportunityWorkflow(input: {
   id: string
@@ -39,22 +23,6 @@ export async function updateOpportunityWorkflow(input: {
     throw new Error('Unauthorized.')
   }
 
-  const existingOpportunity = await prisma.opportunity.findUnique({
-    where: { id: opportunityId },
-    select: { id: true, stage: true },
-  })
-
-  if (!existingOpportunity) {
-    throw new Error('Opportunity not found.')
-  }
-
-  if (input.stage && !canTransitionOpportunityStage(existingOpportunity.stage, input.stage)) {
-    const allowedTransitions = getAllowedOpportunityStageTransitions(existingOpportunity.stage)
-    throw new Error(
-      `Invalid stage transition from ${existingOpportunity.stage} to ${input.stage}. Allowed transitions: ${allowedTransitions.join(', ') || 'none'}.`,
-    )
-  }
-
   const updated = await prisma.opportunity.update({
     where: { id: opportunityId },
     data: {
@@ -63,19 +31,6 @@ export async function updateOpportunityWorkflow(input: {
       nextStepDueDate: input.nextStepDueDate ?? null,
     },
   })
-
-  if (input.stage && input.stage !== existingOpportunity.stage) {
-    await recordOpportunityEvent({
-      opportunityId,
-      actorUserId: userId,
-      eventType: 'stage_changed',
-      fromStage: existingOpportunity.stage,
-      toStage: input.stage,
-      metadata: {
-        source: 'updateOpportunityWorkflow',
-      },
-    })
-  }
 
   revalidatePath(`/opportunities/${opportunityId}`)
   revalidatePath('/opportunities')
@@ -114,32 +69,10 @@ export async function updateOpportunityOwner(input: {
     }
   }
 
-  const existingOpportunity = await prisma.opportunity.findUnique({
-    where: { id: input.id },
-    select: { id: true, ownerId: true },
-  })
-
-  if (!existingOpportunity) {
-    throw new Error('Opportunity not found.')
-  }
-
   const updated = await prisma.opportunity.update({
     where: { id: input.id },
     data: { ownerId: input.ownerId },
   })
-
-  if (existingOpportunity.ownerId !== input.ownerId) {
-    await recordOpportunityEvent({
-      opportunityId: input.id,
-      actorUserId: userId,
-      eventType: 'owner_changed',
-      metadata: {
-        previousOwnerId: existingOpportunity.ownerId,
-        nextOwnerId: input.ownerId ?? null,
-        source: 'updateOpportunityOwner',
-      },
-    })
-  }
 
   revalidatePath(`/opportunities/${input.id}`)
   revalidatePath('/opportunities')

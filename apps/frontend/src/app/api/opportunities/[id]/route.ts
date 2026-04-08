@@ -2,23 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth/auth-options'
-import { Prisma, OpportunityStage } from '@prisma/client'
-import { canTransitionOpportunityStage, getAllowedOpportunityStageTransitions } from '@/lib/workflow/transitions'
-
-
-async function recordOpportunityEvent(params: {
-  opportunityId: number
-  actorUserId: number
-  eventType: 'stage_changed' | 'owner_changed'
-  fromStage?: OpportunityStage | null
-  toStage?: OpportunityStage | null
-  metadata?: Record<string, unknown>
-}) {
-  await prisma.$executeRaw(
-    Prisma.sql`INSERT INTO "opportunity_events" ("opportunity_id", "actor_user_id", "event_type", "from_stage", "to_stage", "metadata")
-               VALUES (${params.opportunityId}, ${params.actorUserId}, CAST(${params.eventType} AS "OpportunityEventType"), ${params.fromStage ?? null}, ${params.toStage ?? null}, ${params.metadata ? JSON.stringify(params.metadata) : null}::jsonb)`,
-  )
-}
+import { OpportunityStage } from '@prisma/client'
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
@@ -58,10 +42,6 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     select: { id: true, stage: true },
   })
 
-  if (!existingOpportunity) {
-    return NextResponse.json({ error: 'Opportunity not found' }, { status: 404 })
-  }
-
   const dataToUpdate: {
     name?: string
     stage?: OpportunityStage
@@ -73,20 +53,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   } = {}
 
   if (body.name) dataToUpdate.name = body.name
-  if (body.stage && Object.values(OpportunityStage).includes(body.stage)) {
-    if (!canTransitionOpportunityStage(existingOpportunity.stage, body.stage)) {
-      const allowedTransitions = getAllowedOpportunityStageTransitions(existingOpportunity.stage)
-      return NextResponse.json(
-        {
-          error: `Invalid stage transition from ${existingOpportunity.stage} to ${body.stage}.`,
-          allowedTransitions,
-        },
-        { status: 400 },
-      )
-    }
-
-    dataToUpdate.stage = body.stage
-  }
+  if (body.stage && Object.values(OpportunityStage).includes(body.stage)) dataToUpdate.stage = body.stage
   if (body.estimated_value !== undefined) dataToUpdate.estimated_value = Number(body.estimated_value)
   if (body.probability !== undefined) dataToUpdate.probability = Number(body.probability)
   if (body.last_contact_date) dataToUpdate.last_contact_date = new Date(body.last_contact_date)
@@ -94,25 +61,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   if (body.organization_id) dataToUpdate.organization = { connect: { id: Number(body.organization_id) } }
 
   const opportunity = await prisma.opportunity.update({
-    where: { id: opportunityId },
+    where: { id: Number(params.id) },
     data: dataToUpdate,
   })
-
-  if (dataToUpdate.stage && dataToUpdate.stage !== existingOpportunity.stage) {
-    const actorUserId = Number(session.user.id)
-    if (!Number.isNaN(actorUserId)) {
-      await recordOpportunityEvent({
-        opportunityId,
-        actorUserId,
-        eventType: 'stage_changed',
-        fromStage: existingOpportunity.stage,
-        toStage: dataToUpdate.stage,
-        metadata: {
-          source: 'api/opportunities/[id]#PUT',
-        },
-      })
-    }
-  }
 
   return NextResponse.json(opportunity)
 }
