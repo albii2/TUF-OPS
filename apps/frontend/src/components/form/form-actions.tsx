@@ -15,7 +15,7 @@ export function FormActions({
 
   return (
     <div className="flex justify-end">
-      <Button type="submit" disabled={pending || disabled}>
+      <Button type="submit" disabled={pending}>
         {pending ? 'Saving...' : submitLabel}
       </Button>
     </div>
