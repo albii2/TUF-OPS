@@ -31,7 +31,16 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  const opportunityId = Number(params.id)
+  if (Number.isNaN(opportunityId)) {
+    return NextResponse.json({ error: 'Invalid opportunity id' }, { status: 400 })
+  }
+
   const body = await request.json()
+  const existingOpportunity = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+    select: { id: true, stage: true },
+  })
 
   const dataToUpdate: {
     name?: string

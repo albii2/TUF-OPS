@@ -7,9 +7,8 @@ import { FormSection } from '@/components/form/form-section';
 import { FormField } from '@/components/form/form-field';
 import { FormActions } from '@/components/form/form-actions';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { OPPORTUNITY_STAGES, OPPORTUNITY_STAGE_LABELS } from "@/lib/workflow/opportunity-stages";
+import { OPPORTUNITY_STAGES, OPPORTUNITY_STAGE_LABELS } from "@/lib/workflow/stage-utils";
 
 interface Organization {
   id: number
