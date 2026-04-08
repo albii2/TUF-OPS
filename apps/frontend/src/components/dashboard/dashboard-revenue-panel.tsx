@@ -29,7 +29,7 @@ export function DashboardRevenuePanel({ summary }: { summary: RevenueSummary }) 
                     <span>Overdue</span>
                     <span>{formatCurrency(summary.overdue)}</span>
                 </div>
-                <Progress value={(summary.overdue / summary.total) * 100} variant="destructive" className="h-2"/>
+                <Progress value={(summary.overdue / summary.total) * 100} className="h-2"/>
             </div>
         </div>
       </div>
