@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { requireSession } from '@/lib/auth/session'
 import { OpportunityStage } from '@prisma/client'
-import { isValidTransition } from '@/lib/workflow/transitions'
+import { canTransitionOpportunityStage } from '@/lib/workflow/transitions'
 
 export async function updateOpportunityWorkflow(input: {
   id: string
@@ -32,7 +32,7 @@ export async function updateOpportunityWorkflow(input: {
     throw new Error('Unauthorized.')
   }
 
-  if (input.stage && !isValidTransition(opportunity.stage, input.stage)) {
+  if (input.stage && !canTransitionOpportunityStage(opportunity.stage, input.stage)) {
     throw new Error(`Invalid stage transition from ${opportunity.stage} to ${input.stage}`)
   }
 
@@ -55,7 +55,7 @@ export async function updateOpportunityWorkflow(input: {
       data: {
         opportunityId,
         actorUserId: userId,
-        eventType: 'stage_change',
+        eventType: 'stage_changed',
         fromStage: opportunity.stage,
         toStage: input.stage,
       },
@@ -67,7 +67,7 @@ export async function updateOpportunityWorkflow(input: {
           data: {
               opportunityId,
               actorUserId: userId,
-              eventType: "next_step_change",
+              eventType: "next_step_set",
               metadata: { old: opportunity.nextStep, new: input.nextStep },
           }
       })
@@ -78,7 +78,7 @@ export async function updateOpportunityWorkflow(input: {
           data: {
               opportunityId,
               actorUserId: userId,
-              eventType: "due_date_change",
+              eventType: "due_date_set",
               metadata: { old: opportunity.nextStepDueDate, new: input.nextStepDueDate },
           }
       })
@@ -131,7 +131,7 @@ export async function updateOpportunityOwner(input: {
     data: {
       opportunityId: input.id,
       actorUserId: userId,
-      eventType: "owner_change",
+      eventType: "owner_changed",
       metadata: { newOwnerId: input.ownerId },
     },
   })

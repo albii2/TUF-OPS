@@ -15,14 +15,14 @@ interface TimelineEvent extends OpportunityEvent {
 
 function formatEventDetails(event: TimelineEvent) {
     switch (event.eventType) {
-        case 'stage_change':
+        case 'stage_changed':
             return <div className="flex items-center">Stage changed from <Badge variant="secondary" className="mx-2">{event.fromStage}</Badge> <ArrowRight className="w-4 h-4 mr-2" /> <Badge variant="default">{event.toStage}</Badge></div>;
-        case 'owner_change':
+        case 'owner_changed':
             const newOwner = (event.metadata as any)?.newOwnerName || 'Unassigned';
             return `Owner changed to ${newOwner}`;
-        case 'next_step_change':
+        case 'next_step_set':
             return `Next step updated to: "${(event.metadata as any)?.new}"`
-        case 'due_date_change':
+        case 'due_date_set':
             const newDate = (event.metadata as any)?.new;
             return `Next step due date changed to ${newDate ? format(new Date(newDate), 'PPP') : 'none'}`;
         default:
@@ -32,10 +32,10 @@ function formatEventDetails(event: TimelineEvent) {
 
 function getEventIcon(eventType: string) {
     switch (eventType) {
-        case 'stage_change': return <Repeat className="w-5 h-5 text-blue-500" />;
-        case 'owner_change': return <User className="w-5 h-5 text-gray-500" />;
-        case 'next_step_change': return <MessageSquare className="w-5 h-5 text-green-500" />;
-        case 'due_date_change': return <Calendar className="w-5 h-5 text-orange-500" />;
+        case 'stage_changed': return <Repeat className="w-5 h-5 text-blue-500" />;
+        case 'owner_changed': return <User className="w-5 h-5 text-gray-500" />;
+        case 'next_step_set': return <MessageSquare className="w-5 h-5 text-green-500" />;
+        case 'due_date_set': return <Calendar className="w-5 h-5 text-orange-500" />;
         default: return <AlertTriangle className="w-5 h-5 text-gray-400" />;
     }
 }
@@ -92,7 +92,7 @@ export function ActivityTimeline({ opportunityId }: { opportunityId: number }) {
                                 <div className="flex-grow">
                                     <p className="font-medium text-sm">{formatEventDetails(event)}</p>
                                     <p className="text-xs text-gray-500">
-                                        by {event.actorUser.name || 'System'} • {formatDistanceToNow(new Date(event.createdAt), { addSuffix: true })}
+                                        by {event.actorUser.name || 'System'} • {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
                                     </p>
                                 </div>
                             </div>

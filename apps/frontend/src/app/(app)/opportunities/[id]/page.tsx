@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getOpportunity } from "@/lib/opportunities/queries";
+import { Opportunity, Mockup } from "@prisma/client";
 import { getAssignableUsers } from "@/lib/users/queries";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageActions } from "@/components/ui/page-actions";
@@ -16,6 +17,7 @@ import { OwnerBadge } from "@/components/shared/owner-badge";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
 import { StageBadge } from "@/components/opportunities/StageBadge";
 import { OrganizationSummaryCard } from "@/components/opportunities/OrganizationSummaryCard";
+import { MockupWorkflowCard } from "@/components/opportunities/MockupWorkflowCard";
 import { ActivityTimeline } from "@/components/opportunities/ActivityTimeline";
 
 export default async function OpportunityDetailPage({ params }: { params: { id: string } }) {
@@ -81,6 +83,7 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
             </div>
             <div className="col-span-1 space-y-6">
                 <OpportunityWorkflowForm opportunity={opportunity} />
+                <MockupWorkflowCard opportunityId={opportunity.id} initialMockup={opportunity.mockup} />
                 <OpportunityOwnerCard opportunity={opportunity} users={users} />
             </div>
           </div>

@@ -56,6 +56,7 @@ model Opportunity {
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
   zoho_deal_id       String?             @unique @map("zoho_deal_id")
+  mockup             Mockup?
   events             OpportunityEvent[]
 
   @@map("opportunities")
@@ -77,6 +78,18 @@ model OpportunityEvent {
   @@index([opportunityId, created_at])
   @@index([actorUserId, created_at])
   @@map("opportunity_events")
+}
+
+model Mockup {
+  id            Int         @id @default(autoincrement())
+  opportunityId Int         @unique @map("opportunity_id")
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  status        String      @default("pending")
+  notes         String?
+  created_at    DateTime    @default(now()) @map("created_at")
+  updated_at    DateTime    @updatedAt @map("updated_at")
+
+  @@map("mockups")
 }
 
 enum OrganizationStatus {
@@ -104,4 +117,7 @@ enum UserRole {
 enum OpportunityEventType {
   stage_changed
   owner_changed
+  next_step_set
+  due_date_set
+  note_added
 }
