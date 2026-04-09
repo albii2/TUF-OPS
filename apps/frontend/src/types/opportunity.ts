@@ -1,4 +1,4 @@
-import type { OpportunityStage } from "@/lib/workflow/opportunity-stages";
+import type { OpportunityStage } from "@prisma/client";
 import type { AppUserRecord } from "./user";
 
 export type OpportunityRecord = {
