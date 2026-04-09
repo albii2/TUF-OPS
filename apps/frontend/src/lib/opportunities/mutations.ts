@@ -23,14 +23,52 @@ export async function updateOpportunityWorkflow(input: {
     throw new Error('Unauthorized.')
   }
 
+  const existingOpportunity = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+    select: { id: true, stage: true, nextStep: true, nextStepDueDate: true },
+  })
+
+  if (!existingOpportunity) {
+    throw new Error('Opportunity not found.')
+  }
+
+  if (input.stage && !canTransitionOpportunityStage(existingOpportunity.stage, input.stage)) {
+    const allowedTransitions = getAllowedOpportunityStageTransitions(existingOpportunity.stage)
+    throw new Error(
+      `Invalid stage transition from ${existingOpportunity.stage} to ${input.stage}. Allowed transitions: ${allowedTransitions.join(', ') || 'none'}.`,
+    )
+  }
+
+
+  const targetStage = input.stage ?? existingOpportunity.stage
+  const nextStepValue = input.nextStep === undefined ? existingOpportunity.nextStep : input.nextStep
+
+  if (!isTerminalOpportunityStage(targetStage) && !nextStepValue?.trim()) {
+    throw new Error('Next step is required for non-terminal opportunities.')
+  }
+
   const updated = await prisma.opportunity.update({
     where: { id: opportunityId },
     data: {
       stage: input.stage,
-      nextStep: input.nextStep ?? null,
-      nextStepDueDate: input.nextStepDueDate ?? null,
+      nextStep: input.nextStep === undefined ? existingOpportunity.nextStep : input.nextStep ?? null,
+      nextStepDueDate:
+        input.nextStepDueDate === undefined ? existingOpportunity.nextStepDueDate : input.nextStepDueDate ?? null,
     },
   })
+
+  if (input.stage && input.stage !== existingOpportunity.stage) {
+    await recordOpportunityEvent({
+      opportunityId,
+      actorUserId: userId,
+      eventType: 'stage_changed',
+      fromStage: existingOpportunity.stage,
+      toStage: input.stage,
+      metadata: {
+        source: 'updateOpportunityWorkflow',
+      },
+    })
+  }
 
   revalidatePath(`/opportunities/${opportunityId}`)
   revalidatePath('/opportunities')
@@ -69,10 +107,32 @@ export async function updateOpportunityOwner(input: {
     }
   }
 
+  const existingOpportunity = await prisma.opportunity.findUnique({
+    where: { id: input.id },
+    select: { id: true, ownerId: true },
+  })
+
+  if (!existingOpportunity) {
+    throw new Error('Opportunity not found.')
+  }
+
   const updated = await prisma.opportunity.update({
     where: { id: input.id },
     data: { ownerId: input.ownerId },
   })
+
+  if (existingOpportunity.ownerId !== input.ownerId) {
+    await recordOpportunityEvent({
+      opportunityId: input.id,
+      actorUserId: userId,
+      eventType: 'owner_changed',
+      metadata: {
+        previousOwnerId: existingOpportunity.ownerId,
+        nextOwnerId: input.ownerId ?? null,
+        source: 'updateOpportunityOwner',
+      },
+    })
+  }
 
   revalidatePath(`/opportunities/${input.id}`)
   revalidatePath('/opportunities')

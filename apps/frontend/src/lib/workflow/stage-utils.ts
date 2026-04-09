@@ -32,3 +32,7 @@ export function getOpportunityStageLabel(stage?: string | null): string {
   if (isOpportunityStage(stage)) return OPPORTUNITY_STAGE_LABELS[stage]
   return 'Unstaged'
 }
+
+export function isTerminalOpportunityStage(stage: OpportunityStage): boolean {
+  return TERMINAL_OPPORTUNITY_STAGES.includes(stage)
+}
