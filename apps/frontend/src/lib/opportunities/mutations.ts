@@ -3,24 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { requireSession } from '@/lib/auth/session'
-import { Prisma, OpportunityStage } from '@prisma/client'
-import { canTransitionOpportunityStage, getAllowedOpportunityStageTransitions } from '@/lib/workflow/transitions'
-import { isTerminalOpportunityStage } from '@/lib/workflow/stage-utils'
-
-
-async function recordOpportunityEvent(params: {
-  opportunityId: number
-  actorUserId: number
-  eventType: 'stage_changed' | 'owner_changed'
-  fromStage?: OpportunityStage | null
-  toStage?: OpportunityStage | null
-  metadata?: Record<string, unknown>
-}) {
-  await prisma.$executeRaw(
-    Prisma.sql`INSERT INTO "opportunity_events" ("opportunity_id", "actor_user_id", "event_type", "from_stage", "to_stage", "metadata")
-               VALUES (${params.opportunityId}, ${params.actorUserId}, CAST(${params.eventType} AS "OpportunityEventType"), ${params.fromStage ?? null}, ${params.toStage ?? null}, ${params.metadata ? JSON.stringify(params.metadata) : null}::jsonb)`,
-  )
-}
+import { OpportunityStage } from '@prisma/client'
 
 export async function updateOpportunityWorkflow(input: {
   id: string
