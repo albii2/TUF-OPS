@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { requireSession } from '@/lib/auth/session'
 import { OpportunityStage } from '@prisma/client'
+import { isValidTransition } from '@/lib/workflow/transitions'
 
 export async function updateOpportunityWorkflow(input: {
   id: string
@@ -19,8 +20,24 @@ export async function updateOpportunityWorkflow(input: {
     throw new Error('Invalid opportunity or user identifier.')
   }
 
-  if (!['admin', 'director', 'rep'].includes(session.user.role)) {
+  const opportunity = await prisma.opportunity.findUnique({
+    where: { id: opportunityId },
+  })
+
+  if (!opportunity) {
+    throw new Error('Opportunity not found.')
+  }
+
+  if (session.user.role !== 'admin' && opportunity.ownerId !== userId) {
     throw new Error('Unauthorized.')
+  }
+
+  if (input.stage && !isValidTransition(opportunity.stage, input.stage)) {
+    throw new Error(`Invalid stage transition from ${opportunity.stage} to ${input.stage}`)
+  }
+
+  if (input.stage && input.stage !== OpportunityStage.closed_won && input.stage !== OpportunityStage.closed_lost && !input.nextStep) {
+    throw new Error('Next step is required for active opportunities.')
   }
 
   const updated = await prisma.opportunity.update({
@@ -31,6 +48,42 @@ export async function updateOpportunityWorkflow(input: {
       nextStepDueDate: input.nextStepDueDate ?? null,
     },
   })
+
+  // --- Event Logging ---
+  if (input.stage && input.stage !== opportunity.stage) {
+    await prisma.opportunityEvent.create({
+      data: {
+        opportunityId,
+        actorUserId: userId,
+        eventType: 'stage_change',
+        fromStage: opportunity.stage,
+        toStage: input.stage,
+      },
+    })
+  }
+
+  if (input.nextStep !== opportunity.nextStep) {
+      await prisma.opportunityEvent.create({
+          data: {
+              opportunityId,
+              actorUserId: userId,
+              eventType: "next_step_change",
+              metadata: { old: opportunity.nextStep, new: input.nextStep },
+          }
+      })
+  }
+
+  if (String(input.nextStepDueDate) !== String(opportunity.nextStepDueDate)) {
+       await prisma.opportunityEvent.create({
+          data: {
+              opportunityId,
+              actorUserId: userId,
+              eventType: "due_date_change",
+              metadata: { old: opportunity.nextStepDueDate, new: input.nextStepDueDate },
+          }
+      })
+  }
+  // ---------------------
 
   revalidatePath(`/opportunities/${opportunityId}`)
   revalidatePath('/opportunities')
@@ -61,7 +114,7 @@ export async function updateOpportunityOwner(input: {
       where: { managerId: userId },
       select: { id: true },
     })
-    const subordinateIds = subordinates.map((s) => s.id)
+    const subordinateIds = subordinates.map((s: {id: number}) => s.id)
     const allowedOwnerIds = [userId, ...subordinateIds]
 
     if (input.ownerId && !allowedOwnerIds.includes(input.ownerId)) {
@@ -72,6 +125,15 @@ export async function updateOpportunityOwner(input: {
   const updated = await prisma.opportunity.update({
     where: { id: input.id },
     data: { ownerId: input.ownerId },
+  })
+
+  await prisma.opportunityEvent.create({
+    data: {
+      opportunityId: input.id,
+      actorUserId: userId,
+      eventType: "owner_change",
+      metadata: { newOwnerId: input.ownerId },
+    },
   })
 
   revalidatePath(`/opportunities/${input.id}`)
