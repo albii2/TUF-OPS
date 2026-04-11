@@ -1,63 +1,68 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface UniformOrder {
   id: number
-  status: string
-  estimated_revenue: number
-  opportunity: {
-    id: number;
-    name: string;
-  };
-  roster_uploads: any[]; // Placeholder
+  status: 'pending' | 'ready_for_ops' | 'completed' | 'blocked'
+  estimatedRevenue: number
+  opportunityName: string
+  organizationName: string
+  ownerName: string
+  nextStep?: string | null
+  stage: string
 }
 
 export default function UniformOrderDetailPage() {
   const [order, setOrder] = useState<UniformOrder | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const params = useParams()
   const id = params.id
 
   useEffect(() => {
     async function fetchOrder() {
       if (!id) return
+
       try {
-        // NOTE: The API route for fetching a single uniform order doesn't exist yet.
-        // This is a placeholder for where that logic would go.
-        setOrder({
-          id: 1,
-          status: 'Pending',
-          estimated_revenue: 3500,
-          opportunity: {
-            id: 1,
-            name: 'Varsity Football Uniforms'
-          },
-          roster_uploads: []
-        });
-      } catch (error) {
-        console.error('Failed to fetch uniform order', error)
+        const response = await fetch(`/api/uniform-orders/${id}`)
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}))
+          throw new Error(payload.error ?? 'Failed to fetch order')
+        }
+
+        const payload = await response.json()
+        setOrder(payload.order ?? null)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch uniform order')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
+
     fetchOrder()
   }, [id])
 
-  if (loading) {
-    return <p>Loading...</p>
-  }
-
-  if (!order) {
-    return <p>Order not found</p>
-  }
+  if (loading) return <p>Loading...</p>
+  if (error) return <p className="text-red-600">{error}</p>
+  if (!order) return <p>Order not found.</p>
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-2">Order for {order.opportunity.name}</h1>
-      <p className="text-xl text-gray-500 mb-6">Status: {order.status}</p>
+      <h1 className="mb-2 text-3xl font-bold">Order for {order.opportunityName}</h1>
+      <p className="mb-6 text-xl text-gray-500">Status: {order.status}</p>
+
+      <div className="mb-6 rounded border p-4">
+        <p>Organization: {order.organizationName}</p>
+        <p>Owner: {order.ownerName}</p>
+        <p>Value: ${order.estimatedRevenue.toFixed(2)}</p>
+        <p>Current Stage: {order.stage}</p>
+        <p>Next Step: {order.nextStep || 'Not set'}</p>
+      </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -65,8 +70,7 @@ export default function UniformOrderDetailPage() {
             <CardTitle>Roster</CardTitle>
           </CardHeader>
           <CardContent>
-            <Button>Upload Roster</Button>
-            {/* Roster display will go here */}
+            <Button disabled>Roster Upload (Coming next)</Button>
           </CardContent>
         </Card>
         <Card>
@@ -74,7 +78,7 @@ export default function UniformOrderDetailPage() {
             <CardTitle>Order Items</CardTitle>
           </CardHeader>
           <CardContent>
-            {/* Order items will go here */}
+            <p>No items captured yet.</p>
           </CardContent>
         </Card>
       </div>
