@@ -1,69 +1,76 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface UniformOrder {
   id: number
-  status: string
-  estimated_revenue: number
-  opportunity: {
-    name: string
-  }
+  status: 'pending' | 'ready_for_ops' | 'completed' | 'blocked'
+  estimatedRevenue: number
+  opportunityName: string
+  organizationName: string
+  ownerName: string
 }
 
 export default function UniformOrdersPage() {
   const [orders, setOrders] = useState<UniformOrder[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchOrders() {
       try {
-        // Note: The API for fetching all uniform orders doesn't exist yet.
-        // We are simulating the data for now.
-        setOrders([
-          {
-            id: 1,
-            status: 'Pending',
-            estimated_revenue: 3500,
-            opportunity: {
-              name: 'Varsity Football Uniforms'
-            }
-          }
-        ])
-      } catch (error) {
-        console.error('Failed to fetch uniform orders', error)
+        const response = await fetch('/api/uniform-orders')
+
+        if (!response.ok) {
+          const payload = await response.json().catch(() => ({}))
+          throw new Error(payload.error ?? 'Failed to fetch orders')
+        }
+
+        const payload = await response.json()
+        setOrders(payload.orders ?? [])
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch uniform orders')
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
+
     fetchOrders()
   }, [])
 
   return (
     <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Uniform Orders</h1>
+      <h1 className="mb-6 text-3xl font-bold">Uniform Orders</h1>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {orders.map((order) => (
-            <Card key={order.id}>
-              <CardHeader>
-                <CardTitle>{order.opportunity.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>Status: {order.status}</p>
-                <p>Value: ${order.estimated_revenue}</p>
-                <Link href={`/uniform-orders/${order.id}`} className="text-blue-500 hover:underline mt-4 block">
-                  View Details
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      {loading ? <p>Loading...</p> : null}
+      {error ? <p className="text-red-600">{error}</p> : null}
+
+      {!loading && !error ? (
+        orders.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {orders.map((order) => (
+              <Card key={order.id}>
+                <CardHeader>
+                  <CardTitle>{order.opportunityName}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Organization: {order.organizationName}</p>
+                  <p>Owner: {order.ownerName}</p>
+                  <p>Status: {order.status}</p>
+                  <p>Value: ${order.estimatedRevenue.toFixed(2)}</p>
+                  <Link href={`/uniform-orders/${order.id}`} className="mt-4 block text-blue-500 hover:underline">
+                    View Details
+                  </Link>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <p>No active uniform orders yet. Move an opportunity into invoice stage to create one.</p>
+        )
+      ) : null}
     </div>
   )
 }

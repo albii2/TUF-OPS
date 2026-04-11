@@ -6,7 +6,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 
-import type { Opportunity, User, OpportunityStage } from '@prisma/client';
+import type { Opportunity, OpportunityStage } from '@prisma/client';
 import { updateOpportunitySchema } from '@/lib/validation/opportunity';
 import type { z } from 'zod';
 
@@ -35,7 +35,7 @@ export function OpportunityEditForm({
     assignableUsers 
 }: { 
     opportunity: Opportunity, 
-    assignableUsers: User[] 
+    assignableUsers: { id: number; name: string | null; email: string; role: string }[] 
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

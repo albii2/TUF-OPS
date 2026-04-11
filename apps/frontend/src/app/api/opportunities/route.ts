@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/lib/auth/auth-options"
+import { getServerSession } from 'next-auth/next'
+import { authOptions } from '@/lib/auth/auth-options'
+import { OpportunityStage } from '@prisma/client'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const opportunities = await prisma.opportunity.findMany({
-    orderBy: {
-      created_at: 'desc'
-    }
+    include: {
+      organization: true,
+      owner: { select: { id: true, name: true, email: true, role: true } },
+    },
+    orderBy: { created_at: 'desc' },
   })
 
   return NextResponse.json({ opportunities })
@@ -20,14 +23,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions)
-  if (!session?.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { name, stage, estimated_value, probability, organization_id } = await request.json()
+  const { name, stage = 'lead', estimated_value = 0, probability, organization_id } = await request.json()
 
-  if (!name || !stage || !organization_id) {
+  if (!name || !organization_id) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  if (!Object.values(OpportunityStage).includes(stage)) {
+    return NextResponse.json({ error: 'Invalid stage' }, { status: 400 })
   }
 
   try {
@@ -37,19 +44,14 @@ export async function POST(request: NextRequest) {
         stage,
         estimated_value,
         probability,
-        organization: {
-          connect: { id: organization_id },
-        },
-        rep_activities: {
-          create: [
-            { user: { connect: { id: parseInt((session.user as any).id) } }, activity_type: 'Created' },
-          ],
-        },
+        organization: { connect: { id: Number(organization_id) } },
+        owner: { connect: { id: Number(session.user.id) } },
       },
+      include: { organization: true },
     })
     return NextResponse.json(opportunity, { status: 201 })
   } catch (error) {
-    console.error("Failed to create opportunity:", error)
+    console.error('Failed to create opportunity:', error)
     return NextResponse.json({ error: 'Failed to create opportunity' }, { status: 500 })
   }
 }
