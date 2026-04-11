@@ -1,7 +1,7 @@
+
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  relationMode = "foreignKeys"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -27,22 +27,26 @@ model User {
   @@map("users")
 }
 
+enum UserRole {
+  ADMIN
+  DIRECTOR
+  REP
+}
+
 model Organization {
-  id              Int           @id @default(autoincrement())
-  name            String
-  ownerId         Int?
-  owner           User?         @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  opportunities   Opportunity[]
-  zoho_account_id String?       @unique @map("zoho_account_id")
-  status          OrganizationStatus @default(active)
+  id          Int           @id @default(autoincrement())
+  name        String
+  owner       User?         @relation("Owner", fields: [ownerId], references: [id])
+  ownerId     Int?          @map("owner_id")
+  opportunities Opportunity[]
 
   @@map("organizations")
 }
 
 model Opportunity {
-  id                 Int                 @id @default(autoincrement())
-  organization_id    Int?
-  organization       Organization?       @relation(fields: [organization_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  id                 Int                  @id @default(autoincrement())
+  organization       Organization         @relation(fields: [organizationId], references: [id])
+  organizationId     Int                  @map("organization_id")
   name               String
   stage              OpportunityStage    @default(lead)
   ownerId            Int?
@@ -95,10 +99,26 @@ enum OpportunityStage {
   closed_lost
 }
 
-enum UserRole {
-    admin
-    director
-    rep
+enum OpportunityEventType {
+  stage_changed
+  owner_changed
+  next_step_set
+  due_date_set
+  note_added
+}
+
+enum DealType {
+  UNIFORMS
+  TEAM_STORES
+  LETTERMAN_JACKETS
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  COMPLETED
+  CANCELED
 }
 
 enum OpportunityEventType {

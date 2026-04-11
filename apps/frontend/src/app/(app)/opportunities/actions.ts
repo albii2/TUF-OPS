@@ -8,5 +8,6 @@ export async function getOpportunities() {
     const session = await requireSession();
     // The getVisibleOpportunities function handles all role-based logic
 
+    console.log('---Fetching opportunities for user:', session.user);
     return await getVisibleOpportunities(session.user);
 }

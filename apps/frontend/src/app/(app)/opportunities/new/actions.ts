@@ -13,6 +13,8 @@ const FormSchema = z.object({
     stage: z.nativeEnum(OpportunityStage),
     estimated_value: z.coerce.number(),
     probability: z.coerce.number(),
+    nextStep: z.string().optional(),
+    nextStepDueDate: z.coerce.date().optional(),
 });
 
 const CreateOpportunity = FormSchema.omit({ id: true });
@@ -21,7 +23,11 @@ export type State = {
     errors?: {
       name?: string[];
       organization_id?: string[];
-      // add other fields as necessary
+      stage?: string[];
+      estimated_value?: string[];
+      probability?: string[];
+      nextStep?: string[];
+      nextStepDueDate?: string[];
     };
     message?: string;
 };
@@ -33,6 +39,8 @@ export async function createOpportunity(prevState: State, formData: FormData) {
         stage: formData.get('stage'),
         estimated_value: formData.get('estimatedValue'),
         probability: formData.get('probability'),
+        nextStep: formData.get('nextStep'),
+        nextStepDueDate: formData.get('nextStepDueDate'),
     });
 
     if (!validatedFields.success) {

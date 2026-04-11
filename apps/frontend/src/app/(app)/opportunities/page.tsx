@@ -1,6 +1,4 @@
-'use client'
 
-import { useEffect, useState } from 'react';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -16,16 +14,8 @@ export type OpportunityWithOwner = Opportunity & {
     organization: Organization;
 };
 
-export default function OpportunitiesPage() {
-    const [opportunities, setOpportunities] = useState<OpportunityWithOwner[]>([]);
-
-    useEffect(() => {
-        async function fetchData() {
-            const opps = await getOpportunities();
-            setOpportunities(opps as OpportunityWithOwner[]);
-        }
-        fetchData();
-    }, []);
+export default async function OpportunitiesPage() {
+    const opportunities = await getOpportunities() as OpportunityWithOwner[];
 
   if (opportunities.length === 0) {
     return (

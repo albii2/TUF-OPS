@@ -24,6 +24,9 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
 export function NewOpportunityForm({ organizations, readOnly = false }: { organizations: Organization[]; readOnly?: boolean }) {
   const [state, dispatch] = useFormState(createOpportunity, initialState);
+  const [currentStage, setCurrentStage] = useState<OpportunityStage>(OPPORTUNITY_STAGES[0]);
+
+  const isNextStepRequired = !TERMINAL_STAGES.includes(currentStage);
 
   return (
     <form action={dispatch}>
@@ -60,7 +63,7 @@ export function NewOpportunityForm({ organizations, readOnly = false }: { organi
 
             <FormSection title="Deal Details">
                 <FormField label="Stage">
-                    <Select name="stage" defaultValue={OPPORTUNITY_STAGES[0]}>
+                    <Select name="stage" defaultValue={currentStage} onValueChange={(v) => setCurrentStage(v as OpportunityStage)}>
                         <SelectTrigger>
                             <SelectValue placeholder="Select a stage" />
                         </SelectTrigger>
