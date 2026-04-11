@@ -1,6 +1,4 @@
-'use client'
 
-import { useEffect, useState } from 'react';
 import { OpportunityEvent } from '@prisma/client';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,39 +38,7 @@ function getEventIcon(eventType: string) {
     }
 }
 
-export function ActivityTimeline({ opportunityId }: { opportunityId: number }) {
-    const [events, setEvents] = useState<TimelineEvent[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function fetchEvents() {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`/api/opportunities/${opportunityId}/events`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch activity timeline.');
-                }
-                const data = await response.json();
-                setEvents(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        fetchEvents();
-    }, [opportunityId]);
-
-    if (isLoading) {
-        return <div className="p-4 text-center">Loading activity...</div>;
-    }
-
-    if (error) {
-        return <div className="p-4 text-center text-red-600">Error: {error}</div>;
-    }
-
+export function ActivityTimeline({ events }: { events: TimelineEvent[] }) {
     return (
         <Card>
             <CardHeader>
@@ -92,7 +58,7 @@ export function ActivityTimeline({ opportunityId }: { opportunityId: number }) {
                                 <div className="flex-grow">
                                     <p className="font-medium text-sm">{formatEventDetails(event)}</p>
                                     <p className="text-xs text-gray-500">
-                                        by {event.actorUser.name || 'System'} • {formatDistanceToNow(new Date(event.created_at), { addSuffix: true })}
+                                        by {event.actorUser.name || 'System'} • {formatDistanceToNow(new Date(event.createdAt), { addSuffix: true })}
                                     </p>
                                 </div>
                             </div>

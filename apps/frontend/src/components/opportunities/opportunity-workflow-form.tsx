@@ -1,6 +1,7 @@
 'use client';
 
 import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Opportunity, OpportunityStage } from '@prisma/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +10,7 @@ import { toast } from 'sonner';
 import { updateOpportunityWorkflow } from '@/lib/opportunities/mutations';
 import { updateOpportunitySchema } from '@/lib/validation/opportunity'; // Corrected import path
 import type { z } from 'zod';
+import { getAllowedOpportunityStageTransitions } from '@/lib/workflow/transitions';
 
 import { DetailSection } from '@/components/detail/detail-section';
 import { Input } from '@/components/ui/input';
@@ -34,7 +36,9 @@ const STAGE_OPTIONS: OpportunityStage[] = [
   ];
 
 export function OpportunityWorkflowForm({ opportunity }: { opportunity: Opportunity }) {
-  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+    const [isPending, startTransition] = useTransition();
+    const allowedTransitions = getAllowedOpportunityStageTransitions(opportunity.stage);
 
   const form = useForm<WorkflowFormData>({
     // resolver: zodResolver(workflowFormSchema), // Resolver might be too strict for partial updates
@@ -53,6 +57,7 @@ export function OpportunityWorkflowForm({ opportunity }: { opportunity: Opportun
                 ...data,
             });
             toast.success("Workflow updated.");
+            router.refresh();
         } catch (error) {
             toast.error("Failed to update workflow.");
         }
@@ -64,7 +69,8 @@ export function OpportunityWorkflowForm({ opportunity }: { opportunity: Opportun
       <DetailSection title="Workflow Control">
         <div className="space-y-4">
             <select {...form.register('stage')} className="h-10 w-full rounded-md border bg-background px-3 text-sm">
-                {STAGE_OPTIONS.map(stage => (
+                <option value={opportunity.stage}>{opportunity.stage.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}</option>
+                {allowedTransitions.map(stage => (
                     <option key={stage} value={stage}>{
                         stage.split('_').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')
                     }</option>

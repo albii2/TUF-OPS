@@ -1,29 +1,30 @@
-import { getDashboardMetrics } from "@/lib/metrics/queries";
+
 import { PageHeader } from "@/components/ui/page-header";
+import { getDashboardData } from "@/lib/dashboard/get-dashboard-data";
 import { DashboardFocusStrip } from "@/components/dashboard/dashboard-focus-strip";
-import { DashboardPipelineSnapshot } from "@/components/dashboard/dashboard-pipeline-snapshot";
-import { DashboardOwnerLeaderboard } from "@/components/dashboard/dashboard-owner-leaderboard";
+import { DashboardRevenuePanel } from "@/components/dashboard/dashboard-revenue-panel";
+import { DashboardNextActions } from "@/components/dashboard/dashboard-next-actions";
 
 export default async function DashboardPage() {
-  const data = await getDashboardMetrics();
+    const data = await getDashboardData();
 
-  return (
-    <div className="space-y-8">
-      <PageHeader
-        title="Today’s Focus"
-        description="What you should do right now to move deals and generate revenue."
-      />
-      
-      <DashboardFocusStrip metrics={data} />
+    return (
+        <div className="space-y-6">
+            <PageHeader
+                title="Dashboard"
+                description={`Here's the state of the business for today, ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.`}
+            />
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-        <div className="col-span-1 lg:col-span-1">
-          <DashboardPipelineSnapshot snapshot={data.oppsByStage} />
+            <DashboardFocusStrip data={data.focusMetrics} />
+
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="col-span-1 lg:col-span-2">
+                    <DashboardRevenuePanel summary={data.revenueSummary} />
+                </div>
+                <div className="col-span-1">
+                    <DashboardNextActions actions={data.nextActions} />
+                </div>
+            </div>
         </div>
-        <div className="col-span-1 lg:col-span-1">
-            <DashboardOwnerLeaderboard owners={data.oppsByOwner} />
-        </div>
-      </div>
-    </div>
-  );
+    );
 }
