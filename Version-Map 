@@ -1,0 +1,665 @@
+TUF Ops — Master Version Map
+North Star
+TUF Ops is not a CRM.
+It is a Revenue Operating System built to help TUF:
+	•	identify opportunities
+	•	move them through a disciplined sales process
+	•	manage people and territories
+	•	convert deals into revenue
+	•	hand off won business into operations cleanly
+	•	scale leadership visibility without losing control
+That means the roadmap has to build in this order:
+	1	Product surface
+	2	Record quality
+	3	Workflow discipline
+	4	People and territory management
+	5	Revenue capture
+	6	Operational handoff
+	7	Enterprise hardening
+
+Non-Negotiable Product Principles
+These should govern every version.
+1. Action over analytics
+The system should always answer:
+What should happen next?
+Not just show data.
+2. One source of truth
+Organizations, opportunities, owners, stages, and handoffs must be standardized.
+3. Modular growth
+Every major capability should be a layer:
+	•	dashboard
+	•	records
+	•	workflow
+	•	people
+	•	finance
+	•	ops
+4. State discipline
+This system will only scale if records can exist in clean, predictable states.
+5. Leadership visibility without clutter
+Reps need focus. Directors need oversight. Admins need control.
+
+System Capabilities Required by Launch
+By launch, TUF Ops should be able to handle:
+Users
+	•	admin
+	•	national director
+	•	regional director
+	•	territory manager
+	•	sales rep
+	•	ops user
+	•	finance/admin support
+Entities
+	•	organizations
+	•	opportunities
+	•	users
+	•	territories
+	•	stages
+	•	activities
+	•	tasks / next steps
+	•	mockups
+	•	samples
+	•	invoices
+	•	handoffs
+	•	orders
+Core behaviors
+	•	assign ownership
+	•	track stage progression
+	•	highlight stale deals
+	•	show next actions
+	•	route deals by territory/user
+	•	show leadership dashboards
+	•	trigger handoff when deal is won
+	•	preserve history and accountability
+
+The New Master Version Ladder
+
+Phase I — Product Surface + Data Presentation
+Goal: make the system feel professional, coherent, and scalable
+
+v0.2.4 — Dashboard Command Center
+Goal
+Build the action-oriented dashboard.
+Includes
+	•	Today’s Focus strip
+	•	Next Actions
+	•	Pipeline Snapshot
+	•	Revenue panel
+	•	Near Close panel
+	•	dashboard data contracts + selectors
+Why
+This makes TUF Ops feel like a sales engine, not a back-office admin app.
+Business meaning
+When reps log in, they know what matters immediately.
+
+v0.2.5 — Data Table Foundation
+Goal
+Replace fragile list/card views with scalable tables.
+Includes
+	•	reusable DataTable
+	•	organizations columns
+	•	opportunities columns
+	•	table-based list views
+	•	scalable presentation foundation
+Why
+You cannot manage serious volume with card grids.
+Business meaning
+This prepares the system for hundreds or thousands of records.
+
+v0.2.6 — Page Detail System
+Goal
+Standardize detail pages into enterprise-style workspaces.
+Includes
+	•	organization detail layout
+	•	opportunity detail layout
+	•	section cards
+	•	field grouping
+	•	summary blocks
+	•	consistent hierarchy
+Why
+List pages find records. Detail pages move business.
+Business meaning
+This is where actual work starts happening.
+
+v0.2.7 — Form System Standardization
+Goal
+Create scalable, consistent creation/edit flows.
+Includes
+	•	shared form layout
+	•	field grouping
+	•	validation UX
+	•	success/error states
+	•	create/edit consistency
+Why
+Sloppy forms break trust and slow the team down.
+Business meaning
+Makes record creation feel reliable and professional.
+
+v0.2.8 — Empty States, Loading States, and UX Hardening
+Goal
+Polish system feedback and resilience.
+Includes
+	•	empty states
+	•	loading skeletons
+	•	error states
+	•	no-results states
+	•	better call-to-action prompts
+Why
+A professional system feels stable even when data is missing.
+Business meaning
+This reduces confusion for new reps and new territories.
+
+Phase II — CRM Core Maturity
+Goal: make organizations and opportunities behave like true business records
+
+v0.3.0 — Organization Record Management
+Goal
+Make organizations fully manageable.
+Includes
+	•	edit organization
+	•	metadata cleanup
+	•	record integrity checks
+	•	organization status fields
+	•	soft archive pattern if needed
+Business meaning
+You’ll be able to maintain accounts over time instead of treating them as one-time entries.
+
+v0.3.1 — Opportunity Record Management
+Goal
+Make opportunities true revenue objects.
+Includes
+	•	edit opportunity
+	•	stage/status refinement
+	•	expected value field discipline
+	•	close probability groundwork
+	•	close date foundation
+Business meaning
+This is where pipeline quality starts improving.
+
+v0.3.2 — Relationship Hardening
+Goal
+Strengthen organization ↔ opportunity relationships.
+Includes
+	•	opportunities on org detail
+	•	org summary on opp detail
+	•	connected record navigation
+	•	relationship integrity checks
+Business meaning
+The system starts behaving like a real CRM, not separate tables.
+
+v0.3.3 — Search, Filter, Sort Foundation
+Goal
+Make the system usable at volume.
+Includes
+	•	org search
+	•	opp search
+	•	stage filters
+	•	owner filters
+	•	sorting
+Business meaning
+This is essential once reps and directors start accumulating volume.
+
+v0.3.4 — Table UX Hardening
+Goal
+Make list pages enterprise-usable.
+Includes
+	•	pagination
+	•	row actions
+	•	badges
+	•	better formatting
+	•	filter bar
+	•	view state consistency
+Business meaning
+Now reps can actually work the system all day.
+
+v0.3.5 — Real Metrics Dashboard Pass
+Goal
+Upgrade dashboard from “surface” to “operating summary.”
+Includes
+	•	real counts
+	•	stage distribution
+	•	owner-aware metrics
+	•	stale opp count
+	•	pending action counts
+Business meaning
+Leadership and reps can trust the dashboard as a live control surface.
+
+Phase III — Workflow Engine
+Goal: make TUF Ops reflect the real TUF sales process
+This is where the money starts getting protected.
+
+v0.4.0 — Canonical Opportunity State Model
+Goal
+Define the official lifecycle.
+Suggested states
+	•	lead_identified
+	•	outreach_started
+	•	discovery
+	•	mockup_requested
+	•	mockup_sent
+	•	sample_required
+	•	sample_sent
+	•	awaiting_approval
+	•	invoice_ready
+	•	invoice_sent
+	•	payment_pending
+	•	won
+	•	closed_lost
+	•	inactive
+Business meaning
+No more vague, inconsistent deal stages.
+
+v0.4.1 — Next Step / Task System
+Goal
+Track what must happen next.
+Includes
+	•	next step field
+	•	next step due date
+	•	overdue logic
+	•	stale opportunity logic
+	•	task visibility on dashboard/detail pages
+Business meaning
+This is how you stop deals from quietly dying.
+
+v0.4.2 — Activity Timeline Foundation
+Goal
+Create memory and accountability.
+Includes
+	•	activity feed
+	•	stage change history
+	•	note entry structure
+	•	user attribution
+Business meaning
+You can finally answer: who did what, and when?
+
+v0.4.3 — Mockup Workflow System
+Goal
+Track mockup progression as a first-class workflow.
+Includes
+	•	mockup requested
+	•	mockup in progress
+	•	mockup sent
+	•	revision requested
+	•	approved / rejected
+Business meaning
+This matches a core TUF sales motion.
+
+v0.4.4 — Sample Workflow System
+Goal
+Track samples without chaos.
+Includes
+	•	sample required flag
+	•	sample status
+	•	sent date
+	•	response outcome
+	•	notes
+Business meaning
+This gives structure to one of the biggest real-world decision gates.
+
+v0.4.5 — Invoice Readiness + Payment State Model
+Goal
+Bridge sales progression toward revenue.
+Includes
+	•	invoice ready
+	•	invoice sent
+	•	payment pending
+	•	overdue payment
+	•	paid marker
+	•	payment status visibility
+Business meaning
+This is where pipeline becomes money.
+
+v0.4.6 — Deal Health Scoring
+Goal
+Rate opportunities by momentum and risk.
+Includes
+	•	stale score
+	•	urgency score
+	•	close-likelihood cues
+	•	dashboard prioritization improvements
+Business meaning
+Now the system helps reps work smarter, not just harder.
+
+Phase IV — People, Roles, and Territory Scale
+Goal: make the system work for a growing team
+
+v0.5.0 — Ownership Model
+Goal
+Assign records clearly.
+Includes
+	•	organization owner
+	•	opportunity owner
+	•	reassignment flow
+	•	created by / updated by
+Business meaning
+No orphaned work. No confusion.
+
+v0.5.1 — Rep-Centric Workspace
+Goal
+Tailor the app for reps.
+Includes
+	•	my dashboard
+	•	my opportunities
+	•	my organizations
+	•	my overdue items
+	•	my near-close
+Business meaning
+Reps get focus and clarity.
+
+v0.5.2 — Director-Centric Workspace
+Goal
+Tailor the app for regional directors.
+Includes
+	•	team pipeline view
+	•	rep rollups
+	•	overdue by rep
+	•	near-close by region
+	•	stage bottlenecks
+Business meaning
+Directors can manage, not just inspect.
+
+v0.5.3 — Territory System Foundation
+Goal
+Introduce territory structure.
+Includes
+	•	territory model
+	•	assign rep/director to territory
+	•	territory tags on orgs/opps
+	•	territory filtering
+Business meaning
+This aligns TUF Ops with real expansion strategy.
+
+v0.5.4 — Multi-Director / Multi-Rep Scaling Rules
+Goal
+Support real organizational growth.
+Includes
+	•	visibility rules
+	•	territory rollups
+	•	escalation patterns
+	•	reassignment logic
+Business meaning
+This is where the system becomes viable at serious scale.
+
+v0.5.5 — Performance Management Layer
+Goal
+Create leadership performance visibility.
+Includes
+	•	opportunities created
+	•	stage progression
+	•	close rates
+	•	follow-up compliance
+	•	team activity summaries
+Business meaning
+Now TUF Ops becomes a management system, not just a sales tracker.
+
+Phase V — Revenue Capture + Sales-to-Ops Bridge
+Goal: turn won deals into executable business
+
+v0.6.0 — Won Opportunity Handoff
+Goal
+Create clean transition from sales to execution.
+Includes
+	•	handoff checklist
+	•	required metadata
+	•	ops readiness state
+	•	handoff approval pattern
+Business meaning
+Deals stop dying in the gap between close and execution.
+
+v0.6.1 — Order Foundation
+Goal
+Create orders from won opportunities.
+Includes
+	•	order object
+	•	relationship to opp/org
+	•	order detail page
+	•	initial status structure
+Business meaning
+TUF Ops begins becoming the spine of the company.
+
+v0.6.2 — Order Data Collection Layer
+Goal
+Capture what ops actually needs.
+Includes
+	•	roster collection
+	•	sizing collection
+	•	custom notes
+	•	special instructions
+Business meaning
+Now the system supports real fulfillment preparation.
+
+v0.6.3 — Order Status Tracking
+Goal
+Track progress after handoff.
+Includes
+	•	submitted
+	•	in production
+	•	awaiting materials
+	•	delivered
+	•	completed
+Business meaning
+Now sales and ops stay connected after the close.
+
+v0.6.4 — Payment and Order Alignment
+Goal
+Make payment visibility and order execution coherent.
+Includes
+	•	paid/unpaid visibility on orders
+	•	payment block states
+	•	ops readiness tied to payment rules
+Business meaning
+Protects margin and operational discipline.
+
+Phase VI — Enterprise Hardening
+Goal: make the system durable enough to run a serious company
+
+v0.7.0 — Permissions Hardening
+Goal
+Make role boundaries trustworthy.
+Includes
+	•	role gating
+	•	page/action restrictions
+	•	record visibility rules
+	•	sensitive action protection
+Business meaning
+Protects the company as the team grows.
+
+v0.7.1 — Auditability and Logging Hardening
+Goal
+Improve traceability.
+Includes
+	•	better event logging
+	•	history retention
+	•	mutation tracking
+	•	admin oversight tools
+Business meaning
+Enterprise trust and accountability.
+
+v0.7.2 — QA Hardening
+Goal
+Stabilize the platform.
+Includes
+	•	bug sweep
+	•	type/lint cleanup
+	•	dead code removal
+	•	regression checklist
+	•	manual workflow certification
+Business meaning
+The system becomes safer to rely on.
+
+v0.7.3 — Demo + Seed Readiness
+Goal
+Make the app presentation-ready and testable.
+Includes
+	•	realistic seed data
+	•	demo accounts
+	•	role-based scenarios
+	•	territory examples
+Business meaning
+This makes the system easy to show to hires, leaders, and partners.
+
+v0.7.4 — Deployment + Environment Hardening
+Goal
+Make production startup and maintenance dependable.
+Includes
+	•	env audits
+	•	deployment config
+	•	production auth checks
+	•	db connection hardening
+	•	monitoring/error sanity pass
+Business meaning
+Reduces production risk.
+
+v0.7.5 — SOP + Training Layer
+Goal
+Make the system teachable.
+Includes
+	•	internal SOP docs
+	•	rep onboarding guide
+	•	director guide
+	•	admin operations guide
+Business meaning
+The system can scale beyond founder memory.
+
+v0.7.6 — Launch Candidate
+Goal
+Final internal launch candidate.
+Includes
+	•	full smoke test
+	•	workflow verification
+	•	branding consistency pass
+	•	leadership signoff checklist
+Business meaning
+This is the first version you can confidently run the company on.
+
+Phase VII — Revenue Expansion Layer
+Goal: maximize upside beyond core CRM behavior
+This is where the system starts supporting millions-level scaling logic more directly.
+
+v0.8.0 — Advanced Forecasting Layer
+Goal
+Add pipeline forecasting and close projections.
+Includes
+	•	expected monthly close
+	•	weighted pipeline
+	•	close probability views
+	•	director forecast summary
+
+v0.8.1 — Sales Cadence Intelligence
+Goal
+Improve rep discipline through system nudges.
+Includes
+	•	touchpoint pacing
+	•	inactivity warnings
+	•	follow-up recommendations
+
+v0.8.2 — Executive Reporting Layer
+Goal
+Give leadership strategic visibility.
+Includes
+	•	by territory
+	•	by rep
+	•	by stage
+	•	by value band
+	•	by close rate
+
+v0.8.3 — Integration Layer Foundation
+Goal
+Prepare system to connect with external tools.
+Includes
+	•	Zoho alignment
+	•	invoice/payment integration prep
+	•	file attachment prep
+	•	export/report capability
+
+v0.8.4 — Scale Ops Layer
+Goal
+Support higher-volume operations.
+Includes
+	•	bulk actions
+	•	import tools
+	•	assignment tools
+	•	operational shortcuts
+
+Condensed Master Ladder
+
+v0.2.4  Dashboard command center
+v0.2.5  Data table foundation
+v0.2.6  Page detail system
+v0.2.7  Form system standardization
+v0.2.8  Empty/loading/error states
+
+v0.3.0  Organization record management
+v0.3.1  Opportunity record management
+v0.3.2  Relationship hardening
+v0.3.3  Search/filter/sort foundation
+v0.3.4  Table UX hardening
+v0.3.5  Real metrics dashboard pass
+
+v0.4.0  Canonical opportunity state model
+v0.4.1  Next step/task system
+v0.4.2  Activity timeline foundation
+v0.4.3  Mockup workflow system
+v0.4.4  Sample workflow system
+v0.4.5  Invoice/payment state model
+v0.4.6  Deal health scoring
+
+v0.5.0  Ownership model
+v0.5.1  Rep-centric workspace
+v0.5.2  Director-centric workspace
+v0.5.3  Territory system foundation
+v0.5.4  Multi-director/multi-rep scale rules
+v0.5.5  Performance management layer
+
+v0.6.0  Won opportunity handoff
+v0.6.1  Order foundation
+v0.6.2  Order data collection layer
+v0.6.3  Order status tracking
+v0.6.4  Payment and order alignment
+
+v0.7.0  Permissions hardening
+v0.7.1  Auditability and logging hardening
+v0.7.2  QA hardening
+v0.7.3  Demo + seed readiness
+v0.7.4  Deployment + environment hardening
+v0.7.5  SOP + training layer
+v0.7.6  Launch candidate
+
+v0.8.0  Advanced forecasting layer
+v0.8.1  Sales cadence intelligence
+v0.8.2  Executive reporting layer
+v0.8.3  Integration layer foundation
+v0.8.4  Scale ops layer
+
+
+How this gets you to millions
+This is the real point.
+TUF Ops helps you make millions if it does these things well:
+1. Protects pipeline
+No lost deals from poor follow-up.
+2. Increases rep efficiency
+Reps spend less time thinking and more time moving deals.
+3. Improves close discipline
+Mockups, samples, approvals, invoices, and payment states become structured.
+4. Gives directors leverage
+One director can manage more reps well.
+5. Bridges sales to ops
+You don’t just sell more — you execute cleanly.
+6. Gives leadership real visibility
+You can see where growth is real and where it’s leaking.
+
+CEO recap — Plain English
+This new version map is designed to build TUF Ops into:
+	•	a serious internal SaaS platform
+	•	a scalable sales operating system
+	•	a multi-user, multi-region management tool
+	•	a sales-to-ops bridge
+	•	a professional enterprise-level system
+In plain terms:
+We are not just building software.
+We are building the machine that can help TUF:
+	•	close more deals
+	•	manage more people
+	•	stay organized under pressure
+	•	scale across regions
+	•	operate like a real high-level company
+That is what gives you a real shot at millions.

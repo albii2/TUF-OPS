@@ -1,7 +1,7 @@
+
 datasource db {
-  provider     = "postgresql"
-  url          = env("DATABASE_URL")
-  relationMode = "foreignKeys"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -9,80 +9,108 @@ generator client {
 }
 
 model User {
-  id                 Int            @id @default(autoincrement())
-  email              String         @unique
-  password_hash      String?        @map("password_hash")
-  name               String?
-  role               UserRole       @default(rep)
-  managerId          Int?
-  created_at         DateTime       @default(now()) @map("created_at")
-  updated_at         DateTime       @updatedAt @map("updated_at")
-
-  manager            User?          @relation("ManagerToSubordinates", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  subordinates       User[]         @relation("ManagerToSubordinates")
-  ownedOrganizations Organization[] @relation("OrganizationOwner")
-  ownedOpportunities Opportunity[]  @relation("OpportunityOwner")
-  opportunityEvents OpportunityEvent[] @relation("OpportunityEventsByUser")
+  id            Int           @id @default(autoincrement())
+  email         String        @unique
+  name          String?
+  role          UserRole      @default(REP)
+  manager       User?         @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  managerId     Int?          @map("manager_id")
+  subordinates  User[]        @relation("ManagerSubordinates")
+  ownedOrgs     Organization[]@relation("Owner")
+  ownedOpps     Opportunity[] @relation("Owner")
+  events        OpportunityEvent[]
 
   @@map("users")
 }
 
+enum UserRole {
+  ADMIN
+  DIRECTOR
+  REP
+}
+
 model Organization {
-  id              Int           @id @default(autoincrement())
-  name            String
-  ownerId         Int?
-  owner           User?         @relation("OrganizationOwner", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  opportunities   Opportunity[]
-  zoho_account_id String?       @unique @map("zoho_account_id")
-  status          OrganizationStatus @default(active)
+  id          Int           @id @default(autoincrement())
+  name        String
+  owner       User?         @relation("Owner", fields: [ownerId], references: [id])
+  ownerId     Int?          @map("owner_id")
+  opportunities Opportunity[]
 
   @@map("organizations")
 }
 
 model Opportunity {
-  id                 Int                 @id @default(autoincrement())
-  organization_id    Int?
-  organization       Organization?       @relation(fields: [organization_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  id                 Int                  @id @default(autoincrement())
+  organization       Organization         @relation(fields: [organizationId], references: [id])
+  organizationId     Int                  @map("organization_id")
   name               String
-  stage              OpportunityStage    @default(lead)
-  ownerId            Int?
-  owner              User?               @relation("OpportunityOwner", fields: [ownerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
-  last_contact_date  DateTime?           @map("last_contact_date")
-  probability        Int?
-  estimated_value    Decimal             @default(0) @db.Decimal(10, 2) @map("estimated_value")
-  nextStep           String?             @map("next_step")
-  nextStepDueDate    DateTime?           @map("next_step_due_date")
-  close_date         DateTime?           @map("close_date")
-  created_at         DateTime            @default(now()) @map("created_at")
-  updated_at         DateTime            @updatedAt @map("updated_at")
-  zoho_deal_id       String?             @unique @map("zoho_deal_id")
+  stage              OpportunityStage     @default(lead)
+  owner              User?                @relation("Owner", fields: [ownerId], references: [id])
+  ownerId            Int?                 @map("owner_id")
+  last_contact_date  DateTime?            @map("last_contact_date")
+  probability        Float?
+  estimated_value    Decimal?             @db.Decimal(10, 2) @map("estimated_value")
+  nextStep           String?              @map("next_step")
+  nextStepDueDate    DateTime?            @map("next_step_due_date")
+  close_date         DateTime?            @map("close_date")
+  createdAt          DateTime             @default(now()) @map("created_at")
+  updatedAt          DateTime             @updatedAt @map("updated_at")
+  zoho_deal_id       String?              @unique @map("zoho_deal_id")
+  mockup             Mockup?              // Relation to the Mockup model
   events             OpportunityEvent[]
+
+  // Commission Fields (for future module)
+  deal_type          DealType?   @map("deal_type")
+  cost_of_goods_sold Decimal?    @db.Decimal(10, 2) @map("cost_of_goods_sold")
+  gross_profit       Decimal?    @db.Decimal(10, 2) @map("gross_profit") // Can be calculated: estimated_value - cost_of_goods_sold
+
+  order              Order?      // Relation to the Order model
 
   @@map("opportunities")
 }
 
+model Mockup {
+  id             Int           @id @default(autoincrement())
+  opportunity    Opportunity   @relation(fields: [opportunityId], references: [id])
+  opportunityId  Int           @unique @map("opportunity_id")
+  status         String        @default("pending")
+  primaryColor   String?
+  secondaryColor String?
+  tertiaryColor  String?
+  jerseyNumbers  String?
+  logoUrl        String?
+  notes          String?
+  trelloCardId   String?       @unique
+
+  @@map("mockups")
+}
 
 model OpportunityEvent {
   id            Int                  @id @default(autoincrement())
+  opportunity   Opportunity          @relation(fields: [opportunityId], references: [id])
   opportunityId Int                  @map("opportunity_id")
-  opportunity   Opportunity          @relation(fields: [opportunityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  actorUser     User                 @relation(fields: [actorUserId], references: [id])
   actorUserId   Int                  @map("actor_user_id")
-  actorUser     User                 @relation("OpportunityEventsByUser", fields: [actorUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
   eventType     OpportunityEventType @map("event_type")
   fromStage     OpportunityStage?    @map("from_stage")
   toStage       OpportunityStage?    @map("to_stage")
   metadata      Json?
-  created_at    DateTime             @default(now()) @map("created_at")
+  createdAt     DateTime             @default(now()) @map("created_at")
 
-  @@index([opportunityId, created_at])
-  @@index([actorUserId, created_at])
   @@map("opportunity_events")
 }
 
-enum OrganizationStatus {
-  active
-  inactive
-  archived
+model Order {
+  id            Int          @id @default(autoincrement())
+  orderNumber   String       @unique @map("order_number")
+  opportunity   Opportunity  @relation(fields: [opportunityId], references: [id])
+  opportunityId Int          @unique @map("opportunity_id")
+  status        OrderStatus  @default(PENDING)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("orders")
 }
 
 enum OpportunityStage {
@@ -95,13 +123,24 @@ enum OpportunityStage {
   closed_lost
 }
 
-enum UserRole {
-    admin
-    director
-    rep
-}
-
 enum OpportunityEventType {
   stage_changed
   owner_changed
+  next_step_set
+  due_date_set
+  note_added
+}
+
+enum DealType {
+  UNIFORMS
+  TEAM_STORES
+  LETTERMAN_JACKETS
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  COMPLETED
+  CANCELED
 }

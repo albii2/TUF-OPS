@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getOpportunity } from "@/lib/opportunities/queries";
+import { Opportunity, Mockup } from "@prisma/client";
 import { getAssignableUsers } from "@/lib/users/queries";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageActions } from "@/components/ui/page-actions";
@@ -16,6 +17,9 @@ import { OwnerBadge } from "@/components/shared/owner-badge";
 import { RecordNotFoundState } from "@/components/state/record-not-found-state";
 import { StageBadge } from "@/components/opportunities/StageBadge";
 import { OrganizationSummaryCard } from "@/components/opportunities/OrganizationSummaryCard";
+import { NewMockupForm } from "@/components/opportunities/NewMockupForm";
+import { MockupWorkflowCard } from "@/components/opportunities/MockupWorkflowCard";
+import { ActivityTimeline } from "@/components/opportunities/ActivityTimeline";
 
 export default async function OpportunityDetailPage({ params }: { params: { id: string } }) {
     const opportunity = await getOpportunity(params.id);
@@ -49,6 +53,11 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
             description={`Review and update the current state of this deal with ${organization.name}`}
             actions={
                 <PageActions>
+                    {opportunity.stage === 'closed_won' && (
+                        <Link href={`/orders/new/${opportunity.id}`}>
+                            <Button>Start Order</Button>
+                        </Link>
+                    )}
                     <Link href={`/opportunities/${opportunity.id}/edit`}>
                         <Button>Edit Opportunity</Button>
                     </Link>
@@ -74,10 +83,17 @@ export default async function OpportunityDetailPage({ params }: { params: { id: 
                     </DetailSection>
 
                     <OrganizationSummaryCard organization={organization} />
+
+                    <ActivityTimeline opportunityId={opportunity.id} />
                 </DetailPageShell>
             </div>
             <div className="col-span-1 space-y-6">
                 <OpportunityWorkflowForm opportunity={opportunity} />
+                {opportunity.mockup ? (
+                    <MockupWorkflowCard opportunityId={opportunity.id} initialMockup={opportunity.mockup} />
+                ) : (
+                    <NewMockupForm opportunityId={opportunity.id} opportunityName={opportunity.name} />
+                )}
                 <OpportunityOwnerCard opportunity={opportunity} users={users} />
             </div>
           </div>

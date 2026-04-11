@@ -21,6 +21,12 @@ export const PRIMARY_NAV: NavItem[] = [
     roles: ["admin", "director", "rep"],
   },
   {
+    label: "Orders",
+    href: "/orders",
+    icon: Briefcase, // Replace with a more appropriate icon later
+    roles: ["admin", "director", "rep"],
+  },
+  {
     label: "Settings",
     href: "/settings",
     icon: Settings,

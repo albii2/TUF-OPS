@@ -12,10 +12,10 @@ export function FormShell({
   description?: string
 }) {
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
+    <div className="space-y-8">
       {title && <h2 className="text-xl font-semibold">{title}</h2>}
       {description && <p className="text-sm text-muted-foreground">{description}</p>}
       {children}
-    </form>
+    </div>
   )
 }
