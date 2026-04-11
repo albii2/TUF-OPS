@@ -44,8 +44,9 @@ export async function updateOpportunityWorkflow(input: {
     where: { id: opportunityId },
     data: {
       stage: input.stage,
-      nextStep: input.nextStep ?? null,
-      nextStepDueDate: input.nextStepDueDate ?? null,
+      nextStep: input.nextStep === undefined ? existingOpportunity.nextStep : input.nextStep ?? null,
+      nextStepDueDate:
+        input.nextStepDueDate === undefined ? existingOpportunity.nextStepDueDate : input.nextStepDueDate ?? null,
     },
   })
 
@@ -120,6 +121,15 @@ export async function updateOpportunityOwner(input: {
     if (input.ownerId && !allowedOwnerIds.includes(input.ownerId)) {
       throw new Error('Unauthorized: Directors can only assign to themselves or their direct reports.')
     }
+  }
+
+  const existingOpportunity = await prisma.opportunity.findUnique({
+    where: { id: input.id },
+    select: { id: true, ownerId: true },
+  })
+
+  if (!existingOpportunity) {
+    throw new Error('Opportunity not found.')
   }
 
   const updated = await prisma.opportunity.update({
