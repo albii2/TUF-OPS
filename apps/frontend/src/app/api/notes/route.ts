@@ -1,22 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/lib/auth/auth-options'
+import { NextResponse } from 'next/server'
 
-export async function POST(request: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session?.user || !(session.user as any).id) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+export async function GET() {
+  return NextResponse.json(
+    { error: 'Endpoint deprecated in current internal build. Use active opportunity/program workflows.' },
+    { status: 410 }
+  )
+}
 
-  const { opportunity_id, note } = await request.json()
-  
-  const newNote = await prisma.opportunityNote.create({
-    data: {
-      note,
-      opportunity: { connect: { id: opportunity_id } },
-      user: { connect: { id: (session.user as any).id } }
-    }
-  })
-  return NextResponse.json(newNote)
+export async function POST() {
+  return NextResponse.json(
+    { error: 'Endpoint deprecated in current internal build. Use active opportunity/program workflows.' },
+    { status: 410 }
+  )
 }
