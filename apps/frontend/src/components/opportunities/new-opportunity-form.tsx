@@ -7,22 +7,23 @@ import { FormSection } from '@/components/form/form-section';
 import { FormField } from '@/components/form/form-field';
 import { FormActions } from '@/components/form/form-actions';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { OPPORTUNITY_STAGES, OPPORTUNITY_STAGE_LABELS } from "@/lib/workflow/stage-utils";
+import { OPPORTUNITY_STAGES, OPPORTUNITY_STAGE_LABELS } from "@/lib/workflow/opportunity-stages";
 
 interface Organization {
   id: number
   name: string
 }
 
-const initialState = { message: '', errors: {} };
+const initialState = { message: null, errors: {} };
 
-function SubmitButton({ disabled }: { disabled: boolean }) {
+function SubmitButton() {
     const { pending } = useFormStatus();
-    return <FormActions isSubmitting={pending} submitLabel="Create Opportunity" disabled={disabled} />;
+    return <FormActions isSubmitting={pending} submitLabel="Create Opportunity" />;
 }
 
-export function NewOpportunityForm({ organizations, readOnly = false }: { organizations: Organization[]; readOnly?: boolean }) {
+export function NewOpportunityForm({ organizations }: { organizations: Organization[] }) {
   const [state, dispatch] = useFormState(createOpportunity, initialState);
 
   return (
@@ -31,19 +32,13 @@ export function NewOpportunityForm({ organizations, readOnly = false }: { organi
             title="Create New Opportunity" 
             description="Create a new opportunity and connect it to an organization."
         >
-            {readOnly ? (
-                <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                    Opportunity creation is temporarily unavailable until the database connection is configured.
-                </p>
-            ) : null}
-
             <FormSection>
                 <FormField label="Opportunity Name" error={state.errors?.name?.[0]}>
                     <Input name="name" required />
                 </FormField>
 
                 <FormField label="Organization" error={state.errors?.organization_id?.[0]}>
-                    <Select name="organizationId" required disabled={readOnly}>
+                    <Select name="organizationId" required>
                         <SelectTrigger>
                             <SelectValue placeholder="Select an organization" />
                         </SelectTrigger>
@@ -81,7 +76,7 @@ export function NewOpportunityForm({ organizations, readOnly = false }: { organi
                 </FormField>
             </FormSection>
 
-            <SubmitButton disabled={readOnly} />
+            <SubmitButton />
         </FormShell>
     </form>
   );

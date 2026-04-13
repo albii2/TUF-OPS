@@ -4,8 +4,6 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { Opportunity, User } from "@prisma/client";
 
-type AssignableUser = { id: number; name: string | null; managerId?: number | null };
-
 import { useSession } from "next-auth/react";
 import { updateOpportunityOwner } from "@/lib/opportunities/mutations";
 import { DetailSection } from "@/components/detail/detail-section";
@@ -15,7 +13,7 @@ import { Button } from "@/components/ui/button";
 
 interface OpportunityOwnerCardProps {
   opportunity: Opportunity & { owner: User | null };
-  users: AssignableUser[];
+  users: User[];
 }
 
 export function OpportunityOwnerCard({ opportunity, users }: OpportunityOwnerCardProps) {
@@ -26,8 +24,6 @@ export function OpportunityOwnerCard({ opportunity, users }: OpportunityOwnerCar
   const userRole = session?.user?.role;
   const isRep = userRole === 'rep';
 
-  const sessionUserId = session?.user?.id ? Number(session.user.id) : null
-
   const getAssignableUsers = () => {
     if (userRole === 'admin') {
       return users;
@@ -36,7 +32,7 @@ export function OpportunityOwnerCard({ opportunity, users }: OpportunityOwnerCar
         // A real implementation would fetch subordinates, but for now, we filter from the passed users.
         // This assumes the initial `users` prop contains all possible users.
       
-        return users.filter((u) => (sessionUserId ? u.managerId === sessionUserId || u.id === sessionUserId : false));
+        return users.filter(u => u.managerId === session?.user?.id || u.id === session?.user?.id);
     }
     return [];
   }
@@ -60,7 +56,7 @@ export function OpportunityOwnerCard({ opportunity, users }: OpportunityOwnerCar
         <OwnerBadge ownerName={opportunity.owner?.name} />
         {!isRep && (
             <div className="space-y-2">
-                <Select onValueChange={(value) => setOwnerId(value === "null" ? null : Number(value))} defaultValue={ownerId === null ? "null" : String(ownerId)}>
+                <Select onValueChange={(value) => setOwnerId(Number(value))} defaultValue={String(ownerId)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Assign an owner..." />
                     </SelectTrigger>

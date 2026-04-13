@@ -1,48 +1,43 @@
 'use server'
 
-import { prisma } from '@/lib/prisma'
-import type { AppRole } from '@/types/auth'
-
-type VisibilityUser = {
-  id: string
-  role: AppRole
-}
+import { prisma } from "@/lib/prisma";
+import { User } from "@prisma/client";
 
 /**
  * Retrieves opportunities based on the user's role and hierarchy.
+ * - Admins see all opportunities.
+ * - Directors see their own opportunities, their team's opportunities, and unassigned leads.
+ * - Reps see only their own assigned opportunities.
  */
-export async function getVisibleOpportunities(user: VisibilityUser) {
-  const standardIncludes = { owner: true, organization: true }
-  const userId = Number(user.id)
+export async function getVisibleOpportunities(user: User) {
+    const standardIncludes = { owner: true, organization: true };
 
-  if (Number.isNaN(userId)) {
-    return []
-  }
+    if (user.role === 'admin') {
+        return await prisma.opportunity.findMany({ include: standardIncludes });
+    }
 
-  if (user.role === 'admin') {
-    return prisma.opportunity.findMany({ include: standardIncludes })
-  }
+    if (user.role === 'director') {
+        const subordinateIds = await prisma.user.findMany({
+            where: { managerId: user.id },
+            select: { id: true },
+        }).then(users => users.map(u => u.id));
 
-  if (user.role === 'director') {
-    const subordinateIds = await prisma.user
-      .findMany({
-        where: { managerId: userId },
-        select: { id: true },
-      })
-      .then((users) => users.map((u) => u.id))
+        const visibleOwnerIds = [user.id, ...subordinateIds];
 
-    const visibleOwnerIds = [userId, ...subordinateIds]
+        return await prisma.opportunity.findMany({
+            where: {
+                OR: [
+                    { ownerId: { in: visibleOwnerIds } },
+                    { ownerId: null } // Directors can see unassigned leads
+                ]
+            },
+            include: standardIncludes
+        });
+    }
 
-    return prisma.opportunity.findMany({
-      where: {
-        OR: [{ ownerId: { in: visibleOwnerIds } }, { ownerId: null }],
-      },
-      include: standardIncludes,
-    })
-  }
-
-  return prisma.opportunity.findMany({
-    where: { ownerId: userId },
-    include: standardIncludes,
-  })
+    // Default to rep visibility
+    return await prisma.opportunity.findMany({
+        where: { ownerId: user.id },
+        include: standardIncludes
+    });
 }

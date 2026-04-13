@@ -38,7 +38,7 @@ function SignInForm() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-black text-white">
       <div className="w-full max-w-md space-y-8 px-4">
         <div className="flex justify-center">
-                    <h1 className="font-vcr text-4xl text-white">TUF <span className="text-blue-500">{"//"}</span> OPS</h1>
+                    <h1 className="font-vcr text-4xl text-white">TUF <span className="text-blue-500">//</span> OPS</h1>
         </div>
         <div className="space-y-6">
           <form onSubmit={onSubmit} className="space-y-6">

@@ -22,7 +22,6 @@ model User {
   subordinates       User[]         @relation("ManagerToSubordinates")
   ownedOrganizations Organization[] @relation("OrganizationOwner")
   ownedOpportunities Opportunity[]  @relation("OpportunityOwner")
-  opportunityEvents OpportunityEvent[] @relation("OpportunityEventsByUser")
 
   @@map("users")
 }
@@ -56,27 +55,8 @@ model Opportunity {
   created_at         DateTime            @default(now()) @map("created_at")
   updated_at         DateTime            @updatedAt @map("updated_at")
   zoho_deal_id       String?             @unique @map("zoho_deal_id")
-  events             OpportunityEvent[]
 
   @@map("opportunities")
-}
-
-
-model OpportunityEvent {
-  id            Int                  @id @default(autoincrement())
-  opportunityId Int                  @map("opportunity_id")
-  opportunity   Opportunity          @relation(fields: [opportunityId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  actorUserId   Int                  @map("actor_user_id")
-  actorUser     User                 @relation("OpportunityEventsByUser", fields: [actorUserId], references: [id], onDelete: Restrict, onUpdate: Cascade)
-  eventType     OpportunityEventType @map("event_type")
-  fromStage     OpportunityStage?    @map("from_stage")
-  toStage       OpportunityStage?    @map("to_stage")
-  metadata      Json?
-  created_at    DateTime             @default(now()) @map("created_at")
-
-  @@index([opportunityId, created_at])
-  @@index([actorUserId, created_at])
-  @@map("opportunity_events")
 }
 
 enum OrganizationStatus {
@@ -99,9 +79,4 @@ enum UserRole {
     admin
     director
     rep
-}
-
-enum OpportunityEventType {
-  stage_changed
-  owner_changed
 }

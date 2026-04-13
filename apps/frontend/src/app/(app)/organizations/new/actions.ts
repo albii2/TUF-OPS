@@ -16,7 +16,7 @@ export type State = {
     errors?: {
       name?: string[];
     };
-    message?: string;
+    message?: string | null;
 };
 
 export async function createOrganization(prevState: State, formData: FormData) {

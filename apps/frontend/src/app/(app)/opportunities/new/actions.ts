@@ -3,14 +3,13 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/prisma'
-import { OpportunityStage } from '@prisma/client'
 import { z } from 'zod'
 
 const FormSchema = z.object({
     id: z.string(),
     name: z.string().min(3, { message: 'Must be 3 or more characters long' }),
     organization_id: z.coerce.number(),
-    stage: z.nativeEnum(OpportunityStage),
+    stage: z.string(),
     estimated_value: z.coerce.number(),
     probability: z.coerce.number(),
 });
@@ -23,7 +22,7 @@ export type State = {
       organization_id?: string[];
       // add other fields as necessary
     };
-    message?: string;
+    message?: string | null;
 };
 
 export async function createOpportunity(prevState: State, formData: FormData) {

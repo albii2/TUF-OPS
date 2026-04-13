@@ -6,19 +6,19 @@ export const PRIMARY_NAV: NavItem[] = [
     label: "Dashboard",
     href: "/dashboard",
     icon: LayoutDashboard,
-    roles: ["admin", "director", "rep"],
+    roles: ["admin", "regional_director", "sales_rep"],
   },
   {
     label: "Organizations",
     href: "/organizations",
     icon: Building,
-    roles: ["admin", "director", "rep"],
+    roles: ["admin", "regional_director", "sales_rep"],
   },
   {
     label: "Opportunities",
     href: "/opportunities",
     icon: Briefcase,
-    roles: ["admin", "director", "rep"],
+    roles: ["admin", "regional_director", "sales_rep"],
   },
   {
     label: "Settings",

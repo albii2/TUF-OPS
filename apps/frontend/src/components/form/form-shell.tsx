@@ -1,21 +1,13 @@
-import type { FormEventHandler, ReactNode } from 'react'
-
-export function FormShell({
+export function FormShell({ 
   children,
   onSubmit,
-  title,
-  description,
-}: {
-  children: ReactNode
-  onSubmit?: FormEventHandler<HTMLFormElement>
-  title?: string
-  description?: string
+}: { 
+  children: React.ReactNode;
+  onSubmit: () => void;
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-8">
-      {title && <h2 className="text-xl font-semibold">{title}</h2>}
-      {description && <p className="text-sm text-muted-foreground">{description}</p>}
       {children}
     </form>
-  )
+  );
 }

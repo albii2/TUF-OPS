@@ -1,23 +1,20 @@
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 
-export function FormActions({
-  isPending,
-  isSubmitting,
-  submitLabel = 'Save Changes',
-  disabled = false,
-}: {
-  isPending?: boolean
-  isSubmitting?: boolean
-  submitLabel?: string
-  disabled?: boolean
+export function FormActions({ 
+  isPending, 
+  submitLabel = "Save Changes", 
+}: { 
+  isPending?: boolean; 
+  submitLabel?: string; 
 }) {
-  const pending = isPending ?? isSubmitting ?? false
-
   return (
     <div className="flex justify-end">
-      <Button type="submit" disabled={pending}>
-        {pending ? 'Saving...' : submitLabel}
+      <Button
+        type="submit"
+        disabled={isPending}
+      >
+        {isPending ? "Saving..." : submitLabel}
       </Button>
     </div>
-  )
+  );
 }

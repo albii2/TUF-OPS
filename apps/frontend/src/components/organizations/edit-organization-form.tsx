@@ -6,7 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import type { Organization } from "@prisma/client";
+import type { Organization, User } from "@prisma/client";
 import { updateOrganizationSchema } from "@/lib/organizations/validation";
 import type { z } from "zod";
 
@@ -26,7 +26,7 @@ export function EditOrganizationForm({
     assignableUsers 
 }: { 
     organization: Organization, 
-    assignableUsers: { id: number; name: string | null; email: string; role: string }[] 
+    assignableUsers: User[] 
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
