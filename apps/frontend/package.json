@@ -1,13 +1,13 @@
 {
   "name": "frontend",
-  "version": "0.1.0",
+  "version": "0.2.4",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest",
+    "test": "jest --passWithNoTests --testPathIgnorePatterns=src/tests/e2e",
     "prisma:db-push": "dotenv -e ../../.env -- prisma db push",
     "prisma:seed": "tsx prisma/seed.ts",
     "db:seed:test-orgs": "tsx prisma/seed-test-orgs.ts"

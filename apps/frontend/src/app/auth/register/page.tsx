@@ -26,7 +26,6 @@ export default function Register() {
           email,
           password,
           fullName,
-          role: 'sales_rep'
         }),
       })
 

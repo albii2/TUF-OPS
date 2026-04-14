@@ -2,9 +2,9 @@
 
 TUF Ops is an internal application designed to streamline and manage core business operations for The Uniform Factory, including sales, customer relationship management, and order processing.
 
-## Current Scope
+## Current Scope (v0.2.4 baseline)
 
-This is the initial baseline version of the application. The current, manually verified scope includes the following MVP features:
+This is the current stabilized baseline version of the application. The manually verified scope includes the following core features:
 
 - **Authentication:** Users can sign in with an email and password.
 - **Dashboard:** A basic application shell/layout after login.
