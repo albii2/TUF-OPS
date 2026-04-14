@@ -4,8 +4,8 @@ import { type Session } from 'next-auth';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart, Box, Folder, Home, X } from 'lucide-react';
 import { BarChart, Box, Folder, Home, Settings, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
