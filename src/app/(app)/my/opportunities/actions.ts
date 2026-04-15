@@ -6,7 +6,7 @@ import { requireSession } from "@/lib/auth/session";
 export async function getMyOpportunities() {
     const session = await requireSession();
 
-    const userId = parseInt(session.user.id, 10);
+    const userId = session.user.id;
 
     const opportunities = await prisma.opportunity.findMany({ 
         where: { ownerId: userId },

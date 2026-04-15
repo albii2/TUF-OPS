@@ -51,6 +51,18 @@ The core dependency between creating an Organization and it being available when
     ```
     The default admin credentials are `admin@tufops.com` / `admin123`.
 
+
+### Railway Postgres permission bootstrap (production/shared envs)
+
+If runtime errors include `User "..." was denied access on the database ...`, the DB user can connect but lacks object privileges.
+Run the bootstrap grants once against the target database:
+
+```bash
+pnpm db:railway:grant
+```
+
+This executes `prisma/sql/railway-permissions.sql`, which grants access on the `public` schema, all existing tables/sequences, and future tables/sequences via default privileges.
+
 5.  **Run the development server:**
     ```bash
     pnpm dev
