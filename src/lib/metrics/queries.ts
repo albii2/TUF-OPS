@@ -17,7 +17,7 @@ export async function getMyDashboardMetrics(userId: string) {
     const myStaleCount = await prisma.opportunity.count({
         where: {
             ...whereClause,
-            updated_at: { 
+            updatedAt: { 
                 lt: thirtyDaysAgo 
             },
         },
@@ -93,7 +93,7 @@ export async function getDashboardMetrics() {
     const thirtyDaysAgo = subDays(new Date(), 30);
     const staleCount = await prisma.opportunity.count({
         where: {
-            updated_at: { 
+            updatedAt: { 
                 lt: thirtyDaysAgo 
             },
             stage: { 
