@@ -5,8 +5,9 @@
     "dev:frontend": "pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
     "postinstall": "cd apps/frontend && pnpm prisma generate",
-    "test:e2e": "playwright test --config apps/frontend/playwright.config.ts",
-    "test:e2e:prod": "pnpm --filter frontend build && playwright test --config apps/frontend/playwright.config.ts"
+    "test:e2e": "playwright test",
+    "test:e2e:prod": "pnpm --filter frontend build && playwright test",
+    "db:railway:grant": "pnpm --filter frontend exec prisma db execute --file ../../prisma/sql/railway-permissions.sql --schema ../../prisma/schema.prisma"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
