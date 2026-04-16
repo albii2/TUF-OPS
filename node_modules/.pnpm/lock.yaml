@@ -56,6 +56,10 @@ importers:
       fastify:
         specifier: ^4.26.2
         version: 4.29.1
+    devDependencies:
+      tsconfig-paths-jest:
+        specifier: ^0.0.1
+        version: 0.0.1
 
   packages/auth: {}
 
@@ -1983,6 +1987,9 @@ packages:
         optional: true
       '@swc/wasm':
         optional: true
+
+  tsconfig-paths-jest@0.0.1:
+    resolution: {integrity: sha512-YKhUKqbteklNppC2NqL7dv1cWF8eEobgHVD5kjF1y9Q4ocqpBiaDlYslQ9eMhtbqIPRrA68RIEXqknEjlxdwxw==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -4386,6 +4393,8 @@ snapshots:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     optional: true
+
+  tsconfig-paths-jest@0.0.1: {}
 
   type-check@0.4.0:
     dependencies:

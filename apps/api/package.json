@@ -12,5 +12,8 @@
     "@packages/auth": "workspace:*",
     "@packages/database": "workspace:*",
     "fastify": "^4.26.2"
+  },
+  "devDependencies": {
+    "tsconfig-paths-jest": "^0.0.1"
   }
 }
