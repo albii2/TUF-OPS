@@ -1,6 +1,6 @@
 import { rolePermissions, Role, Permission } from './roles.js';
 
-export * from './roles';
+export * from './roles.js';
 
 export interface User {
   id: string;
