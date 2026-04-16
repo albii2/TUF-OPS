@@ -3,7 +3,10 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "isolatedModules": true
+    "baseUrl": ".",
+    "paths": {
+      "@packages/*": ["../../packages/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["src/__tests__"],

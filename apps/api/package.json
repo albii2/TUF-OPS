@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --build",
     "start": "node dist/index.js",
     "test": "jest"
   },
@@ -14,6 +14,7 @@
     "fastify": "^4.26.2"
   },
   "devDependencies": {
-    "tsconfig-paths-jest": "^0.0.1"
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0"
   }
 }
