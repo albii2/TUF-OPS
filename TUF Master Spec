@@ -1,0 +1,229 @@
+# TUF Ops Rebuild Version Map Bible (Ironclad) 
+ 
+ ## Purpose 
+ This document is the **single execution source of truth** for rebuilding TUF Ops from scratch with strict sequencing, hard quality gates, and zero ambiguity on what must be true before advancing. 
+ 
+ **Rule:** if a phase gate is not met, we do not move forward. 
+ 
+ --- 
+ 
+ ## Operating Principles (Non-Negotiable) 
+ 
+ 1. **Foundations before features** — no business feature ships before platform reliability is proven. 
+ 2. **Backward-safe by default** — every schema/API change must support staged rollout and rollback. 
+ 3. **One-way quality ratchet** — test coverage, observability, and security posture never regress. 
+ 4. **Domain boundaries are law** — no UI-embedded business logic and no cross-module leakage. 
+ 5. **Evidence-driven progression** — every gate requires measurable artifacts. 
+ 
+ --- 
+ 
+ ## Version Ladder (Rebuild Sequence) 
+ 
+ - **v1.0 Foundation & Hardening** *(Phase 1; mandatory base)* 
+ - **v1.1 Core CRM Vertical Slice** *(Organizations + Opportunities parity)* 
+ - **v1.2 Workflow Integrity & Timeline** *(activities, transition controls, auditability)* 
+ - **v1.3 Invoicing & Async Operations** 
+ - **v1.4 Reporting Reliability Layer** 
+ - **v1.5 Integrations & Automation at Scale** 
+ - **v2.0 Cutover + Optimization** 
+ 
+ > No skipping versions. If a later version needs a missing dependency from an earlier version, the earlier version is reopened and completed first. 
+ 
+ --- 
+ 
+ ## Phase 1 (v1.0) — Foundation & Hardening (The Load-Bearing Phase) 
+ 
+ ## Objective 
+ Build a **scalable, testable, observable, and secure** platform skeleton that can absorb future feature growth without structural rewrites. 
+ 
+ ## Scope 
+ ### A) Repository + Architecture Baseline 
+ - Monorepo with strict package boundaries (`apps/*`, `packages/*`, `infra/*`, `docs/*`). 
+ - Enforced import rules (lint + tsconfig path constraints). 
+ - ADR set for: architecture style, RBAC model, migration strategy, observability standard. 
+ 
+ ### B) Runtime + Environment Discipline 
+ - Deterministic local setup (`pnpm install && pnpm dev` works from clean machine). 
+ - Typed environment schema validation at startup. 
+ - Separate env profiles: local / preview / staging / production. 
+ 
+ ### C) Data Platform Hardening 
+ - Baseline schema conventions (`created_at`, `updated_at`, `created_by`, `updated_by`). 
+ - Migration process with forward and rollback scripts. 
+ - Seed strategy for local, test, and staging datasets. 
+ - Drift detection in CI. 
+ 
+ ### D) AuthN/AuthZ Core 
+ - Auth.js session backbone with hardened cookie/session policy. 
+ - RBAC v1 roles and permission matrix defined and tested. 
+ - Authorization checks enforced server-side (not only UI). 
+ 
+ ### E) Observability + Operational Safety 
+ - Structured logging (request ID, user ID, org ID correlation). 
+ - Tracing on API + DB critical paths. 
+ - Error monitoring and alert routing. 
+ - Health/readiness endpoints with dependency checks. 
+ 
+ ### F) Test & CI Hardening 
+ - CI pipeline: typecheck, lint, unit, integration, E2E smoke, migration checks. 
+ - Test data factories and reproducible fixtures. 
+ - Minimum coverage for core platform modules. 
+ 
+ ### G) Security Baseline 
+ - Secrets handling and rotation playbook. 
+ - Dependency + container scanning in CI. 
+ - Audit event schema and write path for privileged operations. 
+ 
+ --- 
+ 
+ ## Phase 1 Exit Gates (Must All Pass) 
+ 
+ ### Gate G1 — Architectural Integrity 
+ - ✅ Module boundary checks enforced in CI. 
+ - ✅ No forbidden cross-import violations. 
+ - ✅ ADRs approved for architecture/auth/data/observability. 
+ 
+ ### Gate G2 — Environment Reliability 
+ - ✅ Fresh-machine bootstrap documented and verified by 2+ engineers. 
+ - ✅ Env schema validation blocks boot on invalid/missing vars. 
+ - ✅ Preview environment auto-provisioning works. 
+ 
+ ### Gate G3 — Data Safety 
+ - ✅ Migration up/down tested on production-like snapshot. 
+ - ✅ Drift check green in CI. 
+ - ✅ Seed scripts reproducible and idempotent. 
+ 
+ ### Gate G4 — Security & Access Control 
+ - ✅ RBAC matrix implemented and policy tests passing. 
+ - ✅ Privileged actions generate audit events. 
+ - ✅ Session/auth hardening checklist complete. 
+ 
+ ### Gate G5 — Observability Readiness 
+ - ✅ Traces visible for critical API flows. 
+ - ✅ Error alerts route to owner channel. 
+ - ✅ SLO dashboard exists for API latency/error rate. 
+ 
+ ### Gate G6 — Quality Pipeline 
+ - ✅ CI completes in target time budget. 
+ - ✅ E2E smoke stable across consecutive runs. 
+ - ✅ Required test thresholds met. 
+ 
+ **No-Go Criteria:** any single gate fail blocks version advancement. 
+ 
+ --- 
+ 
+ ## Version-by-Version Build Map 
+ 
+ ## v1.1 — Core CRM Vertical Slice 
+ ### Goal 
+ Ship production-grade Organizations + Opportunities with strong domain boundaries. 
+ 
+ ### Deliverables 
+ - Organizations domain module (CRUD + ownership + status). 
+ - Opportunities domain module (create/list/detail + organization linkage). 
+ - Workflow transition guardrails and stage history. 
+ 
+ ### Acceptance 
+ - Parity with current baseline business flow. 
+ - End-to-end tests for core lead-to-opportunity journey. 
+ - P95 latency and error budgets defined and passing. 
+ 
+ ## v1.2 — Workflow Integrity & Timeline 
+ ### Goal 
+ Make work state transitions auditable, queryable, and operationally safe. 
+ 
+ ### Deliverables 
+ - Unified activities timeline. 
+ - Tasking/follow-up model. 
+ - Workflow rules with explicit state machine constraints. 
+ 
+ ### Acceptance 
+ - Immutable transition history. 
+ - No invalid state transitions possible via API. 
+ - Audit trail available per record. 
+ 
+ ## v1.3 — Invoicing & Async Operations 
+ ### Goal 
+ Introduce financial workflows without blocking request-response paths. 
+ 
+ ### Deliverables 
+ - Invoice lifecycle (draft/finalized/cancelled). 
+ - PDF generation and delivery via queue workers. 
+ - Retry + dead-letter strategy. 
+ 
+ ### Acceptance 
+ - Zero synchronous long-running invoice processing in API requests. 
+ - Recoverable failure paths with operational runbooks. 
+ 
+ ## v1.4 — Reporting Reliability Layer 
+ ### Goal 
+ Stabilize KPIs and dashboards with read-model architecture. 
+ 
+ ### Deliverables 
+ - Materialized/read models for dashboard metrics. 
+ - Metric dictionary with ownership and formulas. 
+ - Scheduled refresh and backfill jobs. 
+ 
+ ### Acceptance 
+ - KPI definitions consistent across UI and exports. 
+ - Reporting endpoints meet performance SLOs at target scale. 
+ 
+ ## v1.5 — Integrations & Automation at Scale 
+ ### Goal 
+ Enable controlled external interoperability and automation. 
+ 
+ ### Deliverables 
+ - Outbox/event delivery framework. 
+ - Webhook management (retry, signature verification, replay protection). 
+ - Automation rules engine v1 (reminders/escalations). 
+ 
+ ### Acceptance 
+ - At-least-once external delivery with dedupe protections. 
+ - Operational visibility for integration failures. 
+ 
+ ## v2.0 — Cutover + Optimization 
+ ### Goal 
+ Complete migration from legacy path and optimize for scale. 
+ 
+ ### Deliverables 
+ - Parallel run validation. 
+ - Production cutover and rollback drill completion. 
+ - Post-cutover performance tuning and cost controls. 
+ 
+ ### Acceptance 
+ - Cutover executed with rollback confidence. 
+ - SLOs sustained for agreed stabilization window. 
+ 
+ --- 
+ 
+ ## Standard Definition of Done (Applies to Every Version) 
+ 
+ 1. Product acceptance criteria met. 
+ 2. Unit/integration/E2E coverage complete for changed scope. 
+ 3. Observability hooks added for new critical paths. 
+ 4. Security checklist complete for new surface area. 
+ 5. Runbook updated (deploy, rollback, failure triage). 
+ 6. ADR updated if architectural decision changed. 
+ 7. Feature flag and rollout strategy documented. 
+ 
+ --- 
+ 
+ ## Governance Cadence (To Keep the Map Ironclad) 
+ 
+ - **Weekly Architecture Review:** validate boundary discipline and technical debt controls. 
+ - **Twice-Weekly Delivery Review:** phase gate status + blocker burn-down. 
+ - **Release Readiness Review:** mandatory before each version promotion. 
+ - **Incident Feedback Loop:** all incidents produce map/rule updates within 72 hours. 
+ 
+ --- 
+ 
+ ## Immediate Execution Checklist (Next 10 Working Days) 
+ 
+ 1. Finalize monorepo skeleton and boundary linting. 
+ 2. Stand up CI with full quality pipeline and drift detection. 
+ 3. Implement env schema validation and runtime boot guards. 
+ 4. Deliver RBAC matrix and authorization policy tests. 
+ 5. Wire tracing/logging/error monitoring baseline. 
+ 6. Prove migration up/down on production-like snapshot. 
+ 7. Draft v1.1 detailed ticket breakdown only after all v1.0 gates are green. 
+ 

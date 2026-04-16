@@ -1,0 +1,12 @@
+{
+  "name": "@packages/database",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "scripts": {
+    "migrate": "node-pg-migrate"
+  },
+  "dependencies": {
+    "node-pg-migrate": "^8.0.4",
+    "pg": "^8.20.0"
+  }
+}
