@@ -1,0 +1,16 @@
+{
+  "name": "@apps/api",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@packages/auth": "workspace:*",
+    "@packages/database": "workspace:*",
+    "fastify": "^4.26.2"
+  }
+}

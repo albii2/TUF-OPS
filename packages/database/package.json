@@ -1,8 +1,16 @@
 {
   "name": "@packages/database",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/db.js",
+  "types": "dist/db.d.ts",
   "scripts": {
+    "build": "tsc",
     "migrate": "node-pg-migrate"
+  },
+  "dependencies": {
+    "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.5"
   }
 }
