@@ -23,6 +23,7 @@ model User {
   ownedOrganizations Organization[] @relation("OrganizationOwner")
   ownedOpportunities Opportunity[]  @relation("OpportunityOwner")
   opportunityEvents OpportunityEvent[] @relation("OpportunityEventsByUser")
+  drops              Drop[]         @relation("DropSeller")
 
   @@map("users")
 }
@@ -104,4 +105,132 @@ enum UserRole {
 enum OpportunityEventType {
   stage_changed
   owner_changed
+}
+
+model Drop {
+  id             Int          @id @default(autoincrement())
+  slug           String       @unique
+  title          String
+  description    String?
+  heroImageUrl   String?      @map("hero_image_url")
+  depositOpensAt DateTime?    @map("deposit_opens_at")
+  balanceDueAt   DateTime     @map("balance_due_at")
+  releaseAt      DateTime     @map("release_at")
+  depositAmount  Decimal      @db.Decimal(10, 2) @map("deposit_amount")
+  fullPrice      Decimal      @db.Decimal(10, 2) @map("full_price")
+  sellerUserId   Int?         @map("seller_user_id")
+  seller         User?        @relation("DropSeller", fields: [sellerUserId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  created_at     DateTime     @default(now()) @map("created_at")
+  updated_at     DateTime     @updatedAt @map("updated_at")
+  sizes          DropSize[]
+  orders         Order[]
+  reminders      Reminder[]
+
+  @@map("drops")
+}
+
+model DropSize {
+  id                Int      @id @default(autoincrement())
+  dropId            Int      @map("drop_id")
+  drop              Drop     @relation(fields: [dropId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  sizeLabel         String   @map("size_label")
+  totalInventory    Int      @map("total_inventory")
+  reservedInventory Int      @default(0) @map("reserved_inventory")
+  soldInventory     Int      @default(0) @map("sold_inventory")
+  created_at        DateTime @default(now()) @map("created_at")
+  updated_at        DateTime @updatedAt @map("updated_at")
+
+  @@unique([dropId, sizeLabel])
+  @@map("drop_sizes")
+}
+
+model Customer {
+  id          Int       @id @default(autoincrement())
+  fullName    String    @map("full_name")
+  email       String
+  phone       String?
+  created_at  DateTime  @default(now()) @map("created_at")
+  updated_at  DateTime  @updatedAt @map("updated_at")
+  orders      Order[]
+  reminders   Reminder[]
+
+  @@map("customers")
+}
+
+model Order {
+  id              Int         @id @default(autoincrement())
+  publicOrderId   String      @unique @map("public_order_id")
+  dropId          Int         @map("drop_id")
+  drop            Drop        @relation(fields: [dropId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  customerId      Int         @map("customer_id")
+  customer        Customer    @relation(fields: [customerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sizeLabel       String      @map("size_label")
+  quantity        Int         @default(1)
+  unitPrice       Decimal     @db.Decimal(10, 2) @map("unit_price")
+  depositPaid     Decimal     @db.Decimal(10, 2) @default(0) @map("deposit_paid")
+  balanceOwed     Decimal     @db.Decimal(10, 2) @default(0) @map("balance_owed")
+  balanceDueAt    DateTime    @map("balance_due_at")
+  paidInFullAt    DateTime?   @map("paid_in_full_at")
+  cancelledAt     DateTime?   @map("cancelled_at")
+  status          OrderStatus @default(deposit_paid)
+  created_at      DateTime    @default(now()) @map("created_at")
+  updated_at      DateTime    @updatedAt @map("updated_at")
+  payments        Payment[]
+
+  @@index([dropId, status])
+  @@map("orders")
+}
+
+model Payment {
+  id              Int           @id @default(autoincrement())
+  orderId          Int          @map("order_id")
+  order            Order        @relation(fields: [orderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  amount           Decimal      @db.Decimal(10, 2)
+  paymentType      PaymentType  @map("payment_type")
+  status           PaymentStatus @default(succeeded)
+  paymentMethodRef String?      @map("payment_method_ref")
+  created_at       DateTime     @default(now()) @map("created_at")
+
+  @@map("payments")
+}
+
+model Reminder {
+  id             Int            @id @default(autoincrement())
+  dropId          Int?          @map("drop_id")
+  drop            Drop?         @relation(fields: [dropId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  customerId      Int           @map("customer_id")
+  customer        Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  orderId         Int?          @map("order_id")
+  reminderType    ReminderType  @map("reminder_type")
+  scheduledFor    DateTime      @map("scheduled_for")
+  sentAt          DateTime?     @map("sent_at")
+  created_at      DateTime      @default(now()) @map("created_at")
+
+  @@map("reminders")
+}
+
+enum OrderStatus {
+  deposit_paid
+  overdue
+  paid_in_full
+  fulfilled
+  cancelled
+  refunded
+}
+
+enum PaymentStatus {
+  pending
+  succeeded
+  failed
+}
+
+enum PaymentType {
+  deposit
+  balance
+}
+
+enum ReminderType {
+  payment_due
+  release_day
+  pickup_ready
 }
