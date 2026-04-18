@@ -27,6 +27,7 @@ describe('Activities Service - Integration Test', () => {
       updated_by: 1,
       stage: OpportunityStage.LEAD_ASSIGNED,
       last_activity_date: new Date('2023-01-01T00:00:00.000Z'), // Set a fixed date for testing last_activity_date update
+      deal_type: 'UNIFORM',
     };
     const createdOpp = await createOpportunity(newOppData);
     opportunityId = createdOpp.id;

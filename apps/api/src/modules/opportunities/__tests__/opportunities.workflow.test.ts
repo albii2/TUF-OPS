@@ -28,6 +28,7 @@ describe('Opportunities Workflow - Integration Test', () => {
       estimated_revenue: 5000.00,
       assigned_rep_id: 1,
       assigned_director_id: 2,
+      deal_type: 'UNIFORM',
     };
     const createdOpp = await createOpportunity(newOppData);
     opportunityId = createdOpp.id;

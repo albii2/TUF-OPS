@@ -14,22 +14,22 @@ describe('Reporting Service - Integration Test', () => {
 
     // --- Create Opportunities ---
     // Opp 1: Rep 10, Director 1, Open
-    await createOpportunity({ organization_id: org1.id, name: 'Opp 1', value: 1000.00, assigned_rep_id: 10, assigned_director_id: 1, stage: OpportunityStage.LEAD_ASSIGNED, status: 'open', created_by: 1, updated_by: 1 });
+    await createOpportunity({ organization_id: org1.id, name: 'Opp 1', value: 1000.00, assigned_rep_id: 10, assigned_director_id: 1, stage: OpportunityStage.LEAD_ASSIGNED, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
 
     // Opp 2: Rep 10, Director 1, Won
-    const opp2 = await createOpportunity({ organization_id: org1.id, name: 'Opp 2', value: 2500, assigned_rep_id: 10, assigned_director_id: 1, stage: OpportunityStage.DECISION_PENDING, status: 'open', created_by: 1, updated_by: 1 });
+    const opp2 = await createOpportunity({ organization_id: org1.id, name: 'Opp 2', value: 2500, assigned_rep_id: 10, assigned_director_id: 1, stage: OpportunityStage.DECISION_PENDING, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
     await updateOpportunityStage(opp2.id, OpportunityStage.CLOSED_WON, 1, 'Won', { actual_revenue: 10000, actual_cost: 4000 });
 
     // Opp 3: Rep 20, Director 1, Lost
-    const opp3 = await createOpportunity({ organization_id: org1.id, name: 'Opp 3', value: 5000, assigned_rep_id: 20, assigned_director_id: 1, stage: OpportunityStage.DECISION_PENDING, status: 'open', created_by: 1, updated_by: 1 });
+    const opp3 = await createOpportunity({ organization_id: org1.id, name: 'Opp 3', value: 5000, assigned_rep_id: 20, assigned_director_id: 1, stage: OpportunityStage.DECISION_PENDING, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
     await updateOpportunityStage(opp3.id, OpportunityStage.CLOSED_LOST, 1, 'Lost', { loss_reason: 'Price' });
 
     // Opp 4: Rep 30, Director 2, Won
-    const opp4 = await createOpportunity({ organization_id: org2.id, name: 'Opp 4', value: 10000, assigned_rep_id: 30, assigned_director_id: 2, stage: OpportunityStage.DECISION_PENDING, status: 'open', created_by: 1, updated_by: 1 });
+    const opp4 = await createOpportunity({ organization_id: org2.id, name: 'Opp 4', value: 10000, assigned_rep_id: 30, assigned_director_id: 2, stage: OpportunityStage.DECISION_PENDING, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
     await updateOpportunityStage(opp4.id, OpportunityStage.CLOSED_WON, 1, 'Won', { actual_revenue: 20000, actual_cost: 15000 });
 
     // Opp 5: Rep 30, Director 2, Open
-    await createOpportunity({ organization_id: org2.id, name: 'Opp 5', value: 20000, assigned_rep_id: 30, assigned_director_id: 2, stage: OpportunityStage.PROPOSAL_SENT, status: 'open', created_by: 1, updated_by: 1 });
+    await createOpportunity({ organization_id: org2.id, name: 'Opp 5', value: 20000, assigned_rep_id: 30, assigned_director_id: 2, stage: OpportunityStage.PROPOSAL_SENT, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
   });
 
   afterAll(async () => {

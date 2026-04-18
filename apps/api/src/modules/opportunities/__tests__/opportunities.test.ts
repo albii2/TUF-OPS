@@ -25,7 +25,8 @@ describe('Opportunities Service - Integration Test', () => {
       status: 'open', 
       value: 1000.00, 
       created_by: 1, 
-      updated_by: 1 
+      updated_by: 1,
+      deal_type: 'UNIFORM'
     };
 
     const createdOpp = await createOpportunity(newOppData);
