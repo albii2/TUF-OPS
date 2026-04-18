@@ -1,14 +1,21 @@
-import fastify from 'fastify';
+import { reportingRoutes } from './modules/reporting/reporting.routes';
+import { activityRoutes } from './modules/activities/activities.routes';
+import { opportunityRoutes } from './modules/opportunities/opportunities.routes';
 import { organizationRoutes } from './modules/organizations/organizations.routes';
+import fastify from 'fastify';
 
 const server = fastify();
 
 server.register(organizationRoutes, { prefix: '/organizations' });
+server.register(opportunityRoutes, { prefix: '/opportunities' });
+server.register(activityRoutes, { prefix: '/activities' });
+server.register(reportingRoutes, { prefix: '/reporting' });
 
 const start = async () => {
+  const port = 3001;
   try {
-    await server.listen({ port: 3000 });
-    console.log('Server listening on http://localhost:3000');
+    await server.listen({ port });
+    console.log(`Server listening on http://localhost:${port}`);
   } catch (err) {
     console.error(err);
     server.log.error(err);
@@ -17,3 +24,4 @@ const start = async () => {
 };
 
 start();
+
