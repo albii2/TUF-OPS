@@ -1,0 +1,21 @@
+{
+  "name": "@apps/api",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --build",
+    "start": "node dist/index.js",
+    "test:run": "jest --runInBand"
+  },
+  "dependencies": {
+    "@packages/auth": "workspace:*",
+    "@packages/database": "workspace:*",
+    "fastify": "^4.26.2",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0"
+  }
+}

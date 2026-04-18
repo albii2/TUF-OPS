@@ -1,0 +1,15 @@
+{
+  "name": "@packages/logger",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "pino": "^8.19.0"
+  },
+  "devDependencies": {
+    "pino-pretty": "^10.3.1"
+  }
+}

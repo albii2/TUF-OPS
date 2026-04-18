@@ -1,0 +1,17 @@
+{
+  "name": "@packages/database",
+  "version": "1.0.0",
+  "main": "dist/db.js",
+  "types": "dist/db.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "migrate": "node-pg-migrate"
+  },
+  "dependencies": {
+    "node-pg-migrate": "^7.9.1",
+    "pg": "^8.11.5"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.5"
+  }
+}
