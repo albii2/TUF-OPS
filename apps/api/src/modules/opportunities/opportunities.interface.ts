@@ -12,6 +12,11 @@ export enum OpportunityStage {
   CLOSED_LOST = 'CLOSED_LOST',
 }
 
+export enum PaymentConfirmationSource {
+  FINANCE_CONFIRMATION = 'FINANCE_CONFIRMATION',
+  PAYPAL_WEBHOOK = 'PAYPAL_WEBHOOK',
+}
+
 export interface Opportunity {
   id: number;
   name: string;
@@ -35,6 +40,9 @@ export interface Opportunity {
   closed_at?: Date;
   loss_reason?: string;
   deal_type: string;
+  payment_received_at?: Date | null;
+  payment_confirmation_source?: PaymentConfirmationSource | null;
+  payment_confirmation_user_id?: number | null;
 }
 
 export interface OpportunityStageHistory {
