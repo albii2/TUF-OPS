@@ -11,12 +11,15 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
 }
 
 const VALID_TRANSITIONS: Record<OpportunityStage, OpportunityStage[]> = {
-  [OpportunityStage.LEAD_ASSIGNED]: [OpportunityStage.CONTACTED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.CONTACTED]: [OpportunityStage.CONVERSATION_STARTED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.CONVERSATION_STARTED]: [OpportunityStage.NEEDS_IDENTIFIED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.NEEDS_IDENTIFIED]: [OpportunityStage.PROPOSAL_SENT, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.PROPOSAL_SENT]: [OpportunityStage.DECISION_PENDING, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.DECISION_PENDING]: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.LEAD_ASSIGNED]: [OpportunityStage.CONTACT_INITIATED, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.CONTACT_INITIATED]: [OpportunityStage.MOCKUP_IN_PROGRESS, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.MOCKUP_IN_PROGRESS]: [OpportunityStage.MOCKUP_APPROVED, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.MOCKUP_APPROVED]: [OpportunityStage.SAMPLE_REQUESTED, OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.SAMPLE_REQUESTED]: [OpportunityStage.SAMPLE_IN_PRODUCTION, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.SAMPLE_IN_PRODUCTION]: [OpportunityStage.SAMPLE_APPROVED, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.SAMPLE_APPROVED]: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.PAYMENT_RECEIVED, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.PAYMENT_RECEIVED]: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.CLOSED_WON]: [],
   [OpportunityStage.CLOSED_LOST]: [],
 };

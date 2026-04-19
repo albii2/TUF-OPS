@@ -28,7 +28,9 @@ describe('Orders Service - Integration Test', () => {
             deal_type: 'UNIFORM',
             created_by: 1,
             updated_by: 1,
-            stage: OpportunityStage.PROPOSAL_SENT,
+            stage: OpportunityStage.INVOICE_SENT,
+            assigned_rep_id: 1, // Added to satisfy commission prerequisites
+            assigned_director_id: 2, // Added to satisfy commission prerequisites
         });
 
         const oppToWin = await createOpportunity({
@@ -39,8 +41,17 @@ describe('Orders Service - Integration Test', () => {
             deal_type: 'JACKETS',
             created_by: 1,
             updated_by: 1,
-            stage: OpportunityStage.DECISION_PENDING,
+            stage: OpportunityStage.LEAD_ASSIGNED, // Start from the beginning
+            assigned_rep_id: 1, // Added to satisfy commission prerequisites
+            assigned_director_id: 2, // Added to satisfy commission prerequisites
         });
+        
+        // Correct stage progression
+        await updateOpportunityStage(oppToWin.id, OpportunityStage.CONTACT_INITIATED, 1);
+        await updateOpportunityStage(oppToWin.id, OpportunityStage.MOCKUP_IN_PROGRESS, 1);
+        await updateOpportunityStage(oppToWin.id, OpportunityStage.MOCKUP_APPROVED, 1);
+        await updateOpportunityStage(oppToWin.id, OpportunityStage.INVOICE_SENT, 1);
+        await updateOpportunityStage(oppToWin.id, OpportunityStage.PAYMENT_RECEIVED, 1);
         const closedWonOpp = await updateOpportunityStage(oppToWin.id, OpportunityStage.CLOSED_WON, 1, 'Won Deal', { actual_revenue: 5000, actual_cost: 3000 });
 
         return { org, openOpp, closedWonOpp };
