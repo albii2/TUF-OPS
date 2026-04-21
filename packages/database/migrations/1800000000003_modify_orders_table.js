@@ -4,6 +4,7 @@ exports.up = (pgm) => {
   // Add the new column for the active upload
   pgm.addColumn('orders', {
     active_upload_id: { type: 'integer', references: 'raw_order_uploads', onDelete: 'SET NULL' },
+    notes: { type: 'text' },
   });
 
   // Drop the old status check constraint

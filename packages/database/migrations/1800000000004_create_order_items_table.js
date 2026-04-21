@@ -5,6 +5,10 @@ exports.up = (pgm) => {
     id: 'id',
     order_id: { type: 'integer', notNull: true, references: 'orders' },
     source_raw_row_id: { type: 'integer', notNull: true, references: 'orders_raw' },
+    order_number: { type: 'varchar(255)' },
+    customer_name: { type: 'varchar(255)' },
+    set_role: { type: 'varchar(50)' },
+    item_role: { type: 'varchar(50)' },
     item_type: { type: 'varchar(50)' },
     base_item: { type: 'varchar(255)' },
     sku: { type: 'varchar(100)' },
@@ -14,7 +18,7 @@ exports.up = (pgm) => {
     player_name: { type: 'varchar(255)' },
     player_number: { type: 'varchar(10)' },
     personalization: { type: 'jsonb' },
-    validation_status: { type: 'varchar(50)', notNull: true, default: 'NEEDS_REVIEW' },
+    validation_status: { type: 'varchar(50)', notNull: true, default: 'NEEDS_REVIEW', check: "validation_status IN ('VALID', 'WARNING', 'ERROR', 'NEEDS_REVIEW')" },
     sort_order: { type: 'integer' },
   });
 };

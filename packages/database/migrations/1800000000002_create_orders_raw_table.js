@@ -6,6 +6,7 @@ exports.up = (pgm) => {
     upload_id: { type: 'integer', notNull: true, references: 'raw_order_uploads' },
     row_data_json: { type: 'jsonb', notNull: true },
     is_processed: { type: 'boolean', notNull: true, default: false },
+    parse_errors: { type: 'text[]' },
   });
 };
 
