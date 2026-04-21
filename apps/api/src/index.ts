@@ -4,14 +4,19 @@ import { activityRoutes } from './modules/activities/activities.routes';
 import { opportunityRoutes } from './modules/opportunities/opportunities.routes';
 import { organizationRoutes } from './modules/organizations/organizations.routes';
 import fastify from 'fastify';
+import cors from '@fastify/cors';
 
 const server = fastify();
+
+server.register(cors, {
+  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+});
 
 server.register(organizationRoutes, { prefix: '/organizations' });
 server.register(opportunityRoutes, { prefix: '/opportunities' });
 server.register(activityRoutes, { prefix: '/activities' });
 server.register(reportingRoutes, { prefix: '/reporting' });
-import { productionRequestRoutes } from './modules/production-requests/production-requests.routes';
 server.register(productionRequestRoutes, { prefix: '/production-requests' });
 
 const start = async () => {

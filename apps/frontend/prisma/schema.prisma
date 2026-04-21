@@ -1,0 +1,294 @@
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  password_hash   String
+  full_name       String?
+  role            String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  zoho_owner_id   String?
+  opportunity_notes OpportunityNote[]
+  rep_activities  RepActivity[]
+}
+
+model Organization {
+  id              Int      @id @default(autoincrement())
+  name            String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  zoho_account_id String?
+  teams           Team[]
+  contacts        Contact[]
+  opportunities   Opportunity[]
+}
+
+model Team {
+  id              Int      @id @default(autoincrement())
+  organization_id Int?
+  name            String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  organization    Organization? @relation(fields: [organization_id], references: [id])
+  opportunities   Opportunity[]
+  team_assets     TeamAsset[]
+}
+
+model Contact {
+  id              Int      @id @default(autoincrement())
+  organization_id Int?
+  first_name      String?
+  last_name       String?
+  email           String   @unique
+  phone           String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  zoho_contact_id String?
+  organization    Organization? @relation(fields: [organization_id], references: [id])
+}
+
+model Opportunity {
+  id                 Int      @id @default(autoincrement())
+  organization_id    Int?
+  team_id            Int?
+  name               String
+  stage              String
+  last_contact_date  DateTime?
+  next_action_date   DateTime?
+  probability        Int?
+  estimated_value    Decimal?
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  zoho_deal_id       String?
+  organization       Organization? @relation(fields: [organization_id], references: [id])
+  team               Team? @relation(fields: [team_id], references: [id])
+  opportunity_notes  OpportunityNote[]
+  rep_activities     RepActivity[]
+  mockups            Mockup[]
+  sample_requests    SampleRequest[]
+  uniform_orders     UniformOrder[]
+  team_stores        TeamStore[]
+  invoices           Invoice[]
+}
+
+model OpportunityNote {
+  id            Int      @id @default(autoincrement())
+  opportunity_id Int?
+  user_id       Int?
+  note          String?
+  created_at    DateTime @default(now())
+  opportunity   Opportunity? @relation(fields: [opportunity_id], references: [id])
+  user          User? @relation(fields: [user_id], references: [id])
+}
+
+model RepActivity {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  opportunity_id Int?
+  activity_type  String
+  notes          String?
+  created_at     DateTime @default(now())
+  user           User     @relation(fields: [user_id], references: [id])
+  opportunity    Opportunity? @relation(fields: [opportunity_id], references: [id])
+}
+
+model Mockup {
+  id              Int      @id @default(autoincrement())
+  opportunity_id  Int?
+  status          String?
+  team_colors     String?
+  logo_urls       String[]
+  notes           String?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  opportunity     Opportunity? @relation(fields: [opportunity_id], references: [id])
+  mockup_versions MockupVersion[]
+}
+
+model MockupVersion {
+  id             Int      @id @default(autoincrement())
+  mockup_id      Int?
+  version_number Int
+  image_url      String?
+  notes          String?
+  created_at     DateTime @default(now())
+  mockup         Mockup?  @relation(fields: [mockup_id], references: [id])
+}
+
+model TeamAsset {
+  id          Int      @id @default(autoincrement())
+  team_id     Int?
+  asset_type  String?
+  asset_url   String?
+  created_at  DateTime @default(now())
+  team        Team?    @relation(fields: [team_id], references: [id])
+}
+
+model SampleRequest {
+  id             Int      @id @default(autoincrement())
+  opportunity_id Int?
+  status         String?
+  notes          String?
+  invoice_id     Int?
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  opportunity    Opportunity? @relation(fields: [opportunity_id], references: [id])
+}
+
+model ProductMaster {
+  id                  Int      @id @default(autoincrement())
+  base_sku            String   @unique
+  item_name           String
+  category            String?
+  sport               String?
+  decoration          String?
+  set_type            String?
+  vendor              String?
+  vendor_cost         Decimal?
+  retail_price        Decimal?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  uniform_order_lines UniformOrderLine[]
+  store_product_pricing StoreProductPricing[]
+}
+
+model UniformOrder {
+  id                Int      @id @default(autoincrement())
+  opportunity_id    Int?
+  status            String?
+  estimated_revenue Decimal?
+  vendor_cost       Decimal?
+  gross_profit      Decimal?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  opportunity       Opportunity? @relation(fields: [opportunity_id], references: [id])
+  uniform_order_lines UniformOrderLine[]
+  roster_uploads    RosterUpload[]
+}
+
+model UniformOrderLine {
+  id                Int      @id @default(autoincrement())
+  uniform_order_id  Int?
+  product_id        Int?
+  quantity          Int
+  price_per_unit    Decimal?
+  total_price       Decimal?
+  created_at        DateTime @default(now())
+  uniform_order     UniformOrder? @relation(fields: [uniform_order_id], references: [id])
+  product           ProductMaster? @relation(fields: [product_id], references: [id])
+}
+
+model RosterUpload {
+  id               Int      @id @default(autoincrement())
+  uniform_order_id Int?
+  file_url         String
+  status           String?
+  created_at       DateTime @default(now())
+  uniform_order    UniformOrder? @relation(fields: [uniform_order_id], references: [id])
+  roster_rows      RosterRow[]
+}
+
+model RosterRow {
+  id                  Int      @id @default(autoincrement())
+  roster_upload_id    Int?
+  data                Json?
+  is_valid            Boolean? @default(false)
+  validation_errors   String?
+  created_at          DateTime @default(now())
+  roster_upload       RosterUpload? @relation(fields: [roster_upload_id], references: [id])
+}
+
+model OrdersRaw {
+  id         Int      @id @default(autoincrement())
+  source     String
+  data       Json?
+  created_at DateTime @default(now())
+  orders     Order[]
+}
+
+model Order {
+  id             Int      @id @default(autoincrement())
+  raw_order_id   Int?
+  customer_email String?
+  total_price    Decimal?
+  order_date     DateTime?
+  created_at     DateTime @default(now())
+  raw_order      OrdersRaw? @relation(fields: [raw_order_id], references: [id])
+  order_items    OrderItem[]
+}
+
+model OrderItem {
+  id           Int      @id @default(autoincrement())
+  order_id     Int?
+  sku          String?
+  product_name String?
+  quantity     Int
+  price        Decimal?
+  created_at   DateTime @default(now())
+  order        Order?   @relation(fields: [order_id], references: [id])
+}
+
+model TeamStore {
+  id                  Int      @id @default(autoincrement())
+  name                String
+  opportunity_id      Int?
+  open_date           DateTime?
+  close_date          DateTime?
+  store_type          String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  opportunity         Opportunity? @relation(fields: [opportunity_id], references: [id])
+  store_product_pricing StoreProductPricing[]
+  fundraising_payouts FundraisingPayout[]
+}
+
+model StoreProductPricing {
+  id                      Int      @id @default(autoincrement())
+  team_store_id           Int?
+  product_id              Int?
+  vendor_cost             Decimal?
+  tuf_retail_floor        Decimal?
+  public_sale_price       Decimal?
+  team_payout_above_floor Decimal?
+  created_at              DateTime @default(now())
+  team_store              TeamStore? @relation(fields: [team_store_id], references: [id])
+  product                 ProductMaster? @relation(fields: [product_id], references: [id])
+}
+
+model FundraisingPayout {
+  id            Int      @id @default(autoincrement())
+  team_store_id Int?
+  total_payout  Decimal?
+  paid_date     DateTime?
+  created_at    DateTime @default(now())
+  team_store    TeamStore? @relation(fields: [team_store_id], references: [id])
+}
+
+model Invoice {
+  id            Int      @id @default(autoincrement())
+  invoice_number Int      @unique
+  opportunity_id Int
+  amount        Decimal
+  status        String   @default("Draft")
+  due_date      DateTime?
+  payment_link  String?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  opportunity   Opportunity @relation(fields: [opportunity_id], references: [id])
+}
+
+model Document {
+  id         Int      @id @default(autoincrement())
+  file_name  String?
+  file_url   String?
+  created_at DateTime @default(now())
+}

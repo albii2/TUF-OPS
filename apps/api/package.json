@@ -9,6 +9,7 @@
     "test:run": "jest --runInBand"
   },
   "dependencies": {
+    "@fastify/cors": "^8.5.0",
     "@packages/auth": "workspace:*",
     "@packages/database": "workspace:*",
     "fastify": "^4.26.2",
