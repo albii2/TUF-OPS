@@ -13,8 +13,11 @@
     "test:int": "dotenv -e .env -- pnpm -w db:reset:test && dotenv -e .env -- pnpm -w db:migrate:test && pnpm --filter @apps/api test:run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "db:migrate:test": "dotenv -e .env -- node-pg-migrate -m packages/database/migrations up",
-    "db:reset:test": "dotenv -e .env -- node -e \"const { Client } = require('pg'); const client = new Client(process.env.TEST_DATABASE_URL); client.connect().then(() => client.query('DROP TABLE IF EXISTS pgmigrations, organizations, opportunities, activities, commissions CASCADE')).then(() => client.end());\""
+    "db:migrate:test": "pnpm -w db:migrate",
+    "db:reset:test": "pnpm -w db:reset",
+    "db:reset": "dotenv -e .env -- node packages/database/reset_db.js",
+    "db:migrate": "dotenv -e .env -- node-pg-migrate -m packages/database/migrations up",
+    "db:verify": "dotenv -e .env -- node -e \"const {Client}=require('pg');(async()=>{const c=new Client({connectionString:process.env.TEST_DATABASE_URL});await c.connect();const r=await c.query(\\\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name\\\");console.log(r.rows.map(x=>x.table_name).join('\\\\n'));await c.end();})();\""
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",

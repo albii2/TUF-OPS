@@ -1,6 +1,13 @@
 import { pool } from '@packages/database';
-import { Opportunity, OpportunityStage, OpportunityStageHistory } from './opportunities.interface';
+import { Opportunity, OpportunityStage, OpportunityStageHistory, OpportunityChannelType } from './opportunities.interface';
 import { createCommission } from '../commissions/commissions.service';
+
+const REQUIRED_CHANNELS: OpportunityChannelType[] = [
+  OpportunityChannelType.UNIFORM,
+  OpportunityChannelType.TRAVEL_GEAR,
+  OpportunityChannelType.TEAM_STORE,
+  OpportunityChannelType.LETTERMAN,
+];
 
 export async function getOpportunityById(id: number): Promise<Opportunity> {
     const result = await pool.query('SELECT * FROM opportunities WHERE id = $1', [id]);
@@ -11,6 +18,7 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
 }
 
 const VALID_TRANSITIONS: Record<OpportunityStage, OpportunityStage[]> = {
+  [OpportunityStage.NOT_STARTED]: [OpportunityStage.LEAD_ASSIGNED, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.LEAD_ASSIGNED]: [OpportunityStage.CONTACT_INITIATED, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.CONTACT_INITIATED]: [OpportunityStage.MOCKUP_IN_PROGRESS, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.MOCKUP_IN_PROGRESS]: [OpportunityStage.MOCKUP_APPROVED, OpportunityStage.CLOSED_LOST],
@@ -24,12 +32,51 @@ const VALID_TRANSITIONS: Record<OpportunityStage, OpportunityStage[]> = {
   [OpportunityStage.CLOSED_LOST]: [],
 };
 
+function normalizeChannelType(value: unknown): OpportunityChannelType | null {
+  if (!value || typeof value !== 'string') {
+    return null;
+  }
+
+  const normalized = value.toUpperCase() as OpportunityChannelType;
+  return REQUIRED_CHANNELS.includes(normalized) ? normalized : null;
+}
 
 export async function createOpportunity(opportunity: Partial<Opportunity>): Promise<Opportunity> {
-  const { name, organization_id, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type } = opportunity;
+  const { name, organization_id, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type } = opportunity;
+  const resolvedChannelType = normalizeChannelType(channel_type ?? deal_type);
+
+  if (!resolvedChannelType) {
+    throw new Error('channel_type is required and must be one of UNIFORM, TRAVEL_GEAR, TEAM_STORE, LETTERMAN');
+  }
+
+  const existing = await pool.query(
+    'SELECT id FROM opportunities WHERE organization_id = $1 AND channel_type = $2 LIMIT 1',
+    [organization_id, resolvedChannelType]
+  );
+
+  if (existing.rows.length > 0) {
+    throw new Error(`Opportunity already exists for organization ${organization_id} and channel ${resolvedChannelType}`);
+  }
+
   const result = await pool.query(
-    'INSERT INTO opportunities (name, organization_id, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *',
-    [name, organization_id, status, value, created_by, updated_by, stage || OpportunityStage.LEAD_ASSIGNED, next_action, expected_close_date, last_activity_date || new Date(), assigned_rep_id, assigned_director_id, estimated_revenue, deal_type]
+    'INSERT INTO opportunities (name, organization_id, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *',
+    [
+      name,
+      organization_id,
+      status || 'open',
+      value ?? 0,
+      created_by,
+      updated_by,
+      stage || OpportunityStage.NOT_STARTED,
+      next_action,
+      expected_close_date,
+      last_activity_date || new Date(),
+      assigned_rep_id,
+      assigned_director_id,
+      estimated_revenue,
+      deal_type || resolvedChannelType,
+      resolvedChannelType,
+    ]
   );
   return result.rows[0];
 }
@@ -37,6 +84,34 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
 export async function getOpportunitiesByOrganization(organizationId: string): Promise<Opportunity[]> {
   const result = await pool.query('SELECT * FROM opportunities WHERE organization_id = $1', [organizationId]);
   return result.rows;
+}
+
+export async function getOrganizationChannelPenetration(organizationId: number) {
+  const result = await pool.query<Pick<Opportunity, 'channel_type' | 'stage'>>(
+    'SELECT channel_type, stage FROM opportunities WHERE organization_id = $1 AND channel_type IS NOT NULL',
+    [organizationId]
+  );
+
+  const channels = {
+    uniform: OpportunityStage.NOT_STARTED,
+    travel_gear: OpportunityStage.NOT_STARTED,
+    team_store: OpportunityStage.NOT_STARTED,
+    letterman: OpportunityStage.NOT_STARTED,
+  };
+
+  for (const row of result.rows) {
+    if (row.channel_type === OpportunityChannelType.UNIFORM) channels.uniform = row.stage;
+    if (row.channel_type === OpportunityChannelType.TRAVEL_GEAR) channels.travel_gear = row.stage;
+    if (row.channel_type === OpportunityChannelType.TEAM_STORE) channels.team_store = row.stage;
+    if (row.channel_type === OpportunityChannelType.LETTERMAN) channels.letterman = row.stage;
+  }
+
+  const closedWonCount = Object.values(channels).filter((stageValue) => stageValue === OpportunityStage.CLOSED_WON).length;
+
+  return {
+    channels,
+    channel_penetration_score: closedWonCount / REQUIRED_CHANNELS.length,
+  };
 }
 
 export async function updateOpportunityStage(opportunityId: number, toStage: OpportunityStage, changedBy: number, note?: string, financialData?: Partial<Opportunity>): Promise<Opportunity> {

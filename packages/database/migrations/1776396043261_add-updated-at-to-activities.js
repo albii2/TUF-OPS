@@ -1,13 +1,10 @@
 exports.up = (pgm) => {
-  pgm.addColumn('activities', {
-    updated_at: {
-      type: 'timestamp',
-      notNull: true,
-      default: pgm.func('current_timestamp'),
-    },
-  });
+  pgm.sql(`
+    ALTER TABLE activities
+    ADD COLUMN IF NOT EXISTS updated_at timestamp NOT NULL DEFAULT current_timestamp
+  `);
 };
 
 exports.down = (pgm) => {
-  pgm.dropColumn('activities', 'updated_at');
+  pgm.sql('ALTER TABLE activities DROP COLUMN IF EXISTS updated_at');
 };
