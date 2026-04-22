@@ -36,11 +36,11 @@ describe('Commissions Service - Integration Test', () => {
         await database_1.pool.end();
     });
     it('should create a commission record on CLOSED_WON', async () => {
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACTED, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONVERSATION_STARTED, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.NEEDS_IDENTIFIED, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.PROPOSAL_SENT, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.DECISION_PENDING, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACT_INITIATED, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.MOCKUP_IN_PROGRESS, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.MOCKUP_APPROVED, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.INVOICE_SENT, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.PAYMENT_RECEIVED, 1);
         const updatedOpp = await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CLOSED_WON, 1, 'Won deal', { actual_revenue: 5000, actual_cost: 3000 });
         const commissionResult = await database_1.pool.query('SELECT * FROM commissions WHERE opportunity_id = $1', [opportunityId]);
         expect(commissionResult.rows.length).toBe(1);
@@ -50,16 +50,16 @@ describe('Commissions Service - Integration Test', () => {
         expect(commission.status).toBe(commissions_interface_1.CommissionStatus.PENDING);
     });
     it('should not create a commission record for non-closed opportunities', async () => {
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACTED, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACT_INITIATED, 1);
         const commissionResult = await database_1.pool.query('SELECT * FROM commissions WHERE opportunity_id = $1', [opportunityId]);
         expect(commissionResult.rows.length).toBe(0);
     });
     it('should not duplicate a commission record on duplicate CLOSED_WON transition', async () => {
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACTED, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONVERSATION_STARTED, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.NEEDS_IDENTIFIED, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.PROPOSAL_SENT, 1);
-        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.DECISION_PENDING, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACT_INITIATED, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.MOCKUP_IN_PROGRESS, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.MOCKUP_APPROVED, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.INVOICE_SENT, 1);
+        await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.PAYMENT_RECEIVED, 1);
         await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CLOSED_WON, 1, 'Won deal', { actual_revenue: 5000, actual_cost: 3000 });
         // Attempt to close again, should fail because transition is invalid
         await expect((0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CLOSED_WON, 1, 'Won deal again', { actual_revenue: 6000, actual_cost: 3500 })).rejects.toThrow('Invalid stage transition from CLOSED_WON to CLOSED_WON');

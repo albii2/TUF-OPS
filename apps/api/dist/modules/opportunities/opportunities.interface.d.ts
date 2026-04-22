@@ -1,12 +1,22 @@
 export declare enum OpportunityStage {
+    NOT_STARTED = "NOT_STARTED",
     LEAD_ASSIGNED = "LEAD_ASSIGNED",
-    CONTACTED = "CONTACTED",
-    CONVERSATION_STARTED = "CONVERSATION_STARTED",
-    NEEDS_IDENTIFIED = "NEEDS_IDENTIFIED",
-    PROPOSAL_SENT = "PROPOSAL_SENT",
-    DECISION_PENDING = "DECISION_PENDING",
+    CONTACT_INITIATED = "CONTACT_INITIATED",
+    MOCKUP_IN_PROGRESS = "MOCKUP_IN_PROGRESS",
+    MOCKUP_APPROVED = "MOCKUP_APPROVED",
+    SAMPLE_REQUESTED = "SAMPLE_REQUESTED",
+    SAMPLE_IN_PRODUCTION = "SAMPLE_IN_PRODUCTION",
+    SAMPLE_APPROVED = "SAMPLE_APPROVED",
+    INVOICE_SENT = "INVOICE_SENT",
+    PAYMENT_RECEIVED = "PAYMENT_RECEIVED",
     CLOSED_WON = "CLOSED_WON",
     CLOSED_LOST = "CLOSED_LOST"
+}
+export declare enum OpportunityChannelType {
+    UNIFORM = "UNIFORM",
+    TRAVEL_GEAR = "TRAVEL_GEAR",
+    TEAM_STORE = "TEAM_STORE",
+    LETTERMAN = "LETTERMAN"
 }
 export interface Opportunity {
     id: number;
@@ -19,6 +29,7 @@ export interface Opportunity {
     created_at: Date;
     updated_at: Date;
     stage: OpportunityStage;
+    channel_type: OpportunityChannelType | null;
     next_action?: string;
     expected_close_date?: Date;
     last_activity_date: Date;

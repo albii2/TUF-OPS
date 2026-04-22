@@ -42,25 +42,25 @@ describe('Opportunities Workflow - Integration Test', () => {
             expect(opps[0].estimated_revenue).toBe('5000.00');
         });
         it('should allow a valid stage transition and record history', async () => {
-            const updatedOpp = await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACTED, 1, 'Contacted customer');
-            expect(updatedOpp.stage).toBe(opportunities_interface_1.OpportunityStage.CONTACTED);
+            const updatedOpp = await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACT_INITIATED, 1, 'Contacted customer');
+            expect(updatedOpp.stage).toBe(opportunities_interface_1.OpportunityStage.CONTACT_INITIATED);
             const historyResult = await database_1.pool.query('SELECT * FROM opportunity_stage_history WHERE opportunity_id = $1', [opportunityId]);
             expect(historyResult.rows.length).toBe(1);
             expect(historyResult.rows[0].from_stage).toBe(opportunities_interface_1.OpportunityStage.LEAD_ASSIGNED);
-            expect(historyResult.rows[0].to_stage).toBe(opportunities_interface_1.OpportunityStage.CONTACTED);
+            expect(historyResult.rows[0].to_stage).toBe(opportunities_interface_1.OpportunityStage.CONTACT_INITIATED);
         });
         it('should reject an invalid stage transition', async () => {
-            await expect((0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.PROPOSAL_SENT, 1)).rejects.toThrow('Invalid stage transition from LEAD_ASSIGNED to PROPOSAL_SENT');
+            await expect((0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.INVOICE_SENT, 1)).rejects.toThrow('Invalid stage transition from LEAD_ASSIGNED to INVOICE_SENT');
         });
     });
     describe('Financial Workflow', () => {
         beforeEach(async () => {
             // Move opportunity to a stage where it can be closed
-            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACTED, 1);
-            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONVERSATION_STARTED, 1);
-            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.NEEDS_IDENTIFIED, 1);
-            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.PROPOSAL_SENT, 1);
-            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.DECISION_PENDING, 1);
+            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CONTACT_INITIATED, 1);
+            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.MOCKUP_IN_PROGRESS, 1);
+            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.MOCKUP_APPROVED, 1);
+            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.INVOICE_SENT, 1);
+            await (0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.PAYMENT_RECEIVED, 1);
         });
         it('should reject CLOSED_WON without actual_revenue', async () => {
             await expect((0, opportunities_service_1.updateOpportunityStage)(opportunityId, opportunities_interface_1.OpportunityStage.CLOSED_WON, 1, 'Won deal', { actual_cost: 3000 })).rejects.toThrow('actual_revenue and actual_cost are required to close an opportunity as won');

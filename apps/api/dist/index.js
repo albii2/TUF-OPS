@@ -3,13 +3,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const production_requests_routes_1 = require("./modules/production-requests/production-requests.routes");
-const reporting_routes_1 = require("./modules/reporting/reporting.routes");
+const fastify_1 = __importDefault(require("fastify"));
+const cors_1 = __importDefault(require("@fastify/cors"));
 const activities_routes_1 = require("./modules/activities/activities.routes");
 const opportunities_routes_1 = require("./modules/opportunities/opportunities.routes");
 const organizations_routes_1 = require("./modules/organizations/organizations.routes");
-const fastify_1 = __importDefault(require("fastify"));
+const production_requests_routes_1 = require("./modules/production-requests/production-requests.routes");
+const reporting_routes_1 = require("./modules/reporting/reporting.routes");
 const server = (0, fastify_1.default)();
+server.register(cors_1.default, {
+    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+});
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/opportunities' });
 server.register(activities_routes_1.activityRoutes, { prefix: '/activities' });

@@ -5,8 +5,16 @@ exports.getOpportunitiesByOrganizationHandler = getOpportunitiesByOrganizationHa
 exports.updateOpportunityStageHandler = updateOpportunityStageHandler;
 const opportunities_service_1 = require("./opportunities.service");
 async function createOpportunityHandler(request, reply) {
-    const opportunity = await (0, opportunities_service_1.createOpportunity)(request.body);
-    return reply.code(201).send(opportunity);
+    try {
+        const opportunity = await (0, opportunities_service_1.createOpportunity)(request.body);
+        return reply.code(201).send(opportunity);
+    }
+    catch (error) {
+        if (error.message.includes('already exists') || error.message.includes('channel_type is required')) {
+            return reply.code(400).send({ message: error.message });
+        }
+        return reply.code(500).send({ message: 'Internal Server Error' });
+    }
 }
 async function getOpportunitiesByOrganizationHandler(request, reply) {
     const { organizationId } = request.params;

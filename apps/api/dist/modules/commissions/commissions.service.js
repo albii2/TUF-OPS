@@ -21,6 +21,11 @@ async function createCommission(opportunity) {
     const repRate = REP_BASE_RATES[dealType];
     const repCommission = opportunity.gross_profit * repRate;
     const directorOverride = opportunity.gross_profit * DIRECTOR_OVERRIDE_RATE;
+    console.log('COMMISSION DEBUG:', {
+        opportunity_id: opportunity.id,
+        assigned_rep_id: opportunity.assigned_rep_id,
+        assigned_director_id: opportunity.assigned_director_id
+    });
     const result = await database_1.pool.query('INSERT INTO commissions (opportunity_id, rep_user_id, director_user_id, gross_profit, rep_rate, rep_commission, director_rate, director_override, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *', [
         opportunity.id,
         opportunity.assigned_rep_id,
