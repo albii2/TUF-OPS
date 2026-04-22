@@ -2,8 +2,15 @@ import { FastifyRequest, FastifyReply } from 'fastify';
 import { createOpportunity, getOpportunitiesByOrganization, updateOpportunityStage } from './opportunities.service';
 
 export async function createOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
-  const opportunity = await createOpportunity(request.body as any);
-  return reply.code(201).send(opportunity);
+  try {
+    const opportunity = await createOpportunity(request.body as any);
+    return reply.code(201).send(opportunity);
+  } catch (error: any) {
+    if (error.message.includes('already exists') || error.message.includes('channel_type is required')) {
+      return reply.code(400).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
 }
 
 export async function getOpportunitiesByOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {

@@ -1,4 +1,5 @@
 export enum OpportunityStage {
+  NOT_STARTED = 'NOT_STARTED',
   LEAD_ASSIGNED = 'LEAD_ASSIGNED',
   CONTACT_INITIATED = 'CONTACT_INITIATED',
   MOCKUP_IN_PROGRESS = 'MOCKUP_IN_PROGRESS',
@@ -12,6 +13,13 @@ export enum OpportunityStage {
   CLOSED_LOST = 'CLOSED_LOST',
 }
 
+export enum OpportunityChannelType {
+  UNIFORM = 'UNIFORM',
+  TRAVEL_GEAR = 'TRAVEL_GEAR',
+  TEAM_STORE = 'TEAM_STORE',
+  LETTERMAN = 'LETTERMAN',
+}
+
 export interface Opportunity {
   id: number;
   name: string;
@@ -23,6 +31,7 @@ export interface Opportunity {
   created_at: Date;
   updated_at: Date;
   stage: OpportunityStage;
+  channel_type: OpportunityChannelType | null;
   next_action?: string;
   expected_close_date?: Date;
   last_activity_date: Date;
