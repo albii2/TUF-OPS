@@ -17,3 +17,13 @@ export const getOwnerDashboardData = async () => {
     throw error;
   }
 };
+
+export const getOrganizationById = async (id: string) => {
+  try {
+    const response = await apiClient.get(`/organizations/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching organization with id ${id}:`, error);
+    throw error;
+  }
+};
