@@ -1,8 +1,9 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { getOwnerDashboardMetrics, getDirectorDashboardMetrics, getRepDashboardMetrics } from './reporting.service';
+import { getOwnerDashboardData } from './owner_dashboard.service';
+import { getDirectorDashboardMetrics, getRepDashboardMetrics } from './reporting.service';
 
 export async function getOwnerDashboardMetricsHandler(request: FastifyRequest, reply: FastifyReply) {
-  const metrics = await getOwnerDashboardMetrics();
+  const metrics = await getOwnerDashboardData();
   return reply.send(metrics);
 }
 

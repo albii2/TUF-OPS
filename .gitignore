@@ -1,3 +1,21 @@
+# dependencies
+node_modules/
 
-# Build artifacts
-/apps/api/dist
+# next build
+.next/
+apps/frontend/.next/
+out/
+
+# env
+.env
+.env.local
+
+# logs
+*.log
+
+# test artifacts
+test-results/
+playwright-report/
+
+# misc
+.DS_Store
