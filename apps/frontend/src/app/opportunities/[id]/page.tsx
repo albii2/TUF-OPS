@@ -36,8 +36,13 @@ export default function OpportunityDetailPage() {
 
   const nextStage = useMemo(() => {
     if (!opportunity) return null;
+    if (opportunity.stage === 'CLOSED_WON' || opportunity.stage === 'CLOSED_LOST') return null;
+
     const idx = OPPORTUNITY_STAGES.indexOf(opportunity.stage as any);
-    return idx >= 0 && idx < OPPORTUNITY_STAGES.length - 1 ? OPPORTUNITY_STAGES[idx + 1] : null;
+    const candidate = idx >= 0 && idx < OPPORTUNITY_STAGES.length - 1 ? OPPORTUNITY_STAGES[idx + 1] : null;
+
+    if (candidate === 'CLOSED_LOST') return null;
+    return candidate;
   }, [opportunity]);
 
   async function transition(targetStage: string) {

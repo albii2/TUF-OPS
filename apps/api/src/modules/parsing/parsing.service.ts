@@ -25,6 +25,13 @@ export async function ingestRows(uploadId: number, rows: RawRowInput[]) {
   try {
     await client.query('BEGIN');
 
+    const uploadResult = await client.query('SELECT order_type FROM raw_order_uploads WHERE id = $1', [uploadId]);
+    if (uploadResult.rows.length === 0) {
+      throw new Error('Upload not found');
+    }
+
+    const uploadOrderType = uploadResult.rows[0].order_type;
+
     for (const row of rows) {
       const parseErrors: string[] = [];
       if (!row.order_number) parseErrors.push('order_number missing');
@@ -48,7 +55,7 @@ export async function ingestRows(uploadId: number, rows: RawRowInput[]) {
           row.quantity ?? null,
           row.size ?? null,
           row.color ?? null,
-          'UNIFORM',
+          uploadOrderType,
           validationStatus,
           parseErrors.length > 0 ? parseErrors : null,
         ]
@@ -88,7 +95,7 @@ export async function normalizeUpload(uploadId: number, orderId: number) {
         `INSERT INTO order_items (
           order_id, source_raw_row_id, order_number, customer_name, sku, color, quantity, size, validation_status
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-        ON CONFLICT DO NOTHING`,
+        ON CONFLICT (order_id, source_raw_row_id) DO NOTHING`,
         [orderId, row.id, row.order_number, row.customer_name, row.base_sku, row.color, row.quantity, row.size, 'READY_FOR_VENDOR']
       );
     }
