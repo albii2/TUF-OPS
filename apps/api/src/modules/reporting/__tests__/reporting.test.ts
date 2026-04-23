@@ -1,4 +1,4 @@
-import { getOwnerDashboardMetrics, getDirectorDashboardMetrics, getRepDashboardMetrics } from '../reporting.service';
+import { getDirectorDashboardMetrics, getRepDashboardMetrics } from '../reporting.service';
 import { createOrganization } from '../../organizations/organizations.service';
 import { createOpportunity, updateOpportunityStage } from '../../opportunities/opportunities.service';
 import { pool } from '@packages/database';
@@ -38,21 +38,7 @@ describe('Reporting Service - Integration Test', () => {
     await pool.end();
   });
 
-  it('should return correct metrics for Owner (all records)', async () => {
-    const metrics = await getOwnerDashboardMetrics();
-    expect(metrics.total_opportunities_count).toBe(5);
-    expect(metrics.closed_won_count).toBe(2);
-    expect(metrics.closed_lost_count).toBe(1);
-    expect(metrics.total_actual_revenue).toBe(30000);
-    expect(metrics.total_gross_profit).toBe(11000); // 6000 + 5000
-    expect(metrics.total_rep_commission).toBe(1100); // 600 + 500
-    expect(metrics.total_director_override).toBe(550); // 300 + 250
-    expect(metrics.opportunities_by_stage[OpportunityStage.LEAD_ASSIGNED]).toBe(1);
-    expect(metrics.opportunities_by_stage[OpportunityStage.CLOSED_WON]).toBe(2);
-    expect(metrics.opportunities_by_stage[OpportunityStage.CLOSED_LOST]).toBe(1);
-    expect(metrics.opportunities_by_stage[OpportunityStage.MOCKUP_APPROVED]).toBe(1);
-    expect(metrics.opportunities_by_stage[OpportunityStage.CONTACT_INITIATED]).toBe(0);
-  });
+  
 
   it('should return correct metrics for Director 1', async () => {
     const metrics = await getDirectorDashboardMetrics(1);

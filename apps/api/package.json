@@ -9,12 +9,15 @@
     "test:run": "jest --runInBand"
   },
   "dependencies": {
+    "@fastify/cors": "^8.5.0",
     "@packages/auth": "workspace:*",
     "@packages/database": "workspace:*",
     "fastify": "^4.26.2",
     "typescript": "^5.4.5"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.6.0",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0"
   }
