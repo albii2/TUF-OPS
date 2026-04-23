@@ -12,6 +12,8 @@ export function Navbar() {
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/organizations">Organizations</Link>
           <Link href="/opportunities">Opportunities</Link>
+          <Link href="/orders">Orders</Link>
+          <Link href="/ops-workspace">Ops Workspace</Link>
           <Link href="/settings">Settings</Link>
         </div>
       </div>

@@ -1,0 +1,20 @@
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+
+export const REQUIRED_CHANNEL_ORDER = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'] as const;
+
+export const OPPORTUNITY_STAGES = [
+  'NOT_STARTED',
+  'LEAD_ASSIGNED',
+  'CONTACT_INITIATED',
+  'MOCKUP_IN_PROGRESS',
+  'MOCKUP_APPROVED',
+  'SAMPLE_REQUESTED',
+  'SAMPLE_IN_PRODUCTION',
+  'SAMPLE_APPROVED',
+  'INVOICE_SENT',
+  'PAYMENT_RECEIVED',
+  'CLOSED_WON',
+  'CLOSED_LOST',
+] as const;
+
+export type OpportunityStage = (typeof OPPORTUNITY_STAGES)[number];

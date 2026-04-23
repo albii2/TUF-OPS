@@ -14,7 +14,7 @@ exports.up = (pgm) => {
       notNull: true,
       default: pgm.func('current_timestamp'),
     },
-  });
+  }, { ifNotExists: true });
 
   // 2. orders_raw
   pgm.createTable('orders_raw', {
@@ -45,7 +45,7 @@ exports.up = (pgm) => {
       notNull: true,
       default: pgm.func('current_timestamp'),
     },
-  });
+  }, { ifNotExists: true });
 
   // 3. orders (assuming basic structure)
   pgm.createTable('orders', {
@@ -62,8 +62,7 @@ exports.up = (pgm) => {
         notNull: true,
         default: pgm.func('current_timestamp'),
       },
-    },
-  );
+    }, { ifNotExists: true });
 
   // 4. order_items
   pgm.createTable('order_items', {
@@ -84,7 +83,7 @@ exports.up = (pgm) => {
     personalization: { type: 'jsonb' },
     validation_status: { type: 'varchar(50)', notNull: true, default: 'NEEDS_REVIEW' },
     sort_order: { type: 'integer' },
-  });
+  }, { ifNotExists: true });
 };
 
 exports.down = (pgm) => {

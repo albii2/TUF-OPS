@@ -9,8 +9,9 @@ import {
 export async function createOrderFromOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
         const { opportunityId } = request.params as { opportunityId: string };
+        const existing = await getOrderByOpportunityId(Number(opportunityId));
         const order = await createOrderFromOpportunity(Number(opportunityId));
-        reply.code(201).send(order);
+        reply.code(existing ? 200 : 201).send(order);
     } catch (error: any) {
         reply.code(400).send({ error: error.message });
     }

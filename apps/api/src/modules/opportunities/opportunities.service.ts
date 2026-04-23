@@ -32,6 +32,16 @@ const VALID_TRANSITIONS: Record<OpportunityStage, OpportunityStage[]> = {
   [OpportunityStage.CLOSED_LOST]: [],
 };
 
+
+async function createOrderForClosedWonOpportunity(client: any, opportunity: Opportunity) {
+  await client.query(
+    `INSERT INTO orders (opportunity_id, organization_id, deal_type, status)
+     VALUES ($1, $2, $3, $4)
+     ON CONFLICT (opportunity_id) DO NOTHING`,
+    [opportunity.id, opportunity.organization_id, opportunity.deal_type, 'CREATED']
+  );
+}
+
 function normalizeChannelType(value: unknown): OpportunityChannelType | null {
   if (!value || typeof value !== 'string') {
     return null;
@@ -188,6 +198,7 @@ export async function updateOpportunityStage(opportunityId: number, toStage: Opp
 
     if (toStage === OpportunityStage.CLOSED_WON) {
       await createCommission(updatedOpp);
+      await createOrderForClosedWonOpportunity(client, updatedOpp);
     }
 
     await client.query('COMMIT');
@@ -198,4 +209,10 @@ export async function updateOpportunityStage(opportunityId: number, toStage: Opp
   } finally {
     client.release();
   }
+}
+
+
+export async function getOpportunities(): Promise<Opportunity[]> {
+  const result = await pool.query('SELECT * FROM opportunities ORDER BY id DESC');
+  return result.rows;
 }

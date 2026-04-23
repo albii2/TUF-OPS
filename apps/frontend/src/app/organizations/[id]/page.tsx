@@ -1,55 +1,45 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useParams } from 'next/navigation'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+import { REQUIRED_CHANNEL_ORDER, API_BASE_URL } from '@/lib/v1';
 
-interface Organization {
-  id: number
-  name: string
-  zoho_account_id: string
+interface Lane {
+  id: number;
+  channel_type: string;
+  stage: string;
+}
+
+interface OrganizationDetail {
+  id: number;
+  name: string;
+  lanes: Lane[];
 }
 
 export default function OrganizationDetailsPage() {
-  const params = useParams()
-  const id = params.id
-  const [organization, setOrganization] = useState<Organization | null>(null)
-  const [loading, setLoading] = useState(true)
+  const params = useParams();
+  const [organization, setOrganization] = useState<OrganizationDetail | null>(null);
 
   useEffect(() => {
-    if (id) {
-      async function fetchOrganization() {
-        setLoading(true)
-        try {
-          const response = await fetch(`/api/organizations/${id}`)
-          if (response.ok) {
-            const data = await response.json()
-            setOrganization(data)
-          } else {
-            console.error('Failed to fetch organization')
-          }
-        } catch (error) {
-          console.error('Failed to fetch organization', error)
-        }
-        setLoading(false)
-      }
-      fetchOrganization()
-    }
-  }, [id])
+    fetch(`${API_BASE_URL}/organizations/${params.id}`).then((res) => res.json()).then(setOrganization).catch(console.error);
+  }, [params.id]);
 
-  if (loading) return <p>Loading...</p>
-  if (!organization) return <p>Organization not found.</p>
+  if (!organization) return <p>Loading...</p>;
+
+  const sorted = [...organization.lanes].sort((a, b) => REQUIRED_CHANNEL_ORDER.indexOf(a.channel_type as any) - REQUIRED_CHANNEL_ORDER.indexOf(b.channel_type as any));
 
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">{organization.name}</h1>
-        <Link href={`/organizations/${id}/edit`} data-testid="edit-organization-link">
-          <Button>Edit Organization</Button>
-        </Link>
+    <div className="container mx-auto py-10 space-y-4">
+      <h1 className="text-3xl font-bold">{organization.name}</h1>
+      <p className="text-sm text-gray-500">Guaranteed 4-lane execution view</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {sorted.map((lane) => (
+          <div key={lane.id} className="border rounded p-4">
+            <h2 className="font-semibold">{lane.channel_type}</h2>
+            <p>{lane.stage}</p>
+          </div>
+        ))}
       </div>
-      <p>Zoho ID: {organization.zoho_account_id}</p>
     </div>
-  )
+  );
 }

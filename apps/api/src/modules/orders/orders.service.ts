@@ -32,7 +32,7 @@ export async function createOrderFromOpportunity(opportunityId: number): Promise
 
     const existingOrder = await getOrderByOpportunityId(opportunityId);
     if (existingOrder) {
-        throw new Error('Order already exists for this opportunity');
+        return existingOrder;
     }
 
     const result = await pool.query(
