@@ -48,6 +48,9 @@ Registered modules and effective paths:
 - `POST /opportunities`
 - `GET /opportunities/organization/:organizationId`
 - `PUT /opportunities/:id/stage`
+- `GET /orders`
+- `POST /orders`
+- `GET /orders/:id`
 - `POST /activities`
 - `GET /activities/opportunity/:opportunityId`
 - `GET /activities/organization/:organizationId`
@@ -55,9 +58,10 @@ Registered modules and effective paths:
 - `GET /reporting/owner`
 - `GET /reporting/director/:directorId`
 - `GET /reporting/rep/:repId`
-- `POST /production-requests/production-requests`
-- `PUT /production-requests/production-requests/:id/status`
-- `GET /production-requests/production-requests/opportunity/:opportunityId`
+- `POST /production-requests`
+- `PUT /production-requests/:id/status`
+- `GET /production-requests/opportunity/:opportunityId`
+- `GET /health`
 
 ## Archived apps/frontend Status
 
@@ -67,14 +71,12 @@ Registered modules and effective paths:
 
 ## Blockers / Follow-ups
 
-1. `production-requests` routes have doubled path segments due to combined module prefix and route-local prefixing.
-2. `apps/web` currently implements only owner dashboard routes; doctrine route surface is largely missing and should be implemented in sequence after this canonicalization task.
-3. A full monorepo typecheck remains noisy from pre-existing baseline issues outside this canonicalization change.
+1. `apps/web` currently implements only owner dashboard routes; doctrine route surface is largely missing and should be implemented in sequence after this canonicalization task.
+2. A full monorepo typecheck remains noisy from pre-existing baseline issues outside this canonicalization change.
 
 ## Next Implementation Step
 
 Stabilize canonical runtime contracts before page buildout:
 
-1. Normalize `production-requests` Fastify path prefixing.
-2. Add typed API client functions in `apps/web/src/lib/api.ts` for each existing Fastify route.
-3. Then implement doctrine pages in `apps/web` starting with `/dashboard` as the owner default command center.
+1. Add typed API client functions in `apps/web/src/lib/api.ts` for each existing Fastify route.
+2. Then implement doctrine pages in `apps/web` starting with `/dashboard` as the owner default command center.

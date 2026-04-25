@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createOrganization, getOrganizations, updateOrganization, deleteOrganization } from './organizations.service';
+import { createOrganization, getOrganizations, getOrganizationById, updateOrganization, deleteOrganization } from './organizations.service';
 
 export async function createOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
   const organization = await createOrganization(request.body as any);
@@ -9,6 +9,17 @@ export async function createOrganizationHandler(request: FastifyRequest, reply: 
 export async function getOrganizationsHandler(request: FastifyRequest, reply: FastifyReply) {
   const organizations = await getOrganizations();
   return reply.send(organizations);
+}
+
+export async function getOrganizationByIdHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as any;
+  const organization = await getOrganizationById(id);
+
+  if (!organization) {
+    return reply.code(404).send({ message: 'Organization not found' });
+  }
+
+  return reply.send(organization);
 }
 
 export async function updateOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {

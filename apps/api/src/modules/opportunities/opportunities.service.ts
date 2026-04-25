@@ -83,6 +83,11 @@ export async function getOpportunitiesByOrganization(organizationId: string): Pr
   return result.rows;
 }
 
+export async function getOpportunities(): Promise<Opportunity[]> {
+  const result = await pool.query('SELECT * FROM opportunities ORDER BY updated_at DESC, id DESC');
+  return result.rows;
+}
+
 export async function getOrganizationChannelPenetration(organizationId: number) {
   const result = await pool.query<Pick<Opportunity, 'channel_type' | 'stage'>>(
     'SELECT channel_type, stage FROM opportunities WHERE organization_id = $1 AND channel_type IS NOT NULL',
@@ -185,6 +190,17 @@ export async function updateOpportunityStage(opportunityId: number, toStage: Opp
 
     if (toStage === OpportunityStage.CLOSED_WON) {
       await createCommission(updatedOpp);
+      const existingOrderResult = await client.query<{ id: number }>(
+        'SELECT id FROM orders WHERE opportunity_id = $1 LIMIT 1',
+        [opportunityId]
+      );
+
+      if (existingOrderResult.rows.length === 0) {
+        await client.query(
+          'INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4)',
+          [updatedOpp.id, updatedOpp.organization_id, updatedOpp.deal_type, 'CREATED']
+        );
+      }
     }
 
     await client.query('COMMIT');

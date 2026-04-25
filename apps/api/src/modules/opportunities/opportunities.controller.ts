@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createOpportunity, getOpportunitiesByOrganization, updateOpportunityStage } from './opportunities.service';
+import { createOpportunity, getOpportunities, getOpportunitiesByOrganization, updateOpportunityStage } from './opportunities.service';
 
 export async function createOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
@@ -16,6 +16,11 @@ export async function createOpportunityHandler(request: FastifyRequest, reply: F
 export async function getOpportunitiesByOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
   const { organizationId } = request.params as any;
   const opportunities = await getOpportunitiesByOrganization(organizationId);
+  return reply.send(opportunities);
+}
+
+export async function getOpportunitiesHandler(request: FastifyRequest, reply: FastifyReply) {
+  const opportunities = await getOpportunities();
   return reply.send(opportunities);
 }
 
