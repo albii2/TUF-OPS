@@ -72,6 +72,11 @@ export async function getOrganizations() {
   return result.rows;
 }
 
+export async function getOrganizationById(id: string) {
+  const result = await pool.query('SELECT * FROM organizations WHERE id = $1', [id]);
+  return result.rows[0] || null;
+}
+
 export async function updateOrganization(id: string, organization: any) {
   const { name, assigned_rep_id, assigned_director_id, territory_id, updated_by } = organization;
   const result = await pool.query(
