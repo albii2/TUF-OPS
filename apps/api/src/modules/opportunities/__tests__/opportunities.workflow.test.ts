@@ -47,13 +47,13 @@ describe('Opportunities Workflow - Integration Test', () => {
     });
 
     it('should allow a valid stage transition and record history', async () => {
-      const updatedOpp = await updateOpportunityStage(opportunityId, OpportunityStage.CONTACT_INITIATED, 1, 'Contacted customer');
-      expect(updatedOpp.stage).toBe(OpportunityStage.CONTACT_INITIATED);
+      const updatedOpp = await updateOpportunityStage(opportunityId, OpportunityStage.CONTACTED, 1, 'Contacted customer');
+      expect(updatedOpp.stage).toBe(OpportunityStage.CONTACTED);
 
       const historyResult = await pool.query('SELECT * FROM opportunity_stage_history WHERE opportunity_id = $1', [opportunityId]);
       expect(historyResult.rows.length).toBe(1);
       expect(historyResult.rows[0].from_stage).toBe(OpportunityStage.LEAD_ASSIGNED);
-      expect(historyResult.rows[0].to_stage).toBe(OpportunityStage.CONTACT_INITIATED);
+      expect(historyResult.rows[0].to_stage).toBe(OpportunityStage.CONTACTED);
     });
 
     it('should reject an invalid stage transition', async () => {
@@ -64,11 +64,12 @@ describe('Opportunities Workflow - Integration Test', () => {
   describe('Financial Workflow', () => {
     beforeEach(async () => {
       // Move opportunity to a stage where it can be closed
-      await updateOpportunityStage(opportunityId, OpportunityStage.CONTACT_INITIATED, 1);
-      await updateOpportunityStage(opportunityId, OpportunityStage.MOCKUP_IN_PROGRESS, 1);
-      await updateOpportunityStage(opportunityId, OpportunityStage.MOCKUP_APPROVED, 1);
+      await updateOpportunityStage(opportunityId, OpportunityStage.CONTACTED, 1);
+      await updateOpportunityStage(opportunityId, OpportunityStage.DISCOVERY, 1);
+      await updateOpportunityStage(opportunityId, OpportunityStage.MOCKUP_REQUESTED, 1);
+      await updateOpportunityStage(opportunityId, OpportunityStage.MOCKUP_DELIVERED, 1);
       await updateOpportunityStage(opportunityId, OpportunityStage.INVOICE_SENT, 1);
-      await updateOpportunityStage(opportunityId, OpportunityStage.PAYMENT_RECEIVED, 1);
+      await updateOpportunityStage(opportunityId, OpportunityStage.DECISION_PENDING, 1);
     });
 
     it('should reject CLOSED_WON without actual_revenue', async () => {

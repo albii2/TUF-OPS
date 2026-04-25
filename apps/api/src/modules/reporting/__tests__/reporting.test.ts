@@ -18,7 +18,7 @@ describe('Reporting Service - Integration Test', () => {
 
     // Opp 2: Rep 10, Director 1, Won
     const opp2 = await createOpportunity({ organization_id: org1.id, name: 'Opp 2', value: 2500, assigned_rep_id: 10, assigned_director_id: 1, stage: OpportunityStage.INVOICE_SENT, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
-    await updateOpportunityStage(opp2.id, OpportunityStage.PAYMENT_RECEIVED, 1);
+    await updateOpportunityStage(opp2.id, OpportunityStage.DECISION_PENDING, 1);
       await updateOpportunityStage(opp2.id, OpportunityStage.CLOSED_WON, 1, 'Won', { actual_revenue: 10000, actual_cost: 4000 });
 
     // Opp 3: Rep 20, Director 1, Lost
@@ -27,11 +27,11 @@ describe('Reporting Service - Integration Test', () => {
 
     // Opp 4: Rep 30, Director 2, Won
     const opp4 = await createOpportunity({ organization_id: org2.id, name: 'Opp 4', value: 10000, assigned_rep_id: 30, assigned_director_id: 2, stage: OpportunityStage.INVOICE_SENT, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
-    await updateOpportunityStage(opp4.id, OpportunityStage.PAYMENT_RECEIVED, 1);
+    await updateOpportunityStage(opp4.id, OpportunityStage.DECISION_PENDING, 1);
       await updateOpportunityStage(opp4.id, OpportunityStage.CLOSED_WON, 1, 'Won', { actual_revenue: 20000, actual_cost: 15000 });
 
     // Opp 5: Rep 30, Director 2, Open
-    await createOpportunity({ organization_id: org2.id, name: 'Opp 5', value: 20000, assigned_rep_id: 30, assigned_director_id: 2, stage: OpportunityStage.MOCKUP_APPROVED, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
+    await createOpportunity({ organization_id: org2.id, name: 'Opp 5', value: 20000, assigned_rep_id: 30, assigned_director_id: 2, stage: OpportunityStage.MOCKUP_DELIVERED, status: 'open', created_by: 1, updated_by: 1, deal_type: 'UNIFORM' });
   });
 
   afterAll(async () => {
@@ -50,8 +50,8 @@ describe('Reporting Service - Integration Test', () => {
     expect(metrics.opportunities_by_stage[OpportunityStage.LEAD_ASSIGNED]).toBe(1);
     expect(metrics.opportunities_by_stage[OpportunityStage.CLOSED_WON]).toBe(2);
     expect(metrics.opportunities_by_stage[OpportunityStage.CLOSED_LOST]).toBe(1);
-    expect(metrics.opportunities_by_stage[OpportunityStage.MOCKUP_APPROVED]).toBe(1);
-    expect(metrics.opportunities_by_stage[OpportunityStage.CONTACT_INITIATED]).toBe(0);
+    expect(metrics.opportunities_by_stage[OpportunityStage.MOCKUP_DELIVERED]).toBe(1);
+    expect(metrics.opportunities_by_stage[OpportunityStage.CONTACTED]).toBe(0);
   });
 
   it('should return correct metrics for Director 1', async () => {
@@ -74,7 +74,7 @@ describe('Reporting Service - Integration Test', () => {
     expect(metrics.total_gross_profit).toBe(5000);
     expect(metrics.total_rep_commission).toBe(500);
     expect(metrics.total_director_override).toBe(250);
-    expect(metrics.opportunities_by_stage[OpportunityStage.MOCKUP_APPROVED]).toBe(1);
+    expect(metrics.opportunities_by_stage[OpportunityStage.MOCKUP_DELIVERED]).toBe(1);
     expect(metrics.opportunities_by_stage[OpportunityStage.CLOSED_WON]).toBe(1);
   });
 });

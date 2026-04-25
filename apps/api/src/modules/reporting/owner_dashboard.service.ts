@@ -29,7 +29,7 @@ export async function getOwnerDashboardData() {
       SUM(CASE WHEN o.stage = 'INVOICE_SENT' THEN o.value ELSE 0 END) AS pending_payment,
       SUM(CASE WHEN o.payment_received_at >= NOW() - INTERVAL '30 days' THEN o.value ELSE 0 END) AS recently_paid_amount,
       SUM(CASE WHEN o.stage = 'CLOSED_WON' AND o.closed_at >= NOW() - INTERVAL '30 days' THEN o.value ELSE 0 END) AS recently_closed_amount,
-      AVG(CASE WHEN o.stage = 'PAYMENT_RECEIVED' THEN o.payment_received_at - o.created_at ELSE NULL END) AS avg_days_to_payment,
+      AVG(CASE WHEN o.stage = 'DECISION_PENDING' THEN o.payment_received_at - o.created_at ELSE NULL END) AS avg_days_to_payment,
       (CAST(COUNT(CASE WHEN o.stage = 'CLOSED_WON' THEN 1 ELSE NULL END) AS DECIMAL) / COUNT(*)) * 100 AS conversion_rate
     FROM opportunities o;
   `;

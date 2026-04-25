@@ -18,16 +18,13 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
 }
 
 const VALID_TRANSITIONS: Record<OpportunityStage, OpportunityStage[]> = {
-  [OpportunityStage.NOT_STARTED]: [OpportunityStage.LEAD_ASSIGNED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.LEAD_ASSIGNED]: [OpportunityStage.CONTACT_INITIATED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.CONTACT_INITIATED]: [OpportunityStage.MOCKUP_IN_PROGRESS, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.MOCKUP_IN_PROGRESS]: [OpportunityStage.MOCKUP_APPROVED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.MOCKUP_APPROVED]: [OpportunityStage.SAMPLE_REQUESTED, OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.SAMPLE_REQUESTED]: [OpportunityStage.SAMPLE_IN_PRODUCTION, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.SAMPLE_IN_PRODUCTION]: [OpportunityStage.SAMPLE_APPROVED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.SAMPLE_APPROVED]: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.PAYMENT_RECEIVED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.PAYMENT_RECEIVED]: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.LEAD_ASSIGNED]: [OpportunityStage.CONTACTED, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.CONTACTED]: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.DISCOVERY]: [OpportunityStage.MOCKUP_REQUESTED, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.MOCKUP_REQUESTED]: [OpportunityStage.MOCKUP_DELIVERED, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.MOCKUP_DELIVERED]: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.DECISION_PENDING, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.DECISION_PENDING]: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.CLOSED_WON]: [],
   [OpportunityStage.CLOSED_LOST]: [],
 };
@@ -67,7 +64,7 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
       value ?? 0,
       created_by,
       updated_by,
-      stage || OpportunityStage.NOT_STARTED,
+      stage || OpportunityStage.LEAD_ASSIGNED,
       next_action,
       expected_close_date,
       last_activity_date || new Date(),
@@ -93,10 +90,10 @@ export async function getOrganizationChannelPenetration(organizationId: number) 
   );
 
   const channels = {
-    uniform: OpportunityStage.NOT_STARTED,
-    travel_gear: OpportunityStage.NOT_STARTED,
-    team_store: OpportunityStage.NOT_STARTED,
-    letterman: OpportunityStage.NOT_STARTED,
+    uniform: OpportunityStage.LEAD_ASSIGNED,
+    travel_gear: OpportunityStage.LEAD_ASSIGNED,
+    team_store: OpportunityStage.LEAD_ASSIGNED,
+    letterman: OpportunityStage.LEAD_ASSIGNED,
   };
 
   for (const row of result.rows) {
