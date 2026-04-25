@@ -3,13 +3,11 @@ import { NextPlay, CashBoard, PipelineFlow, OpsReady, OwnershipView, OwnerDashbo
 
 export const STAGE_STUCK_THRESHOLDS: { [key: string]: number } = {
     LEAD_ASSIGNED: 2,
-    CONTACT_INITIATED: 2,
-    MOCKUP_IN_PROGRESS: 3,
-    MOCKUP_APPROVED: 2,
-    SAMPLE_REQUESTED: 2,
-    SAMPLE_IN_PRODUCTION: 5,
-    SAMPLE_APPROVED: 2,
+    CONTACTED: 2,
+    DISCOVERY: 3,
+    MOCKUP_REQUESTED: 3,
+    MOCKUP_DELIVERED: 2,
     INVOICE_SENT: 2,
-    PAYMENT_RECEIVED: 1,
+    DECISION_PENDING: 2,
     default: 3,
 };

@@ -48,7 +48,7 @@ export async function createOrganization(organization: any) {
           0.00,
           created_by,
           updated_by,
-          OpportunityStage.NOT_STARTED,
+          OpportunityStage.LEAD_ASSIGNED,
           assigned_rep_id,
           assigned_director_id,
           channelType,
