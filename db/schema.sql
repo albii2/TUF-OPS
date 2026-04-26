@@ -51,6 +51,7 @@ CREATE TABLE opportunities (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     zoho_deal_id VARCHAR(255),
+    CONSTRAINT opportunities_channel_type_allowed CHECK (channel_type IN ('UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN')),
     CONSTRAINT opportunities_organization_id_channel_type_key UNIQUE (organization_id, channel_type)
 );
 
