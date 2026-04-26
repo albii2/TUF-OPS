@@ -1,6 +1,7 @@
 export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/jest.setup.cjs'],
   roots: ['<rootDir>/src'],
   moduleNameMapper: {
     '^@packages/auth$': '<rootDir>/../../packages/auth/dist/index.js',
