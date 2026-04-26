@@ -1,72 +1,56 @@
-exports.shorthands = undefined;
-
-exports.up = (pgm) => {
+exports.up = async (pgm) => {
+  // Ensure column exists (but do NOT try to recreate it)
   pgm.sql(`
     ALTER TABLE opportunities
-    ALTER COLUMN channel_type TYPE varchar(50) USING channel_type::varchar(50);
+    ADD COLUMN IF NOT EXISTS channel_type VARCHAR(50);
   `);
 
+  // Backfill nulls
   pgm.sql(`
     UPDATE opportunities
     SET channel_type = 'UNIFORM'
     WHERE channel_type IS NULL;
   `);
 
-  pgm.alterColumn('opportunities', 'channel_type', {
-    type: 'varchar(50)',
-    notNull: true,
-    default: 'UNIFORM',
-  });
+  // Enforce NOT NULL + default
+  pgm.sql(`
+    ALTER TABLE opportunities
+    ALTER COLUMN channel_type SET DEFAULT 'UNIFORM',
+    ALTER COLUMN channel_type SET NOT NULL;
+  `);
 
+  // Allowed values constraint (safe)
   pgm.sql(`
     DO $$
     BEGIN
       IF NOT EXISTS (
-        SELECT 1
-        FROM pg_constraint
+        SELECT 1 FROM pg_constraint
         WHERE conname = 'opportunities_channel_type_allowed'
       ) THEN
         ALTER TABLE opportunities
         ADD CONSTRAINT opportunities_channel_type_allowed
-        CHECK (channel_type IN ('UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'));
+        CHECK (channel_type IN ('UNIFORM','TRAVEL_GEAR','TEAM_STORE','LETTERMAN'));
       END IF;
     END
     $$;
   `);
 
+  // Unique constraint (safe)
   pgm.sql(`
     DO $$
     BEGIN
       IF NOT EXISTS (
-        SELECT 1
-        FROM pg_constraint
-        WHERE conname = 'opportunities_organization_id_channel_type_key'
+        SELECT 1 FROM pg_indexes
+        WHERE indexname = 'opportunities_org_channel_unique'
       ) THEN
-        ALTER TABLE opportunities
-        ADD CONSTRAINT opportunities_organization_id_channel_type_key
-        UNIQUE (organization_id, channel_type);
+        CREATE UNIQUE INDEX opportunities_org_channel_unique
+        ON opportunities (organization_id, channel_type);
       END IF;
     END
     $$;
   `);
 };
 
-exports.down = (pgm) => {
-  pgm.dropConstraint('opportunities', 'opportunities_organization_id_channel_type_key', {
-    ifExists: true,
-  });
-
-  pgm.dropConstraint('opportunities', 'opportunities_channel_type_allowed', {
-    ifExists: true,
-  });
-
-  pgm.sql(`
-    ALTER TABLE opportunities
-    ALTER COLUMN channel_type DROP DEFAULT;
-  `);
-
-  pgm.alterColumn('opportunities', 'channel_type', {
-    type: 'varchar(50)',
-    notNull: false,
-  });
+exports.down = async () => {
+  // No destructive rollback for safety
 };
