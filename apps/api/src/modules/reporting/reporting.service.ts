@@ -43,7 +43,7 @@ async function getDashboardMetrics(whereSql = '', params: Array<number> = []): P
 
   const stageQuery = `
     SELECT stage, COUNT(*)::int AS count
-    FROM opportunities
+    FROM opportunities o
     ${whereSql}
     GROUP BY stage
   `;

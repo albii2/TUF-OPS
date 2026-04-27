@@ -46,7 +46,7 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
   const resolvedSport = sport ?? DEFAULT_SPORT;
   const resolvedSeason = season ?? DEFAULT_SEASON;
   const resolvedYear = year ?? DEFAULT_YEAR;
-  const resolvedChannelType = normalizeChannelType(channel_type ?? deal_type);
+  const resolvedChannelType = normalizeChannelType(channel_type ?? deal_type ?? 'UNIFORM');
 
   if (!resolvedChannelType) {
     throw new Error('channel_type is required and must be one of UNIFORM, TRAVEL_GEAR, TEAM_STORE, LETTERMAN');

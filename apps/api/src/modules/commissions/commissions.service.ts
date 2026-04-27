@@ -4,8 +4,10 @@ import { Opportunity } from '../opportunities/opportunities.interface';
 
 const REP_BASE_RATES: { [key: string]: number } = {
   UNIFORM: 0.10,
-  STORE: 0.15,
-  JACKETS: 0.18,
+  TRAVEL_GEAR: 0.10,
+  TEAM_STORE: 0.15,
+  LETTERMAN: 0.18,
+  DEFAULT: 0.10, // Default rate for any other type
 };
 
 const DIRECTOR_OVERRIDE_RATE = 0.05; // Default placeholder override rule
@@ -21,7 +23,7 @@ export async function createCommission(opportunity: Opportunity): Promise<Commis
   }
 
   const dealType = opportunity.deal_type || 'UNIFORM'; // Default to UNIFORM if not specified
-  const repRate = REP_BASE_RATES[dealType];
+  const repRate = REP_BASE_RATES[dealType] || REP_BASE_RATES.DEFAULT;
   const repCommission = opportunity.gross_profit * repRate;
   const directorOverride = opportunity.gross_profit * DIRECTOR_OVERRIDE_RATE;
 

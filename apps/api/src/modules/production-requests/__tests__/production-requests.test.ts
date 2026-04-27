@@ -4,6 +4,7 @@ import { createOrganization } from '../../organizations/organizations.service';
 import { createOpportunity } from '../../opportunities/opportunities.service';
 import { createProductionRequest, getProductionRequestsByOpportunity, updateProductionRequestStatus } from '../production-requests.service';
 import { ProductionRequestStatus, ProductionRequestType } from '../production-requests.interface';
+import { OpportunityChannelType } from '../../opportunities/opportunities.interface';
 
 describe('Production Requests Service - Integration Test', () => {
     let orgId: number;
@@ -23,6 +24,7 @@ describe('Production Requests Service - Integration Test', () => {
             status: 'open',
             value: 1000,
             deal_type: 'UNIFORM',
+            channel_type: OpportunityChannelType.UNIFORM,
             created_by: 1,
             updated_by: 1,
         });
@@ -32,7 +34,8 @@ describe('Production Requests Service - Integration Test', () => {
             name: 'Jackets Opp',
             status: 'open',
             value: 2000,
-            deal_type: 'JACKETS',
+            deal_type: 'LETTERMAN',
+            channel_type: OpportunityChannelType.LETTERMAN,
             created_by: 1,
             updated_by: 1,
         });
@@ -42,7 +45,8 @@ describe('Production Requests Service - Integration Test', () => {
             name: 'Store Opp',
             status: 'open',
             value: 3000,
-            deal_type: 'STORE',
+            deal_type: 'TEAM_STORE',
+            channel_type: OpportunityChannelType.TEAM_STORE,
             created_by: 1,
             updated_by: 1,
         });
@@ -91,7 +95,7 @@ describe('Production Requests Service - Integration Test', () => {
             type: ProductionRequestType.SAMPLE,
             requested_by: 1,
             title: 'Sample for Store',
-        })).rejects.toThrow('Sample requests not allowed for deal type: STORE');
+        })).rejects.toThrow('Sample requests not allowed for deal type: TEAM_STORE');
     });
 
     it('should require waiver_reason if sample is waived', async () => {

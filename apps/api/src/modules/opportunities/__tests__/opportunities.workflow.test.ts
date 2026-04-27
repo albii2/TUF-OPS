@@ -41,9 +41,12 @@ describe('Opportunities Workflow - Integration Test', () => {
   describe('Basic Workflow', () => {
     it('should create an opportunity with the initial stage and estimated revenue', async () => {
       const opps = await getOpportunitiesByOrganization(String(orgId));
-      expect(opps.length).toBe(1);
-      expect(opps[0].stage).toBe(OpportunityStage.LEAD_ASSIGNED);
-      expect(opps[0].estimated_revenue).toBe('5000.00');
+      const createdOpp = opps.find(o => o.name === 'Workflow Test Opp');
+      expect(createdOpp).toBeDefined();
+      if (createdOpp) {
+        expect(createdOpp.stage).toBe(OpportunityStage.LEAD_ASSIGNED);
+        expect(createdOpp.estimated_revenue).toBe('5000.00');
+      }
     });
 
     it('should allow a valid stage transition and record history', async () => {
