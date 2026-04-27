@@ -39,7 +39,7 @@ export async function createOrganization(organization: any) {
           deal_type,
           channel_type
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, current_timestamp, $8, $9, $10, $11)
-        ON CONFLICT (organization_id, channel_type) WHERE channel_type IS NOT NULL DO NOTHING
+        ON CONFLICT (organization_id, sport, season, year, channel_type) DO NOTHING
         `,
         [
           `${name} - ${channelType}`,
