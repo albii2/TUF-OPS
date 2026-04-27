@@ -1,4 +1,9 @@
-exports.shorthands = undefined;
+exports.up = async (pgm) => {
+  // Ensure column exists (but do NOT try to recreate it)
+  pgm.sql(`
+    ALTER TABLE opportunities
+    ADD COLUMN IF NOT EXISTS channel_type VARCHAR(50);
+  `);
 
 exports.up = (pgm) => {
   pgm.sql(`
@@ -69,4 +74,8 @@ exports.down = (pgm) => {
     type: 'varchar(50)',
     notNull: false,
   });
+};
+
+exports.down = async () => {
+  // No destructive rollback for safety
 };
