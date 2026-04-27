@@ -42,6 +42,9 @@ CREATE TABLE opportunities (
     organization_id INT REFERENCES organizations(id),
     team_id INT REFERENCES teams(id),
     name VARCHAR(255) NOT NULL,
+    sport VARCHAR(100),
+    season VARCHAR(50),
+    year INTEGER,
     channel_type VARCHAR(50) NOT NULL DEFAULT 'UNIFORM', -- UNIFORM, TRAVEL_GEAR, TEAM_STORE, LETTERMAN
     stage VARCHAR(50) NOT NULL, -- Prospect, Engage, Design the Win, etc.
     last_contact_date TIMESTAMPTZ,
@@ -52,7 +55,7 @@ CREATE TABLE opportunities (
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     zoho_deal_id VARCHAR(255),
     CONSTRAINT opportunities_channel_type_allowed CHECK (channel_type IN ('UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN')),
-    CONSTRAINT opportunities_organization_id_channel_type_key UNIQUE (organization_id, channel_type)
+    CONSTRAINT opportunities_org_program_channel_unique UNIQUE (organization_id, sport, season, year, channel_type)
 );
 
 CREATE TABLE opportunity_notes (

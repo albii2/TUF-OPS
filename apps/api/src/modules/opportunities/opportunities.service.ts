@@ -39,7 +39,7 @@ function normalizeChannelType(value: unknown): OpportunityChannelType | null {
 }
 
 export async function createOpportunity(opportunity: Partial<Opportunity>): Promise<Opportunity> {
-  const { name, organization_id, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type } = opportunity;
+  const { name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type } = opportunity;
   const resolvedChannelType = normalizeChannelType(channel_type ?? deal_type);
 
   if (!resolvedChannelType) {
@@ -47,19 +47,29 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
   }
 
   const existing = await pool.query(
-    'SELECT id FROM opportunities WHERE organization_id = $1 AND channel_type = $2 LIMIT 1',
-    [organization_id, resolvedChannelType]
+    `SELECT id
+     FROM opportunities
+     WHERE organization_id = $1
+       AND sport IS NOT DISTINCT FROM $2
+       AND season IS NOT DISTINCT FROM $3
+       AND year IS NOT DISTINCT FROM $4
+       AND channel_type = $5
+     LIMIT 1`,
+    [organization_id, sport ?? null, season ?? null, year ?? null, resolvedChannelType]
   );
 
   if (existing.rows.length > 0) {
-    throw new Error(`Opportunity already exists for organization ${organization_id} and channel ${resolvedChannelType}`);
+    throw new Error(`Opportunity already exists for organization ${organization_id}, sport ${sport ?? 'NULL'}, season ${season ?? 'NULL'}, year ${year ?? 'NULL'}, and channel ${resolvedChannelType}`);
   }
 
   const result = await pool.query(
-    'INSERT INTO opportunities (name, organization_id, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING *',
+    'INSERT INTO opportunities (name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) RETURNING *',
     [
       name,
       organization_id,
+      sport,
+      season,
+      year,
       status || 'open',
       value ?? 0,
       created_by,

@@ -31,6 +31,9 @@ export interface Opportunity {
   id: number;
   name: string;
   organization_id: number;
+  sport?: string;
+  season?: string;
+  year?: number;
   status: string;
   value: number;
   created_by: number;
