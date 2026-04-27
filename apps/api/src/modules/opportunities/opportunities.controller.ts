@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createOpportunity, getOpportunities, getOpportunitiesByOrganization, updateOpportunityStage } from './opportunities.service';
+import { createOpportunity, getOpportunities, getOpportunitiesByOrganization, updateOpportunityStage, updateOpportunity } from './opportunities.service';
 
 export async function createOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
@@ -26,10 +26,10 @@ export async function getOpportunitiesHandler(request: FastifyRequest, reply: Fa
 
 export async function updateOpportunityStageHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as any;
-  const { toStage, changedBy, note, actual_revenue, actual_cost, loss_reason } = request.body as any;
+  const { stage, changed_by, note, actual_revenue, actual_cost, loss_reason } = request.body as any;
 
   try {
-    const updatedOpportunity = await updateOpportunityStage(Number(id), toStage, changedBy, note, { actual_revenue, actual_cost, loss_reason });
+    const updatedOpportunity = await updateOpportunityStage(Number(id), stage, changed_by, note, { actual_revenue, actual_cost, loss_reason });
     return reply.send(updatedOpportunity);
   } catch (error: any) {
     if (error.message.includes('not found')) {
@@ -37,6 +37,19 @@ export async function updateOpportunityStageHandler(request: FastifyRequest, rep
     }
     if (error.message.includes('Invalid stage transition') || error.message.includes('required to close an opportunity')) {
       return reply.code(400).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export async function updateOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as any;
+  try {
+    const updatedOpportunity = await updateOpportunity(Number(id), request.body as Partial<Opportunity>);
+    return reply.send(updatedOpportunity);
+  } catch (error: any) {
+    if (error.message.includes('not found')) {
+      return reply.code(404).send({ message: error.message });
     }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
