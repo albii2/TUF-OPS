@@ -8,6 +8,9 @@ const REQUIRED_CHANNELS: OpportunityChannelType[] = [
   OpportunityChannelType.TEAM_STORE,
   OpportunityChannelType.LETTERMAN,
 ];
+const DEFAULT_SPORT = 'FOOTBALL';
+const DEFAULT_SEASON = 'FALL';
+const DEFAULT_YEAR = 2026;
 
 export async function getOpportunityById(id: number): Promise<Opportunity> {
     const result = await pool.query('SELECT * FROM opportunities WHERE id = $1', [id]);
@@ -40,6 +43,9 @@ function normalizeChannelType(value: unknown): OpportunityChannelType | null {
 
 export async function createOpportunity(opportunity: Partial<Opportunity>): Promise<Opportunity> {
   const { name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type } = opportunity;
+  const resolvedSport = sport ?? DEFAULT_SPORT;
+  const resolvedSeason = season ?? DEFAULT_SEASON;
+  const resolvedYear = year ?? DEFAULT_YEAR;
   const resolvedChannelType = normalizeChannelType(channel_type ?? deal_type);
 
   if (!resolvedChannelType) {
@@ -47,19 +53,19 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
   }
 
   const existing = await pool.query(
-    `SELECT id
+    `SELECT 1
      FROM opportunities
      WHERE organization_id = $1
-       AND sport IS NOT DISTINCT FROM $2
-       AND season IS NOT DISTINCT FROM $3
-       AND year IS NOT DISTINCT FROM $4
-       AND channel_type = $5
+       AND channel_type = $2
+       AND sport = $3
+       AND season = $4
+       AND year = $5
      LIMIT 1`,
-    [organization_id, sport ?? null, season ?? null, year ?? null, resolvedChannelType]
+    [organization_id, resolvedChannelType, resolvedSport, resolvedSeason, resolvedYear]
   );
 
   if (existing.rows.length > 0) {
-    throw new Error(`Opportunity already exists for organization ${organization_id}, sport ${sport ?? 'NULL'}, season ${season ?? 'NULL'}, year ${year ?? 'NULL'}, and channel ${resolvedChannelType}`);
+    throw new Error('Opportunity already exists for this organization, sport, season, year, and channel');
   }
 
   const result = await pool.query(
@@ -67,9 +73,9 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
     [
       name,
       organization_id,
-      sport,
-      season,
-      year,
+      resolvedSport,
+      resolvedSeason,
+      resolvedYear,
       status || 'open',
       value ?? 0,
       created_by,
