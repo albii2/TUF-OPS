@@ -10,10 +10,12 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
 
   return (
     <div className="min-h-screen bg-tuf-texture text-slate-100">
-      <div className="mx-auto grid min-h-screen max-w-[1600px] grid-cols-1 md:grid-cols-[240px_1fr]">
-        <aside className="hidden border-r border-slate-800/80 bg-slate-950/70 p-4 md:block">
-          <TufLogo />
-          <nav className="mt-8 space-y-1">
+      <div className="mx-auto grid min-h-screen max-w-[1500px] grid-cols-1 md:grid-cols-[230px_1fr]">
+        <aside className="hidden border-r border-slate-800/90 bg-slate-950/76 p-3 md:block">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/65 p-3">
+            <TufLogo compact />
+          </div>
+          <nav className="mt-4 space-y-1.5">
             {config.sidebarItems.map((item) => {
               const nav = allSidebarItems[item];
               return (
@@ -21,7 +23,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
                   key={item}
                   to={nav.route}
                   className={({ isActive }) =>
-                    `block rounded-lg px-3 py-2 text-sm ${isActive ? 'bg-cyan-400/20 text-cyan-200' : 'text-slate-300 hover:bg-slate-800/70'}`
+                    `block rounded-lg border px-3 py-2 text-sm transition ${isActive ? 'border-cyan-400/50 bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.18)]' : 'border-transparent text-slate-300 hover:border-slate-700 hover:bg-slate-800/65'}`
                   }
                 >
                   {nav.label}
@@ -31,14 +33,14 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           </nav>
         </aside>
 
-        <main className="px-3 py-3 md:px-6 md:py-5">
-          <header className="mb-4 flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/70 p-3 backdrop-blur">
+        <main className="px-3 py-3 md:px-5 md:py-4">
+          <header className="mb-4 flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/72 p-2.5 backdrop-blur">
             <input
-              className="h-10 flex-1 rounded-lg border border-slate-700 bg-slate-950/70 px-3 text-sm text-slate-200 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
-              placeholder="Search organizations, opportunities, reps..."
+              className="h-10 flex-1 rounded-lg border border-slate-700 bg-slate-950/80 px-3 text-sm text-slate-100 placeholder:text-slate-500"
+              placeholder="Search schools, deals..."
             />
             <select
-              className="h-10 rounded-lg border border-slate-700 bg-slate-950/80 px-2 text-xs"
+              className="h-10 rounded-lg border border-slate-700 bg-slate-950/85 px-2 text-xs"
               value={user.role}
               onChange={(e) => {
                 const next = updateRole(e.target.value as Role);
@@ -52,7 +54,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
               ))}
             </select>
             <button
-              className="h-10 rounded-lg border border-cyan-400/50 bg-cyan-500/15 px-3 text-xs text-cyan-200"
+              className="h-10 rounded-lg border border-cyan-400/45 bg-cyan-500/14 px-3 text-xs text-cyan-100"
               onClick={() => {
                 logout();
                 setUser(null);

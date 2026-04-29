@@ -50,7 +50,7 @@ export function OpportunityDetailPage() {
       </Card>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Next Action Panel" className="lg:col-span-2"><p className="text-sm text-slate-300">{opp.nextAction}</p></Card>
+        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{opp.nextAction}</p></Card>
         <Card title="Stage-specific CTA"><Button className="w-full">{stageCtas[opp.stage]}</Button></Card>
       </div>
 
@@ -64,7 +64,7 @@ export function OpportunityDetailPage() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status placeholder and payment follow-up actions.</p></Card>
+        <Card title="Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Priority close step: align invoice/payment timing and confirm buyer decision path.</p></Card>
         <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full">Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200">Closed Lost</Button></div></Card>
       </div>
     </div>

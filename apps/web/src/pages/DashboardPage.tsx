@@ -1,108 +1,78 @@
-import { roleConfig } from '../config/roles';
-import type { Role } from '../types';
 import { GlassCard, StatCard } from '../components/ui';
-import { useOrganizations } from '../hooks/useOrganizations';
+import type { Role } from '../types';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
-import { getLanePenetration, getNearCloseOpportunities, getOpenPipelineValue, getStuckOpportunities } from '../services/businessSelectors';
+import { useOrganizations } from '../hooks/useOrganizations';
+import { useActivities } from '../hooks/useReports';
 import { formatCurrency } from '../utils/format';
+import { getLanePenetration, getNearCloseOpportunities, getOpenPipelineValue, getStuckOpportunities } from '../services/businessSelectors';
 
 function RepDashboard() {
   const opportunities = useOpportunities({});
-  const orders = useOrders({});
   const nearClose = getNearCloseOpportunities(opportunities);
-  const needsAction = opportunities.filter((opp) => !['CLOSED_WON', 'CLOSED_LOST'].includes(opp.stage));
-  const paymentsPending = opportunities.filter((opp) => opp.stage === 'INVOICE_SENT').length;
+  const paymentsPending = opportunities.filter((o) => o.stage === 'INVOICE_SENT').length;
+  const activities = useActivities({ limit: 4 });
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
+      <h2 className="text-3xl font-semibold tracking-tight text-slate-100">Today’s Focus</h2>
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Deals Need Action" value={String(needsAction.length)} />
+        <StatCard label="Deals Need Action" value={String(opportunities.length)} />
         <StatCard label="Near Close" value={String(nearClose.length)} />
         <StatCard label="Payments Pending" value={String(paymentsPending)} />
       </div>
       <div className="grid gap-3 lg:grid-cols-3">
         <GlassCard title="Next Actions" className="lg:col-span-2">
-          <div className="space-y-2">
-            {needsAction.slice(0, 3).map((item) => (
-              <div key={item.id} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/70 p-3 text-sm">
-                <div>
-                  <p className="font-medium text-slate-100">{item.organizationName}</p>
-                  <p className="text-xs text-slate-400">{item.nextAction}</p>
-                </div>
-                <span className="text-xs text-cyan-300">{item.stage}</span>
-              </div>
-            ))}
-          </div>
+          {opportunities.slice(0, 3).map((opp) => <div key={opp.id} className="mb-2 rounded-lg border border-slate-800 bg-slate-950/70 p-2.5 text-sm"><p className="font-medium">{opp.organizationName}</p><p className="text-slate-300">{opp.nextAction}</p></div>)}
         </GlassCard>
         <GlassCard title="Deals Near Close">
-          <ul className="space-y-2 text-sm text-slate-300">
-            {nearClose.slice(0, 3).map((opp) => (
-              <li key={opp.id}>{opp.organizationName} — {opp.stage} — {formatCurrency(opp.value)}</li>
-            ))}
-          </ul>
+          {nearClose.slice(0, 3).map((opp) => <p key={opp.id} className="mb-2 text-sm text-slate-200">{opp.organizationName} · {formatCurrency(opp.value)}</p>)}
         </GlassCard>
       </div>
       <div className="grid gap-3 lg:grid-cols-3">
-        <GlassCard title="Pipeline Snapshot">
-          <p className="text-3xl font-semibold text-cyan-300">{formatCurrency(getOpenPipelineValue(opportunities))}</p>
-          <p className="mt-1 text-xs text-slate-400">Open opportunities</p>
-        </GlassCard>
-        <GlassCard title="Revenue">
-          <p className="text-3xl font-semibold text-cyan-300">{formatCurrency(opportunities.filter((o) => o.stage === 'CLOSED_WON').reduce((t, o) => t + o.value, 0))}</p>
-          <p className="mt-1 text-xs text-slate-400">Closed won value</p>
-        </GlassCard>
-        <GlassCard title="Ops Impact">
-          <p className="text-sm text-slate-300">{orders.filter((o) => o.productionStatus === 'BLOCKED').length} blocked orders require follow-up.</p>
-        </GlassCard>
+        <GlassCard title="Pipeline Snapshot"><p className="text-2xl font-semibold text-cyan-300">{formatCurrency(getOpenPipelineValue(opportunities))}</p></GlassCard>
+        <GlassCard title="Revenue"><p className="text-2xl font-semibold text-cyan-300">{formatCurrency(opportunities.filter((o) => o.stage === 'CLOSED_WON').reduce((a, b) => a + b.value, 0))}</p></GlassCard>
+        <GlassCard title="This Month Progress"><p className="text-sm text-slate-300">This Month: {opportunities.filter((o) => o.stage === 'CLOSED_WON').length} / 4 Orders</p></GlassCard>
       </div>
+      <GlassCard title="Recent Activity">{activities.map((a) => <p key={a.id} className="mb-2 text-sm text-slate-300">• {a.message}</p>)}</GlassCard>
     </div>
   );
 }
 
 function OwnerDashboard() {
-  const organizations = useOrganizations({});
   const opportunities = useOpportunities({});
-  const lanePenetration = getLanePenetration(organizations);
-  const stuckDeals = getStuckOpportunities(opportunities);
+  const organizations = useOrganizations({});
+  const lane = getLanePenetration(organizations);
+  const nearClose = getNearCloseOpportunities(opportunities);
+  const stuck = getStuckOpportunities(opportunities);
+  const activities = useActivities({ limit: 4 });
 
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <StatCard label="Total Pipeline" value={formatCurrency(getOpenPipelineValue(opportunities))} />
-        <StatCard label="Closed Won MTD" value={formatCurrency(opportunities.filter((o) => o.stage === 'CLOSED_WON').reduce((t, o) => t + o.value, 0))} />
-        <StatCard label="Active Organizations" value={String(organizations.length)} />
-      </div>
-      <div className="grid gap-3 lg:grid-cols-3">
-        <GlassCard title="Lane Penetration" className="lg:col-span-2">
-          <p className="text-sm text-slate-300">Uniform: {lanePenetration.UNIFORM} · Travel Gear: {lanePenetration.TRAVEL_GEAR} · Team Store: {lanePenetration.TEAM_STORE} · Letterman: {lanePenetration.LETTERMAN}</p>
-        </GlassCard>
-        <GlassCard title="Stuck Deals">
-          <p className="text-2xl font-semibold text-cyan-300">{stuckDeals.length}</p>
-          <p className="text-xs text-slate-400">Decision pending at risk</p>
-        </GlassCard>
-      </div>
-    </div>
-  );
+  return <div className="space-y-3"><h2 className="text-3xl font-semibold tracking-tight">Today’s Focus</h2><div className="grid gap-3 sm:grid-cols-3"><StatCard label="Revenue at Risk" value={formatCurrency(stuck.reduce((t, o) => t + o.value, 0))} /><StatCard label="Near Close Pipeline" value={formatCurrency(nearClose.reduce((t, o) => t + o.value, 0))} /><StatCard label="Payments Pending" value={String(opportunities.filter((o) => o.stage === 'INVOICE_SENT').length)} /></div><div className="grid gap-3 lg:grid-cols-3"><GlassCard title="Next Actions / Strategic Alerts" className="lg:col-span-2"><p className="text-sm text-slate-300">{stuck.length} stuck deals and {nearClose.length} near-close deals require leadership action.</p></GlassCard><GlassCard title="Revenue Snapshot"><p className="text-2xl font-semibold text-cyan-300">{formatCurrency(getOpenPipelineValue(opportunities))}</p></GlassCard></div><div className="grid gap-3 lg:grid-cols-3"><GlassCard title="Lane Penetration" className="lg:col-span-2"><p className="text-sm text-slate-300">U {lane.UNIFORM} · T {lane.TRAVEL_GEAR} · S {lane.TEAM_STORE} · L {lane.LETTERMAN}</p></GlassCard><GlassCard title="Rep/Director Performance"><p className="text-sm text-slate-300">Top opportunities: {nearClose.slice(0, 2).map((o) => o.organizationName).join(', ') || 'No near-close deals'}</p></GlassCard></div><GlassCard title="Recent Activity">{activities.map((a) => <p key={a.id} className="mb-2 text-sm text-slate-300">• {a.message}</p>)}</GlassCard></div>;
 }
 
-function GenericDashboard({ role }: { role: Role }) {
-  const widgets = roleConfig[role].dashboardWidgets;
-  return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {widgets.map((w) => (
-          <GlassCard key={w} title={w}>
-            <p className="text-sm text-slate-300">Role-specific metric module</p>
-          </GlassCard>
-        ))}
-      </div>
-    </div>
-  );
+function DirectorDashboard() {
+  const opportunities = useOpportunities({});
+  const stuck = getStuckOpportunities(opportunities);
+  const nearClose = getNearCloseOpportunities(opportunities);
+  const activities = useActivities({ limit: 4 });
+
+  return <div className="space-y-3"><h2 className="text-3xl font-semibold tracking-tight">Today’s Focus</h2><div className="grid gap-3 sm:grid-cols-3"><StatCard label="Stuck Deals" value={String(stuck.length)} /><StatCard label="Reps Needing Coaching" value={String(Math.min(3, stuck.length + 1))} /><StatCard label="Near Close" value={String(nearClose.length)} /></div><div className="grid gap-3 lg:grid-cols-3"><GlassCard title="Rep Performance" className="lg:col-span-2"><p className="text-sm text-slate-300">Coach follow-up on decision pending and invoice stage deals.</p></GlassCard><GlassCard title="Territory Coverage"><p className="text-sm text-slate-300">Accounts Needing Action: {stuck.length + nearClose.length}</p></GlassCard></div><div className="grid gap-3 lg:grid-cols-3"><GlassCard title="Pipeline Snapshot"><p className="text-2xl font-semibold text-cyan-300">{formatCurrency(getOpenPipelineValue(opportunities))}</p></GlassCard><GlassCard title="Accounts Needing Action" className="lg:col-span-2">{stuck.slice(0, 3).map((o) => <p key={o.id} className="mb-2 text-sm text-slate-300">• {o.organizationName} — {o.nextAction}</p>)}</GlassCard></div><GlassCard title="Recent Activity">{activities.map((a) => <p key={a.id} className="mb-2 text-sm text-slate-300">• {a.message}</p>)}</GlassCard></div>;
+}
+
+function OpsDashboard() {
+  const orders = useOrders({});
+  const activities = useActivities({ limit: 4 });
+  const newOrders = orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW');
+  const blocked = orders.filter((o) => o.productionStatus === 'BLOCKED');
+  const ready = orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR');
+  const inProduction = orders.filter((o) => o.productionStatus === 'IN_PRODUCTION');
+
+  return <div className="space-y-3"><h2 className="text-3xl font-semibold tracking-tight">Today’s Focus</h2><div className="grid gap-3 sm:grid-cols-3"><StatCard label="New Orders" value={String(newOrders.length)} /><StatCard label="Missing Info" value={String(orders.filter((o) => o.missingInfo.length).length)} /><StatCard label="Blocked Orders" value={String(blocked.length)} /></div><div className="grid gap-3 lg:grid-cols-3"><GlassCard title="Ready for Vendor">{ready.map((o) => <p key={o.id} className="mb-2 text-sm text-slate-300">• {o.organizationName}</p>)}</GlassCard><GlassCard title="In Production">{inProduction.map((o) => <p key={o.id} className="mb-2 text-sm text-slate-300">• {o.organizationName}</p>)}</GlassCard><GlassCard title="Blockers">{blocked.map((o) => <p key={o.id} className="mb-2 text-sm text-slate-300">• {o.organizationName}</p>)}</GlassCard></div><GlassCard title="Recent Handoffs">{activities.map((a) => <p key={a.id} className="mb-2 text-sm text-slate-300">• {a.message}</p>)}</GlassCard></div>;
 }
 
 export function DashboardPage({ role }: { role: Role }) {
   if (role === 'REP') return <RepDashboard />;
   if (role === 'OWNER') return <OwnerDashboard />;
-  return <GenericDashboard role={role} />;
+  if (role === 'DIRECTOR') return <DirectorDashboard />;
+  return <OpsDashboard />;
 }

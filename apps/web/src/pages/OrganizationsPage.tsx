@@ -30,8 +30,8 @@ export function OrganizationsPage() {
     { key: 'rep', header: 'Assigned Rep', cell: (r) => r.assignedRep },
     { key: 'director', header: 'Assigned Director', cell: (r) => r.assignedDirector },
     { key: 'pipeline', header: 'Pipeline Value', cell: (r) => formatCurrency(r.pipelineValue) },
-    { key: 'lane', header: 'Lane Status', cell: (r) => <div className="flex flex-wrap gap-1">{Object.values(r.laneStatuses).map((ls, idx) => <LaneStatusBadge key={idx} status={ls.status} />)}</div> },
-    { key: 'next', header: 'Next Action', cell: (r) => <span className="text-xs text-slate-300">{r.nextAction}</span> },
+    { key: 'lane', header: 'Lane Status', cell: (r) => <div className="flex flex-wrap gap-1">{Object.entries(r.laneStatuses).map(([lane, ls]) => <span key={lane} className="inline-flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-[10px] text-slate-200">{lane[0]}<LaneStatusBadge status={ls.status} /></span>)}</div> },
+    { key: 'next', header: 'Next Action', cell: (r) => <span className="rounded-md bg-cyan-500/12 px-2 py-1 text-xs text-cyan-100">{r.nextAction}</span> },
     { key: 'last', header: 'Last Activity', cell: (r) => formatDate(r.lastActivity) },
     { key: 'status', header: 'Status', cell: (r) => <span className="text-xs uppercase tracking-[0.12em]">{r.status}</span> },
     {

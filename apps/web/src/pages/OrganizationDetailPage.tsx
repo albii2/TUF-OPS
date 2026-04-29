@@ -40,7 +40,7 @@ export function OrganizationDetailPage() {
                 <p className="text-lg font-semibold text-cyan-300">{formatCurrency(laneData.estimatedValue)}</p>
                 <p className="text-xs text-slate-400">Active Opps: {laneData.activeOpportunityCount}</p>
                 <p className="text-xs text-slate-300">Next: {laneData.nextAction}</p>
-                <Button className="w-full">Lane Action</Button>
+                <Button className="w-full">Attack This Lane</Button>
               </div>
             </Card>
           );
@@ -66,7 +66,7 @@ export function OrganizationDetailPage() {
         </Card>
       </div>
 
-      <Card title="Expansion Recommendation">
+      <Card title="Where We Can Grow This Account Next">
         <p className="text-sm text-slate-300">{org.expansionRecommendation}</p>
       </Card>
 

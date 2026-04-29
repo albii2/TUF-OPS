@@ -9,40 +9,40 @@ type RoleConfig = {
 
 export const allSidebarItems: Record<SidebarKey, { label: string; route: string }> = {
   dashboard: { label: 'Dashboard', route: '/dashboard' },
-  pipeline: { label: 'Pipeline', route: '/opportunities' },
+  pipeline: { label: 'Opportunities', route: '/opportunities' },
   organizations: { label: 'Organizations', route: '/organizations' },
   programs: { label: 'Programs', route: '/reports' },
   territory: { label: 'Territory', route: '/reports' },
-  invoices: { label: 'Invoices', route: '/orders' },
-  performance: { label: 'Performance', route: '/reports' },
-  messages: { label: 'Messages', route: '/reports' },
+  invoices: { label: 'Orders', route: '/orders' },
+  performance: { label: 'Team', route: '/reports' },
+  messages: { label: 'Earnings', route: '/reports' },
   ops_workspace: { label: 'Ops Workspace', route: '/ops-workspace' },
   settings: { label: 'Settings', route: '/settings' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   OWNER: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'programs', 'territory', 'invoices', 'performance', 'messages', 'ops_workspace', 'settings'],
-    dashboardWidgets: ['Total Pipeline', 'Closed Won MTD', 'Lane Penetration', 'Stuck Deals', 'Top Opportunities', 'Rep/Director Performance'],
-    primaryActions: ['Assign Deals', 'Review Revenue', 'Unblock Stuck Deals'],
+    sidebarItems: ['dashboard', 'organizations', 'pipeline', 'invoices', 'ops_workspace', 'programs', 'settings'],
+    dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
+    primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/reports', '/settings', '/ops-workspace'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'territory', 'performance', 'messages', 'settings'],
-    dashboardWidgets: ['Territory Pipeline', 'Rep Performance', 'Team Action Issues', 'Near-Close by Rep', 'Territory Map'],
-    primaryActions: ['Coach Rep', 'Escalate Blocker', 'Rebalance Territory'],
+    sidebarItems: ['dashboard', 'territory', 'performance', 'organizations', 'pipeline', 'programs', 'settings'],
+    dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
+    primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/reports', '/settings'],
   },
   REP: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'programs', 'invoices', 'messages', 'settings'],
-    dashboardWidgets: ['Today Focus', 'Next Actions', 'Near Close', 'Pipeline Snapshot', 'Revenue', 'Recent Activity', 'This Month'],
-    primaryActions: ['Call', 'Text', 'Email', 'Mark Done'],
+    sidebarItems: ['dashboard', 'organizations', 'pipeline', 'invoices', 'messages', 'settings'],
+    dashboardWidgets: ['Deals Need Action', 'Near Close', 'Payments Pending', 'This Month Progress'],
+    primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/settings'],
   },
   OPS: {
-    sidebarItems: ['dashboard', 'organizations', 'programs', 'invoices', 'performance', 'ops_workspace', 'settings'],
-    dashboardWidgets: ['New Orders', 'Needs Review', 'Ready for Vendor', 'In Production', 'Blocked', 'Completed'],
-    primaryActions: ['Review Order', 'Route Vendor', 'Resolve Blocked'],
-    visiblePages: ['/dashboard', '/organizations', '/orders', '/ops-workspace', '/settings'],
+    sidebarItems: ['ops_workspace', 'invoices', 'territory', 'programs', 'settings'],
+    dashboardWidgets: ['New Orders', 'Missing Info', 'Blocked Orders', 'Ready for Vendor'],
+    primaryActions: ['Resolve Missing Info', 'Route Vendor', 'Clear Blockers'],
+    visiblePages: ['/dashboard', '/organizations', '/orders', '/ops-workspace', '/settings', '/reports'],
   },
 };

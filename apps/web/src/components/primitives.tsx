@@ -41,7 +41,7 @@ export function DataTable<T>({ columns, rows, onRowClick, getRowId }: { columns:
   return (
     <div className="overflow-auto rounded-xl border border-slate-800">
       <table className="min-w-full text-left text-sm">
-        <thead className="bg-slate-950/70 text-[11px] uppercase tracking-[0.18em] text-slate-400">
+        <thead className="bg-slate-950/70 text-[11px] tracking-[0.06em] text-slate-300">
           <tr>
             {columns.map((column) => (
               <th key={column.key} className={`px-3 py-2 ${column.className ?? ''}`}>{column.header}</th>
@@ -77,16 +77,16 @@ export function Pagination({ page, totalPages, onPageChange }: { page: number; t
 }
 
 export function LaneBadge({ lane }: { lane: RevenueLane }) {
-  return <span className="rounded-md border border-cyan-400/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-cyan-200">{lane.replace('_', ' ')}</span>;
+  return <span className="rounded-md border border-cyan-400/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-cyan-200">{lane.replace('_', ' ')}</span>;
 }
 
 export function StageBadge({ stage }: { stage: OpportunityStage }) {
-  return <span className="rounded-md border border-slate-600 bg-slate-800/70 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-200">{stage.split('_').join(' ')}</span>;
+  return <span className="rounded-md border border-slate-600 bg-slate-800/70 px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-slate-200">{stage.split('_').join(' ')}</span>;
 }
 
 export function LaneStatusBadge({ status }: { status: LaneStatus }) {
   const tone = status === 'WON' ? 'text-cyan-200 border-cyan-400/60' : status === 'ACTIVE' ? 'text-sky-200 border-sky-400/60' : status === 'LOST' ? 'text-slate-400 border-slate-600' : 'text-slate-300 border-slate-500';
-  return <span className={`rounded-md border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] ${tone}`}>{status}</span>;
+  return <span className={`rounded-md border px-2 py-1 text-[10px] font-semibold tracking-[0.08em] ${tone}`}>{status}</span>;
 }
 
 export function EmptyState({ title, description }: { title: string; description: string }) {
