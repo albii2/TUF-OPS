@@ -1,15 +1,17 @@
 import { Link, useParams } from 'react-router-dom';
-import { activities, orders, opportunities } from '../data/mockSalesData';
 import { Card, EmptyState } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
+import { useOrderById } from '../hooks/useOrders';
+import { useOpportunityById } from '../hooks/useOpportunities';
+import { useActivities } from '../hooks/useReports';
 
 export function OrderDetailPage() {
   const { id } = useParams();
-  const order = orders.find((o) => o.id === id);
-  if (!order) return <EmptyState title="Order not found" description="Select a valid order from the table." />;
+  const order = useOrderById(id);
+  const linkedOpportunity = useOpportunityById(order?.opportunityId);
+  const orderActivities = useActivities({ entityType: 'ORDER', entityId: id });
 
-  const linkedOpportunity = opportunities.find((o) => o.id === order.opportunityId);
-  const orderActivities = activities.filter((a) => a.entityId === order.id);
+  if (!order) return <EmptyState title="Order not found" description="Select a valid order from the table." />;
 
   return (
     <div className="space-y-3">

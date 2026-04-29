@@ -1,10 +1,11 @@
-import { opsWorkspaceQueue } from '../data/mockSalesData';
 import { Card, EmptyState } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
-
-const sections: Array<keyof typeof opsWorkspaceQueue> = ['NEEDS_REVIEW', 'READY_FOR_VENDOR', 'IN_PRODUCTION', 'BLOCKED', 'COMPLETED'];
+import { useOpsWorkspaceQueues } from '../hooks/useOrders';
 
 export function OpsWorkspacePage() {
+  const opsWorkspaceQueue = useOpsWorkspaceQueues();
+  const sections: Array<keyof typeof opsWorkspaceQueue> = ['NEEDS_REVIEW', 'READY_FOR_VENDOR', 'IN_PRODUCTION', 'BLOCKED', 'COMPLETED'];
+
   return (
     <div className="grid gap-3 lg:grid-cols-5">
       {sections.map((section) => (

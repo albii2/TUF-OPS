@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { orders } from '../data/mockSalesData';
 import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Select, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
+import { useOrders } from '../hooks/useOrders';
+import { getOrderRiskScore } from '../services/businessSelectors';
 
 const PAGE_SIZE = 8;
 
@@ -12,21 +13,17 @@ export function OrdersPage() {
   const [status, setStatus] = useState('ALL');
   const [page, setPage] = useState(1);
 
-  const statuses = useMemo(() => Array.from(new Set(orders.map((o) => o.productionStatus))), []);
-  const filtered = useMemo(
-    () =>
-      orders.filter((o) => {
-        const matchesSearch = [o.id, o.organizationName, o.vendor].join(' ').toLowerCase().includes(search.toLowerCase());
-        return matchesSearch && (status === 'ALL' || o.productionStatus === status);
-      }),
-    [search, status],
-  );
+  const allOrders = useOrders({});
+  const filtered = useOrders({ search, productionStatus: status as 'ALL' | 'NEEDS_REVIEW' | 'READY_FOR_VENDOR' | 'IN_PRODUCTION' | 'BLOCKED' | 'COMPLETED' });
+
+  const statuses = useMemo(() => Array.from(new Set(allOrders.map((o) => o.productionStatus))), [allOrders]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const prioritized = [...filtered].sort((a, b) => getOrderRiskScore(b) - getOrderRiskScore(a));
+  const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const columns: Column<(typeof orders)[number]>[] = [
+  const columns: Column<(typeof filtered)[number]>[] = [
     { key: 'order', header: 'Order', cell: (r) => r.id },
     { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
     { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lane={r.lane} /> },

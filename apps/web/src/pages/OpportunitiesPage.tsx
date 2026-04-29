@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { opportunityStages, opportunities, revenueLanes } from '../data/mockSalesData';
 import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Select, StageBadge, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
+import { useOpportunities, useOpportunityStages, useRevenueLanes } from '../hooks/useOpportunities';
+import { getNearCloseOpportunities } from '../services/businessSelectors';
 
 const PAGE_SIZE = 8;
 
@@ -15,23 +16,28 @@ export function OpportunitiesPage() {
   const [sport, setSport] = useState('ALL');
   const [page, setPage] = useState(1);
 
-  const reps = useMemo(() => Array.from(new Set(opportunities.map((o) => o.assignedRep))), []);
-  const sports = useMemo(() => Array.from(new Set(opportunities.map((o) => o.sport))), []);
+  const allOpportunities = useOpportunities({});
+  const filtered = useOpportunities({
+    search,
+    stage: stage as 'ALL' | 'LEAD_ASSIGNED' | 'CONTACTED' | 'DISCOVERY' | 'MOCKUP_REQUESTED' | 'MOCKUP_DELIVERED' | 'INVOICE_SENT' | 'DECISION_PENDING' | 'CLOSED_WON' | 'CLOSED_LOST',
+    lane: lane as 'ALL' | 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN',
+    rep,
+    sport,
+  });
+  const opportunityStages = useOpportunityStages();
+  const revenueLanes = useRevenueLanes();
 
-  const filtered = useMemo(
-    () =>
-      opportunities.filter((o) => {
-        const matchesSearch = [o.title, o.organizationName].join(' ').toLowerCase().includes(search.toLowerCase());
-        return matchesSearch && (stage === 'ALL' || o.stage === stage) && (lane === 'ALL' || o.lane === lane) && (rep === 'ALL' || o.assignedRep === rep) && (sport === 'ALL' || o.sport === sport);
-      }),
-    [search, stage, lane, rep, sport],
-  );
+  const reps = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.assignedRep))), [allOpportunities]);
+  const sports = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.sport))), [allOpportunities]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const nearCloseSorted = getNearCloseOpportunities(filtered);
+  const remainder = filtered.filter((opp) => !nearCloseSorted.some((n) => n.id === opp.id));
+  const prioritized = [...nearCloseSorted, ...remainder];
+  const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const columns: Column<(typeof opportunities)[number]>[] = [
+  const columns: Column<(typeof filtered)[number]>[] = [
     { key: 'opp', header: 'Opportunity', cell: (r) => r.title },
     { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
     { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lane={r.lane} /> },

@@ -17,10 +17,16 @@ import {
   ReportsPage,
   SettingsPage,
 } from './pages/CrudPages';
-import type { AppUser } from './types';
+import type { AppUser, Role } from './types';
 
 function Protected({ user, children }: { user: AppUser | null; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null; allowedRoles: Role[]; children: JSX.Element }) {
+  if (!user) return <Navigate to="/login" replace />;
+  if (!allowedRoles.includes(user.role)) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -47,7 +53,14 @@ export default function App() {
         <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
         <Route path="/orders" element={<OrdersPage />} />
         <Route path="/orders/:id" element={<OrderDetailPage />} />
-        <Route path="/ops-workspace" element={<OpsWorkspacePage />} />
+        <Route
+          path="/ops-workspace"
+          element={
+            <RoleProtected user={user} allowedRoles={['OWNER', 'OPS']}>
+              <OpsWorkspacePage />
+            </RoleProtected>
+          }
+        />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Route>

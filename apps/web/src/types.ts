@@ -9,6 +9,7 @@ export type SidebarKey =
   | 'invoices'
   | 'performance'
   | 'messages'
+  | 'ops_workspace'
   | 'settings';
 
 export type AppUser = {

@@ -1,8 +1,10 @@
-import { reportsSummary } from '../data/mockSalesData';
 import { Button, Card, LaneBadge } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
+import { useReports } from '../hooks/useReports';
 
 export function ReportsPage() {
+  const reportsSummary = useReports();
+
   return (
     <div className="space-y-3">
       <div className="grid gap-3 md:grid-cols-2">

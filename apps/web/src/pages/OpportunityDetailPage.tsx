@@ -1,9 +1,10 @@
 import { Link, useParams } from 'react-router-dom';
-import { activities, opportunityStages, opportunities } from '../data/mockSalesData';
 import { Button, Card, EmptyState, StageBadge } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
+import { useOpportunityById, useOpportunityStages } from '../hooks/useOpportunities';
+import { useActivities } from '../hooks/useReports';
 
-const stageCtas: Record<(typeof opportunityStages)[number], string> = {
+const stageCtas = {
   LEAD_ASSIGNED: 'Contact coach',
   CONTACTED: 'Log discovery',
   DISCOVERY: 'Request mockup',
@@ -13,14 +14,14 @@ const stageCtas: Record<(typeof opportunityStages)[number], string> = {
   DECISION_PENDING: 'Push decision',
   CLOSED_WON: 'View order',
   CLOSED_LOST: 'Review loss reason',
-};
+} as const;
 
 export function OpportunityDetailPage() {
   const { id } = useParams();
-  const opp = opportunities.find((o) => o.id === id);
+  const opp = useOpportunityById(id);
+  const opportunityStages = useOpportunityStages();
+  const dealActivity = useActivities({ entityType: 'OPPORTUNITY', entityId: id });
   if (!opp) return <EmptyState title="Opportunity not found" description="Select another opportunity from the pipeline table." />;
-
-  const dealActivity = activities.filter((a) => a.entityId === opp.id);
 
   return (
     <div className="space-y-3">

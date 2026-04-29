@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { organizations } from '../data/mockSalesData';
 import { Button, Card, DataTable, EmptyState, Input, LaneStatusBadge, Pagination, Select, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
+import { useOrganizations } from '../hooks/useOrganizations';
+import { getOrganizationPriorityScore } from '../services/businessSelectors';
 
 const PAGE_SIZE = 8;
 
@@ -13,24 +14,17 @@ export function OrganizationsPage() {
   const [rep, setRep] = useState('ALL');
   const [page, setPage] = useState(1);
 
-  const reps = useMemo(() => Array.from(new Set(organizations.map((o) => o.assignedRep))), []);
+  const allOrganizations = useOrganizations({});
+  const filtered = useOrganizations({ search, status: status as 'ALL' | 'ACTIVE' | 'WATCH' | 'NEW', rep });
 
-  const filtered = useMemo(
-    () =>
-      organizations.filter((o) => {
-        const matchesSearch = [o.name, o.city, o.state, o.assignedRep, o.assignedDirector].join(' ').toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = status === 'ALL' || o.status === status;
-        const matchesRep = rep === 'ALL' || o.assignedRep === rep;
-        return matchesSearch && matchesStatus && matchesRep;
-      }),
-    [search, status, rep],
-  );
+  const reps = useMemo(() => Array.from(new Set(allOrganizations.map((o) => o.assignedRep))), [allOrganizations]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const prioritized = [...filtered].sort((a, b) => getOrganizationPriorityScore(b) - getOrganizationPriorityScore(a));
+  const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const columns: Column<(typeof organizations)[number]>[] = [
+  const columns: Column<(typeof filtered)[number]>[] = [
     { key: 'organization', header: 'Organization', cell: (r) => <div><p className="font-medium">{r.name}</p><p className="text-xs text-slate-400">{r.id}</p></div> },
     { key: 'city', header: 'City/State', cell: (r) => `${r.city}, ${r.state}` },
     { key: 'rep', header: 'Assigned Rep', cell: (r) => r.assignedRep },

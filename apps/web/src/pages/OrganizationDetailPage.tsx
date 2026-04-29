@@ -1,16 +1,21 @@
 import { Link, useParams } from 'react-router-dom';
-import { activities, opportunities, orders, organizations, revenueLanes } from '../data/mockSalesData';
 import { Button, Card, EmptyState, LaneBadge, LaneStatusBadge } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
+import { useOrganizationById } from '../hooks/useOrganizations';
+import { useOpportunities } from '../hooks/useOpportunities';
+import { useOrders } from '../hooks/useOrders';
+import { useActivities } from '../hooks/useReports';
+import { getRevenueLanes } from '../services/opportunitiesService';
 
 export function OrganizationDetailPage() {
   const { id } = useParams();
-  const org = organizations.find((o) => o.id === id);
-  if (!org) return <EmptyState title="Organization not found" description="Check the selected account and try again." />;
+  const org = useOrganizationById(id);
+  const activeOpportunities = useOpportunities({}).filter((o) => o.organizationId === id && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage));
+  const orgOrders = useOrders({}).filter((o) => o.organizationId === id);
+  const orgActivity = useActivities({ entityType: 'ORGANIZATION', entityId: id, limit: 5 });
+  const revenueLanes = getRevenueLanes();
 
-  const activeOpportunities = opportunities.filter((o) => o.organizationId === org.id && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage));
-  const orgOrders = orders.filter((o) => o.organizationId === org.id);
-  const orgActivity = activities.filter((a) => a.entityId === org.id).slice(0, 5);
+  if (!org) return <EmptyState title="Organization not found" description="Check the selected account and try again." />;
 
   return (
     <div className="space-y-3">
