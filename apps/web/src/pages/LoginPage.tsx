@@ -22,7 +22,7 @@ export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void })
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-tuf-texture p-4">
-      <form onSubmit={onSubmit} className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-950/76 p-8 text-center shadow-[0_26px_70px_rgba(3,9,24,0.8)] backdrop-blur">
+      <form onSubmit={onSubmit} className="w-full max-w-sm rounded-xl border border-slate-800 bg-slate-950/76 p-6 text-center shadow-[0_26px_70px_rgba(3,9,24,0.8)] backdrop-blur">
         <TufLogo />
         <p className="mt-4 text-xs uppercase tracking-[0.2em] text-slate-400">Secure Operator Access</p>
         <input
@@ -39,6 +39,7 @@ export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void })
         </button>
         {error ? <p className="mt-3 text-xs text-rose-300">{error}</p> : <p className="mt-3 text-xs text-slate-500">4-digit PIN access</p>}
       </form>
+      <img src="/tuf-mark.svg" alt="" className="pointer-events-none mt-6 w-10 opacity-20" />
     </div>
   );
 }
