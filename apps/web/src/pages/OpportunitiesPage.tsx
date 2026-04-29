@@ -38,14 +38,14 @@ export function OpportunitiesPage() {
   const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const columns: Column<(typeof filtered)[number]>[] = [
-    { key: 'opp', header: 'Opportunity', cell: (r) => r.title },
-    { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
+    { key: 'opp', header: 'Deal', cell: (r) => <div><p className='font-semibold text-slate-100'>{r.title}</p><p className='text-xs text-slate-400'>{r.organizationName}</p></div> },
+    { key: 'org', header: 'Account', cell: (r) => r.organizationName },
     { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lane={r.lane} /> },
     { key: 'sport', header: 'Sport', cell: (r) => r.sport },
     { key: 'stage', header: 'Stage', cell: (r) => <StageBadge stage={r.stage} /> },
     { key: 'value', header: 'Value', cell: (r) => formatCurrency(r.value) },
     { key: 'rep', header: 'Assigned Rep', cell: (r) => r.assignedRep },
-    { key: 'next', header: 'Next Action', cell: (r) => <span className="text-xs text-slate-300">{r.nextAction}</span> },
+    { key: 'next', header: 'Next Action', cell: (r) => <span className='rounded-md bg-cyan-500/10 px-2 py-1 text-xs text-cyan-100'>{r.nextAction}</span> },
     { key: 'last', header: 'Last Activity', cell: (r) => formatDate(r.lastActivity) },
     { key: 'prob', header: 'Close Probability', cell: (r) => `${r.closeProbability}%` },
     {
@@ -65,7 +65,7 @@ export function OpportunitiesPage() {
   };
 
   return (
-    <Card title="Opportunities">
+    <Card title="Pipeline Opportunities">
       <div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span>{filtered.length} opportunities</span><button onClick={clearFilters} className="text-cyan-300">Reset filters</button></div>
       <div className="mb-3 grid gap-2 xl:grid-cols-6">
         <Input placeholder="Search opportunities" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />

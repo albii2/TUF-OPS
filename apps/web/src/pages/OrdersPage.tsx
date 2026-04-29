@@ -24,19 +24,19 @@ export function OrdersPage() {
   const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const columns: Column<(typeof filtered)[number]>[] = [
-    { key: 'order', header: 'Order', cell: (r) => r.id },
+    { key: 'order', header: 'Order', cell: (r) => <div><p className='font-semibold text-slate-100'>{r.id}</p><p className='text-xs text-slate-400'>{r.organizationName}</p></div> },
     { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
     { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lane={r.lane} /> },
     { key: 'value', header: 'Value', cell: (r) => formatCurrency(r.value) },
-    { key: 'status', header: 'Production Status', cell: (r) => r.productionStatus },
-    { key: 'missing', header: 'Missing Info', cell: (r) => (r.missingInfo.length ? r.missingInfo.join(', ') : 'None') },
+    { key: 'status', header: 'Production Status', cell: (r) => <span className={r.productionStatus==='BLOCKED' ? 'text-rose-200' : 'text-slate-200'}>{r.productionStatus.replace(/_/g,' ')}</span> },
+    { key: 'missing', header: 'Blocking Items', cell: (r) => (r.missingInfo.length ? r.missingInfo.join(', ') : 'Clear') },
     { key: 'vendor', header: 'Vendor', cell: (r) => r.vendor },
     { key: 'created', header: 'Created Date', cell: (r) => formatDate(r.createdDate) },
     { key: 'actions', header: 'Actions', cell: (r) => <button className="text-xs text-cyan-300" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${r.id}`); }}>Open</button> },
   ];
 
   return (
-    <Card title="Orders">
+    <Card title="Order Execution Queue">
       <div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span>{filtered.length} orders</span><button onClick={() => { setSearch(''); setStatus('ALL'); setPage(1); }} className="text-cyan-300">Reset filters</button></div>
       <div className="mb-3 grid gap-2 lg:grid-cols-[1fr_220px]">
         <Input placeholder="Search order / org / vendor" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />

@@ -18,6 +18,7 @@ import {
   SettingsPage,
 } from './pages/CrudPages';
 import type { AppUser, Role } from './types';
+import { roleConfig } from './config/roles';
 
 function Protected({ user, children }: { user: AppUser | null; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
@@ -27,6 +28,12 @@ function Protected({ user, children }: { user: AppUser | null; children: JSX.Ele
 function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null; allowedRoles: Role[]; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (!allowedRoles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
+function PageProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
+  if (!user) return <Navigate to="/login" replace />;
+  if (!roleConfig[user.role].visiblePages.includes(path)) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -45,14 +52,14 @@ export default function App() {
         }
       >
         <Route path="/dashboard" element={dashboard} />
-        <Route path="/organizations" element={<OrganizationsPage />} />
-        <Route path="/organizations/new" element={<OrganizationNewPage />} />
-        <Route path="/organizations/:id" element={<OrganizationDetailPage />} />
-        <Route path="/opportunities" element={<OpportunitiesPage />} />
-        <Route path="/opportunities/new" element={<OpportunityNewPage />} />
-        <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/orders/:id" element={<OrderDetailPage />} />
+        <Route path="/organizations" element={<PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected>} />
+        <Route path="/organizations/new" element={<PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected>} />
+        <Route path="/organizations/:id" element={<PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected>} />
+        <Route path="/opportunities" element={<PageProtected user={user} path="/opportunities"><OpportunitiesPage /></PageProtected>} />
+        <Route path="/opportunities/new" element={<PageProtected user={user} path="/opportunities"><OpportunityNewPage /></PageProtected>} />
+        <Route path="/opportunities/:id" element={<PageProtected user={user} path="/opportunities"><OpportunityDetailPage /></PageProtected>} />
+        <Route path="/orders" element={<PageProtected user={user} path="/orders"><OrdersPage /></PageProtected>} />
+        <Route path="/orders/:id" element={<PageProtected user={user} path="/orders"><OrderDetailPage /></PageProtected>} />
         <Route
           path="/ops-workspace"
           element={
@@ -61,8 +68,8 @@ export default function App() {
             </RoleProtected>
           }
         />
-        <Route path="/reports" element={<ReportsPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/reports" element={<PageProtected user={user} path="/reports"><ReportsPage /></PageProtected>} />
+        <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

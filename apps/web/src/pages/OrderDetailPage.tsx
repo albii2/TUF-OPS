@@ -15,7 +15,7 @@ export function OrderDetailPage() {
 
   return (
     <div className="space-y-3">
-      <Card title="Order Header">
+      <Card title="Order Execution Summary">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-lg font-semibold">{order.id}</p>
@@ -26,25 +26,25 @@ export function OrderDetailPage() {
       </Card>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Linked Opportunity" className="lg:col-span-2">
+        <Card title="Source Opportunity" className="lg:col-span-2">
           {linkedOpportunity ? <Link className="text-cyan-300" to={`/opportunities/${linkedOpportunity.id}`}>{linkedOpportunity.title}</Link> : <p className="text-slate-400">No linked opportunity.</p>}
         </Card>
-        <Card title="Production Status"><p className="text-sm text-slate-200">{order.productionStatus}</p></Card>
+        <Card title="Current Production Stage"><p className="text-sm text-slate-200">{order.productionStatus}</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Items Summary" className="lg:col-span-2"><p className="text-sm text-slate-400">Items and quantities placeholder.</p></Card>
+        <Card title="What We Are Producing" className="lg:col-span-2"><p className="text-sm text-slate-400">Items and quantities placeholder.</p></Card>
         <Card title="Roster / Upload"><p className="text-sm text-slate-400">Roster upload placeholder.</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Vendor Notes" className="lg:col-span-2"><p className="text-sm text-slate-300">{order.vendorNotes}</p></Card>
-        <Card title="Missing Info Checklist">
+        <Card title="Blockers To Clear">
           {order.missingInfo.length ? <ul className="list-disc pl-4 text-sm text-slate-300">{order.missingInfo.map((item) => <li key={item}>{item}</li>)}</ul> : <p className="text-sm text-slate-400">No blockers.</p>}
         </Card>
       </div>
 
-      <Card title="Activity Feed">
+      <Card title="Ops Activity Timeline">
         <div className="space-y-2 text-sm">
           {orderActivities.length ? orderActivities.map((a) => <div key={a.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{a.message}<p className="text-xs text-slate-400">{a.timestamp} · {a.user}</p></div>) : <p className="text-slate-400">No order activity yet.</p>}
         </div>

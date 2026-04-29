@@ -19,7 +19,7 @@ export function OrganizationDetailPage() {
 
   return (
     <div className="space-y-3">
-      <Card title="Account Header">
+      <Card title="Account Growth Summary">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-lg font-semibold">{org.name}</p>
@@ -48,7 +48,7 @@ export function OrganizationDetailPage() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Active Opportunities" className="lg:col-span-2">
+        <Card title="Open Deals Driving Revenue" className="lg:col-span-2">
           {activeOpportunities.length === 0 ? <p className="text-sm text-slate-400">No active opportunities.</p> : (
             <div className="space-y-2 text-sm">
               {activeOpportunities.map((opp) => (
@@ -60,9 +60,9 @@ export function OrganizationDetailPage() {
             </div>
           )}
         </Card>
-        <Card title="Orders Summary">
+        <Card title="Execution Throughput">
           <p className="text-2xl font-semibold text-cyan-300">{orgOrders.length}</p>
-          <p className="text-xs text-slate-400">Open order records for this organization</p>
+          <p className="text-xs text-slate-400">Orders currently tied to this account</p>
         </Card>
       </div>
 
@@ -70,7 +70,7 @@ export function OrganizationDetailPage() {
         <p className="text-sm text-slate-300">{org.expansionRecommendation}</p>
       </Card>
 
-      <Card title="Notes / Activity Feed">
+      <Card title="Activity & Relationship Signals">
         <div className="space-y-2 text-sm">
           {orgActivity.length ? orgActivity.map((entry) => (
             <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">

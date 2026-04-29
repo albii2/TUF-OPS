@@ -25,7 +25,7 @@ export function OpportunityDetailPage() {
 
   return (
     <div className="space-y-3">
-      <Card title="Deal Header">
+      <Card title="Deal Summary">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-lg font-semibold">{opp.title}</p>
@@ -39,7 +39,7 @@ export function OpportunityDetailPage() {
         </div>
       </Card>
 
-      <Card title="Stage Progress">
+      <Card title="Close Path Progress">
         <div className="grid gap-2 md:grid-cols-3 xl:grid-cols-5">
           {opportunityStages.map((stage) => (
             <div key={stage} className={`rounded-md border p-2 ${stage === opp.stage ? 'border-cyan-400 bg-cyan-500/15' : 'border-slate-800 bg-slate-950/70'}`}>
@@ -51,11 +51,11 @@ export function OpportunityDetailPage() {
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{opp.nextAction}</p></Card>
-        <Card title="Stage-specific CTA"><Button className="w-full">{stageCtas[opp.stage]}</Button></Card>
+        <Card title="Best Next Move"><Button className="w-full">{stageCtas[opp.stage]}</Button></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Activity Feed" className="lg:col-span-2">
+        <Card title="Decision Timeline" className="lg:col-span-2">
           <div className="space-y-2 text-sm">
             {dealActivity.length ? dealActivity.map((entry) => <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{entry.message}<p className="text-xs text-slate-400">{entry.timestamp} · {entry.user}</p></div>) : <p className="text-slate-400">No activity entries yet.</p>}
           </div>
@@ -64,7 +64,7 @@ export function OpportunityDetailPage() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Priority close step: align invoice/payment timing and confirm buyer decision path.</p></Card>
+        <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Priority close step: align invoice/payment timing and confirm buyer decision path.</p></Card>
         <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full">Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200">Closed Lost</Button></div></Card>
       </div>
     </div>
