@@ -11,11 +11,11 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
   return (
     <div className="min-h-screen bg-tuf-texture text-slate-100">
       <div className="mx-auto grid min-h-screen max-w-[1500px] grid-cols-1 md:grid-cols-[230px_1fr]">
-        <aside className="hidden border-r border-slate-800/90 bg-slate-950/74 p-3 md:block">
-          <div className="rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+        <aside className="hidden border-r border-slate-800/90 bg-slate-950/76 p-3 md:block">
+          <div className="rounded-xl border border-slate-800 bg-slate-900/65 p-3">
             <TufLogo compact />
           </div>
-          <nav className="mt-4 space-y-1">
+          <nav className="mt-4 space-y-1.5">
             {config.sidebarItems.map((item) => {
               const nav = allSidebarItems[item];
               return (
@@ -23,7 +23,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
                   key={item}
                   to={nav.route}
                   className={({ isActive }) =>
-                    `block rounded-lg px-3 py-2 text-sm ${isActive ? 'bg-cyan-400/18 text-cyan-100 border border-cyan-500/40' : 'text-slate-300 hover:bg-slate-800/75'}`
+                    `block rounded-lg border px-3 py-2 text-sm transition ${isActive ? 'border-cyan-400/50 bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-100 shadow-[0_0_25px_rgba(34,211,238,0.18)]' : 'border-transparent text-slate-300 hover:border-slate-700 hover:bg-slate-800/65'}`
                   }
                 >
                   {nav.label}
@@ -37,7 +37,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           <header className="mb-4 flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-900/72 p-2.5 backdrop-blur">
             <input
               className="h-10 flex-1 rounded-lg border border-slate-700 bg-slate-950/80 px-3 text-sm text-slate-100 placeholder:text-slate-500"
-              placeholder="Search schools, deals, reps..."
+              placeholder="Search schools, deals..."
             />
             <select
               className="h-10 rounded-lg border border-slate-700 bg-slate-950/85 px-2 text-xs"

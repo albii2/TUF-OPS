@@ -10,20 +10,21 @@ body {
   margin: 0;
   min-height: 100vh;
   color: #e2e8f0;
-  background: #040712;
+  background: #02040a;
 }
 
 .bg-tuf-texture {
   background-image:
-    radial-gradient(circle at 14% 18%, rgba(14, 116, 244, 0.2) 0%, rgba(14, 116, 244, 0) 36%),
-    radial-gradient(circle at 84% 12%, rgba(6, 182, 212, 0.12) 0%, rgba(6, 182, 212, 0) 33%),
-    linear-gradient(180deg, #03050d 0%, #070d1d 45%, #050913 100%),
-    repeating-linear-gradient(45deg, rgba(148, 163, 184, 0.02) 0, rgba(148, 163, 184, 0.02) 2px, transparent 2px, transparent 8px);
+    radial-gradient(circle at 20% 10%, rgba(20, 133, 255, 0.24) 0%, rgba(20, 133, 255, 0) 38%),
+    radial-gradient(circle at 85% 12%, rgba(8, 187, 255, 0.18) 0%, rgba(8, 187, 255, 0) 33%),
+    radial-gradient(circle at 60% 70%, rgba(56, 35, 104, 0.12) 0%, rgba(56, 35, 104, 0) 34%),
+    linear-gradient(180deg, #03050c 0%, #050915 45%, #060913 100%),
+    repeating-linear-gradient(45deg, rgba(148, 163, 184, 0.018) 0, rgba(148, 163, 184, 0.018) 2px, transparent 2px, transparent 8px);
 }
 
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid rgba(34, 211, 238, 0.7);
-  outline-offset: 1px;
+  outline: 2px solid rgba(34, 211, 238, 0.72);
+  outline-offset: 2px;
 }
