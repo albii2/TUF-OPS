@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, DataTable, EmptyState, Input, LaneStatusBadge, Pagination, Select, type Column } from '../components/primitives';
+import { Button, Card, DataTable, EmptyState, Input, Pagination, Select, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { getOrganizationPriorityScore } from '../services/businessSelectors';
@@ -30,7 +30,7 @@ export function OrganizationsPage() {
     { key: 'rep', header: 'Assigned Rep', cell: (r) => r.assignedRep },
     { key: 'director', header: 'Assigned Director', cell: (r) => r.assignedDirector },
     { key: 'pipeline', header: 'Pipeline Value', cell: (r) => formatCurrency(r.pipelineValue) },
-    { key: 'lane', header: 'Lane Status', cell: (r) => <div className='flex flex-wrap gap-1'>{Object.entries(r.laneStatuses).map(([lane, ls]) => <span key={lane} className='inline-flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-[10px] text-slate-200'>{lane.replace('_',' ')} <LaneStatusBadge status={ls.status} /></span>)}</div> },
+    { key: 'lane', header: 'Lane Status', cell: (r) => <span className='text-xs text-slate-300'>U:{r.laneStatuses.UNIFORM.status} · T:{r.laneStatuses.TRAVEL_GEAR.status} · S:{r.laneStatuses.TEAM_STORE.status} · L:{r.laneStatuses.LETTERMAN.status}</span> },
     { key: 'next', header: 'Next Action', cell: (r) => <span className="rounded-md bg-cyan-500/12 px-2 py-1 text-xs text-cyan-100">{r.nextAction}</span> },
     { key: 'last', header: 'Last Activity', cell: (r) => formatDate(r.lastActivity) },
     { key: 'status', header: 'Status', cell: (r) => <span className="text-xs uppercase tracking-[0.12em]">{r.status}</span> },
