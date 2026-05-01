@@ -8,3 +8,5 @@ export { OpsWorkspacePage } from './OpsWorkspacePage';
 export { ReportsPage } from './ReportsPage';
 export { SettingsPage } from './SettingsPage';
 export { OrganizationNewPage, OpportunityNewPage } from './NewPages';
+
+export { TerritoryPage } from './TerritoryPage';

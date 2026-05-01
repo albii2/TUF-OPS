@@ -16,6 +16,7 @@ import {
   OpsWorkspacePage,
   ReportsPage,
   SettingsPage,
+  TerritoryPage,
 } from './pages/CrudPages';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
@@ -69,6 +70,7 @@ export default function App() {
           }
         />
         <Route path="/reports" element={<PageProtected user={user} path="/reports"><ReportsPage /></PageProtected>} />
+        <Route path="/territory" element={<PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected>} />
         <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
