@@ -12,7 +12,7 @@ export function OpsWorkspacePage() {
         <Card key={section} title={section.split('_').join(' ')}>
           {opsWorkspaceQueue[section].length === 0 ? <EmptyState title="No items" description="Queue clear." /> : (
             <div className="space-y-2 text-xs">
-              {opsWorkspaceQueue[section].map((order) => (
+              {opsWorkspaceQueue[section].map((order: any) => (
                 <div key={order.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-2">
                   <p className="font-medium text-slate-200">{order.id}</p>
                   <p className="text-slate-400">{order.organizationName}</p>

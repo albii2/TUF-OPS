@@ -69,10 +69,10 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
       <div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span>{filtered.length} opportunities</span><button onClick={clearFilters} className="text-cyan-300">Reset filters</button></div>
       <div className="mb-3 grid gap-2 xl:grid-cols-6">
         <Input placeholder="Search opportunities" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
-        <Select value={stage} onChange={(e) => { setStage(e.target.value); setPage(1); }}><option value="ALL">All Stages</option>{opportunityStages.map((s) => <option key={s}>{s}</option>)}</Select>
-        <Select value={lane} onChange={(e) => { setLane(e.target.value); setPage(1); }}><option value="ALL">All Lanes</option>{revenueLanes.map((l) => <option key={l}>{l}</option>)}</Select>
+        <Select value={stage} onChange={(e) => { setStage(e.target.value); setPage(1); }}><option value="ALL">All Stages</option>{opportunityStages.map((s: string) => <option key={s}>{s}</option>)}</Select>
+        <Select value={lane} onChange={(e) => { setLane(e.target.value); setPage(1); }}><option value="ALL">All Lanes</option>{revenueLanes.map((l: string) => <option key={l}>{l}</option>)}</Select>
         {forceRep ? <div className='h-10 rounded-lg border border-[#2b4368] bg-[#020b1e]/95 px-3 text-sm text-slate-300 flex items-center'>Rep: {forceRep}</div> : <Select value={rep} onChange={(e) => { setRep(e.target.value); setPage(1); }}><option value="ALL">All Reps</option>{reps.map((r) => <option key={r}>{r}</option>)}</Select>}
-        <Select value={sport} onChange={(e) => { setSport(e.target.value); setPage(1); }}><option value="ALL">All Sports</option>{sports.map((s) => <option key={s}>{s}</option>)}</Select>
+        <Select value={sport} onChange={(e) => { setSport(e.target.value); setPage(1); }}><option value="ALL">All Sports</option>{sports.map((s: string) => <option key={s}>{s}</option>)}</Select>
         <Button onClick={() => navigate('/opportunities/new')}>New Opportunity</Button>
       </div>
       {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(r) => navigate(`/opportunities/${r.id}`)} /> : <EmptyState title="No opportunities found" description="Adjust filters or search to broaden results." />}

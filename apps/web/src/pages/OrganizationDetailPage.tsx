@@ -17,7 +17,7 @@ export function OrganizationDetailPage() {
 
   const laneCoverageBySport = Array.from(new Set(useOpportunities({}).filter((o) => o.organizationId === id).map((o) => o.sport))).map((sport) => {
     const sportOpps = useOpportunities({}).filter((o) => o.organizationId === id && o.sport === sport);
-    const has = (lane: string) => sportOpps.some((o) => o.lane === lane);
+    const has = (lane: 'UNIFORM' | 'TEAM_STORE' | 'TRAVEL_GEAR' | 'LETTERMAN') => sportOpps.some((o) => o.lane === lane);
     return { sport, UNIFORM: has('UNIFORM'), TEAM_STORE: has('TEAM_STORE'), TRAVEL_GEAR: has('TRAVEL_GEAR'), LETTERMAN: has('LETTERMAN') };
   });
 

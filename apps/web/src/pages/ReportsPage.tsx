@@ -37,7 +37,7 @@ export function ReportsPage() {
 
       <Card title="Rep Performance">
         <div className="grid gap-2 md:grid-cols-2">
-          {reportsSummary.repPerformance.map((rep) => (
+          {reportsSummary.repPerformance.map((rep: any) => (
             <div key={rep.rep} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm">
               <p className="font-medium text-slate-100">{rep.rep}</p>
               <p className="text-slate-300">Pipeline: {formatCurrency(rep.pipeline)}</p>
