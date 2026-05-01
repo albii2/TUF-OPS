@@ -17,6 +17,10 @@ import {
   ReportsPage,
   SettingsPage,
   TerritoryPage,
+  TerritoryMapPage,
+  MyOpportunitiesPage,
+  TeamOpportunitiesPage,
+  TeamPerformancePage,
 } from './pages/CrudPages';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
@@ -59,6 +63,9 @@ export default function App() {
         <Route path="/opportunities" element={<PageProtected user={user} path="/opportunities"><OpportunitiesPage /></PageProtected>} />
         <Route path="/opportunities/new" element={<PageProtected user={user} path="/opportunities"><OpportunityNewPage /></PageProtected>} />
         <Route path="/opportunities/:id" element={<PageProtected user={user} path="/opportunities"><OpportunityDetailPage /></PageProtected>} />
+        <Route path="/my-opportunities" element={<PageProtected user={user} path="/my-opportunities"><MyOpportunitiesPage /></PageProtected>} />
+        <Route path="/team-opportunities" element={<PageProtected user={user} path="/team-opportunities"><TeamOpportunitiesPage /></PageProtected>} />
+        <Route path="/team-performance" element={<PageProtected user={user} path="/team-performance"><TeamPerformancePage /></PageProtected>} />
         <Route path="/orders" element={<PageProtected user={user} path="/orders"><OrdersPage /></PageProtected>} />
         <Route path="/orders/:id" element={<PageProtected user={user} path="/orders"><OrderDetailPage /></PageProtected>} />
         <Route
@@ -71,6 +78,7 @@ export default function App() {
         />
         <Route path="/reports" element={<PageProtected user={user} path="/reports"><ReportsPage /></PageProtected>} />
         <Route path="/territory" element={<PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected>} />
+        <Route path="/territory/map" element={<PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected>} />
         <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />

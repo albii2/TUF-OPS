@@ -1,5 +1,6 @@
 import { opportunities, type Opportunity, opportunityStages, type OpportunityStage, revenueLanes, type RevenueLane } from '../data/mockSalesData';
 import { DATA_MODE } from './dataMode';
+import { getStoredUser } from '../auth';
 
 export type OpportunityListParams = {
   search?: string;
@@ -12,6 +13,7 @@ export type OpportunityListParams = {
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
   if (DATA_MODE !== 'mock') return [];
 
+  const user = getStoredUser();
   return opportunities.filter((opp) => {
     const matchesSearch = (params.search ?? '').trim()
       ? [opp.title, opp.organizationName].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
@@ -20,7 +22,8 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
     const matchesLane = !params.lane || params.lane === 'ALL' || opp.lane === params.lane;
     const matchesRep = !params.rep || params.rep === 'ALL' || opp.assignedRep === params.rep;
     const matchesSport = !params.sport || params.sport === 'ALL' || opp.sport === params.sport;
-    return matchesSearch && matchesStage && matchesLane && matchesRep && matchesSport;
+    const roleScoped = !user ? true : user.role === 'OWNER' ? true : user.role === 'DIRECTOR' ? opp.assignedRep !== '' : opp.assignedRep === user.name;
+    return matchesSearch && matchesStage && matchesLane && matchesRep && matchesSport && roleScoped;
   });
 }
 

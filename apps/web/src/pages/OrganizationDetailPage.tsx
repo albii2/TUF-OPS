@@ -15,6 +15,12 @@ export function OrganizationDetailPage() {
   const orgActivity = useActivities({ entityType: 'ORGANIZATION', entityId: id, limit: 5 });
   const revenueLanes = getRevenueLanes();
 
+  const laneCoverageBySport = Array.from(new Set(useOpportunities({}).filter((o) => o.organizationId === id).map((o) => o.sport))).map((sport) => {
+    const sportOpps = useOpportunities({}).filter((o) => o.organizationId === id && o.sport === sport);
+    const has = (lane: 'UNIFORM' | 'TEAM_STORE' | 'TRAVEL_GEAR' | 'LETTERMAN') => sportOpps.some((o) => o.lane === lane);
+    return { sport, UNIFORM: has('UNIFORM'), TEAM_STORE: has('TEAM_STORE'), TRAVEL_GEAR: has('TRAVEL_GEAR'), LETTERMAN: has('LETTERMAN') };
+  });
+
   if (!org) return <EmptyState title="Organization not found" description="Check the selected account and try again." />;
 
   return (
@@ -65,6 +71,8 @@ export function OrganizationDetailPage() {
           <p className="text-xs text-slate-400">Orders currently tied to this account</p>
         </Card>
       </div>
+
+      <Card title="Lane Coverage by Sport"><div className='space-y-1 text-sm'>{laneCoverageBySport.map((x) => <p key={x.sport}>{x.sport}: U {x.UNIFORM ? '✅' : '❌'} · TS {x.TEAM_STORE ? '✅' : '❌'} · TG {x.TRAVEL_GEAR ? '✅' : '❌'} · L {x.LETTERMAN ? '✅' : '❌'}</p>)}</div></Card>
 
       <Card title="Where We Can Grow This Account Next">
         <p className="text-sm text-slate-300">{org.expansionRecommendation}</p>

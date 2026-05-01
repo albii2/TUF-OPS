@@ -53,3 +53,20 @@ export function getOpenPipelineValue(opportunities: Opportunity[]): number {
     .filter((opp) => !['CLOSED_WON', 'CLOSED_LOST'].includes(opp.stage))
     .reduce((total, opp) => total + opp.value, 0);
 }
+
+export function getUntouchedAccounts(organizations: Organization[]) {
+  return organizations.filter((o) => o.coverageStatus === 'UNTOUCHED');
+}
+
+export function getStaleAccounts(organizations: Organization[], thresholdDays = 14) {
+  const now = new Date('2026-05-01');
+  return organizations.filter((o) => {
+    const d = new Date(o.lastActivity);
+    const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
+    return diff >= thresholdDays;
+  });
+}
+
+export function getAccountsNeedingAction(organizations: Organization[]) {
+  return organizations.filter((o) => !!o.nextAction && o.coverageStatus !== 'CLOSED');
+}

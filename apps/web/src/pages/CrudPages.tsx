@@ -10,3 +10,7 @@ export { SettingsPage } from './SettingsPage';
 export { OrganizationNewPage, OpportunityNewPage } from './NewPages';
 
 export { TerritoryPage } from './TerritoryPage';
+export { TerritoryMapPage } from './TerritoryMapPage';
+export { MyOpportunitiesPage } from './MyOpportunitiesPage';
+export { TeamOpportunitiesPage } from './TeamOpportunitiesPage';
+export { TeamPerformancePage } from './TeamPerformancePage';

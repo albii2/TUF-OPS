@@ -1,5 +1,7 @@
 import { opsWorkspaceQueue, orders, type Order } from '../data/mockSalesData';
 import { DATA_MODE } from './dataMode';
+import { getStoredUser } from '../auth';
+import { opportunities } from '../data/mockSalesData';
 
 export type OrderListParams = {
   search?: string;
@@ -9,12 +11,15 @@ export type OrderListParams = {
 export function listOrders(params: OrderListParams = {}): Order[] {
   if (DATA_MODE !== 'mock') return [];
 
+  const user = getStoredUser();
   return orders.filter((order) => {
     const matchesSearch = (params.search ?? '').trim()
       ? [order.id, order.organizationName, order.vendor].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
       : true;
     const matchesStatus = !params.productionStatus || params.productionStatus === 'ALL' || order.productionStatus === params.productionStatus;
-    return matchesSearch && matchesStatus;
+    const repForOrder = opportunities.find((o) => o.id === order.opportunityId)?.assignedRep;
+    const roleScoped = !user ? true : user.role === 'OWNER' ? true : user.role === 'DIRECTOR' ? true : repForOrder === user.name;
+    return matchesSearch && matchesStatus && roleScoped;
   });
 }
 
