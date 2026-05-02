@@ -33,8 +33,8 @@ export function OrderDetailPage() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="What We Are Producing" className="lg:col-span-2"><p className="text-sm text-slate-400">Items and quantities placeholder.</p></Card>
-        <Card title="Roster / Upload"><p className="text-sm text-slate-400">Roster upload placeholder.</p></Card>
+        <Card title="What We Are Producing" className="lg:col-span-2"><p className="text-sm text-slate-400">Line items and quantities tracked from the linked order package.</p></Card>
+        <Card title="Roster / Upload"><p className="text-sm text-slate-400">Upload roster files and assignment sheets for production.</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">

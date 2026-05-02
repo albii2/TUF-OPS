@@ -48,7 +48,7 @@ export function ReportsPage() {
         </div>
       </Card>
 
-      <div className="flex gap-2"><Button>Export Weekly (placeholder)</Button><Button>Export Monthly (placeholder)</Button></div>
+      <div className="flex gap-2"><Button>Export Weekly Report</Button><Button>Export Monthly Report</Button></div>
     </div>
   );
 }

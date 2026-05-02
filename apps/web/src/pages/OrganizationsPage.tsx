@@ -56,8 +56,8 @@ export function OrganizationsPage() {
     { key: 'territory', header: 'Territory', cell: (r) => r.territory.toUpperCase() },
     { key: 'coverage', header: 'Coverage', cell: (r) => r.coverageStatus },
     { key: 'priority', header: 'Priority', cell: (r) => r.priority },
-    { key: 'pipeline', header: 'Pipeline Value', cell: (r) => formatCurrency(r.pipelineValue) },
-    { key: 'last', header: 'Last Activity', cell: (r) => formatDate(r.lastActivity) },
+    { key: 'pipeline', header: 'Pipeline Value', className: 'text-right min-w-[130px]', cell: (r) => formatCurrency(r.pipelineValue) },
+    { key: 'last', header: 'Last Activity', className: 'min-w-[120px] whitespace-nowrap', cell: (r) => formatDate(r.lastActivity) },
   ];
 
   const existingKeys = allOrganizations.map((o) => `${o.name}|${o.state}`.toLowerCase());

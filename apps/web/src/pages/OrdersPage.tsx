@@ -27,9 +27,9 @@ export function OrdersPage() {
     { key: 'order', header: 'Order', cell: (r) => <div><p className='font-semibold text-slate-100'>{r.id}</p><p className='text-xs text-slate-400'>{r.organizationName}</p></div> },
     { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
     { key: 'lane', header: 'Lane', className: 'min-w-[140px] whitespace-nowrap', cell: (r) => <LaneBadge lane={r.lane} /> },
-    { key: 'value', header: 'Value', cell: (r) => formatCurrency(r.value) },
+    { key: 'value', header: 'Value', className: 'text-right min-w-[120px]', cell: (r) => formatCurrency(r.value) },
     { key: 'status', header: 'Production Status', className: 'min-w-[170px] whitespace-nowrap', cell: (r) => <span className={r.productionStatus==='BLOCKED' ? 'text-rose-200' : 'text-slate-200'}>{r.productionStatus.replace(/_/g,' ')}</span> },
-    { key: 'missing', header: 'Blocking Items', cell: (r) => (r.missingInfo.length ? r.missingInfo.join(', ') : 'Clear') },
+    { key: 'missing', header: 'Blocking Items', className: 'min-w-[220px]', cell: (r) => (r.missingInfo.length ? r.missingInfo.join(', ') : 'Clear') },
     { key: 'vendor', header: 'Vendor', cell: (r) => r.vendor },
     { key: 'created', header: 'Created Date', className: 'min-w-[130px] whitespace-nowrap', cell: (r) => formatDate(r.createdDate) },
     { key: 'actions', header: 'Actions', cell: (r) => <button className="text-xs text-cyan-300" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${r.id}`); }}>Open</button> },
@@ -44,7 +44,7 @@ export function OrdersPage() {
       </div>
       {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(r) => navigate(`/orders/${r.id}`)} /> : <EmptyState title="No orders found" description="Try another filter combination." />}
       <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
-      <div className="mt-3"><Button>New Order (placeholder)</Button></div>
+      <div className="mt-3"><Button>Create Order</Button></div>
     </Card>
   );
 }

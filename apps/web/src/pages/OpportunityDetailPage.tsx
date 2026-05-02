@@ -60,7 +60,7 @@ export function OpportunityDetailPage() {
             {dealActivity.length ? dealActivity.map((entry) => <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{entry.message}<p className="text-xs text-slate-400">{entry.timestamp} · {entry.user}</p></div>) : <p className="text-slate-400">No activity entries yet.</p>}
           </div>
         </Card>
-        <Card title="Files / Mockup"><p className="text-sm text-slate-400">Mockups, files, and approvals placeholder.</p></Card>
+        <Card title="Files / Mockup"><p className="text-sm text-slate-400">Attach mockups, approvals, and production files here.</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
