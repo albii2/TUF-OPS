@@ -1,5 +1,12 @@
 import type { AppUser, Role } from './types';
 
+const ROLE_DEFAULT_USER: Record<Role, string> = {
+  OWNER: 'Coach Bradshaw',
+  DIRECTOR: 'Dana Holt',
+  REP: 'Maya Cole',
+  OPS: 'Taylor Reed',
+};
+
 const USER_KEY = 'tuf_ops_user_v1';
 const ALLOWED_ROLES: Role[] = ['OWNER', 'DIRECTOR', 'REP', 'OPS'];
 
@@ -34,7 +41,10 @@ export function loginWithPin(pin: string): AppUser | null {
 export function updateRole(role: Role): AppUser | null {
   const existing = getStoredUser();
   if (!existing) return null;
-  const updated = { ...existing, role };
+  const updated = {
+    name: existing.role === role ? existing.name : ROLE_DEFAULT_USER[role],
+    role,
+  };
   localStorage.setItem(USER_KEY, JSON.stringify(updated));
   return updated;
 }

@@ -62,3 +62,49 @@ export function normalizeLeadRow(rawRow: RawRow): NormalizedLead {
   normalized.validationErrors = validateLeadRow(normalized);
   return normalized;
 }
+
+export function parseCsvText(text: string): string[][] {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    const next = text[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        field += '"';
+        i += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === ',' && !inQuotes) {
+      row.push(field.trim());
+      field = '';
+      continue;
+    }
+
+    if ((char === '\n' || char === '\r') && !inQuotes) {
+      if (char === '\r' && next === '\n') i += 1;
+      row.push(field.trim());
+      field = '';
+      if (row.some((c) => c.length > 0)) rows.push(row);
+      row = [];
+      continue;
+    }
+
+    field += char;
+  }
+
+  if (field.length > 0 || row.length > 0) {
+    row.push(field.trim());
+    if (row.some((c) => c.length > 0)) rows.push(row);
+  }
+
+  return rows;
+}

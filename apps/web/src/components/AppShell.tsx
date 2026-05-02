@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { allSidebarItems, roleConfig } from '../config/roles';
-import type { AppUser, Role } from '../types';
-import { logout, updateRole } from '../auth';
+import type { AppUser } from '../types';
+import { logout } from '../auth';
 import { TufLogo } from './ui';
 
 export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUser | null) => void }) {
@@ -30,9 +30,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
         <main className="px-3 py-2 md:px-4 md:py-3">
           <header className="mb-3 flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-900/70 p-2">
             <input className="h-9 flex-1 rounded-md border border-slate-700 bg-slate-950/80 px-3 text-sm text-slate-100 placeholder:text-slate-500" placeholder="Search schools, deals..." />
-            <select className="h-9 rounded-md border border-slate-700 bg-slate-950/85 px-2 text-xs" value={user.role} onChange={(e) => { const next = updateRole(e.target.value as Role); if (next) setUser(next); }}>
-              {(['OWNER', 'DIRECTOR', 'REP', 'OPS'] as Role[]).map((role) => <option key={role} value={role}>{role}</option>)}
-            </select>
+            <div className="h-9 rounded-md border border-slate-700 bg-slate-950/85 px-2 text-xs flex items-center text-slate-300">{user.role}</div>
             <button className="h-9 rounded-md border border-cyan-400/45 bg-cyan-500/12 px-3 text-xs text-cyan-100" onClick={() => { logout(); setUser(null); navigate('/login'); }}>{user.name}</button>
           </header>
           <Outlet />

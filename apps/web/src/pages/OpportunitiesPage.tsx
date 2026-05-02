@@ -42,11 +42,11 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
     { key: 'org', header: 'Account', cell: (r) => r.organizationName },
     { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lane={r.lane} /> },
     { key: 'sport', header: 'Sport', cell: (r) => r.sport },
-    { key: 'stage', header: 'Stage', cell: (r) => <StageBadge stage={r.stage} /> },
+    { key: 'stage', header: 'Stage', className: 'min-w-[170px] whitespace-nowrap', cell: (r) => <StageBadge stage={r.stage} /> },
     { key: 'value', header: 'Value', cell: (r) => formatCurrency(r.value) },
     { key: 'rep', header: 'Assigned Rep', cell: (r) => r.assignedRep },
     { key: 'next', header: 'Next Action', cell: (r) => <span className='rounded-md bg-cyan-500/10 px-2 py-1 text-xs text-cyan-100'>{r.nextAction}</span> },
-    { key: 'last', header: 'Last Activity', cell: (r) => formatDate(r.lastActivity) },
+    { key: 'last', header: 'Last Activity', className: 'min-w-[130px] whitespace-nowrap', cell: (r) => formatDate(r.lastActivity) },
     { key: 'prob', header: 'Close Probability', cell: (r) => `${r.closeProbability}%` },
     {
       key: 'actions',

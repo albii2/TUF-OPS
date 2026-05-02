@@ -26,12 +26,12 @@ export function OrdersPage() {
   const columns: Column<(typeof filtered)[number]>[] = [
     { key: 'order', header: 'Order', cell: (r) => <div><p className='font-semibold text-slate-100'>{r.id}</p><p className='text-xs text-slate-400'>{r.organizationName}</p></div> },
     { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
-    { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lane={r.lane} /> },
+    { key: 'lane', header: 'Lane', className: 'min-w-[140px] whitespace-nowrap', cell: (r) => <LaneBadge lane={r.lane} /> },
     { key: 'value', header: 'Value', cell: (r) => formatCurrency(r.value) },
-    { key: 'status', header: 'Production Status', cell: (r) => <span className={r.productionStatus==='BLOCKED' ? 'text-rose-200' : 'text-slate-200'}>{r.productionStatus.replace(/_/g,' ')}</span> },
+    { key: 'status', header: 'Production Status', className: 'min-w-[170px] whitespace-nowrap', cell: (r) => <span className={r.productionStatus==='BLOCKED' ? 'text-rose-200' : 'text-slate-200'}>{r.productionStatus.replace(/_/g,' ')}</span> },
     { key: 'missing', header: 'Blocking Items', cell: (r) => (r.missingInfo.length ? r.missingInfo.join(', ') : 'Clear') },
     { key: 'vendor', header: 'Vendor', cell: (r) => r.vendor },
-    { key: 'created', header: 'Created Date', cell: (r) => formatDate(r.createdDate) },
+    { key: 'created', header: 'Created Date', className: 'min-w-[130px] whitespace-nowrap', cell: (r) => formatDate(r.createdDate) },
     { key: 'actions', header: 'Actions', cell: (r) => <button className="text-xs text-cyan-300" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${r.id}`); }}>Open</button> },
   ];
 

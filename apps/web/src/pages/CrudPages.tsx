@@ -14,3 +14,5 @@ export { TerritoryMapPage } from './TerritoryMapPage';
 export { MyOpportunitiesPage } from './MyOpportunitiesPage';
 export { TeamOpportunitiesPage } from './TeamOpportunitiesPage';
 export { TeamPerformancePage } from './TeamPerformancePage';
+
+export { EarningsPage } from './EarningsPage';

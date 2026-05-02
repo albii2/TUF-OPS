@@ -57,8 +57,6 @@ export function OrganizationsPage() {
     { key: 'coverage', header: 'Coverage', cell: (r) => r.coverageStatus },
     { key: 'priority', header: 'Priority', cell: (r) => r.priority },
     { key: 'pipeline', header: 'Pipeline Value', cell: (r) => formatCurrency(r.pipelineValue) },
-    { key: 'lane', header: 'Lane Status', cell: (r) => <span className='text-xs text-slate-300'>U:{r.laneStatuses.UNIFORM.status} · T:{r.laneStatuses.TRAVEL_GEAR.status} · S:{r.laneStatuses.TEAM_STORE.status} · L:{r.laneStatuses.LETTERMAN.status}</span> },
-    { key: 'next', header: 'Next Action', cell: (r) => <span className='rounded-md bg-cyan-500/12 px-2 py-1 text-xs text-cyan-100'>{r.nextAction}</span> },
     { key: 'last', header: 'Last Activity', cell: (r) => formatDate(r.lastActivity) },
   ];
 

@@ -1,9 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button, Card } from './primitives';
 import { getStoredUser } from '../auth';
-import { mapCsvHeaders, normalizeLeadRow } from '../utils/leadImport';
-
-function parseCsv(text: string): string[][] { return text.trim().split(/\r?\n/).map((line) => line.split(',').map((c) => c.trim())); }
+import { mapCsvHeaders, normalizeLeadRow, parseCsvText } from '../utils/leadImport';
 
 export function OrganizationImportPanel({ existingKeys }: { existingKeys: string[] }) {
   const user = getStoredUser();
@@ -26,7 +24,7 @@ export function OrganizationImportPanel({ existingKeys }: { existingKeys: string
     <Card title="Owner Lead Import (Mock)">
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <input type="file" accept=".csv" onChange={async (e) => {
-          const file = e.target.files?.[0]; if (!file) return; const text = await file.text(); const [head, ...data] = parseCsv(text);
+          const file = e.target.files?.[0]; if (!file) return; const text = await file.text(); const [head, ...data] = parseCsvText(text);
           const mapped = mapCsvHeaders(head); setHeaderMap(mapped);
           const parsed = data.map((r) => Object.fromEntries(head.map((h, i) => [mapped[h], r[i] ?? ''])));
           setRows(parsed);
