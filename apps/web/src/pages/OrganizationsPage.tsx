@@ -45,7 +45,7 @@ export function OrganizationsPage() {
 
   const runBulkAction = (label: string) => {
     if (!selected.length) return;
-    setBulkMessage(`${label} applied to ${selected.length} selected account${selected.length > 1 ? 's' : ''} (mock only).`);
+    setBulkMessage(`${label} applied to ${selected.length} selected account${selected.length > 1 ? 's' : ''} for current session.`);
   };
 
   const columns: Column<(typeof filtered)[number]>[] = [

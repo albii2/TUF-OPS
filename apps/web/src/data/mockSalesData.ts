@@ -36,12 +36,7 @@ export type Organization = {
   status: 'ACTIVE' | 'WATCH' | 'NEW';
   nextAction: string;
   lastActivity: string;
-  laneStatuses: Record<RevenueLane, {
-    status: LaneStatus;
-    estimatedValue: number;
-    activeOpportunityCount: number;
-    nextAction: string;
-  }>;
+  laneStatuses: Record<RevenueLane, { status: LaneStatus; estimatedValue: number; activeOpportunityCount: number; nextAction: string }>;
   expansionRecommendation: string;
 };
 
@@ -84,41 +79,133 @@ export type Activity = {
   user: string;
 };
 
+export const revenueLanes: RevenueLane[] = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'];
+export const opportunityStages: OpportunityStage[] = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'CLOSED_WON', 'CLOSED_LOST'];
+
 export const teamMembers: TeamMember[] = [
   { id: 'u-owner', name: 'Coach Bradshaw', role: 'OWNER', territoryIds: ['metro', 'north', 'west', 'south'], active: true },
-  { id: 'u-dir-dana', name: 'Dana Holt', role: 'DIRECTOR', territoryIds: ['metro', 'west'], active: true },
-  { id: 'u-dir-chris', name: 'Chris Vale', role: 'DIRECTOR', territoryIds: ['north', 'south'], active: true },
-  { id: 'u-rep-maya', name: 'Maya Cole', role: 'REP', territoryIds: ['metro', 'north'], active: true },
-  { id: 'u-rep-evan', name: 'Evan Shaw', role: 'REP', territoryIds: ['west'], active: true },
-  { id: 'u-rep-jules', name: 'Jules Park', role: 'REP', territoryIds: ['south'], active: true },
+  { id: 'u-director', name: 'Dana Holt', role: 'DIRECTOR', territoryIds: ['metro', 'north', 'west', 'south'], active: true },
+  { id: 'u-rep-maya', name: 'Maya Cole', role: 'REP', territoryIds: ['metro'], active: true },
+  { id: 'u-rep-evan', name: 'Evan Shaw', role: 'REP', territoryIds: ['north'], active: true },
+  { id: 'u-rep-jules', name: 'Jules Park', role: 'REP', territoryIds: ['west'], active: true },
+  { id: 'u-rep-erin', name: 'Erin Wade', role: 'REP', territoryIds: ['south'], active: true },
+  { id: 'u-rep-noah', name: 'Noah Briggs', role: 'REP', territoryIds: ['metro', 'west'], active: true },
 ];
 
-export const organizations: Organization[] = [
-  { id: 'org-northview', name: 'Northview Academy', city: 'Austin', state: 'TX', assignedRep: 'Maya Cole', assignedDirector: 'Dana Holt', territory: 'metro', coverageStatus: 'ACTIVE', priority: 'HIGH', pipelineValue: 84200, status: 'ACTIVE', nextAction: 'Present team store rollout plan', lastActivity: '2026-04-27', expansionRecommendation: 'Open LETTERMAN lane after closing TRAVEL_GEAR refresh package.', laneStatuses: { UNIFORM: { status: 'ACTIVE', estimatedValue: 32000, activeOpportunityCount: 2, nextAction: 'Finalize roster sizing' }, TRAVEL_GEAR: { status: 'OPEN', estimatedValue: 18000, activeOpportunityCount: 1, nextAction: 'Confirm bag SKU mix' }, TEAM_STORE: { status: 'WON', estimatedValue: 22000, activeOpportunityCount: 0, nextAction: 'Upsell seasonal drops' }, LETTERMAN: { status: 'OPEN', estimatedValue: 12200, activeOpportunityCount: 1, nextAction: 'Pitch senior package' } } },
-  { id: 'org-cedar-hill', name: 'Cedar Hill High', city: 'Dallas', state: 'TX', assignedRep: 'Evan Shaw', assignedDirector: 'Dana Holt', territory: 'west', coverageStatus: 'CONTACTED', priority: 'MEDIUM', pipelineValue: 65100, status: 'WATCH', nextAction: 'Follow up on invoice approval', lastActivity: '2026-04-10', expansionRecommendation: 'Convert UNIFORM renewal first, then activate TEAM_STORE in summer season.', laneStatuses: { UNIFORM: { status: 'ACTIVE', estimatedValue: 28000, activeOpportunityCount: 1, nextAction: 'Secure PO signature' }, TRAVEL_GEAR: { status: 'LOST', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Revisit next quarter' }, TEAM_STORE: { status: 'OPEN', estimatedValue: 21100, activeOpportunityCount: 1, nextAction: 'Review margin plan' }, LETTERMAN: { status: 'OPEN', estimatedValue: 16000, activeOpportunityCount: 1, nextAction: 'Collect booster feedback' } } },
-  { id: 'org-liberty-prep', name: 'Liberty Prep', city: 'Phoenix', state: 'AZ', assignedRep: 'Maya Cole', assignedDirector: 'Chris Vale', territory: 'north', coverageStatus: 'UNTOUCHED', priority: 'HIGH', pipelineValue: 47900, status: 'NEW', nextAction: 'Book discovery call with AD', lastActivity: '2026-03-30', expansionRecommendation: 'Fastest path is TRAVEL_GEAR starter bundle with cross-sell to UNIFORM.', laneStatuses: { UNIFORM: { status: 'OPEN', estimatedValue: 21000, activeOpportunityCount: 1, nextAction: 'Map roster counts' }, TRAVEL_GEAR: { status: 'ACTIVE', estimatedValue: 14200, activeOpportunityCount: 1, nextAction: 'Deliver mockup v2' }, TEAM_STORE: { status: 'OPEN', estimatedValue: 7900, activeOpportunityCount: 1, nextAction: 'Share launch checklist' }, LETTERMAN: { status: 'OPEN', estimatedValue: 4800, activeOpportunityCount: 0, nextAction: 'Validate demand' } } },
+const cities = [
+  ['Maple Grove High', 'Maple Grove', 'MN'],
+  ['Eden Prairie High', 'Eden Prairie', 'MN'],
+  ['Champlin Park High', 'Champlin', 'MN'],
+  ['Elk River High', 'Elk River', 'MN'],
+  ['Blaine High', 'Blaine', 'MN'],
+  ['Lakeville North High', 'Lakeville', 'MN'],
+  ['Rosemount High', 'Rosemount', 'MN'],
+  ['Burnsville High', 'Burnsville', 'MN'],
+  ['Wayzata High', 'Plymouth', 'MN'],
+  ['Mounds View High', 'Arden Hills', 'MN'],
 ];
 
-export const opportunities: Opportunity[] = [
-  { id: 'opp-1001', title: 'Varsity Football FA26 — Uniform', organizationId: 'org-northview', organizationName: 'Northview Academy', lane: 'UNIFORM', sport: 'Football', season: 'FA26', stage: 'INVOICE_SENT', value: 32000, assignedRep: 'Maya Cole', nextAction: 'Follow up with procurement tomorrow', lastActivity: '2026-04-27', closeProbability: 85 },
-  { id: 'opp-1002', title: 'JV Basketball WI26 — Team Store', organizationId: 'org-cedar-hill', organizationName: 'Cedar Hill High', lane: 'TEAM_STORE', sport: 'Basketball', season: 'WI26', stage: 'MOCKUP_DELIVERED', value: 21100, assignedRep: 'Evan Shaw', nextAction: 'Collect principal sign-off', lastActivity: '2026-04-26', closeProbability: 62 },
-  { id: 'opp-1003', title: '12U Football FA26 — Travel Gear', organizationId: 'org-liberty-prep', organizationName: 'Liberty Prep', lane: 'TRAVEL_GEAR', sport: 'Football', season: 'FA26', stage: 'DISCOVERY', value: 14200, assignedRep: 'Maya Cole', nextAction: 'Request final logo files', lastActivity: '2026-04-05', closeProbability: 48 },
-  { id: 'opp-1004', title: 'All Athletics FA26 — Letterman', organizationId: 'org-northview', organizationName: 'Northview Academy', lane: 'LETTERMAN', sport: 'All Athletics', season: 'FA26', stage: 'CONTACTED', value: 12200, assignedRep: 'Maya Cole', nextAction: 'Run expansion ROI walkthrough', lastActivity: '2026-04-24', closeProbability: 38 },
-];
+const reps = teamMembers.filter((t) => t.role === 'REP').map((r) => r.name);
+const nextActions = ['Call AD', 'Send mockup', 'Review invoice', 'Schedule discovery', 'Confirm roster'];
+const territories: TerritoryId[] = ['metro', 'north', 'west', 'south'];
 
-export const orders: Order[] = [
-  { id: 'ord-7001', organizationId: 'org-northview', organizationName: 'Northview Academy', opportunityId: 'opp-1001', lane: 'UNIFORM', value: 28750, productionStatus: 'IN_PRODUCTION', missingInfo: ['Final player numbers'], vendor: 'Prime Athletics', createdDate: '2026-04-18', vendorNotes: 'Awaiting player number sheet before embroidery lock.' },
-  { id: 'ord-7002', organizationId: 'org-cedar-hill', organizationName: 'Cedar Hill High', opportunityId: 'opp-1002', lane: 'TEAM_STORE', value: 9800, productionStatus: 'NEEDS_REVIEW', missingInfo: ['Store brand guideline approval', 'Coach photo release'], vendor: 'Stadium Threads', createdDate: '2026-04-22', vendorNotes: 'Awaiting legal sign-off.' },
-  { id: 'ord-7003', organizationId: 'org-liberty-prep', organizationName: 'Liberty Prep', opportunityId: 'opp-1003', lane: 'TRAVEL_GEAR', value: 7100, productionStatus: 'BLOCKED', missingInfo: ['Artboard approval'], vendor: 'Northline Custom', createdDate: '2026-04-20', vendorNotes: 'Blocked pending AD approval.' },
-];
+export const organizations: Organization[] = Array.from({ length: 112 }).map((_, i) => {
+  const base = cities[i % cities.length];
+  const rep = reps[i % reps.length];
+  const territory = territories[i % territories.length];
+  const laneBase = 8000 + (i % 8) * 1800;
+  return {
+    id: `org-${i + 1}`,
+    name: `${base[0]} ${Math.floor(i / cities.length) + 1}`,
+    city: base[1],
+    state: base[2],
+    assignedRep: rep,
+    assignedDirector: 'Dana Holt',
+    territory,
+    coverageStatus: i % 5 === 0 ? 'UNTOUCHED' : i % 5 === 1 ? 'CONTACTED' : i % 5 === 2 ? 'ACTIVE' : i % 5 === 3 ? 'ACTIVE' : 'CLOSED',
+    priority: i % 4 === 0 ? 'HIGH' : i % 4 === 1 ? 'MEDIUM' : 'LOW',
+    pipelineValue: 42000 + (i % 20) * 3200,
+    status: i % 3 === 0 ? 'ACTIVE' : i % 3 === 1 ? 'WATCH' : 'NEW',
+    nextAction: nextActions[i % nextActions.length],
+    lastActivity: `2026-04-${String((i % 28) + 1).padStart(2, '0')}`,
+    expansionRecommendation: 'Expand into Team Store after Uniform conversion and add Travel Gear for playoffs.',
+    laneStatuses: {
+      UNIFORM: { status: i % 5 === 4 ? 'WON' : 'ACTIVE', estimatedValue: laneBase + 12000, activeOpportunityCount: 1, nextAction: 'Finalize sizing' },
+      TRAVEL_GEAR: { status: i % 3 === 0 ? 'ACTIVE' : 'OPEN', estimatedValue: laneBase + 7000, activeOpportunityCount: 1, nextAction: 'Confirm SKUs' },
+      TEAM_STORE: { status: i % 4 === 0 ? 'WON' : 'OPEN', estimatedValue: laneBase + 6000, activeOpportunityCount: 1, nextAction: 'Approve launch plan' },
+      LETTERMAN: { status: i % 7 === 0 ? 'LOST' : 'OPEN', estimatedValue: laneBase + 5000, activeOpportunityCount: 0, nextAction: 'Review senior interest' },
+    },
+  };
+});
 
-export const activities: Activity[] = [
-  { id: 'act-1', entityType: 'OPPORTUNITY', entityId: 'opp-1001', message: 'Invoice follow-up sent to procurement.', timestamp: '2026-04-27T12:00:00Z', user: 'Maya Cole' },
-  { id: 'act-2', entityType: 'ORGANIZATION', entityId: 'org-cedar-hill', message: 'Booster committee requested revised plan.', timestamp: '2026-04-26T09:10:00Z', user: 'Dana Holt' },
-];
+const sports = ['Football', 'Basketball', 'Baseball', 'Softball', 'Volleyball', 'Soccer', 'All Athletics'];
+const seasons = ['FA26', 'WI26', 'SP27'];
 
+export const opportunities: Opportunity[] = Array.from({ length: 186 }).map((_, i) => {
+  const org = organizations[i % organizations.length];
+  const lane = revenueLanes[i % revenueLanes.length];
+  const sport = sports[i % sports.length];
+  const season = seasons[i % seasons.length];
+  const stage = opportunityStages[i % opportunityStages.length];
+  const value = 9500 + (i % 25) * 2200;
+  const probMap: Record<OpportunityStage, number> = { LEAD_ASSIGNED: 20, CONTACTED: 30, DISCOVERY: 40, MOCKUP_REQUESTED: 55, MOCKUP_DELIVERED: 68, INVOICE_SENT: 80, DECISION_PENDING: 74, CLOSED_WON: 100, CLOSED_LOST: 0 };
+  return {
+    id: `opp-${1000 + i}`,
+    title: `${sport} ${season} — ${lane.replace('_', ' ')}`,
+    organizationId: org.id,
+    organizationName: org.name,
+    lane,
+    sport,
+    season,
+    stage,
+    value,
+    assignedRep: org.assignedRep,
+    nextAction: nextActions[(i + 1) % nextActions.length],
+    lastActivity: `2026-04-${String((i % 30) + 1).padStart(2, '0')}`,
+    closeProbability: probMap[stage],
+  };
+});
 
-export const revenueLanes: RevenueLane[] = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'];
-export const opportunityStages: OpportunityStage[] = ['LEAD_ASSIGNED','CONTACTED','DISCOVERY','MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING','CLOSED_WON','CLOSED_LOST'];
-export const reportsSummary = { weeklySummary: { pipelineAdded: 64000, closedWon: 21000, newOrganizations: 5, blockedOrders: 1 }, monthlySummary: { pipelineTotal: 289000, closedWon: 98000, winRate: 36, averageDeal: 18400 }, lanePerformance: [ { lane: 'UNIFORM' as RevenueLane, pipeline: 120000, won: 52000, winRate: 43 }, { lane: 'TRAVEL_GEAR' as RevenueLane, pipeline: 54000, won: 18000, winRate: 33 }, { lane: 'TEAM_STORE' as RevenueLane, pipeline: 76000, won: 21000, winRate: 28 }, { lane: 'LETTERMAN' as RevenueLane, pipeline: 39000, won: 7000, winRate: 18 } ], repPerformance: [ { rep: 'Maya Cole', pipeline: 102000, won: 32000, openDeals: 3 }, { rep: 'Evan Shaw', pipeline: 76000, won: 22000, openDeals: 2 } ] };
-export const opsWorkspaceQueue = { NEEDS_REVIEW: orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW'), READY_FOR_VENDOR: orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR'), IN_PRODUCTION: orders.filter((o) => o.productionStatus === 'IN_PRODUCTION'), BLOCKED: orders.filter((o) => o.productionStatus === 'BLOCKED'), COMPLETED: orders.filter((o) => o.productionStatus === 'COMPLETED') };
+const orderBase = opportunities.filter((o) => ['CLOSED_WON', 'INVOICE_SENT', 'DECISION_PENDING'].includes(o.stage)).slice(0, 96);
+
+export const orders: Order[] = orderBase.map((opp, i) => ({
+  id: `ord-${7000 + i}`,
+  organizationId: opp.organizationId,
+  organizationName: opp.organizationName,
+  opportunityId: opp.id,
+  lane: opp.lane,
+  value: Math.round(opp.value * 0.9),
+  productionStatus: i % 5 === 0 ? 'NEEDS_REVIEW' : i % 5 === 1 ? 'READY_FOR_VENDOR' : i % 5 === 2 ? 'IN_PRODUCTION' : i % 5 === 3 ? 'BLOCKED' : 'COMPLETED',
+  missingInfo: i % 5 === 3 ? ['Roster confirmation', 'Final art approval'] : i % 5 === 0 ? ['PO attachment'] : [],
+  vendor: i % 2 === 0 ? 'Prime Athletics' : 'Stadium Threads',
+  createdDate: `2026-04-${String((i % 30) + 1).padStart(2, '0')}`,
+  vendorNotes: i % 5 === 3 ? 'Blocked pending approvals.' : 'On schedule.',
+}));
+
+export const activities: Activity[] = Array.from({ length: 160 }).map((_, i) => {
+  const opp = opportunities[i % opportunities.length];
+  const rep = reps[i % reps.length];
+  return {
+    id: `act-${i + 1}`,
+    entityType: 'OPPORTUNITY',
+    entityId: opp.id,
+    message: `${opp.organizationName}: ${opp.stage.replace(/_/g, ' ')} updated and next step assigned.`,
+    timestamp: `2026-04-${String((i % 30) + 1).padStart(2, '0')}T1${i % 10}:00:00Z`,
+    user: rep,
+  };
+});
+
+export const reportsSummary = {
+  weeklySummary: { pipelineAdded: 312000, closedWon: 154000, newOrganizations: 108, blockedOrders: orders.filter((o) => o.productionStatus === 'BLOCKED').length },
+  monthlySummary: { pipelineTotal: opportunities.reduce((s, o) => s + o.value, 0), closedWon: opportunities.filter((o) => o.stage === 'CLOSED_WON').reduce((s, o) => s + o.value, 0), winRate: 34, averageDeal: 18600 },
+  lanePerformance: revenueLanes.map((lane) => ({ lane, pipeline: opportunities.filter((o) => o.lane === lane).reduce((s, o) => s + o.value, 0), won: opportunities.filter((o) => o.lane === lane && o.stage === 'CLOSED_WON').reduce((s, o) => s + o.value, 0), winRate: 32 + revenueLanes.indexOf(lane) * 4 })),
+  repPerformance: reps.map((rep) => ({ rep, pipeline: opportunities.filter((o) => o.assignedRep === rep).reduce((s, o) => s + o.value, 0), won: opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON').reduce((s, o) => s + o.value, 0), openDeals: opportunities.filter((o) => o.assignedRep === rep && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length })),
+};
+
+export const opsWorkspaceQueue = {
+  NEEDS_REVIEW: orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW'),
+  READY_FOR_VENDOR: orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR'),
+  IN_PRODUCTION: orders.filter((o) => o.productionStatus === 'IN_PRODUCTION'),
+  BLOCKED: orders.filter((o) => o.productionStatus === 'BLOCKED'),
+  COMPLETED: orders.filter((o) => o.productionStatus === 'COMPLETED'),
+};
