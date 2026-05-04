@@ -1,8 +1,10 @@
 import { FastifyInstance } from 'fastify';
-import { createOpportunityHandler, getOpportunitiesByOrganizationHandler, updateOpportunityStageHandler } from './opportunities.controller';
+import { createOpportunityHandler, getOpportunitiesHandler, getOpportunitiesByOrganizationHandler, updateOpportunityStageHandler, updateOpportunityHandler } from './opportunities.controller';
 
 export async function opportunityRoutes(server: FastifyInstance) {
+  server.get('/', getOpportunitiesHandler);
   server.post('/', createOpportunityHandler);
   server.get('/organization/:organizationId', getOpportunitiesByOrganizationHandler);
   server.put('/:id/stage', updateOpportunityStageHandler);
+  server.put('/:id', updateOpportunityHandler);
 }

@@ -16,7 +16,7 @@ export async function createProductionRequest(data: Partial<ProductionRequest>):
     }
 
     if (type === ProductionRequestType.SAMPLE) {
-        const allowedTypes = ['UNIFORM', 'JACKETS'];
+        const allowedTypes = ['UNIFORM', 'LETTERMAN'];
 
         if (opportunity.deal_type === null || opportunity.deal_type === undefined || !allowedTypes.includes(opportunity.deal_type)) {
             throw new Error(`Sample requests not allowed for deal type: ${opportunity.deal_type}`);

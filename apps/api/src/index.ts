@@ -5,8 +5,10 @@ import { opportunityRoutes } from './modules/opportunities/opportunities.routes'
 import { organizationRoutes } from './modules/organizations/organizations.routes';
 import { productionRequestRoutes } from './modules/production-requests/production-requests.routes';
 import { reportingRoutes } from './modules/reporting/reporting.routes';
+import { orderRoutes } from './modules/orders/orders.routes';
 
 const server = fastify();
+const port = Number(process.env.PORT || 4000);
 
 server.register(cors, {
   origin: ['http://localhost:5173', 'http://localhost:5174'],
@@ -18,9 +20,15 @@ server.register(opportunityRoutes, { prefix: '/opportunities' });
 server.register(activityRoutes, { prefix: '/activities' });
 server.register(reportingRoutes, { prefix: '/reporting' });
 server.register(productionRequestRoutes, { prefix: '/production-requests' });
+server.register(orderRoutes, { prefix: '/orders' });
+
+server.get('/health', async () => ({
+  status: 'ok',
+  service: 'tuf-ops-api',
+  timestamp: new Date().toISOString(),
+}));
 
 const start = async () => {
-  const port = 3001;
   try {
     await server.listen({ port });
     console.log(`Server listening on http://localhost:${port}`);

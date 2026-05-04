@@ -4,9 +4,11 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
+    "dev": "dotenv -e ../../.env -- ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc --build",
     "start": "node dist/index.js",
-    "test:run": "jest --runInBand"
+    "check": "tsc --noEmit",
+    "test:run": "NODE_ENV=test jest --config ./jest.config.js --runInBand"
   },
   "dependencies": {
     "@fastify/cors": "^8.5.0",
@@ -16,6 +18,12 @@
     "typescript": "^5.4.5"
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/supertest": "^6.0.3",
+    "dotenv-cli": "^11.0.0",
+    "jest": "^30.2.0",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0"
   }

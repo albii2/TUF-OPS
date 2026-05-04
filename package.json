@@ -3,31 +3,41 @@
   "private": true,
   "scripts": {
     "build": "pnpm -r build",
+    "build:v1": "pnpm --filter @apps/api build && pnpm --filter web build",
     "test": "pnpm -w test:int",
     "test:int": "dotenv -e .env -- pnpm -w db:reset:test && dotenv -e .env -- pnpm -w db:migrate:test && pnpm --filter @apps/api test:run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "typecheck:v1": "pnpm --filter @apps/api exec tsc --noEmit && pnpm --filter web check",
     "db:migrate:test": "pnpm -w db:migrate",
     "db:reset:test": "pnpm -w db:reset",
     "db:reset": "dotenv -e .env -- node packages/database/reset_db.js",
     "db:migrate": "dotenv -e .env -- node-pg-migrate -m packages/database/migrations up",
     "db:verify": "dotenv -e .env -- node -e \"const {Client}=require('pg');(async()=>{const c=new Client({connectionString:process.env.TEST_DATABASE_URL});await c.connect();const r=await c.query(\\\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name\\\");console.log(r.rows.map(x=>x.table_name).join('\\\\n'));await c.end();})();\"",
-    "dev:frontend": "pnpm --filter frontend dev",
-    "dev:backend": "pnpm --filter backend dev",
-    "postinstall": "cd apps/frontend && pnpm prisma generate",
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter @apps/api dev",
+    "dev:v1": "pnpm --parallel --filter web --filter @apps/api dev",
     "test:e2e": "playwright test",
-    "test:e2e:prod": "pnpm --filter frontend build && playwright test"
+    "test:e2e:prod": "pnpm --filter web build && playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/pg": "^8.20.0",
+    "dotenv-cli": "^11.0.0",
     "jest": "^30.3.0",
     "jest-environment-jsdom": "^30.3.0",
+    "node-pg-migrate": "^7.9.1",
     "pnpm": "^9.1.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "pg": "^8.20.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
   }
 }

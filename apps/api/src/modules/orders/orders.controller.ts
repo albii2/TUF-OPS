@@ -2,18 +2,26 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import {
     createOrderFromOpportunity,
+    getOrders,
     getOrderById,
-    getOrderByOpportunityId,
 } from './orders.service';
 
-export async function createOrderFromOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
+export async function createOrderHandler(request: FastifyRequest, reply: FastifyReply) {
     try {
-        const { opportunityId } = request.params as { opportunityId: string };
+        const { opportunityId } = request.body as { opportunityId: number };
+        if (!opportunityId) {
+            return reply.code(400).send({ message: 'opportunityId is required' });
+        }
         const order = await createOrderFromOpportunity(Number(opportunityId));
-        reply.code(201).send(order);
+        return reply.code(201).send(order);
     } catch (error: any) {
-        reply.code(400).send({ error: error.message });
+        return reply.code(400).send({ message: error.message });
     }
+}
+
+export async function getOrdersHandler(request: FastifyRequest, reply: FastifyReply) {
+    const orders = await getOrders();
+    return reply.send(orders);
 }
 
 export async function getOrderByIdHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -21,23 +29,10 @@ export async function getOrderByIdHandler(request: FastifyRequest, reply: Fastif
         const { id } = request.params as { id: string };
         const order = await getOrderById(Number(id));
         if (!order) {
-            return reply.code(404).send({ error: 'Order not found' });
+            return reply.code(404).send({ message: 'Order not found' });
         }
-        reply.send(order);
+        return reply.send(order);
     } catch (error: any) {
-        reply.code(400).send({ error: error.message });
-    }
-}
-
-export async function getOrderByOpportunityIdHandler(request: FastifyRequest, reply: FastifyReply) {
-    try {
-        const { opportunityId } = request.params as { opportunityId: string };
-        const order = await getOrderByOpportunityId(Number(opportunityId));
-        if (!order) {
-            return reply.code(404).send({ error: 'Order not found for this opportunity' });
-        }
-        reply.send(order);
-    } catch (error: any) {
-        reply.code(400).send({ error: error.message });
+        return reply.code(400).send({ message: error.message });
     }
 }

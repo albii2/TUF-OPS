@@ -9,67 +9,92 @@ const REQUIRED_CHANNELS: OpportunityChannelType[] = [
 ];
 
 export async function createOrganization(organization: any) {
-  const { name, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by } = organization;
-  const client = await pool.connect();
-
   try {
-    await client.query('BEGIN');
+    const { name, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by } = organization;
+    const client = await pool.connect();
 
-    const orgResult = await client.query(
-      'INSERT INTO organizations (name, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [name, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by]
-    );
+    try {
+      await client.query('BEGIN');
 
-    const createdOrganization = orgResult.rows[0];
+      const orgResult = await client.query(
+        'INSERT INTO organizations (name, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [name, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by]
+      );
 
-    for (const channelType of REQUIRED_CHANNELS) {
-      await client.query(
-        `
-        INSERT INTO opportunities (
-          name,
-          organization_id,
-          status,
-          value,
-          created_by,
-          updated_by,
-          stage,
-          last_activity_date,
-          assigned_rep_id,
-          assigned_director_id,
-          deal_type,
-          channel_type
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, current_timestamp, $8, $9, $10, $11)
-        ON CONFLICT (organization_id, channel_type) WHERE channel_type IS NOT NULL DO NOTHING
-        `,
-        [
+      const createdOrganization = orgResult.rows[0];
+
+      for (const channelType of REQUIRED_CHANNELS) {
+        console.log('Inserting opportunity with params:', [
           `${name} - ${channelType}`,
           createdOrganization.id,
           'open',
           0.00,
           created_by,
           updated_by,
-          OpportunityStage.NOT_STARTED,
+          OpportunityStage.LEAD_ASSIGNED,
           assigned_rep_id,
           assigned_director_id,
           channelType,
           channelType,
-        ]
-      );
-    }
+        ]);
+        await client.query(
+          `
+          INSERT INTO opportunities (
+            name,
+            organization_id,
+            sport,
+            season,
+            year,
+            status,
+            value,
+            created_by,
+            updated_by,
+            stage,
+            last_activity_date,
+            assigned_rep_id,
+            assigned_director_id,
+            deal_type,
+            channel_type
+          ) VALUES ($1, $2, 'FOOTBALL', 'FALL', 2026, $3, $4, $5, $6, $7, current_timestamp, $8, $9, $10, $11)
+          `,
+          [
+            `${name} - ${channelType}`,
+            createdOrganization.id,
+            'open',
+            0.00,
+            created_by,
+            updated_by,
+            OpportunityStage.LEAD_ASSIGNED,
+            assigned_rep_id,
+            assigned_director_id,
+            channelType,
+            channelType,
+          ]
+        );
+      }
 
-    await client.query('COMMIT');
-    return createdOrganization;
+      await client.query('COMMIT');
+      return createdOrganization;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   } catch (error) {
-    await client.query('ROLLBACK');
+    console.error('Error in createOrganization:', error);
     throw error;
-  } finally {
-    client.release();
   }
 }
 
 export async function getOrganizations() {
   const result = await pool.query('SELECT * FROM organizations');
   return result.rows;
+}
+
+export async function getOrganizationById(id: string) {
+  const result = await pool.query('SELECT * FROM organizations WHERE id = $1', [id]);
+  return result.rows[0] || null;
 }
 
 export async function updateOrganization(id: string, organization: any) {

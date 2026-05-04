@@ -1,19 +1,38 @@
-exports.shorthands = undefined;
 
-exports.up = (pgm) => {
-  pgm.createType('channel_type', ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN']);
+exports.up = async (pgm) => { 
+  pgm.sql(` 
+    ALTER TABLE opportunities 
+    ADD COLUMN IF NOT EXISTS channel_type VARCHAR(50); 
+  `); 
 
-  pgm.addColumn('opportunities', {
-    channel_type: { type: 'channel_type', notNull: true },
-  });
+  pgm.sql(` 
+    UPDATE opportunities 
+    SET channel_type = 'UNIFORM' 
+    WHERE channel_type IS NULL; 
+  `); 
 
-  pgm.addConstraint('opportunities', 'opportunities_organization_id_channel_type_key', {
-    unique: ['organization_id', 'channel_type'],
-  });
-};
+  pgm.sql(` 
+    ALTER TABLE opportunities 
+    ALTER COLUMN channel_type SET DEFAULT 'UNIFORM', 
+    ALTER COLUMN channel_type SET NOT NULL; 
+  `); 
 
-exports.down = (pgm) => {
-  pgm.dropConstraint('opportunities', 'opportunities_organization_id_channel_type_key');
-  pgm.dropColumn('opportunities', 'channel_type');
-  pgm.dropType('channel_type');
-};
+  pgm.sql(` 
+    DO $$ 
+    BEGIN 
+      IF NOT EXISTS ( 
+        SELECT 1 FROM pg_constraint 
+        WHERE conname = 'opportunities_channel_type_allowed' 
+      ) THEN 
+        ALTER TABLE opportunities 
+        ADD CONSTRAINT opportunities_channel_type_allowed 
+        CHECK (channel_type IN ('UNIFORM','TRAVEL_GEAR','TEAM_STORE','LETTERMAN')); 
+      END IF; 
+    END 
+    $$; 
+  `); 
+}; 
+
+exports.down = async () => { 
+  // no destructive rollback 
+}; 
