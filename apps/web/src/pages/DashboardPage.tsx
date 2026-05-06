@@ -59,7 +59,7 @@ export function DashboardPage({ role }: { role: Role }) {
       <div className='grid gap-2 md:grid-cols-4'>
         <Metric label='Total Pipeline' value={formatCurrency(totalPipeline)} sub='+12% this month' />
         <Metric label='Open Opportunities' value={String(opportunities.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length)} sub='+5 this week' />
-        <Metric label='Closed Won (MTD)' value={formatCurrency(closed.reduce((s, o) => s + o.value, 0))} sub='+18% this month' />
+        <Metric label='Closed Won (YTD)' value={formatCurrency(closed.reduce((s, o) => s + o.value, 0))} sub='+18% this month' />
         <Metric label='Avg. Deal Size' value={formatCurrency(Math.round(totalPipeline / Math.max(1, opportunities.length)))} sub='+8% this month' />
       </div>
 

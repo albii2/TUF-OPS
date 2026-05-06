@@ -1,4 +1,5 @@
-import { opportunities, type Opportunity, opportunityStages, type OpportunityStage, revenueLanes, type RevenueLane } from '../data/mockSalesData';
+import { opportunities, type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
+import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { DATA_MODE } from './dataMode';
 import { getStoredUser } from '../auth';
 
