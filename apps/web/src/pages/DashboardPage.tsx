@@ -52,6 +52,13 @@ export function DashboardPage({ role }: { role: Role }) {
   });
 
   const topOpps = [...opportunities].sort((a, b) => b.value - a.value).slice(0, 3);
+  const repWeekly = {
+    touches: opportunities.filter((o) => !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).length,
+    advanced: opportunities.filter((o) => ['MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING'].includes(o.stage)).length,
+    nearClose: nearClose.length,
+  };
+  const directorWeekly = { coachingLoad: stuck.length, nearClose: nearClose.length, pendingInvoices: paymentsPending.length };
+  const ownerWeekly = { pipeline: totalPipeline, closed: closed.reduce((s,o)=>s+o.value,0), activeOrgs: organizations.filter((o)=>o.status==='ACTIVE').length };
 
   return (
     <div className='space-y-2.5'>
@@ -123,6 +130,13 @@ export function DashboardPage({ role }: { role: Role }) {
 
       {role === 'DIRECTOR' ? <GlassCard title='DIRECTOR FOCUS'><p className='text-sm text-[var(--text-secondary)]'>Stuck Deals: {stuck.length} · Reps Needing Coaching: {new Set(stuck.map((o) => o.assignedRep)).size} · Near Close: {nearClose.length}</p></GlassCard> : null}
       {role === 'REP' ? <GlassCard title='REP FOCUS'><p className='text-sm text-[var(--text-secondary)]'>My pipeline: {formatCurrency(totalPipeline)} · My revenue pending: {formatCurrency(paymentsPending.reduce((s,o)=>s+o.value,0))}</p></GlassCard> : null}
+
+      {role === 'DIRECTOR' ? <GlassCard title='DIRECTOR EXECUTION CHECKLIST'><div className='text-sm text-[var(--text-secondary)] space-y-1'><p>1) Coach reps on top stuck deals ({stuck.length}).</p><p>2) Push near-close opportunities ({nearClose.length}) to decision.</p><p>3) Clear invoice follow-ups ({paymentsPending.length}).</p></div></GlassCard> : null}
+      {role === 'REP' ? <GlassCard title='REP TODAY CHECKLIST'><div className='text-sm text-[var(--text-secondary)] space-y-1'><p>1) Complete today follow-ups from My Next Actions.</p><p>2) Advance at least 3 deals one stage forward.</p><p>3) Submit Creative Requests for deals needing mockups/graphics.</p></div></GlassCard> : null}
+
+      {role === 'OWNER' ? <GlassCard title='OWNER WEEKLY SCORECARD'><p className='text-sm text-[var(--text-secondary)]'>Pipeline: {formatCurrency(ownerWeekly.pipeline)} · Closed: {formatCurrency(ownerWeekly.closed)} · Active Orgs: {ownerWeekly.activeOrgs}</p></GlassCard> : null}
+      {role === 'DIRECTOR' ? <GlassCard title='DIRECTOR WEEKLY SCORECARD'><p className='text-sm text-[var(--text-secondary)]'>Coaching Load: {directorWeekly.coachingLoad} · Near Close: {directorWeekly.nearClose} · Invoices Pending: {directorWeekly.pendingInvoices}</p></GlassCard> : null}
+      {role === 'REP' ? <GlassCard title='REP WEEKLY SCORECARD'><p className='text-sm text-[var(--text-secondary)]'>Open Touches: {repWeekly.touches} · Deals Advanced: {repWeekly.advanced} · Near Close: {repWeekly.nearClose}</p></GlassCard> : null}
     </div>
   );
 }

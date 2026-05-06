@@ -11,6 +11,7 @@ export function OrganizationImportPanel({ existingKeys }: { existingKeys: string
   const [defaultRep, setDefaultRep] = useState('Maya Cole');
   const [defaultDirector, setDefaultDirector] = useState('Dana Holt');
   const [defaultTerritory, setDefaultTerritory] = useState('metro');
+  const [importMessage, setImportMessage] = useState('');
 
   const summary = useMemo(() => {
     const invalid = normalized.filter((r) => r.validationErrors.length).length;
@@ -38,7 +39,8 @@ export function OrganizationImportPanel({ existingKeys }: { existingKeys: string
       </div>
       <div className="mt-2 text-xs text-slate-300">Rows detected: {summary.rows} · Valid: {summary.valid} · Invalid: {summary.invalid} · Duplicates: {summary.duplicates} · Ready to import: {summary.ready}</div>
       {rows.length ? <div className="mt-2 overflow-auto rounded border border-slate-700"><table className="min-w-full text-xs"><thead><tr><th className="px-2 py-1 text-left">organizationName</th><th className="px-2 py-1 text-left">accountType</th><th className="px-2 py-1 text-left">territory</th><th className="px-2 py-1 text-left">sports</th><th className="px-2 py-1 text-left">validation</th></tr></thead><tbody>{normalized.slice(0,8).map((r, i) => <tr key={i} className="border-t border-slate-800"><td className="px-2 py-1">{r.organizationName}</td><td className="px-2 py-1">{r.accountType}</td><td className="px-2 py-1">{r.territory || defaultTerritory}</td><td className="px-2 py-1">{r.sportsOffered.join(', ')}</td><td className="px-2 py-1 text-rose-300">{r.validationErrors.join('; ') || 'ok'}</td></tr>)}</tbody></table></div> : null}
-      <div className="mt-2"><Button>Import (preview-only)</Button></div>
+      <div className="mt-2"><Button onClick={() => setImportMessage(summary.ready ? `Imported ${summary.ready} rows into mock queue.` : 'No valid rows to import yet.')}>Import (preview-only)</Button></div>
+      {importMessage ? <p className="mt-2 text-xs text-cyan-300">{importMessage}</p> : null}
     </Card>
   );
 }
