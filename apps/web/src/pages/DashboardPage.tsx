@@ -8,7 +8,7 @@ import { formatCurrency } from '../utils/format';
 import { getNearCloseOpportunities, getStuckOpportunities } from '../services/businessSelectors';
 
 function Metric({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return <GlassCard><p className='text-xs text-[var(--text-secondary)]'>{label}</p><p className='mt-1 text-[40px] font-semibold text-[var(--text-primary)]'>{value}</p><p className='text-sm text-[#1FB6FF]'>{sub}</p></GlassCard>;
+  return <GlassCard><p className='text-xs text-[var(--text-secondary)]'>{label}</p><p className='mt-1 text-3xl md:text-[40px] font-semibold text-[var(--text-primary)]'>{value}</p><p className='text-sm text-[#1FB6FF]'>{sub}</p></GlassCard>;
 }
 
 function ActionRow({ title, sub, value, to }: { title: string; sub: string; value: string; to: string }) {
@@ -62,34 +62,48 @@ export function DashboardPage({ role }: { role: Role }) {
 
   return (
     <div className='space-y-2.5'>
-      <div><h1 className='text-[32px] font-semibold'>Dashboard</h1></div>
-      <div className='grid gap-2 md:grid-cols-4'>
-        <Metric label='Total Pipeline' value={formatCurrency(totalPipeline)} sub='+12% this month' />
-        <Metric label='Open Opportunities' value={String(opportunities.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length)} sub='+5 this week' />
-        <Metric label='Closed Won (YTD)' value={formatCurrency(closed.reduce((s, o) => s + o.value, 0))} sub='+18% this month' />
-        <Metric label='Avg. Deal Size' value={formatCurrency(Math.round(totalPipeline / Math.max(1, opportunities.length)))} sub='+8% this month' />
+      <div><h1 className='text-2xl md:text-[32px] font-semibold'>Dashboard</h1></div>
+      <div className='grid gap-2 grid-cols-2 lg:grid-cols-4'>
+        {role === 'OWNER' ? <>
+          <Metric label='Enterprise Pipeline' value={formatCurrency(totalPipeline)} sub='Org-wide view' />
+          <Metric label='Open Opportunities' value={String(opportunities.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length)} sub='Execution load' />
+          <Metric label='Closed Won (MTD)' value={formatCurrency(closed.reduce((s, o) => s + o.value, 0))} sub='Revenue velocity' />
+          <Metric label='Avg. Deal Size' value={formatCurrency(Math.round(totalPipeline / Math.max(1, opportunities.length)))} sub='Trend monitor' />
+        </> : null}
+        {role === 'DIRECTOR' ? <>
+          <Metric label='Team Pipeline' value={formatCurrency(totalPipeline)} sub='Director scope' />
+          <Metric label='Stuck Deals' value={String(stuck.length)} sub='Needs coaching' />
+          <Metric label='Near Close' value={String(nearClose.length)} sub='This week focus' />
+          <Metric label='Invoices Pending' value={String(paymentsPending.length)} sub='Clear blockers' />
+        </> : null}
+        {role === 'REP' ? <>
+          <Metric label='My Pipeline' value={formatCurrency(totalPipeline)} sub='My book of business' />
+          <Metric label='My Active Deals' value={String(opportunities.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length)} sub='Daily actions' />
+          <Metric label='Near Close' value={String(nearClose.length)} sub='Push to decision' />
+          <Metric label='Pending Invoices' value={String(paymentsPending.length)} sub='Follow up today' />
+        </> : null}
       </div>
 
-      <GlassCard title='PIPELINE BY STAGE'>
+      {role !== 'REP' ? <GlassCard title={role === 'OWNER' ? 'PIPELINE BY STAGE' : 'TEAM PIPELINE BY STAGE'}>
         <div className='grid gap-0 border border-[var(--border)] rounded-lg overflow-hidden lg:grid-cols-6'>
           {byStage.map(([key, label]) => (
             <div key={key} className='panel-elevated border-r border-[var(--border)] p-3 last:border-r-0'>
               <p className='text-xs text-[var(--text-secondary)]'>{label}</p>
-              <p className='mt-1 text-[40px] font-semibold text-[#1FB6FF]'>{stageCount(key)}</p>
+              <p className='mt-1 text-3xl md:text-[40px] font-semibold text-[#1FB6FF]'>{stageCount(key)}</p>
               <p className='text-sm text-[var(--text-primary)]'>{formatCurrency(stageValue(key))}</p>
             </div>
           ))}
         </div>
-      </GlassCard>
+      </GlassCard> : null}
 
-      <div className='grid gap-2 lg:grid-cols-3'>
-        <GlassCard title='LANE PENETRATION'>
+      <div className='grid gap-2 md:grid-cols-2 lg:grid-cols-3'>
+        {role === 'REP' ? <GlassCard title='TODAY QUICK WINS'><div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'><p>• Log follow-up on top 5 active deals</p><p>• Advance 3 opportunities one stage</p><p>• Submit creative requests for mockup needs</p></div></GlassCard> : <GlassCard title='LANE PENETRATION'>
           <p className='text-5xl font-semibold text-[#1FB6FF]'>68%</p>
           <p className='text-xs text-[var(--text-secondary)]'>AVG. PENETRATION</p>
           <div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'>
             <p>Uniform 68%</p><p>Travel Gear 54%</p><p>Team Store 42%</p><p>Letterman 35%</p>
           </div>
-        </GlassCard>
+        </GlassCard>}
         <GlassCard title='RECENT ACTIVITY'>
           <div className='space-y-2'>{activities.map((a:any) => <ActionRow key={a.id} title={a.user} sub={a.message} value='now' to='/opportunities' />)}</div>
           <Link className='mt-2 inline-block text-sm text-[#1FB6FF]' to='/reports'>View All Activity</Link>
