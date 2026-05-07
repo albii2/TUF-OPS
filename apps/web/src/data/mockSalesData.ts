@@ -1,3 +1,4 @@
+import { REVENUE_LANES as revenueLanes } from '../config/business';
 export type RevenueLane = 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN';
 export type LaneStatus = 'OPEN' | 'ACTIVE' | 'WON' | 'LOST';
 export type OpportunityStage =
@@ -79,7 +80,7 @@ export type Activity = {
   user: string;
 };
 
-export const revenueLanes: RevenueLane[] = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'];
+
 export const opportunityStages: OpportunityStage[] = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'CLOSED_WON', 'CLOSED_LOST'];
 
 export const teamMembers: TeamMember[] = [
@@ -141,30 +142,60 @@ export const organizations: Organization[] = Array.from({ length: 112 }).map((_,
 const sports = ['Football', 'Basketball', 'Baseball', 'Softball', 'Volleyball', 'Soccer', 'All Athletics'];
 const seasons = ['FA26', 'WI26', 'SP27'];
 
-export const opportunities: Opportunity[] = Array.from({ length: 186 }).map((_, i) => {
-  const org = organizations[i % organizations.length];
-  const lane = revenueLanes[i % revenueLanes.length];
-  const sport = sports[i % sports.length];
-  const season = seasons[i % seasons.length];
-  const stage = opportunityStages[i % opportunityStages.length];
-  const value = 9500 + (i % 25) * 2200;
-  const probMap: Record<OpportunityStage, number> = { LEAD_ASSIGNED: 20, CONTACTED: 30, DISCOVERY: 40, MOCKUP_REQUESTED: 55, MOCKUP_DELIVERED: 68, INVOICE_SENT: 80, DECISION_PENDING: 74, CLOSED_WON: 100, CLOSED_LOST: 0 };
-  return {
-    id: `opp-${1000 + i}`,
-    title: `${sport} ${season} — ${lane.replace('_', ' ')}`,
-    organizationId: org.id,
-    organizationName: org.name,
-    lane,
-    sport,
-    season,
-    stage,
-    value,
-    assignedRep: org.assignedRep,
-    nextAction: nextActions[(i + 1) % nextActions.length],
-    lastActivity: `2026-04-${String((i % 30) + 1).padStart(2, '0')}`,
-    closeProbability: probMap[stage],
-  };
-});
+export const opportunities: Opportunity[] = (() => {
+    const stageDistribution = {
+      LEAD_ASSIGNED: 60,
+      CONTACTED: 40,
+      DISCOVERY: 20,
+      MOCKUP_REQUESTED: 15,
+      MOCKUP_DELIVERED: 10,
+      INVOICE_SENT: 5,
+      DECISION_PENDING: 5,
+      CLOSED_WON: 10,
+      CLOSED_LOST: 21,
+    };
+
+    function getRandomDateWithinLast50Days() {
+      const today = new Date('2026-05-05');
+      const fiftyDaysAgo = new Date(today);
+      fiftyDaysAgo.setDate(today.getDate() - 50);
+      const randomDate = new Date(fiftyDaysAgo.getTime() + Math.random() * (today.getTime() - fiftyDaysAgo.getTime()));
+      return randomDate.toISOString().split('T')[0];
+    }
+
+    const opportunities: Opportunity[] = [];
+    let opportunityCounter = 0;
+
+    for (const stage in stageDistribution) {
+        const count = stageDistribution[stage as OpportunityStage];
+        for (let i = 0; i < count; i++) {
+            const org = organizations[opportunityCounter % organizations.length];
+            const lane = revenueLanes[opportunityCounter % revenueLanes.length];
+            const sport = sports[opportunityCounter % sports.length];
+            const season = seasons[opportunityCounter % seasons.length];
+            const value = 11000 + Math.random() * 6000;
+            const probMap: Record<OpportunityStage, number> = { LEAD_ASSIGNED: 20, CONTACTED: 30, DISCOVERY: 40, MOCKUP_REQUESTED: 55, MOCKUP_DELIVERED: 68, INVOICE_SENT: 80, DECISION_PENDING: 74, CLOSED_WON: 100, CLOSED_LOST: 0 };
+            
+            opportunities.push({
+                id: `opp-${1000 + opportunityCounter}`,
+                title: `${sport} ${season} — ${lane.replace('_', ' ')}`,
+                organizationId: org.id,
+                organizationName: org.name,
+                lane,
+                sport,
+                season,
+                stage: stage as OpportunityStage,
+                value,
+                assignedRep: org.assignedRep,
+                nextAction: nextActions[(opportunityCounter + 1) % nextActions.length],
+                lastActivity: getRandomDateWithinLast50Days(),
+                closeProbability: probMap[stage as OpportunityStage],
+            });
+            opportunityCounter++;
+        }
+    }
+    return opportunities;
+})();
 
 const orderBase = opportunities.filter((o) => ['CLOSED_WON', 'INVOICE_SENT', 'DECISION_PENDING'].includes(o.stage)).slice(0, 96);
 
@@ -196,7 +227,7 @@ export const activities: Activity[] = Array.from({ length: 160 }).map((_, i) => 
 });
 
 export const reportsSummary = {
-  weeklySummary: { pipelineAdded: 312000, closedWon: 154000, newOrganizations: 108, blockedOrders: orders.filter((o) => o.productionStatus === 'BLOCKED').length },
+  weeklySummary: { pipelineAdded: 312000, closedWon: 88000, newOrganizations: organizations.filter((o) => o.status === 'NEW').length, blockedOrders: orders.filter((o) => o.productionStatus === 'BLOCKED').length },
   monthlySummary: { pipelineTotal: opportunities.reduce((s, o) => s + o.value, 0), closedWon: opportunities.filter((o) => o.stage === 'CLOSED_WON').reduce((s, o) => s + o.value, 0), winRate: 34, averageDeal: 18600 },
   lanePerformance: revenueLanes.map((lane) => ({ lane, pipeline: opportunities.filter((o) => o.lane === lane).reduce((s, o) => s + o.value, 0), won: opportunities.filter((o) => o.lane === lane && o.stage === 'CLOSED_WON').reduce((s, o) => s + o.value, 0), winRate: 32 + revenueLanes.indexOf(lane) * 4 })),
   repPerformance: reps.map((rep) => ({ rep, pipeline: opportunities.filter((o) => o.assignedRep === rep).reduce((s, o) => s + o.value, 0), won: opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON').reduce((s, o) => s + o.value, 0), openDeals: opportunities.filter((o) => o.assignedRep === rep && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length })),

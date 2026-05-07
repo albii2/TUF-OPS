@@ -67,7 +67,7 @@ export function TerritoryMapPage() {
                 <p>Untouched: {active.untouched}</p>
                 <p>Pipeline Value: {formatCurrency(active.pipeline)}</p>
                 <p>Closed Revenue: {formatCurrency(active.closed)}</p>
-                <p>Lane Penetration: U {active.lanePenetration.uniform}% · TS {active.lanePenetration.teamStore}% · TG {active.lanePenetration.travelGear}% · L {active.lanePenetration.letterman}%</p>
+                
               </div>
             ) : null}
           </Card>
