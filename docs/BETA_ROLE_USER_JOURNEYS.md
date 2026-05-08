@@ -15,11 +15,11 @@ Status legend:
 | Step | Route | Expected Visible Function | Status | Notes |
 | --- | --- | --- | --- | --- |
 | 1. Login | `/login` | PIN entry with `0000`, error feedback for invalid PIN | WORKING MOCK | Uses localStorage beta auth. |
-| 2. Review dashboard | `/dashboard` | Owner pipeline, open deal, closed won, territory, activity, top opportunities | WORKING MOCK | Owner sees org-wide scope. |
+| 2. Review dashboard | `/dashboard` | Today’s Focus, next actions, pipeline, revenue, activity, lane penetration, sports ticker | WORKING MOCK | Owner sees org-wide scope. |
 | 3. Import leads/accounts | `/organizations` | CSV upload, preview, validation, duplicate count, import into mock account table | WORKING MOCK | Owner-only import panel persists local mock accounts. |
 | 4. Review imported accounts | `/organizations` | Imported rows appear in search/filter/pagination | WORKING MOCK | Local mock records are merged with seeded data. |
 | 5. Assign territory/director/rep | `/organizations` | Select rows and bulk update territory, director, rep, coverage | WORKING MOCK | Updates local mock copies for selected accounts. |
-| 6. Review territory map | `/territory/map` | Four-zone Minnesota map and zone cards | WORKING MOCK | Metro, North, West, South only; no East zone. |
+| 6. Review territory map | `/territory`, `/territory/map` | Map-first command view with zone selection and snapshots | WORKING MOCK | Metro, North, West, South only; no East zone. |
 | 7. Review organizations | `/organizations`, `/organizations/:id` | Account table, lane cards, sport/lane coverage, next actions | WORKING MOCK | Detail route is role-scoped. |
 | 8. Review opportunities | `/opportunities`, `/my-opportunities`, `/opportunities/:id` | Pipeline filters, detail, stage actions, creative requests | WORKING MOCK | Owner can view all deals. |
 | 9. Review orders/blocked orders | `/orders`, `/orders/:id`, `/ops-workspace` | Production queues, blockers, missing info, handoff detail | WORKING MOCK | Owner has ops workspace access. |
@@ -31,13 +31,13 @@ Status legend:
 | Step | Route | Expected Visible Function | Status | Notes |
 | --- | --- | --- | --- | --- |
 | 1. Login | `/login` | PIN login, then role context can switch to Director | WORKING MOCK | Beta role selector is visible in shell/settings. |
-| 2. Review director dashboard | `/dashboard` | Team pipeline, stuck deals, near close, invoices pending | WORKING MOCK | Director dashboard uses director-scoped service data. |
+| 2. Review director dashboard | `/dashboard` | Today’s Focus, next actions, near close, pipeline, revenue, 4-order reminder, lane penetration | WORKING MOCK | Director dashboard uses director-scoped service data. |
 | 3. Review My Opportunities | `/my-opportunities` | Director personal selling pipeline | WORKING MOCK | Seed data includes Director-owned opportunities. |
 | 4. Review team/territory opportunities | `/team-opportunities` | Rep/stage/lane/sport/focus filters and row click | WORKING MOCK | Director can coach from team deal table. |
 | 5. Review assigned organizations | `/organizations`, `/organizations/:id` | Scoped account list and detail | WORKING MOCK | Director sees assigned/team territory scope. |
-| 6. Review territory/coverage | `/territory`, `/territory/map` | Territory cards, workload table, map selection | WORKING MOCK | Scope follows assigned territories. |
+| 6. Review territory/coverage | `/territory`, `/territory/map` | Map-first command view, workload table, stale account pressure | WORKING MOCK | Scope follows assigned territories. |
 | 7. Identify untouched/stale accounts | `/territory`, `/organizations` | Territory pressure, untouched counts, filters | WORKING MOCK | Stale and untouched counts are visible. |
-| 8. Coach reps using accountability data | `/team-performance`, `/team-opportunities`, `/dashboard` | Rep workload, stuck/near-close metrics, coaching notes | WORKING MOCK | Team performance route is available by direct route. |
+| 8. Coach reps using accountability data | `/team-performance`, `/team-opportunities`, `/dashboard`, `/earnings` | Rep workload, stuck/near-close metrics, 4-order pace, earning potential | WORKING MOCK | 4 orders/month and lane penetration are visible operating standards. |
 | 9. Review reports | `/reports` | Summary and rep/lane performance | WORKING MOCK | Mock export feedback available. |
 
 ## Rep Journey
@@ -45,13 +45,13 @@ Status legend:
 | Step | Route | Expected Visible Function | Status | Notes |
 | --- | --- | --- | --- | --- |
 | 1. Login | `/login` | PIN login, then role context can switch to Rep | WORKING MOCK | Beta role selector is visible in shell/settings. |
-| 2. Review today's focus | `/dashboard` | My pipeline, active deals, near close, invoice follow-up, checklist | WORKING MOCK | Uses rep-scoped opportunities. |
+| 2. Review today's focus | `/dashboard` | Today’s Focus, next actions, near close, payment pending, 4-order pace, lane penetration | WORKING MOCK | Uses rep-scoped opportunities. |
 | 3. Review assigned organizations | `/organizations`, `/organizations/:id` | Rep-scoped account table and lane detail | WORKING MOCK | Rep does not see import or bulk assignment controls. |
 | 4. Create/update opportunity | `/opportunities/new`, `/opportunities/:id` | Create local mock opportunity, advance stages | WORKING MOCK | Creation persists locally and navigates to detail. |
 | 5. Work My Opportunities | `/my-opportunities` | Rep-scoped list, filters, row click | WORKING MOCK | Force-scoped to current rep. |
 | 6. Follow stage action flow | `/opportunities/:id` | Best next move, advance stage, close won/lost, creative request | WORKING MOCK | Updates local mock stage state. |
 | 7. Review order status where relevant | `/orders`, `/orders/:id` | Rep-scoped orders and production blockers | WORKING MOCK | Detail route is scoped through order list. |
-| 8. Review progress/earnings | `/earnings` | Won value and commission estimate | WORKING MOCK | Mock commission model only. |
+| 8. Review progress/earnings | `/earnings` | Made, can make at 4-order pace, won revenue, remaining orders | WORKING MOCK | Mock commission model only. |
 
 ## Ops Journey
 
