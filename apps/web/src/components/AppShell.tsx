@@ -7,6 +7,7 @@ import { TufLogo } from './ui';
 import { listOpportunities } from '../services/opportunitiesService';
 import { listOrders } from '../services/ordersService';
 import { listOrganizations } from '../services/organizationsService';
+import { SportsTicker } from './SportsTicker';
 
 export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUser | null) => void }) {
   const navigate = useNavigate();
@@ -80,6 +81,13 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           </div>
 
           <header className="mb-3 rounded-lg panel p-2">
+            <SportsTicker />
+            {user.role === 'DIRECTOR' || user.role === 'REP' ? (
+              <div className="mb-2 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-wide">
+                <span className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-2 py-1 text-cyan-100">4 orders/month</span>
+                <span className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-1 text-emerald-100">Lane penetration wins territories</span>
+              </div>
+            ) : null}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="flex-1">
                 <input
