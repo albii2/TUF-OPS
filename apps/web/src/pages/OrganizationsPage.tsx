@@ -6,6 +6,8 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { OrganizationImportPanel } from '../components/OrganizationImportPanel';
 import { getOrganizationPriorityScore } from '../services/businessSelectors';
+import { bulkUpdateOrganizations } from '../services/organizationsService';
+import type { CoverageStatus, TerritoryId } from '../data/mockSalesData';
 
 const PAGE_SIZE = 8;
 
@@ -24,9 +26,14 @@ export function OrganizationsPage() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [bulkMessage, setBulkMessage] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [targetRep, setTargetRep] = useState('Maya Cole');
+  const [targetDirector, setTargetDirector] = useState('Dana Holt');
+  const [targetTerritory, setTargetTerritory] = useState<TerritoryId>('metro');
+  const [targetCoverage, setTargetCoverage] = useState<CoverageStatus>('CONTACTED');
 
-  const allOrganizations = useOrganizations({});
-  const filtered = useOrganizations({ search, status: status as any, rep, territory: territory as any, director, coverageStatus: coverageStatus as any, priority: priority as any });
+  const allOrganizations = useOrganizations({ refreshKey });
+  const filtered = useOrganizations({ search, status: status as any, rep, territory: territory as any, director, coverageStatus: coverageStatus as any, priority: priority as any, refreshKey });
 
   const reps = useMemo(() => Array.from(new Set(allOrganizations.map((o) => o.assignedRep))), [allOrganizations]);
   const directors = useMemo(() => Array.from(new Set(allOrganizations.map((o) => o.assignedDirector))), [allOrganizations]);
@@ -43,13 +50,15 @@ export function OrganizationsPage() {
     setSelected(allVisibleSelected ? selected.filter((id) => !visibleIds.includes(id)) : Array.from(new Set([...selected, ...visibleIds])));
   };
 
-  const runBulkAction = (label: string) => {
+  const runBulkAction = (label: string, patch: Parameters<typeof bulkUpdateOrganizations>[1]) => {
     if (!selected.length) return;
-    setBulkMessage(`${label} applied to ${selected.length} selected account${selected.length > 1 ? 's' : ''} for current session.`);
+    const updated = bulkUpdateOrganizations(selected, patch);
+    setBulkMessage(`${label} updated ${updated} selected account${updated > 1 ? 's' : ''} in mock mode.`);
+    setRefreshKey((value) => value + 1);
   };
 
   const columns: Column<(typeof filtered)[number]>[] = [
-    { key: 'select', header: '', cell: (r) => canBulkAssign ? <input type='checkbox' checked={selected.includes(r.id)} onChange={(e) => { e.stopPropagation(); toggleSelected(r.id); }} /> : null },
+    { key: 'select', header: '', cell: (r) => canBulkAssign ? <input type='checkbox' checked={selected.includes(r.id)} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleSelected(r.id); }} /> : null },
     { key: 'organization', header: 'Organization', cell: (r) => <div><p className='font-medium'>{r.name}</p><p className='text-xs text-slate-400'>{r.city}, {r.state}</p></div> },
     { key: 'rep', header: 'Rep', cell: (r) => r.assignedRep },
     { key: 'director', header: 'Director', cell: (r) => r.assignedDirector },
@@ -64,7 +73,7 @@ export function OrganizationsPage() {
 
   return (
     <div className='space-y-3'>
-      <OrganizationImportPanel existingKeys={existingKeys} />
+      <OrganizationImportPanel existingKeys={existingKeys} onImported={() => setRefreshKey((value) => value + 1)} />
       <Card title='Accounts & Expansion Pipeline'>
         <div className='mb-3 grid gap-2 lg:grid-cols-8'>
           <Input placeholder='Search organizations' value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
@@ -81,13 +90,22 @@ export function OrganizationsPage() {
           <div className='mb-3 rounded-md border border-slate-700 bg-slate-900/60 p-2 text-xs text-slate-200'>
             <div className='mb-2 flex items-center justify-between'>
               <span>{selected.length} selected</span>
-              <Button className='px-2 py-1 text-xs' onClick={() => setSelected([])}>Clear Selection</Button>
+              <div className='flex gap-2'>
+                <Button className='px-2 py-1 text-xs' onClick={toggleSelectVisible}>Select Visible</Button>
+                <Button className='px-2 py-1 text-xs' onClick={() => setSelected([])}>Clear Selection</Button>
+              </div>
+            </div>
+            <div className='mb-2 grid gap-2 md:grid-cols-4'>
+              <Select value={targetTerritory} onChange={(e) => setTargetTerritory(e.target.value as TerritoryId)}><option value='metro'>Metro</option><option value='north'>North</option><option value='west'>West</option><option value='south'>South</option></Select>
+              <Select value={targetDirector} onChange={(e) => setTargetDirector(e.target.value)}>{directors.map((d) => <option key={d}>{d}</option>)}</Select>
+              <Select value={targetRep} onChange={(e) => setTargetRep(e.target.value)}>{reps.map((r) => <option key={r}>{r}</option>)}</Select>
+              <Select value={targetCoverage} onChange={(e) => setTargetCoverage(e.target.value as CoverageStatus)}><option value='UNTOUCHED'>Untouched</option><option value='CONTACTED'>Contacted</option><option value='ACTIVE'>Active</option><option value='CLOSED'>Closed</option></Select>
             </div>
             <div className='flex flex-wrap gap-2'>
-              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Assign Territory')}>Assign Territory</Button>
-              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Assign Director')}>Assign Director</Button>
-              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Assign Rep')}>Assign Rep</Button>
-              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Set Coverage Status')}>Set Coverage Status</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Territory assignment', { territory: targetTerritory })}>Assign Territory</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director assignment', { assignedDirector: targetDirector })}>Assign Director</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep assignment', { assignedRep: targetRep })}>Assign Rep</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Coverage status', { coverageStatus: targetCoverage })}>Set Coverage Status</Button>
             </div>
             {bulkMessage ? <p className='mt-2 text-cyan-300'>{bulkMessage}</p> : null}
           </div>

@@ -22,7 +22,7 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
 
 export const roleConfig: Record<Role, RoleConfig> = {
   OWNER: {
-    sidebarItems: ['dashboard', 'organizations', 'pipeline', 'invoices', 'performance', 'territory', 'messages', 'programs', 'settings'],
+    sidebarItems: ['dashboard', 'organizations', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings'],
@@ -40,7 +40,7 @@ export const roleConfig: Record<Role, RoleConfig> = {
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/settings', '/my-opportunities', '/earnings'],
   },
   OPS: {
-    sidebarItems: ['ops_workspace', 'invoices', 'programs', 'settings'],
+    sidebarItems: ['dashboard', 'ops_workspace', 'invoices', 'programs', 'settings'],
     dashboardWidgets: ['New Orders', 'Missing Info', 'Blocked Orders', 'Ready for Vendor'],
     primaryActions: ['Resolve Missing Info', 'Route Vendor', 'Clear Blockers'],
     visiblePages: ['/dashboard', '/organizations', '/orders', '/ops-workspace', '/settings', '/reports'],

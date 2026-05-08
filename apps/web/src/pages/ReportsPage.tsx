@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { Button, Card, LaneBadge } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useReports } from '../hooks/useReports';
 
 export function ReportsPage() {
   const reportsSummary = useReports();
+  const [message, setMessage] = useState('');
 
   return (
     <div className="space-y-3">
@@ -48,7 +50,7 @@ export function ReportsPage() {
         </div>
       </Card>
 
-      <div className="flex gap-2"><Button>Export Weekly Report</Button><Button>Export Monthly Report</Button></div>
+      <div className="flex flex-wrap items-center gap-2"><Button onClick={() => setMessage('Weekly report export prepared in mock mode for beta review.')}>Export Weekly Report</Button><Button onClick={() => setMessage('Monthly report export prepared in mock mode for beta review.')}>Export Monthly Report</Button>{message ? <p className="text-sm text-cyan-200">{message}</p> : null}</div>
     </div>
   );
 }

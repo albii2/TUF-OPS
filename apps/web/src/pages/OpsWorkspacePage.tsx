@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Card, EmptyState } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOpsWorkspaceQueues } from '../hooks/useOrders';
@@ -11,6 +12,7 @@ const labels: Record<string, string> = {
 };
 
 export function OpsWorkspacePage() {
+  const navigate = useNavigate();
   const opsWorkspaceQueue = useOpsWorkspaceQueues();
   const sections: Array<keyof typeof opsWorkspaceQueue> = ['NEEDS_REVIEW', 'READY_FOR_VENDOR', 'IN_PRODUCTION', 'BLOCKED', 'COMPLETED'];
 
@@ -21,7 +23,7 @@ export function OpsWorkspacePage() {
           {opsWorkspaceQueue[section].length === 0 ? <EmptyState title="No items" description="Queue clear." /> : (
             <div className="space-y-2 text-xs">
               {opsWorkspaceQueue[section].map((order: any) => (
-                <button key={order.id} className="w-full rounded-lg panel-elevated p-2 text-left hover:bg-[#132133]">
+                <button key={order.id} onClick={() => navigate(`/orders/${order.id}`)} className="w-full rounded-lg panel-elevated p-2 text-left hover:bg-[#132133]">
                   <p className="font-semibold text-[var(--text-primary)]">{order.id}</p>
                   <p className="text-[var(--text-secondary)]">{order.organizationName}</p>
                   <p className="text-[#1FB6FF]">{formatCurrency(order.value)}</p>

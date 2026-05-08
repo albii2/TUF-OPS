@@ -9,7 +9,7 @@ export function getNearCloseOpportunities(opportunities: Opportunity[]): Opportu
 }
 
 export function getStuckOpportunities(opportunities: Opportunity[]): Opportunity[] {
-  return opportunities.filter((opp) => opp.stage === 'DECISION_PENDING' && opp.closeProbability < 55);
+  return opportunities.filter((opp) => ['CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED'].includes(opp.stage) || (opp.stage === 'DECISION_PENDING' && opp.closeProbability < 75));
 }
 
 export function getLanePenetration(organizations: Organization[]): Record<RevenueLane, number> {

@@ -12,6 +12,7 @@ export function OrdersPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
   const [page, setPage] = useState(1);
+  const [message, setMessage] = useState('');
 
   const allOrders = useOrders({});
   const filtered = useOrders({ search, productionStatus: status as 'ALL' | 'NEEDS_REVIEW' | 'READY_FOR_VENDOR' | 'IN_PRODUCTION' | 'BLOCKED' | 'COMPLETED' });
@@ -44,7 +45,7 @@ export function OrdersPage() {
       </div>
       {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(r) => navigate(`/orders/${r.id}`)} /> : <EmptyState title="No orders found" description="Try another filter combination." />}
       <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
-      <div className="mt-3"><Button>Create Order</Button></div>
+      <div className="mt-3 flex flex-wrap items-center gap-2"><Button onClick={() => setMessage('Mock order creation starts from a Closed Won opportunity handoff. Use an existing order detail for beta QA.')}>Create Order</Button>{message ? <p className="text-sm text-cyan-200">{message}</p> : null}</div>
     </Card>
   );
 }

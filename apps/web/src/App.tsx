@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from './components/AppShell';
 import { getStoredUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
@@ -46,6 +46,16 @@ function PageProtected({ user, path, children }: { user: AppUser | null; path: s
 export default function App() {
   const [user, setUser] = useState<AppUser | null>(() => getStoredUser());
   const dashboard = useMemo(() => <DashboardPage role={user?.role ?? 'OWNER'} />, [user?.role]);
+
+  useEffect(() => {
+    const syncUser = () => setUser(getStoredUser());
+    window.addEventListener('tuf:user-updated', syncUser);
+    window.addEventListener('storage', syncUser);
+    return () => {
+      window.removeEventListener('tuf:user-updated', syncUser);
+      window.removeEventListener('storage', syncUser);
+    };
+  }, []);
 
   return (
     <Routes>

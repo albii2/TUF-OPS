@@ -18,14 +18,14 @@ export function listOrders(params: OrderListParams = {}): Order[] {
       : true;
     const matchesStatus = !params.productionStatus || params.productionStatus === 'ALL' || order.productionStatus === params.productionStatus;
     const repForOrder = opportunities.find((o) => o.id === order.opportunityId)?.assignedRep;
-    const roleScoped = !user ? true : user.role === 'OWNER' ? true : user.role === 'DIRECTOR' ? true : repForOrder === user.name;
+    const roleScoped = !user ? true : ['OWNER', 'DIRECTOR', 'OPS'].includes(user.role) ? true : repForOrder === user.name;
     return matchesSearch && matchesStatus && roleScoped;
   });
 }
 
 export function getOrderById(id: string): Order | undefined {
   if (DATA_MODE !== 'mock') return undefined;
-  return orders.find((order) => order.id === id);
+  return listOrders({}).find((order) => order.id === id);
 }
 
 export function getOpsWorkspaceQueues() {

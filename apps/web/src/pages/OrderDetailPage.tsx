@@ -33,8 +33,8 @@ export function OrderDetailPage() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="What We Are Producing" className="lg:col-span-2"><p className="text-sm text-slate-400">Line items and quantities tracked from the linked order package.</p></Card>
-        <Card title="Roster / Upload"><p className="text-sm text-slate-400">Upload roster files and assignment sheets for production.</p></Card>
+        <Card title="Handoff Package" className="lg:col-span-2"><p className="text-sm text-slate-300">Lane: {order.lane}. Vendor: {order.vendor}. Production package is {order.missingInfo.length ? 'waiting on required details before release.' : 'clear for the current production step.'}</p></Card>
+        <Card title="Missing Info Checklist"><p className="text-sm text-slate-300">{order.missingInfo.length ? `${order.missingInfo.length} item${order.missingInfo.length > 1 ? 's' : ''} still required.` : 'Roster and production details are complete for this mock order.'}</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
