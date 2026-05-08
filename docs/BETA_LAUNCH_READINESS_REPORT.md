@@ -20,8 +20,8 @@ This recommendation assumes beta users understand the app is running in mock/cli
 - Inspected `apps/web/src/config/*`, `data/*`, `services/*`, `hooks/*`, `utils/*`, `components/*`, `pages/*`.
 - Inspected requested docs that exist; confirmed `TERRITORY_MAP_FUNCTION.md` and `WEB_FINAL_THEME_SPEC.md` are absent.
 - Verified route inventory and role visibility configuration.
-- Fixed top-left logo sizing and centering with `apps/web/public/tuf-ops-logo.svg`.
-- Added subtle authenticated footer watermark with `apps/web/public/tuf-mark-white.svg`.
+- Fixed top-left logo sizing and placement with the uploaded white TUF logo at `apps/web/public/tuf-logo.svg`.
+- Added subtle authenticated footer watermark using the same approved TUF logo asset.
 - Added mobile navigation for authenticated routes.
 - Added global search routing for scoped accounts, opportunities, and orders.
 - Made lead import create local mock organizations.
