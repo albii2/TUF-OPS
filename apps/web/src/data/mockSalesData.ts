@@ -186,7 +186,7 @@ export const opportunities: Opportunity[] = (() => {
                 season,
                 stage: stage as OpportunityStage,
                 value,
-                assignedRep: org.assignedRep,
+                assignedRep: opportunityCounter % 17 === 0 ? 'Dana Holt' : org.assignedRep,
                 nextAction: nextActions[(opportunityCounter + 1) % nextActions.length],
                 lastActivity: getRandomDateWithinLast50Days(),
                 closeProbability: probMap[stage as OpportunityStage],

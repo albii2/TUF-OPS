@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 96" role="img" aria-label="TUF Ops">
+  <g fill="none">
+    <rect x="4" y="10" width="76" height="76" rx="14" fill="#08121D" stroke="rgba(255,255,255,0.18)"/>
+    <path d="M15 33h28v7H23l4 7h16v15l4 4 4-4V47h16l4-7H51v-7h28l-6 6H51v20l-4 4-4-4V39H21l-6-6Z" fill="#F3F4F6"/>
+    <path d="M51 51h13l-4 5h-9v-5Z" fill="#F3F4F6"/>
+  </g>
+  <text x="96" y="51" fill="#E6EDF3" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="900" letter-spacing="5">TUF</text>
+  <text x="188" y="51" fill="#1FB6FF" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="900" font-style="italic">//</text>
+  <text x="229" y="51" fill="#3B82F6" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="900" font-style="italic" letter-spacing="3">OPS</text>
+  <text x="98" y="72" fill="#9FB0C3" font-family="Inter, Arial, sans-serif" font-size="9" font-weight="700" letter-spacing="3">COMMAND CENTER</text>
+</svg>

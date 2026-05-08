@@ -2,14 +2,11 @@ import type { PropsWithChildren } from 'react';
 
 export function TufLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="inline-flex flex-col">
-      <div className="inline-flex items-center gap-1.5 leading-none">
-        <span className={`font-black uppercase tracking-[0.16em] text-[var(--text-primary)] ${compact ? 'text-sm' : 'text-3xl'}`}>TUF</span>
-        <span className={`font-black italic text-[#1FB6FF] ${compact ? 'text-xs' : 'text-2xl'}`}>//</span>
-        <span className={`font-black uppercase italic tracking-[0.08em] bg-gradient-to-r from-[#1FB6FF] to-[#3B82F6] bg-clip-text text-transparent ${compact ? 'text-sm' : 'text-3xl'}`}>OPS</span>
-      </div>
-      {!compact && <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-[var(--text-secondary)]">Command Center</p>}
-    </div>
+    <img
+      src="/tuf-ops-logo.svg"
+      alt="TUF Ops"
+      className={compact ? 'h-12 w-full object-contain object-center' : 'mx-auto h-24 w-full max-w-[320px] object-contain object-center'}
+    />
   );
 }
 

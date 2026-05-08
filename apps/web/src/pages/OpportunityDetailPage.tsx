@@ -6,6 +6,8 @@ import { useOpportunityById, useOpportunityStages } from '../hooks/useOpportunit
 import { useActivities } from '../hooks/useReports';
 import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreativeRequests';
 import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
+import { updateOpportunityStage } from '../services/opportunitiesService';
+import type { Opportunity, OpportunityStage } from '../data/mockSalesData';
 
 const stageCtas = {
   LEAD_ASSIGNED: 'Contact coach',
@@ -32,31 +34,42 @@ export function OpportunityDetailPage() {
   const opp = useOpportunityById(id);
   const opportunityStages = useOpportunityStages();
   const dealActivity = useActivities({ entityType: 'OPPORTUNITY', entityId: id });
-  if (!opp) return <EmptyState title="Opportunity not found" description="Select another opportunity from the pipeline table." />;
-
-  const creativeRequests = useCreativeRequests(id);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [refreshTick, setRefreshTick] = useState(0);
+  const [actionMessage, setActionMessage] = useState('');
+  const [localOpp, setLocalOpp] = useState<Opportunity | undefined>();
+  const activeOpp = localOpp ?? opp;
+  const creativeRequests = useCreativeRequests(id, refreshTick);
   const [form, setForm] = useState({ requestType: 'MOCKUP' as CreativeRequestType, designTeam: 'APPAREL_MOCKUP' as DesignTeam, priority: 'NORMAL' as CreativePriority, title: '', sport: opp?.sport ?? '', season: opp?.season ?? '', neededItems: [] as string[], designNotes: '', inspirationNotes: '', dueDate: '', assetLinks: '', internalNotes: '' });
   const summary = useMemo(() => ({ total: creativeRequests.length, active: creativeRequests.filter((r) => !['DELIVERED','ARCHIVED'].includes(r.status)).length, delivered: creativeRequests.filter((r) => r.status === 'DELIVERED').length, highUrgent: creativeRequests.filter((r) => ['HIGH','URGENT'].includes(r.priority)).length }), [creativeRequests, refreshTick]);
-  const currentStageIndex = stageFlow.indexOf(opp.stage as any);
+  if (!activeOpp) return <EmptyState title="Opportunity not found" description="Select another opportunity from the pipeline table." />;
+
+  const currentStageIndex = stageFlow.indexOf(activeOpp.stage as any);
   const nextStage = currentStageIndex >= 0 && currentStageIndex < stageFlow.length - 1 ? stageFlow[currentStageIndex + 1] : null;
-  const staleDays = daysSince(opp.lastActivity);
+  const staleDays = daysSince(activeOpp.lastActivity);
+
+  const setStage = (stage: OpportunityStage, message: string) => {
+    const updated = updateOpportunityStage(activeOpp.id, stage);
+    if (updated) {
+      setLocalOpp(updated);
+      setActionMessage(message);
+    }
+  };
 
   return (
     <div className="space-y-3">
       <Card title="Deal Summary">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-lg font-semibold">{opp.title}</p>
-            <Link to={`/organizations/${opp.organizationId}`} className="text-sm text-cyan-300">{opp.organizationName}</Link>
-            <p className="text-xs text-slate-400">{opp.lane} · {opp.sport} · {opp.season}</p>
+            <p className="text-lg font-semibold">{activeOpp.title}</p>
+            <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
+            <p className="text-xs text-slate-400">{activeOpp.lane} · {activeOpp.sport} · {activeOpp.season}</p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(opp.value)}</p>
-            <p className="text-xs text-slate-400">Assigned Rep: {opp.assignedRep}</p>
+            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
+            <p className="text-xs text-slate-400">Assigned Rep: {activeOpp.assignedRep}</p>
           </div>
         </div>
       </Card>
@@ -64,7 +77,7 @@ export function OpportunityDetailPage() {
       <Card title="Close Path Progress">
         <div className="grid gap-2 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
           {opportunityStages.map((stage) => (
-            <div key={stage} className={`rounded-md border p-2 ${stage === opp.stage ? 'border-cyan-400 bg-cyan-500/15' : 'border-slate-800 bg-slate-950/70'}`}>
+            <div key={stage} className={`rounded-md border p-2 ${stage === activeOpp.stage ? 'border-cyan-400 bg-cyan-500/15' : 'border-slate-800 bg-slate-950/70'}`}>
               <StageBadge stage={stage} />
             </div>
           ))}
@@ -72,8 +85,8 @@ export function OpportunityDetailPage() {
       </Card>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{opp.nextAction}</p></Card>
-        <Card title="Best Next Move"><div className='space-y-2'><Button className="w-full">{stageCtas[opp.stage]}</Button>{nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200'>Advance to {nextStage.replace(/_/g,' ')}</Button> : null}</div></Card>
+        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{activeOpp.nextAction}</p>{actionMessage ? <p className="mt-2 text-sm text-cyan-200">{actionMessage}</p> : null}</Card>
+        <Card title="Best Next Move"><div className='space-y-2'><Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged in mock mode.`)}>{stageCtas[activeOpp.stage]}</Button>{nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')} in mock mode.`)}>Advance to {nextStage.replace(/_/g,' ')}</Button> : null}</div></Card>
       </div>
 
       {staleDays >= 7 ? <Card title="⚠ Follow-up Warning"><p className='text-sm text-amber-300'>No follow-up logged in {staleDays} days. Rep should log activity and advance next action today.</p></Card> : null}
@@ -84,12 +97,12 @@ export function OpportunityDetailPage() {
             {dealActivity.length ? dealActivity.map((entry) => <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{entry.message}<p className="text-xs text-slate-400">{entry.timestamp} · {entry.user}</p></div>) : <p className="text-slate-400">No activity entries yet.</p>}
           </div>
         </Card>
-        <Card title="Files / Mockup"><p className="text-sm text-slate-400">Attach mockups, approvals, and production files here.</p></Card>
+        <Card title="Files / Mockup"><p className="text-sm text-slate-300">Creative requests: {summary.total}. Active mockup/design tasks: {summary.active}. Delivered assets: {summary.delivered}.</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Priority close step: align invoice/payment timing and confirm buyer decision path.</p></Card>
-        <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full">Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200">Closed Lost</Button></div></Card>
+        <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING.</p></Card>
+        <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost</Button></div></Card>
       </div>
 
       <Card title="Creative Requests">
@@ -113,9 +126,9 @@ export function OpportunityDetailPage() {
           <textarea className='w-full rounded border border-slate-700 bg-slate-900 px-2 py-1' rows={2} placeholder='Asset Links' value={form.assetLinks} onChange={(e)=>setForm({...form,assetLinks:e.target.value})} />
           <textarea className='w-full rounded border border-slate-700 bg-slate-900 px-2 py-1' rows={2} placeholder='Internal Notes' value={form.internalNotes} onChange={(e)=>setForm({...form,internalNotes:e.target.value})} />
           {error ? <p className='text-rose-300'>{error}</p> : null}{success ? <p className='text-emerald-300'>{success}</p> : null}
-          <Button className='w-full sm:w-auto' onClick={()=>{try{submitCreativeRequest({opportunityId:opp.id,organizationId:opp.organizationId,assignedDesigner:'',requestType:form.requestType,designTeam:form.designTeam,priority:form.priority,title:form.title,sport:form.sport,season:form.season,neededItems:form.neededItems,designNotes:form.designNotes,inspirationNotes:form.inspirationNotes,dueDate:form.dueDate||undefined,assetLinks:form.assetLinks,internalNotes:form.internalNotes,trelloCardUrl:''});setSuccess('Creative request submitted.');setError('');setShowForm(false);setRefreshTick((x)=>x+1);}catch(e:any){setError('Unable to submit creative request. Please check required fields and try again.');setSuccess('')}}}>Submit Request</Button>
+          <Button className='w-full sm:w-auto' onClick={()=>{try{submitCreativeRequest({opportunityId:activeOpp.id,organizationId:activeOpp.organizationId,assignedDesigner:'',requestType:form.requestType,designTeam:form.designTeam,priority:form.priority,title:form.title,sport:form.sport,season:form.season,neededItems:form.neededItems,designNotes:form.designNotes,inspirationNotes:form.inspirationNotes,dueDate:form.dueDate||undefined,assetLinks:form.assetLinks,internalNotes:form.internalNotes,trelloCardUrl:''});setSuccess('Creative request submitted.');setError('');setShowForm(false);setRefreshTick((x)=>x+1);}catch{setError('Unable to submit creative request. Please check required fields and try again.');setSuccess('')}}}>Submit Request</Button>
         </div> : null}
-        {creativeRequests.length ? <div className='space-y-2'>{creativeRequests.map((r)=><div key={r.id} className='rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm'><p className='font-semibold'>{r.title}</p><p className='text-slate-300'>{r.requestType} · {r.designTeam} · Priority {r.priority} · Status {r.status}</p><p className='text-slate-400'>Due: {r.dueDate || '—'} · Designer: {r.assignedDesigner || 'Unassigned'}</p><p className='text-slate-400'>Trello: {r.trelloCardUrl || 'Pending integration'}</p></div>)}</div> : <p className='text-sm text-slate-400'>No creative requests yet. Create a request when this opportunity needs a mockup, apparel graphic, sales visual, or brand asset.</p>}
+        {creativeRequests.length ? <div className='space-y-2'>{creativeRequests.map((r)=><div key={r.id} className='rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm'><p className='font-semibold'>{r.title}</p><p className='text-slate-300'>{r.requestType} · {r.designTeam} · Priority {r.priority} · Status {r.status}</p><p className='text-slate-400'>Due: {r.dueDate || '—'} · Designer: {r.assignedDesigner || 'Unassigned'}</p><p className='text-slate-400'>Design queue: Mock task created for beta review</p></div>)}</div> : <p className='text-sm text-slate-400'>No creative requests yet. Create a request when this opportunity needs a mockup, apparel graphic, sales visual, or brand asset.</p>}
       </Card>
     </div>
   );

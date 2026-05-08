@@ -10,6 +10,12 @@ const ROLE_DEFAULT_USER: Record<Role, string> = {
 const USER_KEY = 'tuf_ops_user_v1';
 const ALLOWED_ROLES: Role[] = ['OWNER', 'DIRECTOR', 'REP', 'OPS'];
 
+function persistUser(user: AppUser): AppUser {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: user }));
+  return user;
+}
+
 function isValidStoredUser(value: unknown): value is AppUser {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as { name?: unknown; role?: unknown };
@@ -34,8 +40,7 @@ export function getStoredUser(): AppUser | null {
 export function loginWithPin(pin: string): AppUser | null {
   if (pin !== '0000') return null;
   const user: AppUser = { name: 'Coach Bradshaw', role: 'OWNER' };
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-  return user;
+  return persistUser(user);
 }
 
 export function updateRole(role: Role): AppUser | null {
@@ -45,8 +50,15 @@ export function updateRole(role: Role): AppUser | null {
     name: existing.role === role ? existing.name : ROLE_DEFAULT_USER[role],
     role,
   };
-  localStorage.setItem(USER_KEY, JSON.stringify(updated));
-  return updated;
+  return persistUser(updated);
+}
+
+export function updateUserProfile(input: { name: string; role: Role }): AppUser {
+  const user = {
+    name: input.name.trim() || ROLE_DEFAULT_USER[input.role],
+    role: input.role,
+  };
+  return persistUser(user);
 }
 
 export function logout(): void {

@@ -11,7 +11,7 @@ import {
 export function useOrganizations(params: OrganizationListParams) {
   return useMemo(
     () => listOrganizations(params),
-    [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority],
+    [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority, params.refreshKey],
   );
 }
 

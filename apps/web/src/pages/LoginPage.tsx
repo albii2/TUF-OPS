@@ -21,7 +21,7 @@ export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void })
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-tuf-texture p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-tuf-texture p-4">
       <form onSubmit={onSubmit} className="w-full max-w-sm rounded-xl border border-slate-800 bg-slate-950/76 p-6 text-center shadow-[0_26px_70px_rgba(3,9,24,0.8)] backdrop-blur">
         <TufLogo />
         <p className="mt-4 text-xs uppercase tracking-[0.2em] text-slate-400">Secure Operator Access</p>

@@ -100,7 +100,7 @@ export function TerritoryPage() {
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
         <h2 className='text-xl font-semibold'>{user?.role === 'DIRECTOR' ? 'My Territory Coverage' : 'Territory Coverage'}</h2>
-        <Link className='text-cyan-300 text-sm' to='/territory/map'>Open map layer (next slice)</Link>
+        <Link className='text-cyan-300 text-sm' to='/territory/map'>Open territory map</Link>
       </div>
 
       <div className='grid gap-3 md:grid-cols-2'>

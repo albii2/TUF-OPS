@@ -4,6 +4,7 @@ import type { Role } from '../types';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useActivities } from '../hooks/useReports';
 import { useOrganizations } from '../hooks/useOrganizations';
+import { useOpsWorkspaceQueues, useOrders } from '../hooks/useOrders';
 import { formatCurrency } from '../utils/format';
 import { getNearCloseOpportunities, getStuckOpportunities } from '../services/businessSelectors';
 
@@ -18,6 +19,8 @@ function ActionRow({ title, sub, value, to }: { title: string; sub: string; valu
 export function DashboardPage({ role }: { role: Role }) {
   const opportunities = useOpportunities({});
   const organizations = useOrganizations({});
+  const orders = useOrders({});
+  const opsQueues = useOpsWorkspaceQueues();
   const activities = useActivities({ limit: 6 });
   const nearClose = getNearCloseOpportunities(opportunities);
   const stuck = getStuckOpportunities(opportunities);
@@ -52,6 +55,7 @@ export function DashboardPage({ role }: { role: Role }) {
   });
 
   const topOpps = [...opportunities].sort((a, b) => b.value - a.value).slice(0, 3);
+  const topOrders = [...orders].sort((a, b) => b.value - a.value).slice(0, 3);
   const repWeekly = {
     touches: opportunities.filter((o) => !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).length,
     advanced: opportunities.filter((o) => ['MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING'].includes(o.stage)).length,
@@ -59,6 +63,9 @@ export function DashboardPage({ role }: { role: Role }) {
   };
   const directorWeekly = { coachingLoad: stuck.length, nearClose: nearClose.length, pendingInvoices: paymentsPending.length };
   const ownerWeekly = { pipeline: totalPipeline, closed: closed.reduce((s,o)=>s+o.value,0), activeOrgs: organizations.filter((o)=>o.status==='ACTIVE').length };
+  const blockedOrders = orders.filter((o) => o.productionStatus === 'BLOCKED');
+  const needsReview = orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW');
+  const readyForVendor = orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR');
 
   return (
     <div className='space-y-2.5'>
@@ -82,9 +89,15 @@ export function DashboardPage({ role }: { role: Role }) {
           <Metric label='Near Close' value={String(nearClose.length)} sub='Push to decision' />
           <Metric label='Pending Invoices' value={String(paymentsPending.length)} sub='Follow up today' />
         </> : null}
+        {role === 'OPS' ? <>
+          <Metric label='Needs Review' value={String(needsReview.length)} sub='New handoffs' />
+          <Metric label='Blocked Orders' value={String(blockedOrders.length)} sub='Missing info' />
+          <Metric label='Ready for Vendor' value={String(readyForVendor.length)} sub='Production queue' />
+          <Metric label='In Production' value={String(orders.filter((o) => o.productionStatus === 'IN_PRODUCTION').length)} sub='Vendor active' />
+        </> : null}
       </div>
 
-      {role !== 'REP' ? <GlassCard title={role === 'OWNER' ? 'PIPELINE BY STAGE' : 'TEAM PIPELINE BY STAGE'}>
+      {role === 'OWNER' || role === 'DIRECTOR' ? <GlassCard title={role === 'OWNER' ? 'PIPELINE BY STAGE' : 'TEAM PIPELINE BY STAGE'}>
         <div className='grid gap-0 border border-[var(--border)] rounded-lg overflow-hidden lg:grid-cols-6'>
           {byStage.map(([key, label]) => (
             <div key={key} className='panel-elevated border-r border-[var(--border)] p-3 last:border-r-0'>
@@ -97,7 +110,11 @@ export function DashboardPage({ role }: { role: Role }) {
       </GlassCard> : null}
 
       <div className='grid gap-2 md:grid-cols-2 lg:grid-cols-3'>
-        {role === 'REP' ? <GlassCard title='TODAY QUICK WINS'><div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'><p>• Log follow-up on top 5 active deals</p><p>• Advance 3 opportunities one stage</p><p>• Submit creative requests for mockup needs</p></div></GlassCard> : <GlassCard title='LANE PENETRATION'>
+        {role === 'REP' ? <GlassCard title='TODAY QUICK WINS'><div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'><p>Log follow-up on top 5 active deals</p><p>Advance 3 opportunities one stage</p><p>Submit creative requests for mockup needs</p></div></GlassCard> : role === 'OPS' ? <GlassCard title='OPS QUEUE MIX'>
+          <div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'>
+            <p>Needs Review {opsQueues.NEEDS_REVIEW.length}</p><p>Ready for Vendor {opsQueues.READY_FOR_VENDOR.length}</p><p>In Production {opsQueues.IN_PRODUCTION.length}</p><p>Blocked {opsQueues.BLOCKED.length}</p>
+          </div>
+        </GlassCard> : <GlassCard title='LANE PENETRATION'>
           <p className='text-5xl font-semibold text-[#1FB6FF]'>68%</p>
           <p className='text-xs text-[var(--text-secondary)]'>AVG. PENETRATION</p>
           <div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'>
@@ -105,12 +122,12 @@ export function DashboardPage({ role }: { role: Role }) {
           </div>
         </GlassCard>}
         <GlassCard title='RECENT ACTIVITY'>
-          <div className='space-y-2'>{activities.map((a:any) => <ActionRow key={a.id} title={a.user} sub={a.message} value='now' to='/opportunities' />)}</div>
-          <Link className='mt-2 inline-block text-sm text-[#1FB6FF]' to='/reports'>View All Activity</Link>
+          <div className='space-y-2'>{activities.map((a:any) => <ActionRow key={a.id} title={a.user} sub={a.message} value='now' to={role === 'OPS' ? '/ops-workspace' : '/opportunities'} />)}</div>
+          <Link className='mt-2 inline-block text-sm text-[#1FB6FF]' to={role === 'OPS' ? '/ops-workspace' : '/reports'}>{role === 'OPS' ? 'Open Ops Workspace' : 'View All Activity'}</Link>
         </GlassCard>
-        <GlassCard title='TOP OPPORTUNITIES'>
-          <div className='space-y-2'>{topOpps.map((o) => <ActionRow key={o.id} title={o.organizationName} sub={o.stage.replace(/_/g,' ')} value={formatCurrency(o.value)} to={`/opportunities/${o.id}`} />)}</div>
-          <Link className='mt-2 inline-block text-sm text-[#1FB6FF]' to='/opportunities'>View All Opportunities</Link>
+        <GlassCard title={role === 'OPS' ? 'TOP ORDER VALUE' : 'TOP OPPORTUNITIES'}>
+          <div className='space-y-2'>{role === 'OPS' ? topOrders.map((o) => <ActionRow key={o.id} title={o.organizationName} sub={o.productionStatus.replace(/_/g,' ')} value={formatCurrency(o.value)} to={`/orders/${o.id}`} />) : topOpps.map((o) => <ActionRow key={o.id} title={o.organizationName} sub={o.stage.replace(/_/g,' ')} value={formatCurrency(o.value)} to={`/opportunities/${o.id}`} />)}</div>
+          <Link className='mt-2 inline-block text-sm text-[#1FB6FF]' to={role === 'OPS' ? '/orders' : '/opportunities'}>{role === 'OPS' ? 'View All Orders' : 'View All Opportunities'}</Link>
         </GlassCard>
       </div>
 
@@ -131,13 +148,24 @@ export function DashboardPage({ role }: { role: Role }) {
         </GlassCard>
       ) : null}
 
-      {role !== 'OWNER' ? (
+      {(role === 'DIRECTOR' || role === 'REP') ? (
         <div className='grid gap-2 lg:grid-cols-2'>
           <GlassCard title={role === 'DIRECTOR' ? 'TEAM NEXT ACTIONS' : 'MY NEXT ACTIONS'}>
             <div className='space-y-2'>{opportunities.slice(0, 6).map((o) => <ActionRow key={o.id} title={o.nextAction} sub={o.organizationName} value={formatCurrency(o.value)} to={`/opportunities/${o.id}`} />)}</div>
           </GlassCard>
           <GlassCard title='DEALS NEAR CLOSE'>
             <div className='space-y-2'>{nearClose.slice(0, 6).map((o) => <ActionRow key={o.id} title={o.title} sub={o.stage.replace(/_/g,' ')} value={formatCurrency(o.value)} to={`/opportunities/${o.id}`} />)}</div>
+          </GlassCard>
+        </div>
+      ) : null}
+
+      {role === 'OPS' ? (
+        <div className='grid gap-2 lg:grid-cols-2'>
+          <GlassCard title='BLOCKED ORDERS'>
+            <div className='space-y-2'>{blockedOrders.slice(0, 6).map((o) => <ActionRow key={o.id} title={o.organizationName} sub={o.missingInfo.join(', ') || 'Missing info review'} value={o.productionStatus.replace(/_/g, ' ')} to={`/orders/${o.id}`} />)}</div>
+          </GlassCard>
+          <GlassCard title='NEXT PRODUCTION HANDOFFS'>
+            <div className='space-y-2'>{needsReview.concat(readyForVendor).slice(0, 6).map((o) => <ActionRow key={o.id} title={o.id} sub={o.organizationName} value={formatCurrency(o.value)} to={`/orders/${o.id}`} />)}</div>
           </GlassCard>
         </div>
       ) : null}

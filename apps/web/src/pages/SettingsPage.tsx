@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getStoredUser, updateRole } from '../auth';
+import { getStoredUser, updateUserProfile } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
 import type { Role } from '../types';
 
@@ -36,8 +36,8 @@ export function SettingsPage() {
 
   const saveAll = () => {
     localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-    updateRole(role);
-    setSaved('Settings saved for this device.');
+    updateUserProfile({ name, role });
+    setSaved('Settings saved for this device and beta role context updated.');
   };
 
   return (
