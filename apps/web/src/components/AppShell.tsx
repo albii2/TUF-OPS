@@ -7,6 +7,7 @@ import { TufLogo } from './ui';
 import { listOpportunities } from '../services/opportunitiesService';
 import { listOrders } from '../services/ordersService';
 import { listOrganizations } from '../services/organizationsService';
+import { SportsTicker } from './SportsTicker';
 
 export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUser | null) => void }) {
   const navigate = useNavigate();
@@ -48,7 +49,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
     <div className="relative min-h-screen bg-tuf-texture text-[var(--text-primary)]">
       <div className="mx-auto grid min-h-screen max-w-[1500px] grid-cols-1 md:grid-cols-[240px_1fr]">
         <aside className="hidden border-r border-[var(--border)] bg-[#070c13]/95 p-3.5 md:flex md:flex-col">
-          <div className="flex h-20 items-center justify-center rounded-lg panel-elevated p-2"><TufLogo compact /></div>
+          <div className="flex h-20 items-center justify-start px-1"><TufLogo compact /></div>
           <nav className="mt-3.5 space-y-1 flex-1">
             {navItems.map((nav) => {
               return (
@@ -69,7 +70,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
 
         <main className="px-4 pb-20 pt-3 md:px-5">
           <div className="mb-3 md:hidden">
-            <div className="mb-2 flex h-16 items-center justify-center rounded-lg panel-elevated p-2"><TufLogo compact /></div>
+            <div className="mb-2 flex h-16 items-center justify-start px-1"><TufLogo compact /></div>
             <nav className="flex gap-2 overflow-x-auto pb-1">
               {navItems.map((nav) => (
                 <NavLink key={nav.key} to={nav.route} className={({ isActive }) => `shrink-0 rounded-md border px-3 py-2 text-xs ${isActive ? 'border-[#1FB6FF] bg-[#0d2234] text-[#dff5ff]' : 'border-[var(--border)] bg-[#0b1118] text-[var(--text-secondary)]'}`}>
@@ -80,6 +81,13 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           </div>
 
           <header className="mb-3 rounded-lg panel p-2">
+            <SportsTicker />
+            {user.role === 'DIRECTOR' || user.role === 'REP' ? (
+              <div className="mb-2 flex flex-wrap gap-2 text-[11px] font-semibold uppercase tracking-wide">
+                <span className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-2 py-1 text-cyan-100">4 orders/month</span>
+                <span className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-1 text-emerald-100">Lane penetration wins territories</span>
+              </div>
+            ) : null}
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
               <div className="flex-1">
                 <input
@@ -106,7 +114,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
         </main>
       </div>
       <div className="pointer-events-none fixed inset-x-0 bottom-2 z-0 flex justify-center md:bottom-4">
-        <img src="/tuf-mark-white.svg" alt="" aria-hidden="true" className="h-8 w-8 opacity-[0.09] md:h-12 md:w-12" />
+        <img src="/tuf-logo.svg" alt="" aria-hidden="true" className="h-6 w-16 object-contain opacity-[0.08] md:h-8 md:w-20" />
       </div>
     </div>
   );

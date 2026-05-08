@@ -26,10 +26,12 @@ Scope: `apps/web` organizational beta in mock mode.
 | Closed won order handoff | `/orders`, `/orders/:id` | `OrdersPage`, `OrderDetailPage` | WORKING MOCK | Existing closed-won/invoice/decision deals seed order handoff views. |
 | Blocked order reason | `/orders`, `/ops-workspace`, `/orders/:id` | Order and ops pages | WORKING MOCK | BLOCKED orders show missing info and vendor notes. |
 | Missing info checklist | `/orders/:id`, `/ops-workspace` | `OrderDetailPage`, `OpsWorkspacePage` | WORKING MOCK | Detail page shows missing item count and list. |
-| Territory health | `/territory` | `TerritoryPage` | WORKING MOCK | Coverage health, workload, stale and untouched account pressure are visible. |
-| Territory map | `/territory/map` | `TerritoryMapPage` | WORKING MOCK | Four zones only: Metro, North, West, South. No East zone. |
+| Territory health | `/territory` | `TerritoryPage`, `TerritoryCommandMap` | WORKING MOCK | Map-first command view shows coverage, untouched accounts, near close, pipeline, rep accountability, and stale account pressure. |
+| Territory map | `/territory`, `/territory/map` | `TerritoryCommandMap`, `TerritoryMapPage` | WORKING MOCK | Four zones only: Metro, North, West, South. No East zone. Interactive zone selection updates the snapshot. |
 | Reports | `/reports` | `ReportsPage` | WORKING MOCK | Weekly/monthly, lane, rep summaries and mock export feedback. |
 | Settings/theme/accent | `/settings` | `SettingsPage` | WORKING MOCK | Saves profile, role context, theme, compact mode, notifications, default view, PIN field. |
+| 4 orders/month KPI | `/dashboard`, `/earnings`, `/territory` | `DashboardPage`, `EarningsPage`, `AppShell`, `TerritoryPage` | WORKING MOCK | Directors and reps get persistent KPI reminders plus progress/earning potential views. |
+| National sports ticker | Authenticated shell | `SportsTicker`, `AppShell` | WORKING MOCK | ESPN public feeds populate NBA, NFL, and college football ticker with safe fallback text. |
 
 ## Non-Blocking Post-Beta Notes
 

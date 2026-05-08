@@ -6,7 +6,7 @@ Scope: `apps/web` organizational beta readiness for Owner, Director, Rep, and Op
 
 ## Executive Summary
 
-`apps/web` is ready for internal organizational beta in mock mode after a focused hardening pass. The app now has proportional TUF Ops branding, an authenticated-page footer watermark, mobile navigation, working mock creation/import/stage actions, safer role scoping, OPS order visibility, and beta documentation for role journeys and business logic coverage.
+`apps/web` is ready for internal organizational beta in mock mode after a focused hardening pass. The app now has proportional TUF Ops branding, an authenticated-page footer watermark, mobile navigation, working mock creation/import/stage actions, safer role scoping, OPS order visibility, upgraded command dashboards, a national sports scoreboard ticker, improved territory command map, earnings pace visibility, and beta documentation for role journeys and business logic coverage.
 
 ## Current Beta Readiness Status
 
@@ -20,10 +20,14 @@ This recommendation assumes beta users understand the app is running in mock/cli
 - Inspected `apps/web/src/config/*`, `data/*`, `services/*`, `hooks/*`, `utils/*`, `components/*`, `pages/*`.
 - Inspected requested docs that exist; confirmed `TERRITORY_MAP_FUNCTION.md` and `WEB_FINAL_THEME_SPEC.md` are absent.
 - Verified route inventory and role visibility configuration.
-- Fixed top-left logo sizing and centering with `apps/web/public/tuf-ops-logo.svg`.
-- Added subtle authenticated footer watermark with `apps/web/public/tuf-mark-white.svg`.
+- Fixed top-left logo sizing and placement with the uploaded white TUF logo at `apps/web/public/tuf-logo.svg`.
+- Added subtle authenticated footer watermark using the same approved TUF logo asset.
 - Added mobile navigation for authenticated routes.
 - Added global search routing for scoped accounts, opportunities, and orders.
+- Added a national NBA/NFL/college football scoreboard ticker to the authenticated shell.
+- Upgraded the dashboard into a widget-based command view with Today’s Focus, next actions, pipeline bars, revenue, recent activity, 4-orders/month pace, and lane penetration.
+- Replaced the clunky territory map/cards with a map-first Territory Command Map on `/territory` and `/territory/map`.
+- Upgraded Earnings into a 4-orders/month pace and commission potential view for reps/directors.
 - Made lead import create local mock organizations.
 - Made new organization and new opportunity flows persist local mock records.
 - Made opportunity stage/action controls respond in local mock state.
@@ -55,7 +59,9 @@ This recommendation assumes beta users understand the app is running in mock/cli
 - For DIRECTOR, verify `/my-opportunities`, `/team-opportunities`, `/territory`, and `/reports`.
 - For REP, create an opportunity, advance stages, submit a creative request, and close won/lost in mock mode.
 - For OPS, open `/dashboard`, `/ops-workspace`, `/orders`, and several `/orders/:id` details.
-- Verify `/territory/map` has Metro, North, West, South only.
+- Verify `/territory` opens with the Territory Command Map first and `/territory/map` has Metro, North, West, South only.
+- Verify Dashboard shows Today’s Focus, pipeline/revenue widgets, monthly standard, lane penetration, and the national scoreboard ticker.
+- Verify Earnings shows made, can-make-at-pace, order progress, and rep/team 4-order pace.
 - Check desktop, tablet, and mobile widths for navigation, tables, dashboard cards, details, and login.
 - Confirm no generated `.js`, `.d.ts`, `.map` files exist under `apps/web/src`.
 - Run `pnpm -C apps/web build`.
@@ -66,4 +72,4 @@ This recommendation assumes beta users understand the app is running in mock/cli
 - `pnpm -C apps/web build`: passed.
 - `find apps/web/src -name '*.js' -o -name '*.d.ts' -o -name '*.js.map' -o -name '*.d.ts.map'`: passed with no output.
 - `pnpm -C apps/web lint`: attempted; blocked because `eslint` is not installed in the package/workspace.
-- Browser smoke check: login, Owner dashboard, OPS workspace to order detail, mobile/tablet nav, and brand asset visibility passed.
+- Browser smoke check: branch dev server on `localhost:5176` showed upgraded dashboard, territory command map, earnings command center, scoreboard ticker, mobile/tablet nav, and brand asset visibility.

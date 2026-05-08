@@ -1,184 +1,182 @@
 import { Link } from 'react-router-dom';
 import { GlassCard } from '../components/ui';
 import type { Role } from '../types';
-import { useOpportunities } from '../hooks/useOpportunities';
 import { useActivities } from '../hooks/useReports';
+import { useOpportunities } from '../hooks/useOpportunities';
+import { useOrders } from '../hooks/useOrders';
 import { useOrganizations } from '../hooks/useOrganizations';
-import { useOpsWorkspaceQueues, useOrders } from '../hooks/useOrders';
+import { getLanePenetration, getNearCloseOpportunities, getStuckOpportunities } from '../services/businessSelectors';
 import { formatCurrency } from '../utils/format';
-import { getNearCloseOpportunities, getStuckOpportunities } from '../services/businessSelectors';
 
-function Metric({ label, value, sub }: { label: string; value: string; sub: string }) {
-  return <GlassCard><p className='text-xs text-[var(--text-secondary)]'>{label}</p><p className='mt-1 text-3xl md:text-[40px] font-semibold text-[var(--text-primary)]'>{value}</p><p className='text-sm text-[#1FB6FF]'>{sub}</p></GlassCard>;
+const MONTHLY_ORDER_GOAL = 4;
+const openStages = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'];
+const pipelineStages = ['CONTACTED', 'MOCKUP_REQUESTED', 'INVOICE_SENT', 'CLOSED_WON'] as const;
+
+function MetricTile({ value, label, tone, to }: { value: string; label: string; tone: string; to: string }) {
+  return (
+    <Link to={to} className={`group rounded-lg border p-3 transition hover:-translate-y-0.5 hover:border-cyan-300/70 ${tone}`}>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-2xl font-semibold text-slate-50">{value}</p>
+        <span className="text-lg text-slate-200 transition group-hover:translate-x-1">›</span>
+      </div>
+      <p className="mt-1 text-sm text-slate-200">{label}</p>
+    </Link>
+  );
 }
 
-function ActionRow({ title, sub, value, to }: { title: string; sub: string; value: string; to: string }) {
-  return <Link to={to} className='block w-full rounded-lg panel-elevated p-2 text-left transition hover:bg-[#132133]'><div className='flex items-center justify-between'><div><p className='text-sm font-semibold'>{title}</p><p className='text-xs text-[var(--text-secondary)]'>{sub}</p></div><p className='text-sm font-semibold text-[#1FB6FF]'>{value}</p></div></Link>;
+function ProgressLine({ label, value, total, amount }: { label: string; value: number; total: number; amount: number }) {
+  const pct = Math.min(100, Math.round((value / Math.max(total, 1)) * 100));
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <span className="text-slate-300">{label}</span>
+        <span className="font-semibold text-slate-100">{formatCurrency(amount)}</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+        <div className="h-full rounded-full bg-cyan-400" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
+function DealRow({ title, meta, value, to }: { title: string; meta: string; value: number; to: string }) {
+  return (
+    <Link to={to} className="flex items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 transition hover:border-cyan-400/70 hover:bg-slate-900">
+      <span className="min-w-0">
+        <span className="block truncate text-sm font-semibold text-slate-100">{title}</span>
+        <span className="block truncate text-xs text-slate-400">{meta}</span>
+      </span>
+      <span className="shrink-0 text-sm font-semibold text-slate-100">{formatCurrency(value)}</span>
+    </Link>
+  );
+}
+
+function GoalRing({ count }: { count: number }) {
+  const pct = Math.min(100, Math.round((count / MONTHLY_ORDER_GOAL) * 100));
+  const remaining = Math.max(MONTHLY_ORDER_GOAL - count, 0);
+  return (
+    <div className="flex items-center gap-4">
+      <div className="grid h-24 w-24 place-items-center rounded-full" style={{ background: `conic-gradient(#22d3ee ${pct}%, #1e293b ${pct}% 100%)` }}>
+        <div className="grid h-16 w-16 place-items-center rounded-full bg-[#07101a] text-center">
+          <span className="text-xl font-bold text-white">{count}/{MONTHLY_ORDER_GOAL}</span>
+        </div>
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-white">4 orders/month pace</p>
+        <p className="text-sm text-slate-300">{remaining} more order{remaining === 1 ? '' : 's'} to hit the floor.</p>
+        <p className="mt-1 text-xs text-cyan-200">Next most important KPI: lane penetration.</p>
+      </div>
+    </div>
+  );
 }
 
 export function DashboardPage({ role }: { role: Role }) {
   const opportunities = useOpportunities({});
   const organizations = useOrganizations({});
   const orders = useOrders({});
-  const opsQueues = useOpsWorkspaceQueues();
-  const activities = useActivities({ limit: 6 });
+  const activities = useActivities({ limit: 4 });
+
   const nearClose = getNearCloseOpportunities(opportunities);
-  const stuck = getStuckOpportunities(opportunities);
-  const paymentsPending = opportunities.filter((o) => o.stage === 'INVOICE_SENT');
-  const closed = opportunities.filter((o) => o.stage === 'CLOSED_WON');
+  const stuckDeals = getStuckOpportunities(opportunities);
+  const openOpps = opportunities.filter((opp) => openStages.includes(opp.stage));
+  const pendingPayments = opportunities.filter((opp) => ['INVOICE_SENT', 'DECISION_PENDING'].includes(opp.stage));
+  const activeOrders = orders.filter((order) => order.productionStatus !== 'COMPLETED');
+  const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
+  const pipelineTotal = openOpps.reduce((sum, opp) => sum + opp.value, 0);
+  const closedValue = opportunities.filter((opp) => opp.stage === 'CLOSED_WON').reduce((sum, opp) => sum + opp.value, 0);
+  const pendingValue = pendingPayments.reduce((sum, opp) => sum + opp.value, 0);
+  const lanePenetration = getLanePenetration(organizations);
 
-  const byStage = [
-    ['LEAD_ASSIGNED', 'Lead Assigned'],
-    ['CONTACTED', 'Contacted'],
-    ['DISCOVERY', 'Conversation'],
-    ['MOCKUP_DELIVERED', 'Proposal Sent'],
-    ['DECISION_PENDING', 'Decision Pending'],
-    ['CLOSED_WON', 'Closed Won'],
-  ] as const;
-
-  const stageValue = (stage: string) => opportunities.filter((o) => o.stage === stage).reduce((sum, o) => sum + o.value, 0);
-  const stageCount = (stage: string) => opportunities.filter((o) => o.stage === stage).length;
-  const totalPipeline = opportunities.reduce((s, o) => s + o.value, 0);
-
-  const territoryOverview = ['metro', 'north', 'west', 'south'].map((zone) => {
-    const zoneOrgs = organizations.filter((o) => o.territory === zone);
-    const zoneOppIds = new Set(zoneOrgs.map((o) => o.id));
-    const zoneOpps = opportunities.filter((o) => zoneOppIds.has(o.organizationId));
-    return {
-      zone: `TUF ${zone.toUpperCase()}`,
-      accounts: zoneOrgs.length,
-      untouched: zoneOrgs.filter((o) => o.coverageStatus === 'UNTOUCHED').length,
-      pipeline: zoneOpps.reduce((s, o) => s + o.value, 0),
-      closed: zoneOpps.filter((o) => o.stage === 'CLOSED_WON').reduce((s, o) => s + o.value, 0),
-      coverage: zoneOrgs.length ? Math.round(((zoneOrgs.length - zoneOrgs.filter((o) => o.coverageStatus === 'UNTOUCHED').length) / zoneOrgs.length) * 100) : 0,
-    };
-  });
-
-  const topOpps = [...opportunities].sort((a, b) => b.value - a.value).slice(0, 3);
-  const topOrders = [...orders].sort((a, b) => b.value - a.value).slice(0, 3);
-  const repWeekly = {
-    touches: opportunities.filter((o) => !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).length,
-    advanced: opportunities.filter((o) => ['MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING'].includes(o.stage)).length,
-    nearClose: nearClose.length,
-  };
-  const directorWeekly = { coachingLoad: stuck.length, nearClose: nearClose.length, pendingInvoices: paymentsPending.length };
-  const ownerWeekly = { pipeline: totalPipeline, closed: closed.reduce((s,o)=>s+o.value,0), activeOrgs: organizations.filter((o)=>o.status==='ACTIVE').length };
-  const blockedOrders = orders.filter((o) => o.productionStatus === 'BLOCKED');
-  const needsReview = orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW');
-  const readyForVendor = orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR');
-
-  return (
-    <div className='space-y-2.5'>
-      <div><h1 className='text-2xl md:text-[32px] font-semibold'>Dashboard</h1></div>
-      <div className='grid gap-2 grid-cols-2 lg:grid-cols-4'>
-        {role === 'OWNER' ? <>
-          <Metric label='Enterprise Pipeline' value={formatCurrency(totalPipeline)} sub='Org-wide view' />
-          <Metric label='Open Opportunities' value={String(opportunities.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length)} sub='Execution load' />
-          <Metric label='Closed Won (MTD)' value={formatCurrency(closed.reduce((s, o) => s + o.value, 0))} sub='Revenue velocity' />
-          <Metric label='Avg. Deal Size' value={formatCurrency(Math.round(totalPipeline / Math.max(1, opportunities.length)))} sub='Trend monitor' />
-        </> : null}
-        {role === 'DIRECTOR' ? <>
-          <Metric label='Team Pipeline' value={formatCurrency(totalPipeline)} sub='Director scope' />
-          <Metric label='Stuck Deals' value={String(stuck.length)} sub='Needs coaching' />
-          <Metric label='Near Close' value={String(nearClose.length)} sub='This week focus' />
-          <Metric label='Invoices Pending' value={String(paymentsPending.length)} sub='Clear blockers' />
-        </> : null}
-        {role === 'REP' ? <>
-          <Metric label='My Pipeline' value={formatCurrency(totalPipeline)} sub='My book of business' />
-          <Metric label='My Active Deals' value={String(opportunities.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length)} sub='Daily actions' />
-          <Metric label='Near Close' value={String(nearClose.length)} sub='Push to decision' />
-          <Metric label='Pending Invoices' value={String(paymentsPending.length)} sub='Follow up today' />
-        </> : null}
-        {role === 'OPS' ? <>
-          <Metric label='Needs Review' value={String(needsReview.length)} sub='New handoffs' />
-          <Metric label='Blocked Orders' value={String(blockedOrders.length)} sub='Missing info' />
-          <Metric label='Ready for Vendor' value={String(readyForVendor.length)} sub='Production queue' />
-          <Metric label='In Production' value={String(orders.filter((o) => o.productionStatus === 'IN_PRODUCTION').length)} sub='Vendor active' />
-        </> : null}
-      </div>
-
-      {role === 'OWNER' || role === 'DIRECTOR' ? <GlassCard title={role === 'OWNER' ? 'PIPELINE BY STAGE' : 'TEAM PIPELINE BY STAGE'}>
-        <div className='grid gap-0 border border-[var(--border)] rounded-lg overflow-hidden lg:grid-cols-6'>
-          {byStage.map(([key, label]) => (
-            <div key={key} className='panel-elevated border-r border-[var(--border)] p-3 last:border-r-0'>
-              <p className='text-xs text-[var(--text-secondary)]'>{label}</p>
-              <p className='mt-1 text-3xl md:text-[40px] font-semibold text-[#1FB6FF]'>{stageCount(key)}</p>
-              <p className='text-sm text-[var(--text-primary)]'>{formatCurrency(stageValue(key))}</p>
-            </div>
-          ))}
+  if (role === 'OPS') {
+    return (
+      <div className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-4">
+          <MetricTile value={String(orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW').length)} label="Needs Review" tone="border-cyan-500/40 bg-cyan-500/10" to="/ops-workspace" />
+          <MetricTile value={String(blockedOrders.length)} label="Blocked Orders" tone="border-rose-500/40 bg-rose-500/10" to="/orders" />
+          <MetricTile value={String(orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR').length)} label="Ready for Vendor" tone="border-emerald-500/40 bg-emerald-500/10" to="/ops-workspace" />
+          <MetricTile value={String(orders.filter((o) => o.productionStatus === 'IN_PRODUCTION').length)} label="In Production" tone="border-sky-500/40 bg-sky-500/10" to="/ops-workspace" />
         </div>
-      </GlassCard> : null}
-
-      <div className='grid gap-2 md:grid-cols-2 lg:grid-cols-3'>
-        {role === 'REP' ? <GlassCard title='TODAY QUICK WINS'><div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'><p>Log follow-up on top 5 active deals</p><p>Advance 3 opportunities one stage</p><p>Submit creative requests for mockup needs</p></div></GlassCard> : role === 'OPS' ? <GlassCard title='OPS QUEUE MIX'>
-          <div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'>
-            <p>Needs Review {opsQueues.NEEDS_REVIEW.length}</p><p>Ready for Vendor {opsQueues.READY_FOR_VENDOR.length}</p><p>In Production {opsQueues.IN_PRODUCTION.length}</p><p>Blocked {opsQueues.BLOCKED.length}</p>
-          </div>
-        </GlassCard> : <GlassCard title='LANE PENETRATION'>
-          <p className='text-5xl font-semibold text-[#1FB6FF]'>68%</p>
-          <p className='text-xs text-[var(--text-secondary)]'>AVG. PENETRATION</p>
-          <div className='mt-2 space-y-1 text-sm text-[var(--text-primary)]'>
-            <p>Uniform 68%</p><p>Travel Gear 54%</p><p>Team Store 42%</p><p>Letterman 35%</p>
-          </div>
-        </GlassCard>}
-        <GlassCard title='RECENT ACTIVITY'>
-          <div className='space-y-2'>{activities.map((a:any) => <ActionRow key={a.id} title={a.user} sub={a.message} value='now' to={role === 'OPS' ? '/ops-workspace' : '/opportunities'} />)}</div>
-          <Link className='mt-2 inline-block text-sm text-[#1FB6FF]' to={role === 'OPS' ? '/ops-workspace' : '/reports'}>{role === 'OPS' ? 'Open Ops Workspace' : 'View All Activity'}</Link>
-        </GlassCard>
-        <GlassCard title={role === 'OPS' ? 'TOP ORDER VALUE' : 'TOP OPPORTUNITIES'}>
-          <div className='space-y-2'>{role === 'OPS' ? topOrders.map((o) => <ActionRow key={o.id} title={o.organizationName} sub={o.productionStatus.replace(/_/g,' ')} value={formatCurrency(o.value)} to={`/orders/${o.id}`} />) : topOpps.map((o) => <ActionRow key={o.id} title={o.organizationName} sub={o.stage.replace(/_/g,' ')} value={formatCurrency(o.value)} to={`/opportunities/${o.id}`} />)}</div>
-          <Link className='mt-2 inline-block text-sm text-[#1FB6FF]' to={role === 'OPS' ? '/orders' : '/opportunities'}>{role === 'OPS' ? 'View All Orders' : 'View All Opportunities'}</Link>
-        </GlassCard>
-      </div>
-
-      {role === 'OWNER' ? (
-        <GlassCard title='TERRITORY OVERVIEW'>
-          <div className='grid gap-2 md:grid-cols-2 xl:grid-cols-4'>
-            {territoryOverview.map((t) => (
-              <div key={t.zone} className='panel-elevated rounded-lg p-3'>
-                <p className='font-semibold'>{t.zone}</p>
-                <p className='text-sm text-[var(--text-secondary)]'>Accounts {t.accounts}</p>
-                <p className='text-sm text-[var(--text-secondary)]'>Untouched {t.untouched}</p>
-                <p className='text-sm text-[var(--text-secondary)]'>Pipeline {formatCurrency(t.pipeline)}</p>
-                <p className='text-sm text-[var(--text-secondary)]'>Closed {formatCurrency(t.closed)}</p>
-                <p className='text-sm text-[#1FB6FF]'>Coverage {t.coverage}%</p>
-              </div>
+        <GlassCard title="PRODUCTION COMMAND">
+          <div className="grid gap-2 md:grid-cols-2">
+            {blockedOrders.slice(0, 6).map((order) => (
+              <DealRow key={order.id} title={order.organizationName} meta={order.missingInfo.join(', ') || order.vendorNotes} value={order.value} to={`/orders/${order.id}`} />
             ))}
           </div>
         </GlassCard>
-      ) : null}
+      </div>
+    );
+  }
 
-      {(role === 'DIRECTOR' || role === 'REP') ? (
-        <div className='grid gap-2 lg:grid-cols-2'>
-          <GlassCard title={role === 'DIRECTOR' ? 'TEAM NEXT ACTIONS' : 'MY NEXT ACTIONS'}>
-            <div className='space-y-2'>{opportunities.slice(0, 6).map((o) => <ActionRow key={o.id} title={o.nextAction} sub={o.organizationName} value={formatCurrency(o.value)} to={`/opportunities/${o.id}`} />)}</div>
+  return (
+    <div className="space-y-3">
+      <div>
+        <h1 className="text-2xl font-semibold text-white">Today’s Focus</h1>
+        <div className="mt-3 grid gap-3 md:grid-cols-3">
+          <MetricTile value={String(stuckDeals.length)} label="Deals Need Action" tone="border-sky-500/40 bg-sky-500/15" to="/my-opportunities" />
+          <MetricTile value={String(nearClose.length)} label="Near Close" tone="border-emerald-500/40 bg-emerald-500/15" to="/opportunities" />
+          <MetricTile value={String(pendingPayments.length)} label="Payments Pending" tone="border-rose-500/40 bg-rose-500/15" to="/opportunities" />
+        </div>
+      </div>
+
+      <div className="grid gap-3 xl:grid-cols-[1fr_1.05fr_0.85fr]">
+        <div className="space-y-3">
+          <GlassCard title="NEXT ACTIONS">
+            <div className="space-y-2">
+              {stuckDeals.slice(0, 4).map((opp) => (
+                <DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.sport}`} value={opp.value} to={`/opportunities/${opp.id}`} />
+              ))}
+            </div>
           </GlassCard>
-          <GlassCard title='DEALS NEAR CLOSE'>
-            <div className='space-y-2'>{nearClose.slice(0, 6).map((o) => <ActionRow key={o.id} title={o.title} sub={o.stage.replace(/_/g,' ')} value={formatCurrency(o.value)} to={`/opportunities/${o.id}`} />)}</div>
+          <GlassCard title="DEALS NEAR CLOSE">
+            <div className="space-y-2">
+              {nearClose.slice(0, 4).map((opp) => (
+                <DealRow key={opp.id} title={opp.organizationName} meta={`${opp.stage.replace(/_/g, ' ')} · ${opp.closeProbability}%`} value={opp.value} to={`/opportunities/${opp.id}`} />
+              ))}
+            </div>
           </GlassCard>
         </div>
-      ) : null}
 
-      {role === 'OPS' ? (
-        <div className='grid gap-2 lg:grid-cols-2'>
-          <GlassCard title='BLOCKED ORDERS'>
-            <div className='space-y-2'>{blockedOrders.slice(0, 6).map((o) => <ActionRow key={o.id} title={o.organizationName} sub={o.missingInfo.join(', ') || 'Missing info review'} value={o.productionStatus.replace(/_/g, ' ')} to={`/orders/${o.id}`} />)}</div>
+        <div className="space-y-3">
+          <GlassCard title="PIPELINE SNAPSHOT">
+            <div className="space-y-3">
+              {pipelineStages.map((stage) => {
+                const stageOpps = opportunities.filter((opp) => opp.stage === stage);
+                return <ProgressLine key={stage} label={stage.replace(/_/g, ' ')} value={stageOpps.length} total={opportunities.length} amount={stageOpps.reduce((sum, opp) => sum + opp.value, 0)} />;
+              })}
+            </div>
+            <Link className="mt-3 block rounded-md border border-slate-800 bg-slate-950/70 py-2 text-center text-xs text-slate-200 hover:border-cyan-400" to="/opportunities">View Pipeline</Link>
           </GlassCard>
-          <GlassCard title='NEXT PRODUCTION HANDOFFS'>
-            <div className='space-y-2'>{needsReview.concat(readyForVendor).slice(0, 6).map((o) => <ActionRow key={o.id} title={o.id} sub={o.organizationName} value={formatCurrency(o.value)} to={`/orders/${o.id}`} />)}</div>
+          <GlassCard title="RECENT ACTIVITY">
+            <div className="space-y-2">
+              {activities.map((activity) => (
+                <p key={activity.id} className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-300">{activity.message}</p>
+              ))}
+            </div>
           </GlassCard>
         </div>
-      ) : null}
 
-      {role === 'DIRECTOR' ? <GlassCard title='DIRECTOR FOCUS'><p className='text-sm text-[var(--text-secondary)]'>Stuck Deals: {stuck.length} · Reps Needing Coaching: {new Set(stuck.map((o) => o.assignedRep)).size} · Near Close: {nearClose.length}</p></GlassCard> : null}
-      {role === 'REP' ? <GlassCard title='REP FOCUS'><p className='text-sm text-[var(--text-secondary)]'>My pipeline: {formatCurrency(totalPipeline)} · My revenue pending: {formatCurrency(paymentsPending.reduce((s,o)=>s+o.value,0))}</p></GlassCard> : null}
-
-      {role === 'DIRECTOR' ? <GlassCard title='DIRECTOR EXECUTION CHECKLIST'><div className='text-sm text-[var(--text-secondary)] space-y-1'><p>1) Coach reps on top stuck deals ({stuck.length}).</p><p>2) Push near-close opportunities ({nearClose.length}) to decision.</p><p>3) Clear invoice follow-ups ({paymentsPending.length}).</p></div></GlassCard> : null}
-      {role === 'REP' ? <GlassCard title='REP TODAY CHECKLIST'><div className='text-sm text-[var(--text-secondary)] space-y-1'><p>1) Complete today follow-ups from My Next Actions.</p><p>2) Advance at least 3 deals one stage forward.</p><p>3) Submit Creative Requests for deals needing mockups/graphics.</p></div></GlassCard> : null}
-
-      {role === 'OWNER' ? <GlassCard title='OWNER WEEKLY SCORECARD'><p className='text-sm text-[var(--text-secondary)]'>Pipeline: {formatCurrency(ownerWeekly.pipeline)} · Closed: {formatCurrency(ownerWeekly.closed)} · Active Orgs: {ownerWeekly.activeOrgs}</p></GlassCard> : null}
-      {role === 'DIRECTOR' ? <GlassCard title='DIRECTOR WEEKLY SCORECARD'><p className='text-sm text-[var(--text-secondary)]'>Coaching Load: {directorWeekly.coachingLoad} · Near Close: {directorWeekly.nearClose} · Invoices Pending: {directorWeekly.pendingInvoices}</p></GlassCard> : null}
-      {role === 'REP' ? <GlassCard title='REP WEEKLY SCORECARD'><p className='text-sm text-[var(--text-secondary)]'>Open Touches: {repWeekly.touches} · Deals Advanced: {repWeekly.advanced} · Near Close: {repWeekly.nearClose}</p></GlassCard> : null}
+        <div className="space-y-3">
+          <GlassCard title="REVENUE">
+            <p className="text-2xl font-semibold text-white">{formatCurrency(closedValue)}</p>
+            <ProgressLine label="Open pipeline" value={openOpps.length} total={opportunities.length} amount={pipelineTotal} />
+            <ProgressLine label="Payment pending" value={pendingPayments.length} total={opportunities.length} amount={pendingValue} />
+            <ProgressLine label="Blocked handoff" value={blockedOrders.length} total={Math.max(orders.length, 1)} amount={blockedOrders.reduce((sum, order) => sum + order.value, 0)} />
+          </GlassCard>
+          <GlassCard title="MONTHLY STANDARD">
+            <GoalRing count={Math.min(activeOrders.length, MONTHLY_ORDER_GOAL)} />
+          </GlassCard>
+          <GlassCard title="LANE PENETRATION">
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              {Object.entries(lanePenetration).map(([lane, count]) => (
+                <Link key={lane} to="/organizations" className="rounded-lg border border-slate-800 bg-slate-950/70 p-2 hover:border-cyan-400">
+                  <span className="block text-xs text-slate-400">{lane.replace(/_/g, ' ')}</span>
+                  <span className="text-lg font-semibold text-cyan-200">{count}</span>
+                </Link>
+              ))}
+            </div>
+          </GlassCard>
+        </div>
+      </div>
     </div>
   );
 }

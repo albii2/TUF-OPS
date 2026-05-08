@@ -3,9 +3,9 @@ import type { PropsWithChildren } from 'react';
 export function TufLogo({ compact = false }: { compact?: boolean }) {
   return (
     <img
-      src="/tuf-ops-logo.svg"
-      alt="TUF Ops"
-      className={compact ? 'h-12 w-full object-contain object-center' : 'mx-auto h-24 w-full max-w-[320px] object-contain object-center'}
+      src="/tuf-logo.svg"
+      alt="TUF"
+      className={compact ? 'h-14 w-36 object-contain object-left' : 'mx-auto h-24 w-full max-w-[320px] object-contain object-center'}
     />
   );
 }
