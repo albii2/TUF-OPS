@@ -72,10 +72,10 @@ export function OrganizationsPage() {
   const existingKeys = allOrganizations.map((o) => `${o.name}|${o.state}`.toLowerCase());
 
   return (
-    <div className='space-y-3'>
+    <div className='space-y-3 min-w-0'>
       <OrganizationImportPanel existingKeys={existingKeys} onImported={() => setRefreshKey((value) => value + 1)} />
       <Card title='Accounts & Expansion Pipeline'>
-        <div className='mb-3 grid gap-2 lg:grid-cols-8'>
+        <div className='safe-grid mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8'>
           <Input placeholder='Search organizations' value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
           <Select value={status} onChange={(e) => setStatus(e.target.value)}><option value='ALL'>Status</option><option value='ACTIVE'>Active</option><option value='WATCH'>Watch</option><option value='NEW'>New</option></Select>
           <Select value={rep} onChange={(e) => setRep(e.target.value)}><option value='ALL'>All Reps</option>{reps.map((r) => <option key={r}>{r}</option>)}</Select>
@@ -105,6 +105,8 @@ export function OrganizationsPage() {
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Territory assignment', { territory: targetTerritory })}>Assign Territory</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director assignment', { assignedDirector: targetDirector })}>Assign Director</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep assignment', { assignedRep: targetRep })}>Assign Rep</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director cleared', { assignedDirector: 'Unassigned' })}>Clear Director</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep cleared', { assignedRep: 'Unassigned' })}>Clear Rep</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Coverage status', { coverageStatus: targetCoverage })}>Set Coverage Status</Button>
             </div>
             {bulkMessage ? <p className='mt-2 text-cyan-300'>{bulkMessage}</p> : null}
