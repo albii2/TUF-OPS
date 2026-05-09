@@ -105,6 +105,8 @@ export function OrganizationsPage() {
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Territory assignment', { territory: targetTerritory })}>Assign Territory</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director assignment', { assignedDirector: targetDirector })}>Assign Director</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep assignment', { assignedRep: targetRep })}>Assign Rep</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director cleared', { assignedDirector: 'Unassigned' })}>Clear Director</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep cleared', { assignedRep: 'Unassigned' })}>Clear Rep</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Coverage status', { coverageStatus: targetCoverage })}>Set Coverage Status</Button>
             </div>
             {bulkMessage ? <p className='mt-2 text-cyan-300'>{bulkMessage}</p> : null}
