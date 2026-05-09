@@ -39,6 +39,16 @@ function formatEvent(league: ScoreItem['league'], event: any): ScoreItem | null 
   };
 }
 
+function isTodayOrTomorrow(dateValue: string) {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const target = new Date(dateValue);
+  const eventDay = new Date(target.getFullYear(), target.getMonth(), target.getDate());
+  return eventDay.getTime() === today.getTime() || eventDay.getTime() === tomorrow.getTime();
+}
+
 export function SportsTicker() {
   const [scores, setScores] = useState<ScoreItem[]>(fallbackScores);
 
@@ -51,7 +61,10 @@ export function SportsTicker() {
           const response = await fetch(feed.url);
           if (!response.ok) throw new Error(feed.league);
           const data = await response.json();
-          return (data.events ?? []).map((event: any) => formatEvent(feed.league, event)).filter(Boolean) as ScoreItem[];
+          return (data.events ?? [])
+            .filter((event: any) => event?.date && isTodayOrTomorrow(event.date))
+            .map((event: any) => formatEvent(feed.league, event))
+            .filter(Boolean) as ScoreItem[];
         }),
       );
 
@@ -62,6 +75,8 @@ export function SportsTicker() {
         setScores(activeOnly.slice(0, 18));
       } else if (next.length) {
         setScores(next.slice(0, 12));
+      } else {
+        setScores([{ league: 'NBA', label: 'No games today or tomorrow.', status: 'Check back later', isActive: false }]);
       }
     }
 
