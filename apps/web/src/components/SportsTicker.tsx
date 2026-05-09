@@ -4,12 +4,11 @@ type ScoreItem = {
   league: 'NBA' | 'NFL' | 'CFB';
   label: string;
   status: string;
+  isActive: boolean;
 };
 
 const fallbackScores: ScoreItem[] = [
-  { league: 'NBA', label: 'NBA Playoffs scoreboard feed warming up', status: 'Refreshes in app' },
-  { league: 'NFL', label: 'NFL scoreboard: no active games in current window', status: 'Offseason' },
-  { league: 'CFB', label: 'College football scoreboard: no active games in current window', status: 'Offseason' },
+  { league: 'NBA', label: 'NBA Playoffs scoreboard feed warming up', status: 'Refreshes in app', isActive: true },
 ];
 
 const feeds: Array<{ league: ScoreItem['league']; url: string }> = [
@@ -30,11 +29,13 @@ function formatEvent(league: ScoreItem['league'], event: any): ScoreItem | null 
   const awayScore = away?.score ?? '0';
   const homeScore = home?.score ?? '0';
   const status = event?.status?.type?.shortDetail ?? event?.status?.type?.description ?? 'Scheduled';
+  const isActive = ['STATUS_IN_PROGRESS', 'STATUS_HALFTIME', 'STATUS_END_PERIOD', 'STATUS_DELAYED'].includes(event?.status?.type?.name);
 
   return {
     league,
     label: `${awayName} ${awayScore} @ ${homeName} ${homeScore}`,
     status,
+    isActive,
   };
 }
 
@@ -56,7 +57,12 @@ export function SportsTicker() {
 
       if (cancelled) return;
       const next = settled.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
-      if (next.length) setScores(next.slice(0, 18));
+      const activeOnly = next.filter((item) => item.isActive);
+      if (activeOnly.length) {
+        setScores(activeOnly.slice(0, 18));
+      } else if (next.length) {
+        setScores(next.slice(0, 12));
+      }
     }
 
     loadScores().catch(() => undefined);

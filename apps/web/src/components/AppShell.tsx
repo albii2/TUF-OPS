@@ -47,7 +47,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
 
   return (
     <div className="relative min-h-screen bg-tuf-texture text-[var(--text-primary)]">
-      <div className="mx-auto grid min-h-screen max-w-[1500px] grid-cols-1 md:grid-cols-[240px_1fr]">
+      <div className="mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 md:grid-cols-[240px_1fr]">
         <aside className="hidden border-r border-[var(--border)] bg-[#070c13]/95 p-3.5 md:flex md:flex-col">
           <div className="flex h-20 items-center justify-start px-1"><TufLogo compact /></div>
           <nav className="mt-3.5 space-y-1 flex-1">
