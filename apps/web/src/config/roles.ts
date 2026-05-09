@@ -18,17 +18,18 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   messages: { label: 'Earnings', route: '/earnings' },
   ops_workspace: { label: 'Ops Workspace', route: '/ops-workspace' },
   settings: { label: 'Settings', route: '/settings' },
+  team: { label: 'Team', route: '/team' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   OWNER: {
-    sidebarItems: ['dashboard', 'organizations', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'settings'],
+    sidebarItems: ['dashboard', 'organizations', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'team', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'messages', 'programs', 'settings'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'messages', 'programs', 'team', 'settings'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/reports', '/settings', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings'],

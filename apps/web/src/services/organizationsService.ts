@@ -139,7 +139,7 @@ export function createMockOrganization(input: { name: string; accountType: strin
 
 export function importLeadRows(
   leads: NormalizedLead[],
-  defaults: { defaultRep: string; defaultDirector: string; defaultTerritory: TerritoryId },
+  defaults?: { defaultRep: string; defaultDirector: string; defaultTerritory: TerritoryId },
 ) {
   const existing = getAllOrganizations();
   const existingKeys = new Set(existing.map((org) => `${org.name}|${org.state}`.toLowerCase()));
@@ -165,9 +165,9 @@ export function importLeadRows(
       name: lead.organizationName,
       city: lead.city,
       state: lead.state,
-      assignedRep: defaults.defaultRep,
-      assignedDirector: defaults.defaultDirector,
-      territory: lead.territory || defaults.defaultTerritory,
+      assignedRep: defaults?.defaultRep || '',
+      assignedDirector: defaults?.defaultDirector || '',
+      territory: lead.territory || defaults?.defaultTerritory || 'metro',
       priority: lead.tufPriority.toLowerCase() === 'high' ? 'HIGH' : lead.tufPriority.toLowerCase() === 'low' ? 'LOW' : 'MEDIUM',
       nextAction: lead.primaryContactName ? `Call ${lead.primaryContactName}` : 'Call primary contact and confirm buying timeline',
     }));

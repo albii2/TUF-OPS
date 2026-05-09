@@ -6,6 +6,16 @@ type ScoreItem = {
   status: string;
 };
 
+function getActiveLeagues() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const active: ScoreItem['league'][] = [
+  if (month >= 10 || month <= 4) active.push('NBA');
+  if (month >= 9 || month <= 2) active.push('NFL');
+  if (month >= 9 || month <= 1) active.push('CFB');
+  return active;
+}
+
 const fallbackScores: ScoreItem[] = [
   { league: 'NBA', label: 'NBA Playoffs scoreboard feed warming up', status: 'Refreshes in app' },
   { league: 'NFL', label: 'NFL scoreboard: no active games in current window', status: 'Offseason' },
@@ -16,6 +26,9 @@ const feeds: Array<{ league: ScoreItem['league']; url: string }> = [
   { league: 'NBA', url: 'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard' },
   { league: 'NFL', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard' },
   { league: 'CFB', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard' },
+];
+
+const activeFeeds = feeds.filter((f) => getActiveLeagues().includes(f.league));
 ];
 
 function formatEvent(league: ScoreItem['league'], event: any): ScoreItem | null {
@@ -46,7 +59,7 @@ export function SportsTicker() {
 
     async function loadScores() {
       const settled = await Promise.allSettled(
-        feeds.map(async (feed) => {
+        activeFeeds.map(async (feed) => {
           const response = await fetch(feed.url);
           if (!response.ok) throw new Error(feed.league);
           const data = await response.json();
