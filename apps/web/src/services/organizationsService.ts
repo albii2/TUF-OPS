@@ -58,7 +58,7 @@ export function listOrganizations(params: OrganizationListParams = {}): Organiza
     const matchesSearch = !(params.search ?? '').trim() || [org.name, org.city, org.state, org.assignedRep, org.assignedDirector].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase());
     const matchesStatus = !params.status || params.status === 'ALL' || org.status === params.status;
     const matchesRep = !params.rep || params.rep === 'ALL' || org.assignedRep === params.rep;
-    const matchesTerritory = !params.territory || params.territory === 'ALL' || org.territory === params.territory;
+    const matchesTerritory = params.territory === undefined || params.territory === 'ALL' || org.territory === params.territory;
     const matchesDirector = !params.director || params.director === 'ALL' || org.assignedDirector === params.director;
     const matchesCoverage = !params.coverageStatus || params.coverageStatus === 'ALL' || org.coverageStatus === params.coverageStatus;
     const matchesPriority = !params.priority || params.priority === 'ALL' || org.priority === params.priority;
@@ -166,7 +166,7 @@ export function importLeadRows(
       state: lead.state,
       assignedRep: 'Unassigned',
       assignedDirector: 'Unassigned',
-      territory: lead.territory || 'metro',
+      territory: (lead.territory || '') as TerritoryId,
       priority: lead.tufPriority.toLowerCase() === 'high' ? 'HIGH' : lead.tufPriority.toLowerCase() === 'low' ? 'LOW' : 'MEDIUM',
       nextAction: lead.primaryContactName ? `Call ${lead.primaryContactName}` : 'Call primary contact and confirm buying timeline',
     }));

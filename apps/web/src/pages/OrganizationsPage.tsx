@@ -62,7 +62,7 @@ export function OrganizationsPage() {
     { key: 'organization', header: 'Organization', cell: (r) => <div><p className='font-medium'>{r.name}</p><p className='text-xs text-slate-400'>{r.city}, {r.state}</p></div> },
     { key: 'rep', header: 'Rep', cell: (r) => r.assignedRep },
     { key: 'director', header: 'Director', cell: (r) => r.assignedDirector },
-    { key: 'territory', header: 'Territory', cell: (r) => r.territory.toUpperCase() },
+    { key: 'territory', header: 'Territory', cell: (r) => r.territory ? r.territory.toUpperCase() : 'UNASSIGNED' },
     { key: 'coverage', header: 'Coverage', cell: (r) => r.coverageStatus },
     { key: 'priority', header: 'Priority', cell: (r) => r.priority },
     { key: 'pipeline', header: 'Pipeline Value', className: 'text-right min-w-[130px]', cell: (r) => formatCurrency(r.pipelineValue) },
@@ -80,7 +80,7 @@ export function OrganizationsPage() {
           <Select value={status} onChange={(e) => setStatus(e.target.value)}><option value='ALL'>Status</option><option value='ACTIVE'>Active</option><option value='WATCH'>Watch</option><option value='NEW'>New</option></Select>
           <Select value={rep} onChange={(e) => setRep(e.target.value)}><option value='ALL'>All Reps</option>{reps.map((r) => <option key={r}>{r}</option>)}</Select>
           <Select value={director} onChange={(e) => setDirector(e.target.value)}><option value='ALL'>All Directors</option>{directors.map((d) => <option key={d}>{d}</option>)}</Select>
-          <Select value={territory} onChange={(e) => setTerritory(e.target.value)}><option value='ALL'>Territory</option><option value='metro'>Metro</option><option value='north'>North</option><option value='west'>West</option><option value='south'>South</option></Select>
+          <Select value={territory} onChange={(e) => setTerritory(e.target.value)}><option value='ALL'>Territory</option><option value=''>Unassigned</option><option value='metro'>Metro</option><option value='north'>North</option><option value='west'>West</option><option value='south'>South</option></Select>
           <Select value={coverageStatus} onChange={(e) => setCoverageStatus(e.target.value)}><option value='ALL'>Coverage</option><option value='UNTOUCHED'>Untouched</option><option value='CONTACTED'>Contacted</option><option value='ACTIVE'>Active</option><option value='CLOSED'>Closed</option></Select>
           <Select value={priority} onChange={(e) => setPriority(e.target.value)}><option value='ALL'>Priority</option><option value='HIGH'>High</option><option value='MEDIUM'>Medium</option><option value='LOW'>Low</option></Select>
           <Button onClick={() => navigate('/organizations/new')}>New Organization</Button>

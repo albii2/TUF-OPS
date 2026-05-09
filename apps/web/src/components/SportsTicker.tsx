@@ -5,6 +5,7 @@ type ScoreItem = {
   label: string;
   status: string;
   isActive: boolean;
+  feedError?: boolean;
 };
 
 const fallbackScores: ScoreItem[] = [
@@ -69,12 +70,15 @@ export function SportsTicker() {
       );
 
       if (cancelled) return;
+      const hasSuccessfulFeed = settled.some((result) => result.status === 'fulfilled');
       const next = settled.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
       const activeOnly = next.filter((item) => item.isActive);
       if (activeOnly.length) {
         setScores(activeOnly.slice(0, 18));
       } else if (next.length) {
         setScores(next.slice(0, 12));
+      } else if (!hasSuccessfulFeed) {
+        setScores([{ league: 'NBA', label: 'Live scoreboard feed unavailable.', status: 'Retrying…', isActive: false, feedError: true }]);
       } else {
         setScores([{ league: 'NBA', label: 'No games today or tomorrow.', status: 'Check back later', isActive: false }]);
       }
