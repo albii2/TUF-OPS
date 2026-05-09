@@ -5,7 +5,7 @@ import { useActivities } from '../hooks/useReports';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useOrganizations } from '../hooks/useOrganizations';
-import { getLanePenetration, getNearCloseOpportunities, getStuckOpportunities } from '../services/businessSelectors';
+import { getLanePenetration, getMomentumState, getNearCloseOpportunities, getStaleAccounts, getStaleOpportunities, getStuckOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;
@@ -80,12 +80,18 @@ export function DashboardPage({ role }: { role: Role }) {
   const stuckDeals = getStuckOpportunities(opportunities);
   const openOpps = opportunities.filter((opp) => openStages.includes(opp.stage));
   const pendingPayments = opportunities.filter((opp) => ['INVOICE_SENT', 'DECISION_PENDING'].includes(opp.stage));
-  const activeOrders = orders.filter((order) => order.productionStatus !== 'COMPLETED');
+  const completedOrders = orders.filter((order) => order.productionStatus === 'COMPLETED');
   const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
   const pipelineTotal = openOpps.reduce((sum, opp) => sum + opp.value, 0);
   const closedValue = opportunities.filter((opp) => opp.stage === 'CLOSED_WON').reduce((sum, opp) => sum + opp.value, 0);
   const pendingValue = pendingPayments.reduce((sum, opp) => sum + opp.value, 0);
   const lanePenetration = getLanePenetration(organizations);
+  const staleOpps = getStaleOpportunities(opportunities, 14);
+  const staleAccounts = getStaleAccounts(organizations, 14);
+  const touchedAccounts = organizations.length - organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length;
+  const momentum = getMomentumState({ nearClose: nearClose.length, stuck: stuckDeals.length, stale: staleOpps.length, touched: touchedAccounts });
+  const coveragePct = organizations.length ? Math.round((touchedAccounts / organizations.length) * 100) : 0;
+  const territoryHealth = getTerritoryHealthLabel(coveragePct);
 
   if (role === 'OPS') {
     return (
@@ -111,16 +117,24 @@ export function DashboardPage({ role }: { role: Role }) {
     <div className="space-y-3">
       <div>
         <h1 className="text-2xl font-semibold text-white">Today’s Focus</h1>
-        <div className="mt-3 grid gap-3 md:grid-cols-3">
+        <div className="safe-grid mt-3 grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <MetricTile value={String(stuckDeals.length)} label="Deals Need Action" tone="border-sky-500/40 bg-sky-500/15" to="/my-opportunities" />
           <MetricTile value={String(nearClose.length)} label="Near Close" tone="border-emerald-500/40 bg-emerald-500/15" to="/opportunities" />
           <MetricTile value={String(pendingPayments.length)} label="Payments Pending" tone="border-rose-500/40 bg-rose-500/15" to="/opportunities" />
+          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Territory Exposure" tone="border-amber-500/40 bg-amber-500/15" to="/territory" />
         </div>
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-[1fr_1.05fr_0.85fr]">
-        <div className="space-y-3">
-          <GlassCard title="NEXT ACTIONS">
+      <GlassCard title="MOMENTUM STATUS">
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+          <p className="font-semibold text-cyan-200">{momentum} · {territoryHealth}</p>
+          <p className="text-slate-300">Coverage {coveragePct}% · Stale deals {staleOpps.length} · Stale accounts {staleAccounts.length}</p>
+        </div>
+      </GlassCard>
+
+      <div className="safe-grid grid gap-3 xl:grid-cols-[1fr_1.05fr_0.85fr]">
+        <div className="space-y-3 order-1 xl:order-none">
+          <GlassCard title={role === 'REP' ? "TODAY'S MISSION" : 'NEXT ACTIONS'}>
             <div className="space-y-2">
               {stuckDeals.slice(0, 4).map((opp) => (
                 <DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.sport}`} value={opp.value} to={`/opportunities/${opp.id}`} />
@@ -137,7 +151,7 @@ export function DashboardPage({ role }: { role: Role }) {
         </div>
 
         <div className="space-y-3">
-          <GlassCard title="PIPELINE SNAPSHOT">
+          <GlassCard title={role === 'REP' ? 'MY PIPELINE SNAPSHOT' : 'PIPELINE SNAPSHOT'}>
             <div className="space-y-3">
               {pipelineStages.map((stage) => {
                 const stageOpps = opportunities.filter((opp) => opp.stage === stage);
@@ -146,7 +160,7 @@ export function DashboardPage({ role }: { role: Role }) {
             </div>
             <Link className="mt-3 block rounded-md border border-slate-800 bg-slate-950/70 py-2 text-center text-xs text-slate-200 hover:border-cyan-400" to="/opportunities">View Pipeline</Link>
           </GlassCard>
-          <GlassCard title="RECENT ACTIVITY">
+          <GlassCard title={role === 'REP' ? 'RECENT ACTIVITY' : 'RECENT ACTIVITY FEED'}>
             <div className="space-y-2">
               {activities.map((activity) => (
                 <p key={activity.id} className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-300">{activity.message}</p>
@@ -163,7 +177,7 @@ export function DashboardPage({ role }: { role: Role }) {
             <ProgressLine label="Blocked handoff" value={blockedOrders.length} total={Math.max(orders.length, 1)} amount={blockedOrders.reduce((sum, order) => sum + order.value, 0)} />
           </GlassCard>
           <GlassCard title="MONTHLY STANDARD">
-            <GoalRing count={Math.min(activeOrders.length, MONTHLY_ORDER_GOAL)} />
+            <GoalRing count={Math.min(completedOrders.length, MONTHLY_ORDER_GOAL)} />
           </GlassCard>
           <GlassCard title="LANE PENETRATION">
             <div className="grid grid-cols-2 gap-2 text-sm">
@@ -173,6 +187,13 @@ export function DashboardPage({ role }: { role: Role }) {
                   <span className="text-lg font-semibold text-cyan-200">{count}</span>
                 </Link>
               ))}
+            </div>
+          </GlassCard>
+          <GlassCard title="AT-RISK / STALE">
+            <div className="space-y-2 text-sm text-slate-300">
+              <p>Stale opportunities (14+ days): {staleOpps.length}</p>
+              <p>Stale accounts (14+ days): {staleAccounts.length}</p>
+              <p>Late-stage payment risk: {pendingPayments.length}</p>
             </div>
           </GlassCard>
         </div>
