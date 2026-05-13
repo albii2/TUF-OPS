@@ -114,7 +114,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
         </main>
       </div>
       <div className="pointer-events-none fixed inset-x-0 bottom-2 z-0 flex justify-center md:bottom-4">
-        <img src="/tuf-logo.svg" alt="" aria-hidden="true" className="h-6 w-16 object-contain opacity-[0.08] md:h-8 md:w-20" />
+        <img src="/tuf-mark.svg" alt="" aria-hidden="true" className="h-6 w-16 object-contain opacity-[0.08] md:h-8 md:w-20" />
       </div>
     </div>
   );

@@ -5,7 +5,7 @@ export function TufLogo({ compact = false }: { compact?: boolean }) {
     <img
       src="/tuf-logo.svg"
       alt="TUF"
-      className={compact ? 'h-14 w-36 object-contain object-left' : 'mx-auto h-24 w-full max-w-[320px] object-contain object-center'}
+      className={`shrink-0 ${compact ? 'h-14 w-36 object-contain object-left' : 'mx-auto h-24 w-full max-w-[320px] object-contain object-center'}`}
     />
   );
 }

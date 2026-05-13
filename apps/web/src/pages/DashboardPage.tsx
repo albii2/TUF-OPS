@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { teamMembers } from '../data/mockSalesData';
 import { GlassCard } from '../components/ui';
 import type { Role } from '../types';
 import { useActivities } from '../hooks/useReports';
@@ -51,18 +52,21 @@ function DealRow({ title, meta, value, to }: { title: string; meta: string; valu
   );
 }
 
-function GoalRing({ count }: { count: number }) {
-  const pct = Math.min(100, Math.round((count / MONTHLY_ORDER_GOAL) * 100));
-  const remaining = Math.max(MONTHLY_ORDER_GOAL - count, 0);
+function GoalRing({ count, role }: { count: number, role: Role }) {
+  const activeReps = teamMembers.filter((m) => m.role === 'REP' && m.active).length;
+  const totalGoal = role === 'OWNER' ? MONTHLY_ORDER_GOAL * activeReps : MONTHLY_ORDER_GOAL;
+  const pct = Math.min(100, Math.round((count / Math.max(totalGoal, 1)) * 100));
+  const remaining = Math.max(totalGoal - count, 0);
+
   return (
     <div className="flex items-center gap-4">
       <div className="grid h-24 w-24 place-items-center rounded-full" style={{ background: `conic-gradient(#22d3ee ${pct}%, #1e293b ${pct}% 100%)` }}>
         <div className="grid h-16 w-16 place-items-center rounded-full bg-[#07101a] text-center">
-          <span className="text-xl font-bold text-white">{count}/{MONTHLY_ORDER_GOAL}</span>
+          <span className="text-xl font-bold text-white">{count}/{totalGoal}</span>
         </div>
       </div>
       <div>
-        <p className="text-sm font-semibold text-white">4 orders/month pace</p>
+        <p className="text-sm font-semibold text-white">{totalGoal} orders/month pace</p>
         <p className="text-sm text-slate-300">{remaining} more order{remaining === 1 ? '' : 's'} to hit the floor.</p>
         <p className="mt-1 text-xs text-cyan-200">Next most important KPI: lane penetration.</p>
       </div>
@@ -125,10 +129,10 @@ export function DashboardPage({ role }: { role: Role }) {
         </div>
       </div>
 
-      <GlassCard title="MOMENTUM STATUS">
+      <GlassCard title="Momentum">
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
           <p className="font-semibold text-cyan-200">{momentum} · {territoryHealth}</p>
-          <p className="text-slate-300">Coverage {coveragePct}% · Stale deals {staleOpps.length} · Stale accounts {staleAccounts.length}</p>
+          <p className="text-slate-300">Coverage: {coveragePct}% · Stale: {staleOpps.length} deals, {staleAccounts.length} accounts</p>
         </div>
       </GlassCard>
 
@@ -151,7 +155,7 @@ export function DashboardPage({ role }: { role: Role }) {
         </div>
 
         <div className="space-y-3">
-          <GlassCard title={role === 'REP' ? 'MY PIPELINE SNAPSHOT' : 'PIPELINE SNAPSHOT'}>
+          <GlassCard title={role === 'REP' ? 'My Pipeline' : 'Pipeline'}>
             <div className="space-y-3">
               {pipelineStages.map((stage) => {
                 const stageOpps = opportunities.filter((opp) => opp.stage === stage);
@@ -160,7 +164,7 @@ export function DashboardPage({ role }: { role: Role }) {
             </div>
             <Link className="mt-3 block rounded-md border border-slate-800 bg-slate-950/70 py-2 text-center text-xs text-slate-200 hover:border-cyan-400" to="/opportunities">View Pipeline</Link>
           </GlassCard>
-          <GlassCard title={role === 'REP' ? 'RECENT ACTIVITY' : 'RECENT ACTIVITY FEED'}>
+          <GlassCard title="Activity">
             <div className="space-y-2">
               {activities.map((activity) => (
                 <p key={activity.id} className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-300">{activity.message}</p>
@@ -177,7 +181,7 @@ export function DashboardPage({ role }: { role: Role }) {
             <ProgressLine label="Blocked handoff" value={blockedOrders.length} total={Math.max(orders.length, 1)} amount={blockedOrders.reduce((sum, order) => sum + order.value, 0)} />
           </GlassCard>
           <GlassCard title="MONTHLY STANDARD">
-            <GoalRing count={Math.min(completedOrders.length, MONTHLY_ORDER_GOAL)} />
+            <GoalRing count={Math.min(completedOrders.length, MONTHLY_ORDER_GOAL)} role={role} />
           </GlassCard>
           <GlassCard title="LANE PENETRATION">
             <div className="grid grid-cols-2 gap-2 text-sm">

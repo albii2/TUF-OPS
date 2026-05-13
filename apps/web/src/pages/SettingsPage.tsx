@@ -50,17 +50,19 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card title="Role Access">
-        <div className="space-y-2 text-sm">
-          <label className="block text-[var(--text-secondary)]">Role</label>
-          <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-            <option value="OWNER">OWNER</option>
-            <option value="DIRECTOR">DIRECTOR</option>
-            <option value="REP">REP</option>
-            <option value="OPS">OPS</option>
-          </Select>
-        </div>
-      </Card>
+      {user?.role === 'OWNER' ? (
+        <Card title="Role Access">
+          <div className="space-y-2 text-sm">
+            <label className="block text-[var(--text-secondary)]">Role</label>
+            <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              <option value="OWNER">OWNER</option>
+              <option value="DIRECTOR">DIRECTOR</option>
+              <option value="REP">REP</option>
+              <option value="OPS">OPS</option>
+            </Select>
+          </div>
+        </Card>
+      ) : null}
 
       <Card title="Theme & Workspace">
         <div className="space-y-2 text-sm">
@@ -88,6 +90,18 @@ export function SettingsPage() {
           <p className="text-xs text-[var(--text-secondary)]">PIN is local for beta mode and used for quick sign-in.</p>
         </div>
       </Card>
+
+      {user?.role === 'OWNER' ? (
+        <Card title="Ticker Settings">
+          <div className="space-y-2 text-sm">
+            <label className="block text-[var(--text-secondary)]">Ticker Content</label>
+            <Select>
+              <option>Scores</option>
+              <option>News</option>
+            </Select>
+          </div>
+        </Card>
+      ) : null}
 
       <Card title="Operational Controls" className="lg:col-span-2">
         <div className="flex items-center justify-between">
