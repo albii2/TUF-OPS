@@ -62,7 +62,7 @@ export function OrganizationsPage() {
     { key: 'organization', header: 'Organization', cell: (r) => <div><p className='font-medium'>{r.name}</p><p className='text-xs text-slate-400'>{r.city}, {r.state}</p></div> },
     { key: 'rep', header: 'Rep', cell: (r) => r.assignedRep },
     { key: 'director', header: 'Director', cell: (r) => r.assignedDirector },
-    { key: 'territory', header: 'Territory', cell: (r) => r.territory.toUpperCase() },
+    { key: 'territory', header: 'Territory', cell: (r) => r.territory ? r.territory.toUpperCase() : 'UNASSIGNED' },
     { key: 'coverage', header: 'Coverage', cell: (r) => r.coverageStatus },
     { key: 'priority', header: 'Priority', cell: (r) => r.priority },
     { key: 'pipeline', header: 'Pipeline Value', className: 'text-right min-w-[130px]', cell: (r) => formatCurrency(r.pipelineValue) },
@@ -72,15 +72,15 @@ export function OrganizationsPage() {
   const existingKeys = allOrganizations.map((o) => `${o.name}|${o.state}`.toLowerCase());
 
   return (
-    <div className='space-y-3'>
+    <div className='space-y-3 min-w-0'>
       <OrganizationImportPanel existingKeys={existingKeys} onImported={() => setRefreshKey((value) => value + 1)} />
       <Card title='Accounts & Expansion Pipeline'>
-        <div className='mb-3 grid gap-2 lg:grid-cols-8'>
+        <div className='safe-grid mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8'>
           <Input placeholder='Search organizations' value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
           <Select value={status} onChange={(e) => setStatus(e.target.value)}><option value='ALL'>Status</option><option value='ACTIVE'>Active</option><option value='WATCH'>Watch</option><option value='NEW'>New</option></Select>
           <Select value={rep} onChange={(e) => setRep(e.target.value)}><option value='ALL'>All Reps</option>{reps.map((r) => <option key={r}>{r}</option>)}</Select>
           <Select value={director} onChange={(e) => setDirector(e.target.value)}><option value='ALL'>All Directors</option>{directors.map((d) => <option key={d}>{d}</option>)}</Select>
-          <Select value={territory} onChange={(e) => setTerritory(e.target.value)}><option value='ALL'>Territory</option><option value='metro'>Metro</option><option value='north'>North</option><option value='west'>West</option><option value='south'>South</option></Select>
+          <Select value={territory} onChange={(e) => setTerritory(e.target.value)}><option value='ALL'>Territory</option><option value=''>Unassigned</option><option value='metro'>Metro</option><option value='north'>North</option><option value='west'>West</option><option value='south'>South</option></Select>
           <Select value={coverageStatus} onChange={(e) => setCoverageStatus(e.target.value)}><option value='ALL'>Coverage</option><option value='UNTOUCHED'>Untouched</option><option value='CONTACTED'>Contacted</option><option value='ACTIVE'>Active</option><option value='CLOSED'>Closed</option></Select>
           <Select value={priority} onChange={(e) => setPriority(e.target.value)}><option value='ALL'>Priority</option><option value='HIGH'>High</option><option value='MEDIUM'>Medium</option><option value='LOW'>Low</option></Select>
           <Button onClick={() => navigate('/organizations/new')}>New Organization</Button>
@@ -105,6 +105,8 @@ export function OrganizationsPage() {
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Territory assignment', { territory: targetTerritory })}>Assign Territory</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director assignment', { assignedDirector: targetDirector })}>Assign Director</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep assignment', { assignedRep: targetRep })}>Assign Rep</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director cleared', { assignedDirector: 'Unassigned' })}>Clear Director</Button>
+              <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep cleared', { assignedRep: 'Unassigned' })}>Clear Rep</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Coverage status', { coverageStatus: targetCoverage })}>Set Coverage Status</Button>
             </div>
             {bulkMessage ? <p className='mt-2 text-cyan-300'>{bulkMessage}</p> : null}

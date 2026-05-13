@@ -14,7 +14,7 @@ export function OrderDetailPage() {
   if (!order) return <EmptyState title="Order not found" description="Select a valid order from the table." />;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 min-w-0">
       <Card title="Order Execution Summary">
         <div className="flex items-center justify-between">
           <div>

@@ -37,9 +37,9 @@ export function OrdersPage() {
   ];
 
   return (
-    <Card title="Order Execution Queue">
+    <Card title="Order Execution Queue" className="min-w-0">
       <div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span>{filtered.length} orders</span><button onClick={() => { setSearch(''); setStatus('ALL'); setPage(1); }} className="text-cyan-300">Reset filters</button></div>
-      <div className="mb-3 grid gap-2 lg:grid-cols-[1fr_220px]">
+      <div className="safe-grid mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_220px]">
         <Input placeholder="Search order / org / vendor" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         <Select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }}><option value="ALL">All Status</option>{statuses.map((s) => <option key={s}>{s}</option>)}</Select>
       </div>
