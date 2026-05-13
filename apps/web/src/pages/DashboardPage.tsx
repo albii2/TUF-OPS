@@ -121,7 +121,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <MetricTile value={String(stuckDeals.length)} label="Deals Need Action" tone="border-sky-500/40 bg-sky-500/15" to="/my-opportunities" />
           <MetricTile value={String(nearClose.length)} label="Near Close" tone="border-emerald-500/40 bg-emerald-500/15" to="/opportunities" />
           <MetricTile value={String(pendingPayments.length)} label="Payments Pending" tone="border-rose-500/40 bg-rose-500/15" to="/opportunities" />
-          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Territory Exposure" tone="border-amber-500/40 bg-amber-500/15" to="/territory" />
+          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Territory Exposure" tone="border-amber-500/40 bg-amber-500/15" to={role === 'REP' ? '/organizations' : '/territory'} />
         </div>
       </div>
 
