@@ -5,7 +5,7 @@ import { useActivities } from '../hooks/useReports';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useOrganizations } from '../hooks/useOrganizations';
-import { getLanePenetration, getNearCloseOpportunities, getStuckOpportunities } from '../services/businessSelectors';
+import { getLanePenetration, getMomentumState, getNearCloseOpportunities, getStaleAccounts, getStaleOpportunities, getStuckOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;
@@ -80,12 +80,41 @@ export function DashboardPage({ role }: { role: Role }) {
   const stuckDeals = getStuckOpportunities(opportunities);
   const openOpps = opportunities.filter((opp) => openStages.includes(opp.stage));
   const pendingPayments = opportunities.filter((opp) => ['INVOICE_SENT', 'DECISION_PENDING'].includes(opp.stage));
-  const activeOrders = orders.filter((order) => order.productionStatus !== 'COMPLETED');
+  const completedOrders = orders.filter((order) => order.productionStatus === 'COMPLETED');
   const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
   const pipelineTotal = openOpps.reduce((sum, opp) => sum + opp.value, 0);
   const closedValue = opportunities.filter((opp) => opp.stage === 'CLOSED_WON').reduce((sum, opp) => sum + opp.value, 0);
   const pendingValue = pendingPayments.reduce((sum, opp) => sum + opp.value, 0);
   const lanePenetration = getLanePenetration(organizations);
+  const staleOpps = getStaleOpportunities(opportunities, 14);
+  const staleAccounts = getStaleAccounts(organizations, 14);
+  const touchedAccounts = organizations.length - organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length;
+  const momentum = getMomentumState({ nearClose: nearClose.length, stuck: stuckDeals.length, stale: staleOpps.length, touched: touchedAccounts });
+  const coveragePct = organizations.length ? Math.round((touchedAccounts / organizations.length) * 100) : 0;
+  const territoryHealth = getTerritoryHealthLabel(coveragePct);
+  const movementStreak = Math.min(7, Math.max(1, activities.length + nearClose.length));
+
+  const unassignedOrgs = organizations.filter((o) => o.assignedRep === 'Unassigned' || o.assignedDirector === 'Unassigned' || !o.territory);
+  const closeThisWeekValue = nearClose.reduce((sum, opp) => sum + opp.value, 0);
+  const cashBlockedValue = pendingPayments.reduce((sum, opp) => sum + opp.value, 0) + blockedOrders.reduce((sum, order) => sum + order.value, 0);
+  const zoneRisk = staleAccounts.length + organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length;
+
+  const mission = unassignedOrgs.length
+    ? { title: 'Assign imported leads now', reason: `${unassignedOrgs.length} accounts are unowned and cannot move.` , cta: 'Go to Organizations', to: '/organizations' }
+    : blockedOrders.length
+      ? { title: 'Review blocked handoffs', reason: `${blockedOrders.length} orders are blocked in production.` , cta: 'Review Orders', to: '/orders' }
+      : staleAccounts.length
+        ? { title: 'Pressure stale territory accounts', reason: `${staleAccounts.length} accounts are stale and need owner escalation.` , cta: 'View Territory', to: '/territory' }
+        : { title: 'Push near-close opportunities', reason: `${nearClose.length} deals are close and need owner pressure this week.` , cta: 'Go to Organizations', to: '/team-opportunities' };
+
+  const ownerActions = [
+    { title: 'Assign imported leads', reason: `${unassignedOrgs.length} accounts still unassigned`, impact: formatCurrency(unassignedOrgs.reduce((sum, o) => sum + o.pipelineValue, 0)), to: '/organizations' },
+    { title: 'Review stale accounts', reason: `${staleAccounts.length} accounts past activity threshold`, impact: `${coveragePct}% coverage`, to: '/territory' },
+    { title: 'Review blocked orders', reason: `${blockedOrders.length} blocked production handoffs`, impact: formatCurrency(blockedOrders.reduce((sum, o) => sum + o.value, 0)), to: '/orders' },
+    { title: 'Balance rep workload', reason: `${new Set(stuckDeals.map((o) => o.assignedRep)).size} reps have stuck deals`, impact: `${stuckDeals.length} stuck deals`, to: '/team-performance' },
+    { title: 'Push near-close opportunities', reason: `${nearClose.length} opportunities ready`, impact: formatCurrency(closeThisWeekValue), to: '/team-opportunities' },
+    { title: 'Review low lane penetration territory', reason: `Territory health: ${territoryHealth}`, impact: `${Object.values(lanePenetration).reduce((a,b)=>a+b,0)} active lanes`, to: '/territory/map' },
+  ];
 
   if (role === 'OPS') {
     return (
@@ -107,76 +136,81 @@ export function DashboardPage({ role }: { role: Role }) {
     );
   }
 
+  if (role === 'OWNER') {
+    return (
+      <div className="space-y-3"> 
+        <h1 className="text-2xl font-semibold text-white">Owner Command Center</h1>
+        <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> 
+          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Untouched Accounts" tone="border-amber-500/40 bg-amber-500/15" to="/territory" />
+          <MetricTile value={formatCurrency(cashBlockedValue)} label="Cash Blocked" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
+          <MetricTile value={formatCurrency(closeThisWeekValue)} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
+          <MetricTile value={String(zoneRisk)} label="Territory Risk" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory/map" />
+        </div>
+        <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{mission.title}</p><p className="text-sm text-slate-300">{mission.reason}</p><Link to={mission.to} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100">{mission.cta}</Link></div></GlassCard>
+        <GlassCard title="OWNER ACTION QUEUE"><div className="space-y-2">{ownerActions.map((action)=> <Link key={action.title} to={action.to} className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3 hover:border-cyan-400/60"><p className="font-semibold text-slate-100">{action.title}</p><p className="text-xs text-slate-400">{action.reason}</p><p className="text-xs text-cyan-200">Impact: {action.impact}</p></Link>)}</div></GlassCard>
+      </div>
+    );
+  }
+
+  if (role === 'DIRECTOR') {
+    const repCoachingGrid = Array.from(new Set(stuckDeals.map((o) => o.assignedRep))).map((rep) => ({
+      rep,
+      stuck: stuckDeals.filter((o) => o.assignedRep === rep).length,
+      nearClose: nearClose.filter((o) => o.assignedRep === rep).length,
+      stale: staleOpps.filter((o) => o.assignedRep === rep).length,
+      pipeline: opportunities.filter((o) => o.assignedRep === rep && !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).reduce((sum,o)=>sum+o.value,0),
+    }));
+    const myOpps = opportunities.filter((o) => o.assignedRep === 'Dana Holt');
+    const myNearClose = getNearCloseOpportunities(myOpps);
+    const myPipeline = myOpps.filter((o) => !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).reduce((sum,o)=>sum+o.value,0);
+    const untouchedAccounts = organizations.filter((o)=>o.coverageStatus==='UNTOUCHED').length;
+    const mission = staleOpps.length
+      ? { title: 'Rescue stale opportunities', reason: `${staleOpps.length} deals are stale and need coaching intervention today.`, to:'/team-opportunities', cta:'All Opportunities' }
+      : untouchedAccounts
+        ? { title: 'Assign untouched accounts', reason: `${untouchedAccounts} accounts remain untouched in your territory scope.`, to:'/organizations', cta:'Organizations' }
+        : { title: 'Push near-close deals', reason: `${nearClose.length} near-close deals need invoice pressure this week.`, to:'/my-opportunities', cta:'My Opportunities' };
+
+    return (
+      <div className="space-y-3">
+        <h1 className="text-2xl font-semibold text-white">Director Coaching Room</h1>
+        <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricTile value={String(stuckDeals.length)} label="Stuck Deals" tone="border-sky-500/40 bg-sky-500/15" to="/team-opportunities" />
+          <MetricTile value={String(new Set(stuckDeals.map((o) => o.assignedRep)).size)} label="Reps Needing Coaching" tone="border-amber-500/40 bg-amber-500/15" to="/team-performance" />
+          <MetricTile value={formatCurrency(nearClose.reduce((sum,o)=>sum+o.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
+          <MetricTile value={`${coveragePct}%`} label="Territory Coverage" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory" />
+        </div>
+
+        <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{mission.title}</p><p className="text-sm text-slate-300">{mission.reason}</p><div className="flex flex-wrap gap-2"><Link to={mission.to} className="rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{mission.cta}</Link><Link to="/my-opportunities" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">My Opportunities</Link><Link to="/territory" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Territory</Link><Link to="/reports" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Reports</Link></div></div></GlassCard>
+
+        <div className="safe-grid grid gap-3 lg:grid-cols-2">
+          <GlassCard title="COACHING QUEUE"><div className="space-y-2">{repCoachingGrid.slice(0,6).map((row)=><Link key={row.rep} to="/team-opportunities" className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3"><p className="font-semibold text-slate-100">{row.rep}</p><p className="text-xs text-slate-400">Issue: stale {row.stale} · stuck {row.stuck} · near-close {row.nearClose}</p><p className="text-xs text-cyan-200">Action: coach next action + invoice pressure · Impact {formatCurrency(row.pipeline)}</p></Link>)}</div></GlassCard>
+          <GlassCard title="MY SELLING PANEL"><p className="text-sm text-slate-300">My opportunities: {myOpps.length} · Near-close: {myNearClose.length} · Pipeline: {formatCurrency(myPipeline)}</p><div className="mt-2 space-y-2">{myOpps.slice(0,4).map((opp)=><DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.stage}`} value={opp.value} to={`/opportunities/${opp.id}`} />)}</div></GlassCard>
+        </div>
+
+        <GlassCard title="TERRITORY WAR TABLE"><p className="text-sm text-slate-300">Coverage {coveragePct}% · Untouched {organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length} · Stale accounts {staleAccounts.length} · Near-close {nearClose.length} · Stuck deals {stuckDeals.length}</p><div className="mt-2 grid gap-2 sm:grid-cols-2">{Object.entries(lanePenetration).map(([lane,count])=><p key={lane} className="text-xs text-slate-300">{lane}: {count} active lanes</p>)}</div></GlassCard>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-3">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">Today’s Focus</h1>
-        <div className="mt-3 grid gap-3 md:grid-cols-3">
-          <MetricTile value={String(stuckDeals.length)} label="Deals Need Action" tone="border-sky-500/40 bg-sky-500/15" to="/my-opportunities" />
-          <MetricTile value={String(nearClose.length)} label="Near Close" tone="border-emerald-500/40 bg-emerald-500/15" to="/opportunities" />
-          <MetricTile value={String(pendingPayments.length)} label="Payments Pending" tone="border-rose-500/40 bg-rose-500/15" to="/opportunities" />
+      <div className="space-y-3">
+        <h1 className="text-2xl font-semibold text-white">Rep Mission Brief</h1>
+        <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <MetricTile value={String(stuckDeals.length)} label="Today’s Mission" tone="border-sky-500/40 bg-sky-500/15" to="/my-opportunities" />
+          <MetricTile value={formatCurrency(nearClose.reduce((sum,opp)=>sum+opp.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/my-opportunities" />
+          <MetricTile value={formatCurrency(pendingPayments.reduce((sum,opp)=>sum+opp.value,0))} label="Cash to Collect" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
+          <MetricTile value={momentum} label="Momentum" tone="border-cyan-500/40 bg-cyan-500/15" to="/my-opportunities" />
         </div>
+        <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{staleOpps.length ? 'Follow up stale opportunity now' : pendingPayments.length ? 'Push near-close invoice follow-up' : 'Contact untouched assigned account'}</p><p className="text-sm text-slate-300">{staleOpps.length ? `${staleOpps.length} opportunities are stale and need activity today.` : pendingPayments.length ? `${pendingPayments.length} deals are waiting on invoice/payment pressure.` : 'Activate account coverage and lane expansion from your assigned book.'}</p><Link to={staleOpps.length ? '/my-opportunities' : pendingPayments.length ? '/orders' : '/organizations'} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Open priority queue</Link></div></GlassCard>
+
+        <GlassCard title="NEXT-ACTION EXECUTION QUEUE"><div className="space-y-2">{openOpps.slice(0,6).map((opp)=><DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.sport} · ${opp.lane}`} value={opp.value} to={`/opportunities/${opp.id}`} />)}</div></GlassCard>
+
+        <div className="safe-grid grid gap-3 lg:grid-cols-2">
+          <GlassCard title="MONTHLY STANDARD"><p className="text-sm text-slate-300">{Math.min(completedOrders.length, MONTHLY_ORDER_GOAL)}/{MONTHLY_ORDER_GOAL} orders closed. {Math.max(MONTHLY_ORDER_GOAL-completedOrders.length,0)} more to hit the floor.</p><p className="mt-1 text-xs text-cyan-200">Next KPI: lane penetration.</p><div className="mt-2"><GoalRing count={Math.min(completedOrders.length, MONTHLY_ORDER_GOAL)} /></div></GlassCard>
+          <GlassCard title="LANE PENETRATION OPPORTUNITY"><div className="space-y-1 text-sm text-slate-300">{Object.entries(lanePenetration).map(([lane,count])=><p key={lane}>{lane}: active/won in {count} accounts</p>)}</div><p className="mt-2 text-xs text-cyan-200">Recommended next lane: Team Store where Uniform is already active.</p></GlassCard>
+        </div>
+
+        <GlassCard title="MOMENTUM SYSTEM"><p className="text-sm text-slate-300">Status: {momentum} · Movement streak: {movementStreak} days · Stale opportunities: {staleOpps.length} · Follow-up pressure: {pendingPayments.length} payment/invoice deals.</p></GlassCard>
       </div>
-
-      <div className="grid gap-3 xl:grid-cols-[1fr_1.05fr_0.85fr]">
-        <div className="space-y-3">
-          <GlassCard title="NEXT ACTIONS">
-            <div className="space-y-2">
-              {stuckDeals.slice(0, 4).map((opp) => (
-                <DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.sport}`} value={opp.value} to={`/opportunities/${opp.id}`} />
-              ))}
-            </div>
-          </GlassCard>
-          <GlassCard title="DEALS NEAR CLOSE">
-            <div className="space-y-2">
-              {nearClose.slice(0, 4).map((opp) => (
-                <DealRow key={opp.id} title={opp.organizationName} meta={`${opp.stage.replace(/_/g, ' ')} · ${opp.closeProbability}%`} value={opp.value} to={`/opportunities/${opp.id}`} />
-              ))}
-            </div>
-          </GlassCard>
-        </div>
-
-        <div className="space-y-3">
-          <GlassCard title="PIPELINE SNAPSHOT">
-            <div className="space-y-3">
-              {pipelineStages.map((stage) => {
-                const stageOpps = opportunities.filter((opp) => opp.stage === stage);
-                return <ProgressLine key={stage} label={stage.replace(/_/g, ' ')} value={stageOpps.length} total={opportunities.length} amount={stageOpps.reduce((sum, opp) => sum + opp.value, 0)} />;
-              })}
-            </div>
-            <Link className="mt-3 block rounded-md border border-slate-800 bg-slate-950/70 py-2 text-center text-xs text-slate-200 hover:border-cyan-400" to="/opportunities">View Pipeline</Link>
-          </GlassCard>
-          <GlassCard title="RECENT ACTIVITY">
-            <div className="space-y-2">
-              {activities.map((activity) => (
-                <p key={activity.id} className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-sm text-slate-300">{activity.message}</p>
-              ))}
-            </div>
-          </GlassCard>
-        </div>
-
-        <div className="space-y-3">
-          <GlassCard title="REVENUE">
-            <p className="text-2xl font-semibold text-white">{formatCurrency(closedValue)}</p>
-            <ProgressLine label="Open pipeline" value={openOpps.length} total={opportunities.length} amount={pipelineTotal} />
-            <ProgressLine label="Payment pending" value={pendingPayments.length} total={opportunities.length} amount={pendingValue} />
-            <ProgressLine label="Blocked handoff" value={blockedOrders.length} total={Math.max(orders.length, 1)} amount={blockedOrders.reduce((sum, order) => sum + order.value, 0)} />
-          </GlassCard>
-          <GlassCard title="MONTHLY STANDARD">
-            <GoalRing count={Math.min(activeOrders.length, MONTHLY_ORDER_GOAL)} />
-          </GlassCard>
-          <GlassCard title="LANE PENETRATION">
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              {Object.entries(lanePenetration).map(([lane, count]) => (
-                <Link key={lane} to="/organizations" className="rounded-lg border border-slate-800 bg-slate-950/70 p-2 hover:border-cyan-400">
-                  <span className="block text-xs text-slate-400">{lane.replace(/_/g, ' ')}</span>
-                  <span className="text-lg font-semibold text-cyan-200">{count}</span>
-                </Link>
-              ))}
-            </div>
-          </GlassCard>
-        </div>
-      </div>
-    </div>
-  );
-}
+    );
+  }

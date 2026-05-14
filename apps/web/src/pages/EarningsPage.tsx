@@ -63,12 +63,17 @@ export function EarningsPage() {
   const totalOverride = focusRows.reduce((sum, row) => sum + row.directorOverride, 0);
   const possibleAtGoal = focusRows.reduce((sum, row) => sum + row.possibleAtGoal, 0);
   const totalOrders = focusRows.reduce((sum, row) => sum + row.wonCount, 0);
+  const grossProfitEstimate = totalWon * 0.42;
+  const netRevenue = totalWon - totalRepCommission - totalOverride;
+  const laneRevenue = ['UNIFORM','TRAVEL_GEAR','TEAM_STORE','LETTERMAN'].map((lane)=>({lane, value: opportunities.filter((o)=>o.stage==='CLOSED_WON' && o.lane===lane).reduce((sum,o)=>sum+o.value,0)}));
   const totalGoal = focusRows.length * MONTHLY_ORDER_GOAL;
+  const pendingCommission = totalRepCommission * 0.35;
+  const paidCommission = totalRepCommission - pendingCommission;
   const remainingOrders = Math.max(totalGoal - totalOrders, 0);
 
   return (
     <div className="space-y-3">
-      <Card title="Earnings Command Center">
+      <Card title="Owner Earnings Command Center">
         <div className="grid gap-3 lg:grid-cols-[1fr_1.2fr]">
           <div>
             <p className="text-sm font-semibold text-white">The standard is 4 orders per month.</p>
@@ -90,6 +95,10 @@ export function EarningsPage() {
           </div>
         </div>
       </Card>
+
+      {user?.role === "OWNER" ? <Card title="Owner Financial Snapshot"><div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4"><MoneyCard label="Total Won Revenue" value={formatCurrency(totalWon)} note="Closed won linked to order handoff." /><MoneyCard label="Total Commission Liability" value={formatCurrency(totalRepCommission + totalOverride)} note="Rep + director payouts." /><MoneyCard label="Net Revenue" value={formatCurrency(netRevenue)} note="Won revenue less payout liability." /><MoneyCard label="Gross Profit Estimate" value={formatCurrency(grossProfitEstimate)} note="Estimated at 42% gross margin." /></div><div className="mt-3 grid gap-2 sm:grid-cols-2"> <div className="rounded-lg border border-slate-800 bg-slate-950/70 p-3"><p className="text-xs uppercase text-slate-400">Revenue by Lane</p>{laneRevenue.map((row)=><p key={row.lane} className="text-sm text-slate-300">{row.lane}: {formatCurrency(row.value)}</p>)}</div><div className="rounded-lg border border-slate-800 bg-slate-950/70 p-3"><p className="text-xs uppercase text-slate-400">Payout Snapshot</p><p className="text-sm text-slate-300">Rep payout: {formatCurrency(totalRepCommission)}</p><p className="text-sm text-slate-300">Director override: {formatCurrency(totalOverride)}</p></div></div></Card> : null}
+
+      {user?.role === 'REP' ? <Card title='My Commission Snapshot'><div className='grid gap-2 sm:grid-cols-2'><p className='text-sm text-slate-300'>Orders closed this month: {totalOrders}</p><p className='text-sm text-slate-300'>Estimated commission: {formatCurrency(totalRepCommission)}</p><p className='text-sm text-slate-300'>Pending commission: {formatCurrency(pendingCommission)}</p><p className='text-sm text-slate-300'>Paid commission (mock): {formatCurrency(paidCommission)}</p><p className='text-sm text-slate-300'>4-order bonus progress: {totalOrders}/{MONTHLY_ORDER_GOAL}</p><p className='text-sm text-slate-300'>Lane penetration bonus progress: {laneRevenue.filter((l)=>l.value>0).length}/4 lanes won</p></div></Card> : null}
 
       <Card title={user?.role === 'REP' ? 'My 4-Order Pace' : 'Team 4-Order Pace'}>
         <div className="space-y-2">

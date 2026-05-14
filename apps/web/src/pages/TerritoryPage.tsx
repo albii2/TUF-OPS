@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { getNearCloseOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
 import { getStoredUser } from '../auth';
 import { TerritoryCommandMap } from '../components/TerritoryCommandMap';
 import { Card, DataTable, type Column } from '../components/primitives';
@@ -29,9 +30,11 @@ export function TerritoryPage() {
   const scopedOrgs = orgs.filter((o) => scopedZones.has(o.territory));
   const scopedOpps = opps.filter((o) => scopedOrgs.some((org) => org.id === o.organizationId));
   const scopedStale = staleAccounts.filter((o) => scopedZones.has(o.territory));
-  const nearClose = scopedOpps.filter((o) => ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'].includes(o.stage));
+  const nearClose = getNearCloseOpportunities(scopedOpps);
   const untouched = scopedOrgs.filter((o) => o.coverageStatus === 'UNTOUCHED' || !scopedOpps.some((opp) => opp.organizationId === o.id));
   const pipeline = scopedOpps.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).reduce((sum, o) => sum + o.value, 0);
+
+  const pressure = getTerritoryHealthLabel(scopedOrgs.length ? Math.round(((scopedOrgs.length-untouched.length)/scopedOrgs.length)*100) : 0);
 
   const repRows = teamMembers
     .filter((m) => m.role === 'REP' && m.active)
@@ -61,6 +64,8 @@ export function TerritoryPage() {
   return (
     <div className="space-y-3">
       <TerritoryCommandMap title={user?.role === 'DIRECTOR' ? 'MY TERRITORY COMMAND MAP' : 'TERRITORY COMMAND MAP'} />
+
+      <Card title="Owner Territory Pressure"><p className="text-sm text-slate-300">Coverage pressure: {pressure}. Labels: Weak Coverage · Building · Active · Dominating.</p></Card>
 
       <div className="grid gap-3 md:grid-cols-3">
         <SmallKpi label="Untouched Accounts" value={String(untouched.length)} note="Highest priority for coverage discipline." />
