@@ -2,6 +2,12 @@ import { Link } from 'react-router-dom';
 import { getNearCloseOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
 import { getStoredUser } from '../auth';
 import { TerritoryCommandMap } from '../components/TerritoryCommandMap';
+import { useTerritories } from '../hooks/useTerritory';
+import { useOrganizations, useStaleAccounts } from '../hooks/useOrganizations';
+import { useOpportunities } from '../hooks/useOpportunities';
+import { teamMembers } from '../data/mockSalesData';
+import { Card, DataTable, type Column, SmallKpi } from '../components/primitives';
+import { formatCurrency } from '../utils/format';
 
 export function TerritoryPage() {
   const user = getStoredUser();

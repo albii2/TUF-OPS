@@ -71,12 +71,7 @@ export function getMomentumState(input: { nearClose: number; stuck: number; stal
   return getUnifiedMomentumState(input);
 }
 
-export function getTerritoryHealthLabel(coveragePct: number) {
-  if (coveragePct < 45) return 'Weak Coverage';
-  if (coveragePct < 65) return 'Building';
-  if (coveragePct < 82) return 'Active';
-  return 'Dominating';
-}
+
 
 export function getTerritoryHealthLabel(coveragePct: number) {
   if (coveragePct < 45) return 'Weak Coverage';

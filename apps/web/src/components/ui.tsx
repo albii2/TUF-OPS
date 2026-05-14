@@ -1,14 +1,11 @@
 import type { PropsWithChildren } from 'react';
-import { useState } from 'react';
 
 export function TufLogo({ compact = false }: { compact?: boolean }) {
-  const [src, setSrc] = useState('/tuf-logo.svg');
   return (
     <img
-      src={src}
+      src="/tuf-logo.svg"
       alt="TUF"
-      onError={() => setSrc('/tuf-mark.svg')}
-      className={compact ? 'h-12 w-40 object-contain object-left' : 'mx-auto h-20 w-full max-w-[280px] object-contain object-center'}
+      className={compact ? 'h-14 w-36 object-contain object-left' : 'mx-auto h-24 w-full max-w-[320px] object-contain object-center'}
     />
   );
 }

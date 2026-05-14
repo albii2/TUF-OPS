@@ -2,6 +2,58 @@ import { getStoredUser } from '../auth';
 import { OwnerEarnings } from '../components/OwnerEarnings';
 import { DirectorEarnings } from '../components/DirectorEarnings';
 import { RepEarnings } from '../components/RepEarnings';
+import { teamMembers, opportunities, orders } from '../data/mockSalesData';
+import { Card } from '../components/primitives';
+import { formatCurrency } from '../utils/format';
+
+const MONTHLY_ORDER_GOAL = 4;
+const REP_COMMISSION_RATE = 0.08;
+const DIRECTOR_OVERRIDE_RATE = 0.02;
+const TARGET_ORDER_VALUE = 15000;
+
+type EarningsRow = {
+  rep: string;
+  wonCount: number;
+  wonValue: number;
+  repCommission: number;
+  directorOverride: number;
+  possibleAtGoal: number;
+};
+
+function buildRow(rep: string): EarningsRow {
+  const orderWonIds = new Set(orders.map((o) => o.opportunityId));
+  const won = opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON' && orderWonIds.has(o.id));
+  const wonValue = won.reduce((sum, o) => sum + o.value, 0);
+  const averageOrderValue = won.length ? wonValue / won.length : TARGET_ORDER_VALUE;
+  const remainingOrders = Math.max(MONTHLY_ORDER_GOAL - won.length, 0);
+  return {
+    rep,
+    wonCount: won.length,
+    wonValue,
+    repCommission: wonValue * REP_COMMISSION_RATE,
+    directorOverride: wonValue * DIRECTOR_OVERRIDE_RATE,
+    possibleAtGoal: (wonValue + remainingOrders * averageOrderValue) * REP_COMMISSION_RATE,
+  };
+}
+
+function ProgressBar({ value, total }: { value: number; total: number }) {
+  const pct = Math.min(100, Math.round((value / Math.max(total, 1)) * 100));
+  return (
+    <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+      <div className="h-full rounded-full bg-cyan-400" style={{ width: `${pct}%` }} />
+    </div>
+  );
+}
+
+function MoneyCard({ label, value, note }: { label: string; value: string; note: string }) {
+  return (
+    <Card>
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
+      <p className="mt-1 text-2xl font-semibold text-white">{value}</p>
+      <p className="text-sm text-slate-300">{note}</p>
+    </Card>
+  );
+}
 
 export function EarningsPage() {
   const user = getStoredUser();
