@@ -8,6 +8,7 @@ import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreative
 import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
 import { updateOpportunityStage } from '../services/opportunitiesService';
 import type { Opportunity, OpportunityStage } from '../data/mockSalesData';
+import { daysSince } from '../services/kpiUtils';
 
 const stageCtas = {
   LEAD_ASSIGNED: 'Contact coach',
@@ -24,10 +25,6 @@ const stageCtas = {
 
 const stageFlow = ['LEAD_ASSIGNED','CONTACTED','DISCOVERY','MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING','CLOSED_WON'] as const;
 
-function daysSince(dateIso: string) {
-  const d = new Date(dateIso);
-  return Number.isNaN(d.getTime()) ? 0 : Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
-}
 
 export function OpportunityDetailPage() {
   const { id } = useParams();

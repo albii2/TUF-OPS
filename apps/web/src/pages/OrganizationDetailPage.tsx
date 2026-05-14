@@ -27,7 +27,7 @@ export function OrganizationDetailPage() {
   if (!org) return <EmptyState title="Organization not found" description="Check the selected account and try again." />;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 min-w-0">
       <Card title="Account Growth Summary">
         <div className="flex items-center justify-between">
           <div>

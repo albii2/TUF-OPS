@@ -3,6 +3,7 @@ import { organizations, teamMembers, type CoverageStatus, type Organization, typ
 import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
 import { DATA_MODE } from './dataMode';
+import { getStaleOrganizations } from './kpiUtils';
 
 export type OrganizationListParams = {
   search?: string;
@@ -15,8 +16,6 @@ export type OrganizationListParams = {
   refreshKey?: number;
 };
 
-const STALE_DAYS = 14;
-const now = new Date('2026-05-01T00:00:00Z').getTime();
 const LOCAL_ORGANIZATIONS_KEY = 'tuf_ops_mock_organizations_v1';
 
 function readLocalOrganizations(): Organization[] {
@@ -45,7 +44,7 @@ function getRoleScopedOrganizations() {
   if (user.role === 'DIRECTOR') {
     const directorProfile = teamMembers.find((m) => m.name === user.name && m.role === 'DIRECTOR');
     const zoneSet = new Set(directorProfile?.territoryIds ?? []);
-    return allOrganizations.filter((org) => org.assignedDirector === user.name || zoneSet.has(org.territory));
+    return allOrganizations.filter((org) => org.assignedDirector === user.name || zoneSet.has(org.territory) || org.assignedDirector === 'Unassigned' || !org.territory);
   }
 
   if (user.role === 'REP') return allOrganizations.filter((org) => org.assignedRep === user.name);
@@ -58,7 +57,7 @@ export function listOrganizations(params: OrganizationListParams = {}): Organiza
     const matchesSearch = !(params.search ?? '').trim() || [org.name, org.city, org.state, org.assignedRep, org.assignedDirector].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase());
     const matchesStatus = !params.status || params.status === 'ALL' || org.status === params.status;
     const matchesRep = !params.rep || params.rep === 'ALL' || org.assignedRep === params.rep;
-    const matchesTerritory = !params.territory || params.territory === 'ALL' || org.territory === params.territory;
+    const matchesTerritory = params.territory === undefined || params.territory === 'ALL' || org.territory === params.territory;
     const matchesDirector = !params.director || params.director === 'ALL' || org.assignedDirector === params.director;
     const matchesCoverage = !params.coverageStatus || params.coverageStatus === 'ALL' || org.coverageStatus === params.coverageStatus;
     const matchesPriority = !params.priority || params.priority === 'ALL' || org.priority === params.priority;
@@ -76,10 +75,7 @@ export function listUntouchedAccounts() {
 }
 
 export function listStaleAccounts() {
-  return listOrganizations({}).filter((o) => {
-    const last = new Date(o.lastActivity).getTime();
-    return Number.isFinite(last) && (now - last) / (1000 * 60 * 60 * 24) >= STALE_DAYS;
-  });
+  return getStaleOrganizations(listOrganizations({}), 14);
 }
 
 export function listAccountsNeedingAction() {
@@ -139,7 +135,6 @@ export function createMockOrganization(input: { name: string; accountType: strin
 
 export function importLeadRows(
   leads: NormalizedLead[],
-  defaults: { defaultRep: string; defaultDirector: string; defaultTerritory: TerritoryId },
 ) {
   const existing = getAllOrganizations();
   const existingKeys = new Set(existing.map((org) => `${org.name}|${org.state}`.toLowerCase()));
@@ -165,16 +160,16 @@ export function importLeadRows(
       name: lead.organizationName,
       city: lead.city,
       state: lead.state,
-      assignedRep: defaults.defaultRep,
-      assignedDirector: defaults.defaultDirector,
-      territory: lead.territory || defaults.defaultTerritory,
+      assignedRep: 'Unassigned',
+      assignedDirector: 'Unassigned',
+      territory: (lead.territory || '') as TerritoryId,
       priority: lead.tufPriority.toLowerCase() === 'high' ? 'HIGH' : lead.tufPriority.toLowerCase() === 'low' ? 'LOW' : 'MEDIUM',
       nextAction: lead.primaryContactName ? `Call ${lead.primaryContactName}` : 'Call primary contact and confirm buying timeline',
     }));
   });
 
   writeLocalOrganizations([...imported, ...localRows]);
-  return { created: imported.length, invalid, duplicates };
+  return { created: imported.length, invalid, duplicates, importedIds: imported.map((row) => row.id) };
 }
 
 export function bulkUpdateOrganizations(

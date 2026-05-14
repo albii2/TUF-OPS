@@ -47,7 +47,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
 
   return (
     <div className="relative min-h-screen bg-tuf-texture text-[var(--text-primary)]">
-      <div className="mx-auto grid min-h-screen max-w-[1500px] grid-cols-1 md:grid-cols-[240px_1fr]">
+      <div className="mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="hidden border-r border-[var(--border)] bg-[#070c13]/95 p-3.5 md:flex md:flex-col">
           <div className="flex h-20 items-center justify-start px-1"><TufLogo compact /></div>
           <nav className="mt-3.5 space-y-1 flex-1">
@@ -68,7 +68,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           </div>
         </aside>
 
-        <main className="px-4 pb-20 pt-3 md:px-5">
+        <main className="min-w-0 px-4 pb-24 pt-3 md:px-5 md:pb-20">
           <div className="mb-3 md:hidden">
             <div className="mb-2 flex h-16 items-center justify-start px-1"><TufLogo compact /></div>
             <nav className="flex gap-2 overflow-x-auto pb-1">
@@ -114,7 +114,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
         </main>
       </div>
       <div className="pointer-events-none fixed inset-x-0 bottom-2 z-0 flex justify-center md:bottom-4">
-        <img src="/tuf-logo.svg" alt="" aria-hidden="true" className="h-6 w-16 object-contain opacity-[0.08] md:h-8 md:w-20" />
+        <img src="/tuf-mark.svg" alt="" aria-hidden="true" className="h-8 w-8 rounded bg-black/30 p-1 opacity-[0.22] md:h-10 md:w-10" />
       </div>
     </div>
   );
