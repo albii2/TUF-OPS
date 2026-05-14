@@ -22,9 +22,9 @@ export const dashboardCtaContract: Record<Role, RoleCta[]> = {
     { label: 'Momentum', to: '/my-opportunities' },
   ],
   OPS: [
+    { label: 'New Orders', to: '/ops-workspace' },
     { label: 'Needs Review', to: '/ops-workspace' },
     { label: 'Blocked Orders', to: '/orders' },
     { label: 'Ready for Vendor', to: '/ops-workspace' },
-    { label: 'In Production', to: '/ops-workspace' },
   ],
 };

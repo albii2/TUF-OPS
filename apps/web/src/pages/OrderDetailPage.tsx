@@ -29,7 +29,7 @@ export function OrderDetailPage() {
         <Card title="Source Opportunity" className="lg:col-span-2">
           {linkedOpportunity ? <Link className="text-cyan-300" to={`/opportunities/${linkedOpportunity.id}`}>{linkedOpportunity.title}</Link> : <p className="text-slate-400">No linked opportunity.</p>}
         </Card>
-        <Card title="Current Production Stage"><p className="text-sm text-slate-200">{order.productionStatus}</p></Card>
+        <Card title="Current Production Stage"><p className="text-sm text-slate-200">{order.productionStatus}</p><p className='text-xs text-slate-400 mt-1'>Next production step: {order.missingInfo.length ? 'Collect missing info then release to vendor.' : order.productionStatus==='READY_FOR_VENDOR' ? 'Send vendor packet.' : order.productionStatus==='IN_PRODUCTION' ? 'Track vendor milestone + ship date.' : 'Review handoff package.'}</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">

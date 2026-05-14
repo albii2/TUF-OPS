@@ -4,6 +4,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { getNearCloseOpportunities, getStaleAccounts, getStaleOpportunities } from '../services/businessSelectors';
 import { Button, Card, LaneBadge } from '../components/primitives';
+import { useOrders } from '../hooks/useOrders';
 import { formatCurrency } from '../utils/format';
 import { useReports } from '../hooks/useReports';
 
@@ -11,6 +12,7 @@ export function ReportsPage() {
   const reportsSummary = useReports();
   const user = getStoredUser();
   const opportunities = useOpportunities({});
+  const orders = useOrders({});
   const organizations = useOrganizations({});
   const staleOpps = getStaleOpportunities(opportunities);
   const staleOrgs = getStaleAccounts(organizations);
@@ -62,6 +64,8 @@ export function ReportsPage() {
       </Card>
 
       {user?.role === 'DIRECTOR' ? <Card title="Director Coaching Summary"><div className="grid gap-2 md:grid-cols-2"><p className="text-sm text-slate-300">Stale pipeline: {staleOpps.length} opportunities</p><p className="text-sm text-slate-300">Territory coverage risk accounts: {staleOrgs.length}</p><p className="text-sm text-slate-300">Near-close forecast: {nearClose.length} deals</p><p className="text-sm text-slate-300">Weekly coaching focus reps: {accountability.filter((r:any)=>r.stale>0||r.nearClose>0).length}</p></div><div className="mt-2 space-y-1">{accountability.map((rep:any)=><p key={rep.rep} className="text-xs text-slate-300">{rep.rep}: stale {rep.stale} · near-close {rep.nearClose} · open deals {rep.openDeals}</p>)}</div></Card> : null}
+
+      {user?.role === 'OPS' ? <Card title='Ops Fulfillment Summary'><div className='grid gap-2 md:grid-cols-3'><p className='text-sm text-slate-300'>Blocked orders: {orders.filter((o)=>o.productionStatus==='BLOCKED').length}</p><p className='text-sm text-slate-300'>Needs review: {orders.filter((o)=>o.productionStatus==='NEEDS_REVIEW').length}</p><p className='text-sm text-slate-300'>Vendor-ready: {orders.filter((o)=>o.productionStatus==='READY_FOR_VENDOR').length}</p><p className='text-sm text-slate-300'>In production: {orders.filter((o)=>o.productionStatus==='IN_PRODUCTION').length}</p><p className='text-sm text-slate-300'>Completed: {orders.filter((o)=>o.productionStatus==='COMPLETED').length}</p><p className='text-sm text-slate-300'>Aging blockers: {orders.filter((o)=>o.productionStatus==='BLOCKED' && o.missingInfo.length>0).length}</p></div></Card> : null}
 
       <div className="flex flex-wrap items-center gap-2"><Button onClick={() => setMessage('Weekly report export prepared in mock mode for beta review.')}>Export Weekly Report</Button><Button onClick={() => setMessage('Monthly report export prepared in mock mode for beta review.')}>Export Monthly Report</Button>{message ? <p className="text-sm text-cyan-200">{message}</p> : null}</div>
     </div>

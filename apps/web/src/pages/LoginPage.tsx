@@ -39,7 +39,7 @@ export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void })
         </button>
         {error ? <p className="mt-3 text-xs text-rose-300">{error}</p> : <p className="mt-3 text-xs text-slate-500">4-digit PIN access</p>}
       </form>
-      <img src="/tuf-mark.svg" alt="TUF mark" className="pointer-events-none mt-6 w-12 rounded bg-black/50 p-1 opacity-40" />
+      <img src="/tuf-mark.svg" alt="TUF mark" className="pointer-events-none mt-6 h-10 w-10 object-contain opacity-90" />
     </div>
   );
 }

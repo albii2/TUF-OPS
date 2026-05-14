@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { teamMembers } from '../data/mockSalesData';
 import { GlassCard } from '../components/ui';
+import { getStoredUser } from '../auth';
 import type { Role } from '../types';
 import { useActivities } from '../hooks/useReports';
 import { useOpportunities } from '../hooks/useOpportunities';
@@ -76,6 +77,7 @@ function GoalRing({ count, role }: { count: number, role: Role }) {
 
 export function DashboardPage({ role }: { role: Role }) {
   const opportunities = useOpportunities({});
+  const currentUser = getStoredUser();
   const organizations = useOrganizations({});
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
@@ -121,24 +123,38 @@ export function DashboardPage({ role }: { role: Role }) {
   ];
 
   if (role === 'OPS') {
+    const newOrders = orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW').length;
+    const needsReview = orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW');
+    const readyForVendor = orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR');
+    const inProduction = orders.filter((o) => o.productionStatus === 'IN_PRODUCTION');
+    const delayed = inProduction.filter((o) => o.missingInfo.length > 0);
+    const opsMission = blockedOrders.length
+      ? { title: 'Unblock production immediately', reason: `${blockedOrders.length} blocked orders are waiting on missing package items.`, to: '/orders', cta: 'Orders' }
+      : needsReview.length
+        ? { title: 'Collect missing handoff information', reason: `${needsReview.length} orders need review before vendor routing.`, to: '/ops-workspace', cta: 'Ops Workspace' }
+        : { title: 'Prepare vendor packets', reason: `${readyForVendor.length} orders are ready for vendor release.`, to: '/ops-workspace', cta: 'Ops Workspace' };
+
     return (
       <div className="space-y-3">
         <div className="grid gap-3 md:grid-cols-4">
-          <MetricTile value={String(orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW').length)} label="Needs Review" tone="border-cyan-500/40 bg-cyan-500/10" to="/ops-workspace" />
+          <MetricTile value={String(newOrders)} label="New Orders" tone="border-cyan-500/40 bg-cyan-500/10" to="/ops-workspace" />
           <MetricTile value={String(blockedOrders.length)} label="Blocked Orders" tone="border-rose-500/40 bg-rose-500/10" to="/orders" />
-          <MetricTile value={String(orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR').length)} label="Ready for Vendor" tone="border-emerald-500/40 bg-emerald-500/10" to="/ops-workspace" />
-          <MetricTile value={String(orders.filter((o) => o.productionStatus === 'IN_PRODUCTION').length)} label="In Production" tone="border-sky-500/40 bg-sky-500/10" to="/ops-workspace" />
+          <MetricTile value={String(needsReview.length)} label="Needs Review" tone="border-amber-500/40 bg-amber-500/10" to="/ops-workspace" />
+          <MetricTile value={String(readyForVendor.length)} label="Ready for Vendor" tone="border-emerald-500/40 bg-emerald-500/10" to="/ops-workspace" />
         </div>
-        <GlassCard title="PRODUCTION COMMAND">
+        <GlassCard title="MISSION PRIORITY"><p className="text-sm text-slate-300">{opsMission.title}</p><p className="text-xs text-slate-400">{opsMission.reason}</p><div className="mt-2 flex gap-2"><Link to={opsMission.to} className="rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{opsMission.cta}</Link><Link to="/reports" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Reports</Link></div></GlassCard>
+        <GlassCard title="BLOCKER RESOLUTION QUEUE">
           <div className="grid gap-2 md:grid-cols-2">
-            {blockedOrders.slice(0, 6).map((order) => (
-              <DealRow key={order.id} title={order.organizationName} meta={order.missingInfo.join(', ') || order.vendorNotes} value={order.value} to={`/orders/${order.id}`} />
+            {blockedOrders.slice(0, 8).map((order) => (
+              <DealRow key={order.id} title={`${order.id} — ${order.organizationName}`} meta={`Blocker: ${order.missingInfo.join(', ') || 'Vendor clarification'} · Next: collect package + release to vendor`} value={order.value} to={`/orders/${order.id}`} />
             ))}
           </div>
         </GlassCard>
+        <GlassCard title="FULFILLMENT CONTROL BOARD"><p className="text-sm text-slate-300">Needs Review {needsReview.length} · Ready for Vendor {readyForVendor.length} · In Production {inProduction.length} · Delayed {delayed.length}.</p></GlassCard>
       </div>
     );
   }
+
 
   if (role === 'OWNER') {
     return (
@@ -164,7 +180,8 @@ export function DashboardPage({ role }: { role: Role }) {
       stale: staleOpps.filter((o) => o.assignedRep === rep).length,
       pipeline: opportunities.filter((o) => o.assignedRep === rep && !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).reduce((sum,o)=>sum+o.value,0),
     }));
-    const myOpps = opportunities.filter((o) => o.assignedRep === 'Dana Holt');
+    const directorName = currentUser?.role === 'DIRECTOR' ? currentUser.name : '';
+    const myOpps = opportunities.filter((o) => o.assignedRep === directorName);
     const myNearClose = getNearCloseOpportunities(myOpps);
     const myPipeline = myOpps.filter((o) => !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).reduce((sum,o)=>sum+o.value,0);
     const untouchedAccounts = organizations.filter((o)=>o.coverageStatus==='UNTOUCHED').length;
@@ -190,6 +207,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <GlassCard title="COACHING QUEUE"><div className="space-y-2">{repCoachingGrid.slice(0,6).map((row)=><Link key={row.rep} to="/team-opportunities" className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3"><p className="font-semibold text-slate-100">{row.rep}</p><p className="text-xs text-slate-400">Issue: stale {row.stale} · stuck {row.stuck} · near-close {row.nearClose}</p><p className="text-xs text-cyan-200">Action: coach next action + invoice pressure · Impact {formatCurrency(row.pipeline)}</p></Link>)}</div></GlassCard>
           <GlassCard title="MY SELLING PANEL"><p className="text-sm text-slate-300">My opportunities: {myOpps.length} · Near-close: {myNearClose.length} · Pipeline: {formatCurrency(myPipeline)}</p><div className="mt-2 space-y-2">{myOpps.slice(0,4).map((opp)=><DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.stage}`} value={opp.value} to={`/opportunities/${opp.id}`} />)}</div></GlassCard>
         </div>
+        <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{staleOpps.length ? 'Follow up stale opportunity now' : pendingPayments.length ? 'Push near-close invoice follow-up' : 'Contact untouched assigned account'}</p><p className="text-sm text-slate-300">{staleOpps.length ? `${staleOpps.length} opportunities are stale and need activity today.` : pendingPayments.length ? `${pendingPayments.length} deals are waiting on invoice/payment pressure.` : 'Activate account coverage and lane expansion from your assigned book.'}</p><Link to={staleOpps.length ? '/my-opportunities' : pendingPayments.length ? '/orders' : '/organizations'} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Open priority queue</Link></div></GlassCard>
 
         <GlassCard title="TERRITORY WAR TABLE"><p className="text-sm text-slate-300">Coverage {coveragePct}% · Untouched {organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length} · Stale accounts {staleAccounts.length} · Near-close {nearClose.length} · Stuck deals {stuckDeals.length}</p><div className="mt-2 grid gap-2 sm:grid-cols-2">{Object.entries(lanePenetration).map(([lane,count])=><p key={lane} className="text-xs text-slate-300">{lane}: {count} active lanes</p>)}</div></GlassCard>
       </div>
@@ -207,7 +225,7 @@ export function DashboardPage({ role }: { role: Role }) {
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{staleOpps.length ? 'Follow up stale opportunity now' : pendingPayments.length ? 'Push near-close invoice follow-up' : 'Contact untouched assigned account'}</p><p className="text-sm text-slate-300">{staleOpps.length ? `${staleOpps.length} opportunities are stale and need activity today.` : pendingPayments.length ? `${pendingPayments.length} deals are waiting on invoice/payment pressure.` : 'Activate account coverage and lane expansion from your assigned book.'}</p><Link to={staleOpps.length ? '/my-opportunities' : pendingPayments.length ? '/orders' : '/organizations'} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Open priority queue</Link></div></GlassCard>
 
-        <GlassCard title="NEXT-ACTION EXECUTION QUEUE"><div className="space-y-2">{openOpps.slice(0,6).map((opp)=><DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.sport} · ${opp.lane}`} value={opp.value} to={`/opportunities/${opp.id}`} />)}</div></GlassCard>
+        <GlassCard title="NEXT-ACTION EXECUTION QUEUE"><div className="space-y-2">{openOpps.filter((opp)=>opp.assignedRep === (currentUser?.role === 'REP' ? currentUser.name : opp.assignedRep)).slice(0,6).map((opp)=><DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.sport} · ${opp.lane}`} value={opp.value} to={`/opportunities/${opp.id}`} />)}</div></GlassCard>
 
         <div className="safe-grid grid gap-3 lg:grid-cols-2">
           <GlassCard title="MONTHLY STANDARD"><p className="text-sm text-slate-300">{Math.min(completedOrders.length, MONTHLY_ORDER_GOAL)}/{MONTHLY_ORDER_GOAL} orders closed. {Math.max(MONTHLY_ORDER_GOAL-completedOrders.length,0)} more to hit the floor.</p><p className="mt-1 text-xs text-cyan-200">Next KPI: lane penetration.</p><div className="mt-2"><GoalRing count={Math.min(completedOrders.length, MONTHLY_ORDER_GOAL)} /></div></GlassCard>

@@ -55,3 +55,13 @@ Date: 2026-05-13
 - Earnings: rep snapshot now includes closed orders, estimated/pending/paid commission, and 4-order/lane progress.
 - Mobile: rep dashboard sections prioritize mission and execution content with compact actionable cards.
 - Remaining Rep gaps: explicit lane recommendation engine per account and UI automation for route-by-route mobile checks.
+
+
+## Ops Role Readiness
+- Dashboard: production command center now highlights new orders, blockers, needs-review volume, and vendor-ready flow.
+- Ops workspace: queue cards now include lane/vendor plus blocker or next-step context.
+- Orders table: blocked/needs-review statuses remain scannable with direct row navigation to order detail.
+- Order detail: explicit production next-step guidance added by status/missing info.
+- Reports: ops summary includes blocked, needs-review, vendor-ready, in-production, completed, and aging blockers.
+- Mobile: ops cards stack safely and blocker text wraps in workspace/dashboard queues.
+- Remaining Ops gaps: persisted order status transitions and SLA aging timers are still mock-only.
