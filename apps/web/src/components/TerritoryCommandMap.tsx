@@ -29,6 +29,7 @@ type ZoneMetric = {
   pipeline: number;
   closed: number;
   laneActive: Record<RevenueLane, number>;
+  topAccounts: string[];
 };
 
 function percent(value: number, total: number) {
@@ -99,6 +100,7 @@ export function TerritoryCommandMap({ title = 'TERRITORY COMMAND MAP', fullMapLi
         pipeline: Math.max(territory.pipeline, opps.reduce((sum, opp) => sum + opp.value, 0)),
         closed: Math.max(territory.closed, opps.filter((opp) => opp.stage === 'CLOSED_WON').reduce((sum, opp) => sum + opp.value, 0)),
         laneActive,
+        topAccounts: orgs.sort((a,b)=>b.pipelineValue-a.pipelineValue).slice(0,3).map((o)=>o.name),
       };
     });
   }, [territories, organizations, opportunities]);
@@ -156,7 +158,7 @@ export function TerritoryCommandMap({ title = 'TERRITORY COMMAND MAP', fullMapLi
               </div>
             </div>
 
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-2"><p className="text-xs text-slate-400">Top Accounts: {active.topAccounts.join(', ') || 'None'}</p><p className="text-xs text-slate-400">Recommended owner action: {active.untouched > 5 ? 'Assign untouched accounts and pressure first-call outreach.' : active.stuck > active.nearClose ? 'Coach stuck-deal reps and unblock decision path.' : 'Push near-close opportunities into invoice and handoff.'}</p>
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Lane Penetration</p>
               {laneOrder.map((lane) => (
                 <div key={lane} className="space-y-1">

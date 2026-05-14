@@ -1,4 +1,5 @@
 import type { AppUser, Role } from './types';
+import { getActiveUserByRole } from './services/usersService';
 
 const ROLE_DEFAULT_USER: Record<Role, string> = {
   OWNER: 'Coach Bradshaw',
@@ -39,7 +40,8 @@ export function getStoredUser(): AppUser | null {
 
 export function loginWithPin(pin: string): AppUser | null {
   if (pin !== '0000') return null;
-  const user: AppUser = { name: 'Coach Bradshaw', role: 'OWNER' };
+  const owner = getActiveUserByRole('OWNER');
+  const user: AppUser = { name: owner?.displayName ?? 'Coach Bradshaw', role: 'OWNER' };
   return persistUser(user);
 }
 
@@ -47,7 +49,7 @@ export function updateRole(role: Role): AppUser | null {
   const existing = getStoredUser();
   if (!existing) return null;
   const updated = {
-    name: existing.role === role ? existing.name : ROLE_DEFAULT_USER[role],
+    name: existing.role === role ? existing.name : (getActiveUserByRole(role)?.displayName ?? ROLE_DEFAULT_USER[role]),
     role,
   };
   return persistUser(updated);

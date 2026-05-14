@@ -10,7 +10,8 @@ export type SidebarKey =
   | 'performance'
   | 'messages'
   | 'ops_workspace'
-  | 'settings';
+  | 'settings'
+  | 'users';
 
 export type AppUser = {
   name: string;
