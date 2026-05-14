@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { GlassCard } from '../components/ui';
+import { getStoredUser } from '../auth';
 import type { Role } from '../types';
 import { useActivities } from '../hooks/useReports';
 import { useOpportunities } from '../hooks/useOpportunities';
@@ -72,6 +73,7 @@ function GoalRing({ count }: { count: number }) {
 
 export function DashboardPage({ role }: { role: Role }) {
   const opportunities = useOpportunities({});
+  const currentUser = getStoredUser();
   const organizations = useOrganizations({});
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
@@ -174,7 +176,8 @@ export function DashboardPage({ role }: { role: Role }) {
       stale: staleOpps.filter((o) => o.assignedRep === rep).length,
       pipeline: opportunities.filter((o) => o.assignedRep === rep && !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).reduce((sum,o)=>sum+o.value,0),
     }));
-    const myOpps = opportunities.filter((o) => o.assignedRep === 'Dana Holt');
+    const directorName = currentUser?.role === 'DIRECTOR' ? currentUser.name : '';
+    const myOpps = opportunities.filter((o) => o.assignedRep === directorName);
     const myNearClose = getNearCloseOpportunities(myOpps);
     const myPipeline = myOpps.filter((o) => !['CLOSED_WON','CLOSED_LOST'].includes(o.stage)).reduce((sum,o)=>sum+o.value,0);
     const untouchedAccounts = organizations.filter((o)=>o.coverageStatus==='UNTOUCHED').length;
