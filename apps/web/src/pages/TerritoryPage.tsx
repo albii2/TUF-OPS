@@ -2,22 +2,6 @@ import { Link } from 'react-router-dom';
 import { getNearCloseOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
 import { getStoredUser } from '../auth';
 import { TerritoryCommandMap } from '../components/TerritoryCommandMap';
-import { Card, DataTable, type Column } from '../components/primitives';
-import { teamMembers } from '../data/mockSalesData';
-import { useOrganizations, useStaleAccounts } from '../hooks/useOrganizations';
-import { useOpportunities } from '../hooks/useOpportunities';
-import { useTerritories } from '../hooks/useTerritory';
-import { formatCurrency } from '../utils/format';
-
-function SmallKpi({ label, value, note }: { label: string; value: string; note: string }) {
-  return (
-    <Card>
-      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-semibold text-white">{value}</p>
-      <p className="text-sm text-slate-300">{note}</p>
-    </Card>
-  );
-}
 
 export function TerritoryPage() {
   const user = getStoredUser();

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { teamMembers } from '../data/mockSalesData';
 import { GlassCard } from '../components/ui';
 import type { Role } from '../types';
 import { useActivities } from '../hooks/useReports';
@@ -51,18 +52,21 @@ function DealRow({ title, meta, value, to }: { title: string; meta: string; valu
   );
 }
 
-function GoalRing({ count }: { count: number }) {
-  const pct = Math.min(100, Math.round((count / MONTHLY_ORDER_GOAL) * 100));
-  const remaining = Math.max(MONTHLY_ORDER_GOAL - count, 0);
+function GoalRing({ count, role }: { count: number, role: Role }) {
+  const activeReps = teamMembers.filter((m) => m.role === 'REP' && m.active).length;
+  const totalGoal = role === 'OWNER' ? MONTHLY_ORDER_GOAL * activeReps : MONTHLY_ORDER_GOAL;
+  const pct = Math.min(100, Math.round((count / Math.max(totalGoal, 1)) * 100));
+  const remaining = Math.max(totalGoal - count, 0);
+
   return (
     <div className="flex items-center gap-4">
       <div className="grid h-24 w-24 place-items-center rounded-full" style={{ background: `conic-gradient(#22d3ee ${pct}%, #1e293b ${pct}% 100%)` }}>
         <div className="grid h-16 w-16 place-items-center rounded-full bg-[#07101a] text-center">
-          <span className="text-xl font-bold text-white">{count}/{MONTHLY_ORDER_GOAL}</span>
+          <span className="text-xl font-bold text-white">{count}/{totalGoal}</span>
         </div>
       </div>
       <div>
-        <p className="text-sm font-semibold text-white">4 orders/month pace</p>
+        <p className="text-sm font-semibold text-white">{totalGoal} orders/month pace</p>
         <p className="text-sm text-slate-300">{remaining} more order{remaining === 1 ? '' : 's'} to hit the floor.</p>
         <p className="mt-1 text-xs text-cyan-200">Next most important KPI: lane penetration.</p>
       </div>

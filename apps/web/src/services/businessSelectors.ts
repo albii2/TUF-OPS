@@ -78,6 +78,30 @@ export function getTerritoryHealthLabel(coveragePct: number) {
   return 'Dominating';
 }
 
+export function getStaleOpportunities(opportunities: Opportunity[], thresholdDays = 14) {
+  const now = new Date();
+  return opportunities.filter((opp) => {
+    const d = new Date(opp.lastActivity);
+    const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
+    return diff >= thresholdDays && !['CLOSED_WON', 'CLOSED_LOST'].includes(opp.stage);
+  });
+}
+
+export function getMomentumState(input: { nearClose: number; stuck: number; stale: number; touched: number }) {
+  const score = input.nearClose * 2 + input.touched - input.stuck - input.stale * 2;
+  if (score >= 8) return 'HOT';
+  if (score >= 3) return 'BUILDING';
+  if (score >= -1) return 'STALLED';
+  return 'CRITICAL';
+}
+
+export function getTerritoryHealthLabel(coveragePct: number) {
+  if (coveragePct < 45) return 'Weak Coverage';
+  if (coveragePct < 65) return 'Building';
+  if (coveragePct < 82) return 'Active';
+  return 'Dominating';
+}
+
 export function getAccountsNeedingAction(organizations: Organization[]) {
   return organizations.filter((o) => !!o.nextAction && o.coverageStatus !== 'CLOSED');
 }
