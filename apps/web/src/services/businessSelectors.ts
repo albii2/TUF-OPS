@@ -1,4 +1,5 @@
 import type { Opportunity, Organization, Order, RevenueLane } from '../data/mockSalesData';
+import { getMomentumState as getUnifiedMomentumState, getStaleOpenOpportunities, getStaleOrganizations } from './kpiUtils';
 
 const NEAR_CLOSE_STAGES: Opportunity['stage'][] = ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'];
 
@@ -59,12 +60,22 @@ export function getUntouchedAccounts(organizations: Organization[]) {
 }
 
 export function getStaleAccounts(organizations: Organization[], thresholdDays = 14) {
-  const now = new Date();
-  return organizations.filter((o) => {
-    const d = new Date(o.lastActivity);
-    const diff = (now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24);
-    return diff >= thresholdDays;
-  });
+  return getStaleOrganizations(organizations, thresholdDays);
+}
+
+export function getStaleOpportunities(opportunities: Opportunity[], thresholdDays = 14) {
+  return getStaleOpenOpportunities(opportunities, thresholdDays);
+}
+
+export function getMomentumState(input: { nearClose: number; stuck: number; stale: number; touched: number }) {
+  return getUnifiedMomentumState(input);
+}
+
+export function getTerritoryHealthLabel(coveragePct: number) {
+  if (coveragePct < 45) return 'Weak Coverage';
+  if (coveragePct < 65) return 'Building';
+  if (coveragePct < 82) return 'Active';
+  return 'Dominating';
 }
 
 export function getStaleOpportunities(opportunities: Opportunity[], thresholdDays = 14) {

@@ -95,7 +95,7 @@ export function SportsTicker() {
   const tickerItems = useMemo(() => [...scores, ...scores], [scores]);
 
   return (
-    <div className="mb-2 overflow-hidden rounded-md border border-[#12314a] bg-[#07111b] text-xs text-slate-200">
+    <div className="mb-2 w-full min-w-0 overflow-hidden rounded-md border border-[#12314a] bg-[#07111b] text-xs text-slate-200">
       <div className="flex items-center">
         <div className="shrink-0 border-r border-[#12314a] bg-[#0b1a28] px-3 py-2 font-semibold text-cyan-200">National Scoreboard</div>
         <div className="min-w-0 flex-1 overflow-hidden">

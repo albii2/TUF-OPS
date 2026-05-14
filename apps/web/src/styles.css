@@ -65,3 +65,8 @@ button:disabled {
     animation: none;
   }
 }
+
+@media (max-width: 640px) {
+  .panel { padding: 0.65rem; }
+  table { font-size: 12px; }
+}

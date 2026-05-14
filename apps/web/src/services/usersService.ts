@@ -55,6 +55,9 @@ export function saveUsers(rows: ManagedUser[]) {
 export function createUser(input: Omit<ManagedUser, 'id' | 'displayName' | 'avatarColor'>) {
   const rows = listUsers();
   const displayName = `${input.firstName} ${input.lastName}`.trim();
+  if (!displayName) throw new Error('Display name required');
+  if (rows.some((u) => u.displayName.toLowerCase() === displayName.toLowerCase())) throw new Error('User with this name already exists');
+  if (input.role === 'REP' && !input.assignedDirectorId) throw new Error('Reps must be assigned to a director');
   const row: ManagedUser = {
     ...input,
     id: `u-local-${Date.now()}`,
@@ -66,7 +69,14 @@ export function createUser(input: Omit<ManagedUser, 'id' | 'displayName' | 'avat
 }
 
 export function updateUser(id: string, patch: Partial<ManagedUser>) {
-  const rows = listUsers().map((u) => (u.id === id ? { ...u, ...patch, displayName: `${patch.firstName ?? u.firstName} ${patch.lastName ?? u.lastName}`.trim() } : u));
+  const users = listUsers();
+  const target = users.find((u) => u.id === id);
+  if (!target) return;
+  if (target.role === 'OWNER' && patch.status === 'INACTIVE') {
+    const activeOwners = users.filter((u) => u.role === 'OWNER' && u.status === 'ACTIVE');
+    if (activeOwners.length <= 1) throw new Error('Cannot archive the last active owner');
+  }
+  const rows = users.map((u) => (u.id === id ? { ...u, ...patch, displayName: `${patch.firstName ?? u.firstName} ${patch.lastName ?? u.lastName}`.trim() } : u));
   saveUsers(rows);
 }
 

@@ -25,6 +25,7 @@ export function OrganizationsPage() {
   const [priority, setPriority] = useState('ALL');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
+  const [assignmentCue, setAssignmentCue] = useState('');
   const [bulkMessage, setBulkMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
   const [targetRep, setTargetRep] = useState('Maya Cole');
@@ -53,7 +54,7 @@ export function OrganizationsPage() {
   const runBulkAction = (label: string, patch: Parameters<typeof bulkUpdateOrganizations>[1]) => {
     if (!selected.length) return;
     const updated = bulkUpdateOrganizations(selected, patch);
-    setBulkMessage(`${label} updated ${updated} selected account${updated > 1 ? 's' : ''} in mock mode.`);
+    setBulkMessage(`${label} applied to ${updated} selected account${updated === 1 ? '' : 's'}.`);
     setRefreshKey((value) => value + 1);
   };
 
@@ -73,7 +74,7 @@ export function OrganizationsPage() {
 
   return (
     <div className='space-y-3 min-w-0'>
-      <OrganizationImportPanel existingKeys={existingKeys} onImported={() => setRefreshKey((value) => value + 1)} />
+      <OrganizationImportPanel existingKeys={existingKeys} onImported={(ids) => { setSelected(ids); setRefreshKey((value) => value + 1); setAssignmentCue(`Imported accounts selected (${ids.length}). Review bulk fields below, then assign territory, director, and rep.`); }} />
       <Card title='Accounts & Expansion Pipeline'>
         <div className='safe-grid mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8'>
           <Input placeholder='Search organizations' value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
@@ -92,7 +93,7 @@ export function OrganizationsPage() {
               <span>{selected.length} selected</span>
               <div className='flex gap-2'>
                 <Button className='px-2 py-1 text-xs' onClick={toggleSelectVisible}>Select Visible</Button>
-                <Button className='px-2 py-1 text-xs' onClick={() => setSelected([])}>Clear Selection</Button>
+                <Button className='px-2 py-1 text-xs' onClick={() => { setSelected([]); setAssignmentCue('Selection cleared.'); }}>Clear Selection</Button>
               </div>
             </div>
             <div className='mb-2 grid gap-2 md:grid-cols-4'>
@@ -109,6 +110,7 @@ export function OrganizationsPage() {
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep cleared', { assignedRep: 'Unassigned' })}>Clear Rep</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Coverage status', { coverageStatus: targetCoverage })}>Set Coverage Status</Button>
             </div>
+            {assignmentCue ? <p className='mt-2 text-amber-300'>{assignmentCue}</p> : null}
             {bulkMessage ? <p className='mt-2 text-cyan-300'>{bulkMessage}</p> : null}
           </div>
         )}
