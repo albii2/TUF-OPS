@@ -8,6 +8,7 @@ import { listOpportunities } from '../services/opportunitiesService';
 import { listOrders } from '../services/ordersService';
 import { listOrganizations } from '../services/organizationsService';
 import { SportsTicker } from './SportsTicker';
+import { listUsers } from '../services/usersService';
 
 export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUser | null) => void }) {
   const navigate = useNavigate();
@@ -44,10 +45,11 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
   };
 
   const navItems = config.sidebarItems.map((item) => ({ key: item, ...allSidebarItems[item] }));
+  const activeRoles = new Set(listUsers().filter((u) => u.status === 'ACTIVE').map((u) => u.role));
 
   return (
     <div className="relative min-h-screen bg-tuf-texture text-[var(--text-primary)]">
-      <div className="mx-auto grid min-h-screen max-w-[1500px] grid-cols-1 md:grid-cols-[240px_1fr]">
+      <div className="mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="hidden border-r border-[var(--border)] bg-[#070c13]/95 p-3.5 md:flex md:flex-col">
           <div className="flex h-20 items-center justify-start px-1"><TufLogo compact /></div>
           <nav className="mt-3.5 space-y-1 flex-1">
@@ -68,7 +70,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           </div>
         </aside>
 
-        <main className="px-4 pb-20 pt-3 md:px-5">
+        <main className="min-w-0 px-4 pb-24 pt-3 md:px-5 md:pb-20">
           <div className="mb-3 md:hidden">
             <div className="mb-2 flex h-16 items-center justify-start px-1"><TufLogo compact /></div>
             <nav className="flex gap-2 overflow-x-auto pb-1">
@@ -104,7 +106,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
                 />
               </div>
               <select aria-label='Beta role context' className="h-9 rounded-md panel-elevated px-2 text-xs" value={user.role} onChange={(e) => { const next = updateRole(e.target.value as Role); if (next) { setUser(next); navigate('/dashboard'); } }}>
-                {(['OWNER', 'DIRECTOR', 'REP', 'OPS'] as Role[]).map((role) => <option key={role} value={role}>{role}</option>)}
+                {(['OWNER', 'DIRECTOR', 'REP', 'OPS'] as Role[]).filter((role) => role === user.role || activeRoles.has(role)).map((role) => <option key={role} value={role}>{role}</option>)}
               </select>
               <button className="h-9 rounded-md border border-[#1FB6FF]/60 bg-[#10324a] px-3 text-xs text-[#dff5ff]" onClick={() => { logout(); setUser(null); navigate('/login'); }}>{user.name}</button>
             </div>
@@ -114,7 +116,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
         </main>
       </div>
       <div className="pointer-events-none fixed inset-x-0 bottom-2 z-0 flex justify-center md:bottom-4">
-        <img src="/tuf-logo.svg" alt="" aria-hidden="true" className="h-6 w-16 object-contain opacity-[0.08] md:h-8 md:w-20" />
+        <img src="/tuf-mark.svg" alt="" aria-hidden="true" className="h-8 w-8 object-contain opacity-90 md:h-10 md:w-10" />
       </div>
     </div>
   );

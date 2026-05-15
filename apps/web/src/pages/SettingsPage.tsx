@@ -50,7 +50,7 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card title="Role Access">
+      <Card title="Workspace">
         <div className="space-y-2 text-sm">
           <label className="block text-[var(--text-secondary)]">Role</label>
           <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
@@ -62,7 +62,7 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card title="Theme & Workspace">
+      <Card title="Theme">
         <div className="space-y-2 text-sm">
           <label className="block text-[var(--text-secondary)]">Accent Theme</label>
           <Select value={prefs.accent} onChange={(e) => setPrefs((p) => ({ ...p, accent: e.target.value as UserPrefs['accent'] }))}>
@@ -85,11 +85,16 @@ export function SettingsPage() {
         <div className="space-y-2 text-sm">
           <label className="block text-[var(--text-secondary)]">PIN (4 digits)</label>
           <Input type="password" value={pin} maxLength={4} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} />
-          <p className="text-xs text-[var(--text-secondary)]">PIN is local for beta mode and used for quick sign-in.</p>
+          <p className="text-xs text-[var(--text-secondary)]">PIN is local for internal beta sign-in only.</p>
         </div>
       </Card>
 
-      <Card title="Operational Controls" className="lg:col-span-2">
+      <Card title="Ticker">
+        <p className="text-sm text-slate-300">National scoreboard shows only today/tomorrow games and auto-refreshes every 5 minutes.</p>
+        <p className="text-xs text-slate-500 mt-1">Post-Beta: league/source customization.</p>
+      </Card>
+
+      <Card title="Beta Controls" className="lg:col-span-2">
         <div className="flex items-center justify-between">
           <p className="text-sm text-[var(--text-secondary)]">Save role, theme, and workspace preferences for this device profile.</p>
           <Button onClick={saveAll}>Save Settings</Button>

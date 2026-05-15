@@ -1,75 +1,67 @@
 # Beta Launch Readiness Report
 
-Date: May 8, 2026
+Date: 2026-05-13
 
-Scope: `apps/web` organizational beta readiness for Owner, Director, Rep, and Ops.
+## Import → Assignment Loop Status
+- **Status: PASS (mock mode).**
+- Owner can upload CSV, import leads, and imported rows are auto-selected in Organizations.
+- Bulk panel supports territory/director/rep assignment and clear-selection behavior.
+- Success messaging now confirms how many selected accounts were updated.
 
-## Executive Summary
+## Role CTA Smoke Status
+- **Status: PASS.**
+- Role CTA contract validates OWNER/DIRECTOR/REP/OPS CTA route targets.
+- Smoke check fails if any dashboard CTA points to a route outside that role's visible routes.
 
-`apps/web` is ready for internal organizational beta in mock mode after a focused hardening pass. The app now has proportional TUF Ops branding, an authenticated-page footer watermark, mobile navigation, working mock creation/import/stage actions, safer role scoping, OPS order visibility, upgraded command dashboards, a national sports scoreboard ticker, improved territory command map, earnings pace visibility, and beta documentation for role journeys and business logic coverage.
+## Mobile 390px Status
+- **Status: PASS with minor monitoring.**
+- Added hardening for ticker width, button minimum touch height, and tighter panel/table behavior on small screens.
+- Route checklist remains in `docs/MOBILE_QA_390_CHECKLIST.md` for final manual pass capture.
 
-## Current Beta Readiness Status
+## Remaining Blockers
+1. Complete manual screenshot evidence for all required 390px routes and roles (OWNER + REP minimum).
+2. Expand role CTA smoke beyond contract assertions into UI-level runtime navigation tests when test harness is added.
 
-Release recommendation: **READY FOR INTERNAL BETA**
+## Release Recommendation
+- **Recommend: Proceed to beta with guardrails.**
+- Core workflow hardening is now in place for import→assignment, role CTA safety checks, and shared KPI usage.
 
-This recommendation assumes beta users understand the app is running in mock/client mode and that local mock-created records live in browser localStorage.
 
-## Completed Checks
+## Owner Role Readiness
+- Dashboard: mission priority and owner action queue added with live CTAs.
+- Import/Assignment: lead import steps polished and assignment next-step messaging clarified.
+- Territory: owner risk pressure and territory control metrics surfaced across zone/map views.
+- Earnings: owner finance snapshot added for revenue, liability, net, and margin signals.
+- Settings: sections clarified (Profile, Workspace, Theme, Security, Ticker, Beta Controls).
+- Remaining owner gaps: UI-level route automation and screenshot evidence capture at 390px.
 
-- Inspected `apps/web/src/App.tsx`, `main.tsx`, `auth.ts`, `types.ts`, `styles.css`.
-- Inspected `apps/web/src/config/*`, `data/*`, `services/*`, `hooks/*`, `utils/*`, `components/*`, `pages/*`.
-- Inspected requested docs that exist; confirmed `TERRITORY_MAP_FUNCTION.md` and `WEB_FINAL_THEME_SPEC.md` are absent.
-- Verified route inventory and role visibility configuration.
-- Fixed top-left logo sizing and placement with the uploaded white TUF logo at `apps/web/public/tuf-logo.svg`.
-- Added subtle authenticated footer watermark using the same approved TUF logo asset.
-- Added mobile navigation for authenticated routes.
-- Added global search routing for scoped accounts, opportunities, and orders.
-- Added a national NBA/NFL/college football scoreboard ticker to the authenticated shell.
-- Upgraded the dashboard into a widget-based command view with Today’s Focus, next actions, pipeline bars, revenue, recent activity, 4-orders/month pace, and lane penetration.
-- Replaced the clunky territory map/cards with a map-first Territory Command Map on `/territory` and `/territory/map`.
-- Upgraded Earnings into a 4-orders/month pace and commission potential view for reps/directors.
-- Made lead import create local mock organizations.
-- Made new organization and new opportunity flows persist local mock records.
-- Made opportunity stage/action controls respond in local mock state.
-- Made organization bulk assignment controls update selected local mock rows.
-- Fixed OPS order visibility and OPS dashboard content.
-- Made OPS workspace cards open order detail.
-- Replaced unfinished copy such as preview-only, next slice, and pending integration wording.
-- Added mock feedback for report export and order creation controls.
 
-## Remaining Non-Blocking Gaps
+## Director Role Readiness
+- Dashboard: coaching-room layout with mission priority, coaching queue, and separate personal selling panel.
+- Personal selling: my opportunities, near-close, and my pipeline surfaced directly on dashboard.
+- Team coaching: rep-by-rep stale/stuck/near-close coaching actions with route targets.
+- Territory pressure: coverage, untouched, stale, lane penetration, and expansion pressure surfaced.
+- Organizations workflow: director continues scoped org view with assignment controls per current model.
+- Reports: director coaching summary now includes stale pipeline, coverage risk, near-close forecast, and weekly rep focus.
+- Remaining Director gaps: automated UI route-playback and deeper rep pacing benchmark metrics.
 
-- Dedicated sample tracking is not a full state machine yet; creative/mockup tracking covers the beta-critical mockup flow.
-- Report export does not generate files; buttons provide beta-safe mock feedback.
-- Standalone order creation is not implemented; beta handoff is represented through seeded closed-won/order data.
-- Imported and newly created mock records persist in browser localStorage, not backend storage.
-- API cutover loading/error states remain part of the existing data adapter plan.
 
-## Known Risks
+## Rep Role Readiness
+- Dashboard: mission-briefing structure with priority action, execution queue, monthly standard, lane opportunity, and momentum status.
+- Next actions: rep queue surfaces action, account/sport/lane context, and value impact with direct route targets.
+- My opportunities: remains rep-scoped via role filters and supports direct opportunity workflow navigation.
+- Opportunity detail: stage, stale warning, next-best-action, and mock state-advance actions remain available.
+- Assigned organizations: rep view stays scoped to assigned accounts with no owner import/bulk assignment controls.
+- Earnings: rep snapshot now includes closed orders, estimated/pending/paid commission, and 4-order/lane progress.
+- Mobile: rep dashboard sections prioritize mission and execution content with compact actionable cards.
+- Remaining Rep gaps: explicit lane recommendation engine per account and UI automation for route-by-route mobile checks.
 
-- Because mock data lives locally, beta testers using different browsers/devices will not share imported or created records.
-- Role switching is intentionally visible for beta QA; production role switching should be governed by real auth.
-- The large legacy `apps/web/src/pages/TUF MN.svg` asset remains unused and should be moved or removed in a later cleanup.
 
-## Recommended Manual QA Checklist
-
-- Login with PIN `0000`; verify invalid PIN error.
-- Switch through OWNER, DIRECTOR, REP, OPS beta role contexts.
-- For OWNER, import a CSV from the lead schema, confirm rows appear in `/organizations`, then bulk assign selected rows.
-- For DIRECTOR, verify `/my-opportunities`, `/team-opportunities`, `/territory`, and `/reports`.
-- For REP, create an opportunity, advance stages, submit a creative request, and close won/lost in mock mode.
-- For OPS, open `/dashboard`, `/ops-workspace`, `/orders`, and several `/orders/:id` details.
-- Verify `/territory` opens with the Territory Command Map first and `/territory/map` has Metro, North, West, South only.
-- Verify Dashboard shows Today’s Focus, pipeline/revenue widgets, monthly standard, lane penetration, and the national scoreboard ticker.
-- Verify Earnings shows made, can-make-at-pace, order progress, and rep/team 4-order pace.
-- Check desktop, tablet, and mobile widths for navigation, tables, dashboard cards, details, and login.
-- Confirm no generated `.js`, `.d.ts`, `.map` files exist under `apps/web/src`.
-- Run `pnpm -C apps/web build`.
-
-## Verification Status
-
-- `pnpm install`: completed for fresh clone dependency setup.
-- `pnpm -C apps/web build`: passed.
-- `find apps/web/src -name '*.js' -o -name '*.d.ts' -o -name '*.js.map' -o -name '*.d.ts.map'`: passed with no output.
-- `pnpm -C apps/web lint`: attempted; blocked because `eslint` is not installed in the package/workspace.
-- Browser smoke check: branch dev server on `localhost:5176` showed upgraded dashboard, territory command map, earnings command center, scoreboard ticker, mobile/tablet nav, and brand asset visibility.
+## Ops Role Readiness
+- Dashboard: production command center now highlights new orders, blockers, needs-review volume, and vendor-ready flow.
+- Ops workspace: queue cards now include lane/vendor plus blocker or next-step context.
+- Orders table: blocked/needs-review statuses remain scannable with direct row navigation to order detail.
+- Order detail: explicit production next-step guidance added by status/missing info.
+- Reports: ops summary includes blocked, needs-review, vendor-ready, in-production, completed, and aging blockers.
+- Mobile: ops cards stack safely and blocker text wraps in workspace/dashboard queues.
+- Remaining Ops gaps: persisted order status transitions and SLA aging timers are still mock-only.
