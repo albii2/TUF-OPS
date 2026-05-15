@@ -48,8 +48,11 @@ export function loginWithPin(pin: string): AppUser | null {
 export function updateRole(role: Role): AppUser | null {
   const existing = getStoredUser();
   if (!existing) return null;
+  if (existing.role === role) return existing;
+  const active = getActiveUserByRole(role);
+  if (!active) return null;
   const updated = {
-    name: existing.role === role ? existing.name : (getActiveUserByRole(role)?.displayName ?? ROLE_DEFAULT_USER[role]),
+    name: active.displayName,
     role,
   };
   return persistUser(updated);
