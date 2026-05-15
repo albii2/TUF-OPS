@@ -1,6 +1,9 @@
 import { getStoredUser } from '../auth';
+import { OwnerEarnings } from '../components/OwnerEarnings';
+import { DirectorEarnings } from '../components/DirectorEarnings';
+import { RepEarnings } from '../components/RepEarnings';
+import { teamMembers, opportunities, orders } from '../data/mockSalesData';
 import { Card } from '../components/primitives';
-import { opportunities, orders, teamMembers } from '../data/mockSalesData';
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;
@@ -16,6 +19,22 @@ type EarningsRow = {
   directorOverride: number;
   possibleAtGoal: number;
 };
+
+function buildRow(rep: string): EarningsRow {
+  const orderWonIds = new Set(orders.map((o) => o.opportunityId));
+  const won = opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON' && orderWonIds.has(o.id));
+  const wonValue = won.reduce((sum, o) => sum + o.value, 0);
+  const averageOrderValue = won.length ? wonValue / won.length : TARGET_ORDER_VALUE;
+  const remainingOrders = Math.max(MONTHLY_ORDER_GOAL - won.length, 0);
+  return {
+    rep,
+    wonCount: won.length,
+    wonValue,
+    repCommission: wonValue * REP_COMMISSION_RATE,
+    directorOverride: wonValue * DIRECTOR_OVERRIDE_RATE,
+    possibleAtGoal: (wonValue + remainingOrders * averageOrderValue) * REP_COMMISSION_RATE,
+  };
+}
 
 function ProgressBar({ value, total }: { value: number; total: number }) {
   const pct = Math.min(100, Math.round((value / Math.max(total, 1)) * 100));
@@ -34,22 +53,6 @@ function MoneyCard({ label, value, note }: { label: string; value: string; note:
       <p className="text-sm text-slate-300">{note}</p>
     </Card>
   );
-}
-
-function buildRow(rep: string): EarningsRow {
-  const orderWonIds = new Set(orders.map((o) => o.opportunityId));
-  const won = opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON' && orderWonIds.has(o.id));
-  const wonValue = won.reduce((sum, o) => sum + o.value, 0);
-  const averageOrderValue = won.length ? wonValue / won.length : TARGET_ORDER_VALUE;
-  const remainingOrders = Math.max(MONTHLY_ORDER_GOAL - won.length, 0);
-  return {
-    rep,
-    wonCount: won.length,
-    wonValue,
-    repCommission: wonValue * REP_COMMISSION_RATE,
-    directorOverride: wonValue * DIRECTOR_OVERRIDE_RATE,
-    possibleAtGoal: (wonValue + remainingOrders * averageOrderValue) * REP_COMMISSION_RATE,
-  };
 }
 
 export function EarningsPage() {

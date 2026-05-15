@@ -44,7 +44,7 @@ function getRoleScopedOrganizations() {
   if (user.role === 'DIRECTOR') {
     const directorProfile = teamMembers.find((m) => m.name === user.name && m.role === 'DIRECTOR');
     const zoneSet = new Set(directorProfile?.territoryIds ?? []);
-    return allOrganizations.filter((org) => org.assignedDirector === user.name || zoneSet.has(org.territory));
+    return allOrganizations.filter((org) => org.assignedDirector === user.name || zoneSet.has(org.territory) || org.assignedDirector === 'Unassigned' || !org.territory);
   }
 
   if (user.role === 'REP') return allOrganizations.filter((org) => org.assignedRep === user.name);

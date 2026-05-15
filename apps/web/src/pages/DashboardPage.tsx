@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { teamMembers } from '../data/mockSalesData';
 import { GlassCard } from '../components/ui';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
@@ -52,18 +53,21 @@ function DealRow({ title, meta, value, to }: { title: string; meta: string; valu
   );
 }
 
-function GoalRing({ count }: { count: number }) {
-  const pct = Math.min(100, Math.round((count / MONTHLY_ORDER_GOAL) * 100));
-  const remaining = Math.max(MONTHLY_ORDER_GOAL - count, 0);
+function GoalRing({ count, role }: { count: number, role: Role }) {
+  const activeReps = teamMembers.filter((m) => m.role === 'REP' && m.active).length;
+  const totalGoal = role === 'OWNER' ? MONTHLY_ORDER_GOAL * activeReps : MONTHLY_ORDER_GOAL;
+  const pct = Math.min(100, Math.round((count / Math.max(totalGoal, 1)) * 100));
+  const remaining = Math.max(totalGoal - count, 0);
+
   return (
     <div className="flex items-center gap-4">
       <div className="grid h-24 w-24 place-items-center rounded-full" style={{ background: `conic-gradient(#22d3ee ${pct}%, #1e293b ${pct}% 100%)` }}>
         <div className="grid h-16 w-16 place-items-center rounded-full bg-[#07101a] text-center">
-          <span className="text-xl font-bold text-white">{count}/{MONTHLY_ORDER_GOAL}</span>
+          <span className="text-xl font-bold text-white">{count}/{totalGoal}</span>
         </div>
       </div>
       <div>
-        <p className="text-sm font-semibold text-white">4 orders/month pace</p>
+        <p className="text-sm font-semibold text-white">{totalGoal} orders/month pace</p>
         <p className="text-sm text-slate-300">{remaining} more order{remaining === 1 ? '' : 's'} to hit the floor.</p>
         <p className="mt-1 text-xs text-cyan-200">Next most important KPI: lane penetration.</p>
       </div>
@@ -196,6 +200,9 @@ export function DashboardPage({ role }: { role: Role }) {
           <MetricTile value={formatCurrency(nearClose.reduce((sum,o)=>sum+o.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
           <MetricTile value={`${coveragePct}%`} label="Territory Coverage" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory" />
         </div>
+    return (
+      <>
+        <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{staleOpps.length ? 'Follow up stale opportunity now' : pendingPayments.length ? 'Push near-close invoice follow-up' : 'Contact untouched assigned account'}</p><p className="text-sm text-slate-300">{staleOpps.length ? `${staleOpps.length} opportunities are stale and need activity today.` : pendingPayments.length ? `${pendingPayments.length} deals are waiting on invoice/payment pressure.` : 'Activate account coverage and lane expansion from your assigned book.'}</p><Link to={staleOpps.length ? '/my-opportunities' : pendingPayments.length ? '/orders' : '/organizations'} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Open priority queue</Link></div></GlassCard>
 
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{mission.title}</p><p className="text-sm text-slate-300">{mission.reason}</p><div className="flex flex-wrap gap-2"><Link to={mission.to} className="rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{mission.cta}</Link><Link to="/my-opportunities" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">My Opportunities</Link><Link to="/territory" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Territory</Link><Link to="/reports" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Reports</Link></div></div></GlassCard>
 
@@ -203,6 +210,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <GlassCard title="COACHING QUEUE"><div className="space-y-2">{repCoachingGrid.slice(0,6).map((row)=><Link key={row.rep} to="/team-opportunities" className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3"><p className="font-semibold text-slate-100">{row.rep}</p><p className="text-xs text-slate-400">Issue: stale {row.stale} · stuck {row.stuck} · near-close {row.nearClose}</p><p className="text-xs text-cyan-200">Action: coach next action + invoice pressure · Impact {formatCurrency(row.pipeline)}</p></Link>)}</div></GlassCard>
           <GlassCard title="MY SELLING PANEL"><p className="text-sm text-slate-300">My opportunities: {myOpps.length} · Near-close: {myNearClose.length} · Pipeline: {formatCurrency(myPipeline)}</p><div className="mt-2 space-y-2">{myOpps.slice(0,4).map((opp)=><DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.stage}`} value={opp.value} to={`/opportunities/${opp.id}`} />)}</div></GlassCard>
         </div>
+        <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{staleOpps.length ? 'Follow up stale opportunity now' : pendingPayments.length ? 'Push near-close invoice follow-up' : 'Contact untouched assigned account'}</p><p className="text-sm text-slate-300">{staleOpps.length ? `${staleOpps.length} opportunities are stale and need activity today.` : pendingPayments.length ? `${pendingPayments.length} deals are waiting on invoice/payment pressure.` : 'Activate account coverage and lane expansion from your assigned book.'}</p><Link to={staleOpps.length ? '/my-opportunities' : pendingPayments.length ? '/orders' : '/organizations'} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Open priority queue</Link></div></GlassCard>
 
         <GlassCard title="TERRITORY WAR TABLE"><p className="text-sm text-slate-300">Coverage {coveragePct}% · Untouched {organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length} · Stale accounts {staleAccounts.length} · Near-close {nearClose.length} · Stuck deals {stuckDeals.length}</p><div className="mt-2 grid gap-2 sm:grid-cols-2">{Object.entries(lanePenetration).map(([lane,count])=><p key={lane} className="text-xs text-slate-300">{lane}: {count} active lanes</p>)}</div></GlassCard>
       </div>
