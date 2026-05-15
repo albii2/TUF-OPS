@@ -1,15 +1,12 @@
 import type { PropsWithChildren } from 'react';
-import tufLogoSvg from '../../public/tuf-logo.svg?raw';
+import TufLogoSvg from '../../public/tuf-logo.svg';
 
 export function TufLogo({ compact = false }: { compact?: boolean }) {
-  const className = compact ? 'inline-block h-12 w-40 [&>svg]:h-full [&>svg]:w-full' : 'mx-auto inline-block h-20 w-full max-w-[280px] [&>svg]:h-full [&>svg]:w-full';
+  const className = compact ? 'inline-block h-12 w-40' : 'mx-auto inline-block h-20 w-full max-w-[280px]';
   return (
-    <span
-      role="img"
-      aria-label="TUF"
-      className={className}
-      dangerouslySetInnerHTML={{ __html: tufLogoSvg }}
-    />
+    <span className={className}>
+      <img src={TufLogoSvg} alt="TUF Logo" />
+    </span>
   );
 }
 

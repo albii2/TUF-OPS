@@ -8,6 +8,11 @@ type ScoreItem = {
   feedError?: boolean;
 };
 
+type NewsItem = {
+  headline: string;
+  source: string;
+}
+
 const fallbackScores: ScoreItem[] = [
   { league: 'NBA', label: 'NBA Playoffs scoreboard feed warming up', status: 'Refreshes in app', isActive: true },
 ];
@@ -17,6 +22,8 @@ const feeds: Array<{ league: ScoreItem['league']; url: string }> = [
   { league: 'NFL', url: 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard' },
   { league: 'CFB', url: 'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard' },
 ];
+
+const newsFeedUrl = 'https://site.api.espn.com/apis/site/v2/sports/news';
 
 function formatEvent(league: ScoreItem['league'], event: any): ScoreItem | null {
   const competition = event?.competitions?.[0];
@@ -52,6 +59,7 @@ function isTodayOrTomorrow(dateValue: string) {
 
 export function SportsTicker() {
   const [scores, setScores] = useState<ScoreItem[]>(fallbackScores);
+  const [news, setNews] = useState<NewsItem[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,25 +92,42 @@ export function SportsTicker() {
       }
     }
 
+    async function loadNews() {
+      try {
+        const response = await fetch(newsFeedUrl);
+        if (!response.ok) return;
+        const data = await response.json();
+        const headlines = (data.articles ?? []).map((article: any) => ({ headline: article.headline, source: article.source, url: article.links?.web?.href})).filter((item:any) => item.url);
+        if (!cancelled) {
+          setNews(headlines.slice(0, 10));
+        }
+      } catch (e) {
+        // ignore news errors
+      }
+    }
+
     loadScores().catch(() => undefined);
-    const timer = window.setInterval(loadScores, 1000 * 60 * 5);
+    loadNews().catch(() => undefined);
+    const scoreTimer = window.setInterval(loadScores, 1000 * 60 * 5);
+    const newsTimer = window.setInterval(loadNews, 1000 * 60 * 15);
     return () => {
       cancelled = true;
-      window.clearInterval(timer);
+      window.clearInterval(scoreTimer);
+      window.clearInterval(newsTimer);
     };
   }, []);
 
-  const tickerItems = useMemo(() => [...scores, ...scores], [scores]);
+  const tickerItems = useMemo(() => [...scores, ...news.map(n => ({ league: 'NEWS', label: n.headline, status: n.source, isActive: false }))], [scores, news]);
 
   return (
     <div className="mb-2 w-full min-w-0 overflow-hidden rounded-md border border-[#12314a] bg-[#07111b] text-xs text-slate-200">
       <div className="flex items-center">
-        <div className="shrink-0 border-r border-[#12314a] bg-[#0b1a28] px-3 py-2 font-semibold text-cyan-200">National Scoreboard</div>
+        <a href="https://tuf-sports.com/" target="_blank" rel="noopener noreferrer" className="shrink-0 border-r border-[#12314a] bg-[#0b1a28] px-3 py-2 font-semibold text-cyan-200 hover:bg-[#0f2a41]">TUF Sports</a>
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="ticker-track flex w-max items-center gap-6 py-2">
             {tickerItems.map((item, index) => (
               <span key={`${item.league}-${item.label}-${index}`} className="inline-flex items-center gap-2 whitespace-nowrap">
-                <span className="rounded border border-cyan-500/30 bg-cyan-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-cyan-100">{item.league}</span>
+                <span className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${item.league === 'NEWS' ? 'border-amber-500/30 bg-amber-500/10 text-amber-100' : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-100'}`}>{item.league}</span>
                 <span className="font-medium">{item.label}</span>
                 <span className="text-slate-400">{item.status}</span>
               </span>
