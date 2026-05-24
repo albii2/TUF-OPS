@@ -1,11 +1,11 @@
 import type { PropsWithChildren } from 'react';
-import TufLogoSvg from '../../public/tuf-logo.svg';
+import TufLogoSvg from '../assets/tuf-logo.svg';
 
 export function TufLogo({ compact = false }: { compact?: boolean }) {
   const className = compact ? 'inline-block h-12 w-40' : 'mx-auto inline-block h-20 w-full max-w-[280px]';
   return (
     <span className={className}>
-      <img src={TufLogoSvg} alt="TUF Logo" />
+      <img src={TufLogoSvg} alt="TUF Logo" className="h-full w-full" />
     </span>
   );
 }

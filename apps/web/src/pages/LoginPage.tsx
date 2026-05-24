@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginWithPin } from '../auth';
 import { TufLogo } from '../components/ui';
 import type { AppUser } from '../types';
+import TufMarkSvg from '../assets/tuf-mark.svg';
 
 export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void }) {
   const [pin, setPin] = useState('');
@@ -39,7 +40,7 @@ export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void })
         </button>
         {error ? <p className="mt-3 text-xs text-rose-300">{error}</p> : <p className="mt-3 text-xs text-slate-500">4-digit PIN access</p>}
       </form>
-      <img src="/tuf-mark.svg" alt="TUF mark" className="pointer-events-none mt-6 h-10 w-10 object-contain opacity-90" />
+      <img src={TufMarkSvg} alt="TUF mark" className="pointer-events-none mt-6 h-10 w-10 object-contain opacity-90" />
     </div>
   );
 }
