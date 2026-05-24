@@ -37,7 +37,7 @@ export function SportsTicker() {
         label: score.matchup,
         status: `${score.status} · ${score.sourceLabel}`,
       })),
-      ...sportsWireLinks.map((link) => ({ tag: 'WIRE', label: link.label, status: link.href })),
+      ...sportsWireLinks.map((link) => ({ tag: 'WIRE', label: link.label, status: 'Open source', href: link.href })),
     ],
     [],
   );
@@ -52,7 +52,13 @@ export function SportsTicker() {
               <span key={`${item.tag}-${item.label}-${index}`} className="inline-flex items-center gap-2 whitespace-nowrap">
                 <span className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${item.tag === 'WIRE' ? 'border-amber-500/30 bg-amber-500/10 text-amber-100' : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-100'}`}>{item.tag}</span>
                 <span className="font-medium">{item.label}</span>
-                <span className="text-slate-400">{item.status}</span>
+                {item.tag === 'WIRE' && item.href ? (
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" className="text-cyan-300 underline decoration-cyan-700/70 underline-offset-2 hover:text-cyan-200">
+                    {item.status}
+                  </a>
+                ) : (
+                  <span className="text-slate-400">{item.status}</span>
+                )}
               </span>
             ))}
           </div>
