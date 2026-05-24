@@ -9,6 +9,7 @@ export type OpportunityStage =
   | 'MOCKUP_DELIVERED'
   | 'INVOICE_SENT'
   | 'DECISION_PENDING'
+  | 'PAYMENT_RECEIVED'
   | 'CLOSED_WON'
   | 'CLOSED_LOST';
 
@@ -81,7 +82,7 @@ export type Activity = {
 };
 
 
-export const opportunityStages: OpportunityStage[] = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'CLOSED_WON', 'CLOSED_LOST'];
+export const opportunityStages: OpportunityStage[] = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'PAYMENT_RECEIVED', 'CLOSED_WON', 'CLOSED_LOST'];
 
 export const teamMembers: TeamMember[] = [
   { id: 'u-owner', name: 'Coach Bradshaw', role: 'OWNER', territoryIds: ['metro', 'north', 'west', 'south'], active: true },
@@ -151,6 +152,7 @@ export const opportunities: Opportunity[] = (() => {
       MOCKUP_DELIVERED: 10,
       INVOICE_SENT: 5,
       DECISION_PENDING: 5,
+      PAYMENT_RECEIVED: 4,
       CLOSED_WON: 10,
       CLOSED_LOST: 21,
     };
@@ -174,7 +176,7 @@ export const opportunities: Opportunity[] = (() => {
             const sport = sports[opportunityCounter % sports.length];
             const season = seasons[opportunityCounter % seasons.length];
             const value = 11000 + Math.random() * 6000;
-            const probMap: Record<OpportunityStage, number> = { LEAD_ASSIGNED: 20, CONTACTED: 30, DISCOVERY: 40, MOCKUP_REQUESTED: 55, MOCKUP_DELIVERED: 68, INVOICE_SENT: 80, DECISION_PENDING: 74, CLOSED_WON: 100, CLOSED_LOST: 0 };
+            const probMap: Record<OpportunityStage, number> = { LEAD_ASSIGNED: 20, CONTACTED: 30, DISCOVERY: 40, MOCKUP_REQUESTED: 55, MOCKUP_DELIVERED: 68, INVOICE_SENT: 80, DECISION_PENDING: 74, PAYMENT_RECEIVED: 92, CLOSED_WON: 100, CLOSED_LOST: 0 };
             
             opportunities.push({
                 id: `opp-${1000 + opportunityCounter}`,

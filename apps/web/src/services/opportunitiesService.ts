@@ -22,7 +22,8 @@ const nextActionByStage: Record<OpportunityStage, string> = {
   MOCKUP_REQUESTED: 'Confirm mockup delivery date',
   MOCKUP_DELIVERED: 'Send invoice and confirm package',
   INVOICE_SENT: 'Follow up payment timing',
-  DECISION_PENDING: 'Push decision and next production step',
+  DECISION_PENDING: 'Push decision and confirm payment commitment',
+  PAYMENT_RECEIVED: 'Start order handoff and final close checklist',
   CLOSED_WON: 'Review order handoff',
   CLOSED_LOST: 'Review loss reason',
 };
@@ -115,6 +116,7 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
     MOCKUP_DELIVERED: 68,
     INVOICE_SENT: 80,
     DECISION_PENDING: 74,
+    PAYMENT_RECEIVED: 92,
     CLOSED_WON: 100,
     CLOSED_LOST: 0,
   };

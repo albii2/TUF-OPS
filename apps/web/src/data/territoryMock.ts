@@ -24,9 +24,9 @@ export type WorkloadRow = {
 
 export const territories: Territory[] = [
   { id: 'metro', name: 'TUF Metro', accounts: 112, untouched: 38, pipeline: 185000, closed: 42000, lanePenetration: { uniform: 18, teamStore: 9, travelGear: 6, letterman: 4 } },
-  { id: 'north', name: 'North Zone', accounts: 76, untouched: 29, pipeline: 94000, closed: 18000, lanePenetration: { uniform: 14, teamStore: 7, travelGear: 5, letterman: 3 } },
-  { id: 'west', name: 'West Zone', accounts: 64, untouched: 22, pipeline: 73000, closed: 12000, lanePenetration: { uniform: 13, teamStore: 6, travelGear: 4, letterman: 2 } },
-  { id: 'south', name: 'South Zone', accounts: 44, untouched: 16, pipeline: 60000, closed: 14000, lanePenetration: { uniform: 11, teamStore: 5, travelGear: 3, letterman: 2 } },
+  { id: 'north', name: 'TUF NORTH', accounts: 76, untouched: 29, pipeline: 94000, closed: 18000, lanePenetration: { uniform: 14, teamStore: 7, travelGear: 5, letterman: 3 } },
+  { id: 'west', name: 'TUF WEST', accounts: 64, untouched: 22, pipeline: 73000, closed: 12000, lanePenetration: { uniform: 13, teamStore: 6, travelGear: 4, letterman: 2 } },
+  { id: 'south', name: 'TUF SOUTH', accounts: 44, untouched: 16, pipeline: 60000, closed: 14000, lanePenetration: { uniform: 11, teamStore: 5, travelGear: 3, letterman: 2 } },
 ];
 
 const stageIsNearClose = (stage: string) => ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'].includes(stage);
