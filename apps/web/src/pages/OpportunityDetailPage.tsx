@@ -17,13 +17,14 @@ const stageCtas = {
   MOCKUP_REQUESTED: 'Mark mockup delivered',
   MOCKUP_DELIVERED: 'Send invoice',
   INVOICE_SENT: 'Follow up payment',
-  DECISION_PENDING: 'Push decision',
+  DECISION_PENDING: 'Confirm payment received',
+  PAYMENT_RECEIVED: 'Mark ready to close won',
   CLOSED_WON: 'View order',
   CLOSED_LOST: 'Review loss reason',
 } as const;
 
 
-const stageFlow = ['LEAD_ASSIGNED','CONTACTED','DISCOVERY','MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING','CLOSED_WON'] as const;
+const stageFlow = ['LEAD_ASSIGNED','CONTACTED','DISCOVERY','MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING','PAYMENT_RECEIVED','CLOSED_WON'] as const;
 
 
 export function OpportunityDetailPage() {
@@ -98,7 +99,7 @@ export function OpportunityDetailPage() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING.</p></Card>
+        <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING, and closes only after PAYMENT RECEIVED.</p></Card>
         <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost</Button></div></Card>
       </div>
 

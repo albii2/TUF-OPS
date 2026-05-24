@@ -11,7 +11,7 @@ import { getLanePenetration, getMomentumState, getNearCloseOpportunities, getSta
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;
-const openStages = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'];
+const openStages = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'PAYMENT_RECEIVED'];
 const pipelineStages = ['CONTACTED', 'MOCKUP_REQUESTED', 'INVOICE_SENT', 'CLOSED_WON'] as const;
 
 function MetricTile({ value, label, tone, to }: { value: string; label: string; tone: string; to: string }) {
@@ -86,6 +86,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const stuckDeals = getStuckOpportunities(opportunities);
   const openOpps = opportunities.filter((opp) => openStages.includes(opp.stage));
   const pendingPayments = opportunities.filter((opp) => ['INVOICE_SENT', 'DECISION_PENDING'].includes(opp.stage));
+  const paymentReceived = opportunities.filter((opp) => opp.stage === 'PAYMENT_RECEIVED');
   const completedOrders = orders.filter((order) => order.productionStatus === 'COMPLETED');
   const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
   const pipelineTotal = openOpps.reduce((sum, opp) => sum + opp.value, 0);
@@ -217,6 +218,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <MetricTile value={String(stuckDeals.length)} label="Today’s Mission" tone="border-sky-500/40 bg-sky-500/15" to="/my-opportunities" />
           <MetricTile value={formatCurrency(nearClose.reduce((sum,opp)=>sum+opp.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/my-opportunities" />
           <MetricTile value={formatCurrency(pendingPayments.reduce((sum,opp)=>sum+opp.value,0))} label="Cash to Collect" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
+          <MetricTile value={String(paymentReceived.length)} label="Payment Received" tone="border-violet-500/40 bg-violet-500/15" to="/my-opportunities" />
           <MetricTile value={momentum} label="Momentum" tone="border-cyan-500/40 bg-cyan-500/15" to="/my-opportunities" />
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{staleOpps.length ? 'Follow up stale opportunity now' : pendingPayments.length ? 'Push near-close invoice follow-up' : 'Contact untouched assigned account'}</p><p className="text-sm text-slate-300">{staleOpps.length ? `${staleOpps.length} opportunities are stale and need activity today.` : pendingPayments.length ? `${pendingPayments.length} deals are waiting on invoice/payment pressure.` : 'Activate account coverage and lane expansion from your assigned book.'}</p><Link to={staleOpps.length ? '/my-opportunities' : pendingPayments.length ? '/orders' : '/organizations'} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Open priority queue</Link></div></GlassCard>
