@@ -18,6 +18,7 @@ export type OrganizationListParams = {
 };
 
 const LOCAL_ORGANIZATIONS_KEY = 'tuf_ops_mock_organizations_v1';
+let bootstrapInProgress = false;
 
 function readLocalOrganizations(): Organization[] {
   try {
@@ -32,10 +33,15 @@ function writeLocalOrganizations(rows: Organization[]) {
 }
 
 function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
+  if (bootstrapInProgress) return;
   const existing = readLocalOrganizations();
   if (existing.length) return;
+  bootstrapInProgress = true;
   const rows = parseCsvText(tufLeadsCsvRaw);
-  if (!rows.length) return;
+  if (!rows.length) {
+    bootstrapInProgress = false;
+    return;
+  }
   const [header, ...body] = rows;
   const headerKeys = header.map((h) => h.trim());
   const normalizedLeads = body
@@ -44,6 +50,7 @@ function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
       return normalizeLeadRow(raw);
     });
   importLeadRows(normalizedLeads);
+  bootstrapInProgress = false;
 }
 
 function getAllOrganizations() {
@@ -154,7 +161,7 @@ export function createMockOrganization(input: { name: string; accountType: strin
 export function importLeadRows(
   leads: NormalizedLead[],
 ) {
-  const existing = getAllOrganizations();
+  const existing = readLocalOrganizations();
   const existingKeys = new Set(existing.map((org) => `${org.name}|${org.state}`.toLowerCase()));
   const localRows = readLocalOrganizations();
   const imported: Organization[] = [];

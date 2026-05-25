@@ -35,7 +35,14 @@ function seedUsers(): ManagedUser[] {
       assignedDirectorId: m.role === 'REP' ? 'u-director' : undefined,
       status: m.active ? 'ACTIVE' : 'INACTIVE',
       avatarColor: COLORS[idx % COLORS.length],
-      pin: m.role === 'OWNER' ? '0000' : undefined,
+      pin:
+        m.role === 'OWNER'
+          ? '0000'
+          : m.role === 'DIRECTOR' && m.name === 'Dana Holt'
+            ? '2222'
+            : m.role === 'REP' && m.name === 'Maya Cole'
+              ? '1111'
+              : undefined,
     };
   });
   return seededTeamMembers.concat([
@@ -64,6 +71,27 @@ function seedUsers(): ManagedUser[] {
   ]);
 }
 
+function getDefaultPin(displayName: string, role: Role): string | undefined {
+  if (role === 'OWNER' && displayName === 'Coach Bradshaw') return '0000';
+  if (role === 'DIRECTOR' && displayName === 'Dana Holt') return '2222';
+  if (role === 'REP' && displayName === 'Maya Cole') return '1111';
+  if (role === 'DIRECTOR' && displayName === 'Jason Wolf') return '2741';
+  if (role === 'DIRECTOR' && displayName === 'Primeau Hill') return '3904';
+  return undefined;
+}
+
+function backfillPins(rows: ManagedUser[]): { rows: ManagedUser[]; changed: boolean } {
+  let changed = false;
+  const next = rows.map((row) => {
+    if (row.pin) return row;
+    const fallbackPin = getDefaultPin(row.displayName, row.role);
+    if (!fallbackPin) return row;
+    changed = true;
+    return { ...row, pin: fallbackPin };
+  });
+  return { rows: next, changed };
+}
+
 export function listUsers(): ManagedUser[] {
   const raw = localStorage.getItem(KEY);
   if (!raw) {
@@ -71,7 +99,14 @@ export function listUsers(): ManagedUser[] {
     localStorage.setItem(KEY, JSON.stringify(seeded));
     return seeded;
   }
-  try { return JSON.parse(raw) as ManagedUser[]; } catch { return seedUsers(); }
+  try {
+    const parsed = JSON.parse(raw) as ManagedUser[];
+    const backfilled = backfillPins(parsed);
+    if (backfilled.changed) saveUsers(backfilled.rows);
+    return backfilled.rows;
+  } catch {
+    return seedUsers();
+  }
 }
 
 export function saveUsers(rows: ManagedUser[]) {
