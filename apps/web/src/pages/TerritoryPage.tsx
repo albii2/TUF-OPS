@@ -5,7 +5,7 @@ import { TerritoryCommandMap } from '../components/TerritoryCommandMap';
 import { useTerritories } from '../hooks/useTerritory';
 import { useOrganizations, useStaleAccounts } from '../hooks/useOrganizations';
 import { useOpportunities } from '../hooks/useOpportunities';
-import { teamMembers } from '../data/mockSalesData';
+import { listUsers } from '../services/usersService';
 import { Card, DataTable, type Column, SmallKpi } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 
@@ -26,14 +26,14 @@ export function TerritoryPage() {
 
   const pressure = getTerritoryHealthLabel(scopedOrgs.length ? Math.round(((scopedOrgs.length-untouched.length)/scopedOrgs.length)*100) : 0);
 
-  const repRows = teamMembers
-    .filter((m) => m.role === 'REP' && m.active)
-    .filter((m) => m.territoryIds.some((id) => scopedZones.has(id)))
+  const repRows = listUsers()
+    .filter((m) => m.role === 'REP' && m.status === 'ACTIVE')
+    .filter((m) => (m.territory ? scopedZones.has(m.territory) : false))
     .map((rep) => {
-      const repOrgs = scopedOrgs.filter((o) => o.assignedRep === rep.name);
-      const repOpps = scopedOpps.filter((o) => o.assignedRep === rep.name);
+      const repOrgs = scopedOrgs.filter((o) => o.assignedRep === rep.displayName);
+      const repOpps = scopedOpps.filter((o) => o.assignedRep === rep.displayName);
       return {
-        rep: rep.name,
+        rep: rep.displayName,
         assigned: repOrgs.length,
         untouched: repOrgs.filter((o) => o.coverageStatus === 'UNTOUCHED').length,
         nearClose: repOpps.filter((o) => ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'].includes(o.stage)).length,

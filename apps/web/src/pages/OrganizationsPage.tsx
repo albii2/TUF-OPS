@@ -65,6 +65,7 @@ export function OrganizationsPage() {
     { key: 'director', header: 'Director', cell: (r) => r.assignedDirector },
     { key: 'territory', header: 'Territory', cell: (r) => r.territory ? r.territory.toUpperCase() : 'UNASSIGNED' },
     { key: 'coverage', header: 'Coverage', cell: (r) => r.coverageStatus },
+    { key: 'tier', header: 'Lead Tier', cell: (r) => r.leadTier ?? 'UNASSIGNED' },
     { key: 'priority', header: 'Priority', cell: (r) => r.priority },
     { key: 'pipeline', header: 'Pipeline Value', className: 'text-right min-w-[130px]', cell: (r) => formatCurrency(r.pipelineValue) },
     { key: 'last', header: 'Last Activity', className: 'min-w-[120px] whitespace-nowrap', cell: (r) => formatDate(r.lastActivity) },
