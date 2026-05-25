@@ -10,9 +10,13 @@ import { creativeRequestRoutes } from './modules/creative-requests/creative-requ
 
 const server = fastify();
 const port = Number(process.env.PORT || 4000);
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 server.register(cors, {
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: corsOrigins,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 });
 
@@ -32,8 +36,8 @@ server.get('/health', async () => ({
 
 const start = async () => {
   try {
-    await server.listen({ port });
-    console.log(`Server listening on http://localhost:${port}`);
+    await server.listen({ port, host: '0.0.0.0' });
+    console.log(`Server listening on port ${port}`);
   } catch (err) {
     console.error(err);
     server.log.error(err);
