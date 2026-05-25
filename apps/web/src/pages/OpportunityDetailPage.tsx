@@ -47,6 +47,7 @@ export function OpportunityDetailPage() {
   const currentStageIndex = stageFlow.indexOf(activeOpp.stage as any);
   const nextStage = currentStageIndex >= 0 && currentStageIndex < stageFlow.length - 1 ? stageFlow[currentStageIndex + 1] : null;
   const staleDays = daysSince(activeOpp.lastActivity);
+  const followupTone = staleDays >= 7 ? 'AT RISK' : staleDays >= 3 ? 'NEEDS FOLLOW-UP' : 'ON TRACK';
 
   const setStage = (stage: OpportunityStage, message: string) => {
     const updated = updateOpportunityStage(activeOpp.id, stage);
@@ -58,34 +59,58 @@ export function OpportunityDetailPage() {
 
   return (
     <div className="space-y-3">
-      <Card title="Deal Summary">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+      <Card title="Deal Command Center">
+        <div className="grid gap-2 lg:grid-cols-2">
+          <div className="space-y-1">
             <p className="text-lg font-semibold">{activeOpp.title}</p>
             <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
-            <p className="text-xs text-slate-400">{activeOpp.lane} · {activeOpp.sport} · {activeOpp.season}</p>
-          </div>
-          <div className="text-left sm:text-right">
-            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
+            <p className="text-xs text-slate-400">Sport: {activeOpp.sport} · Lane: {activeOpp.lane} · Zone: TUF METRO</p>
             <p className="text-xs text-slate-400">Assigned Rep: {activeOpp.assignedRep}</p>
+          </div>
+          <div className="text-left lg:text-right">
+            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
+            <p className="text-xs text-slate-400">Current Stage: {activeOpp.stage.replace(/_/g, ' ')}</p>
+            <p className={`text-xs font-semibold ${followupTone === 'AT RISK' ? 'text-amber-300' : 'text-emerald-200'}`}>Follow-up: {followupTone}</p>
           </div>
         </div>
       </Card>
 
-      <Card title="Close Path Progress">
-        <div className="grid gap-2 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-          {opportunityStages.map((stage) => (
-            <div key={stage} className={`rounded-md border p-2 ${stage === activeOpp.stage ? 'border-cyan-400 bg-cyan-500/15' : 'border-slate-800 bg-slate-950/70'}`}>
-              <StageBadge stage={stage} />
+      <Card title="Close Path Timeline">
+        <div className="flex flex-wrap gap-2">
+          {opportunityStages.map((stage, idx) => {
+            const stageIndex = stageFlow.indexOf(stage as any);
+            const done = stageIndex <= currentStageIndex;
+            const isCurrent = stage === activeOpp.stage;
+            return (
+              <div key={stage} className={`rounded-md border px-2 py-1 ${isCurrent ? 'border-cyan-400 bg-cyan-500/15' : done ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-slate-800 bg-slate-950/70'}`}>
+                <span className="text-[10px] text-slate-400">{idx + 1}</span> <StageBadge stage={stage} />
+              </div>
+            );
+          })}
+          {nextStage ? (
+            <div className="rounded-md border border-amber-400/50 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-200">
+              Next Stage: {nextStage.replace(/_/g, ' ')}
             </div>
-          ))}
+          ) : null}
         </div>
       </Card>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{activeOpp.nextAction}</p>{actionMessage ? <p className="mt-2 text-sm text-cyan-200">{actionMessage}</p> : null}</Card>
-        <Card title="Best Next Move"><div className='space-y-2'><Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged in mock mode.`)}>{stageCtas[activeOpp.stage]}</Button>{nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')} in mock mode.`)}>Advance to {nextStage.replace(/_/g,' ')}</Button> : null}</div></Card>
+        <Card title="Mission Priority" className="lg:col-span-2"><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Issue:</span> {staleDays >= 7 ? `No follow-up in ${staleDays} days.` : 'Deal has not reached close path finish.'}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Action:</span> {activeOpp.nextAction}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Impact:</span> Protect {formatCurrency(activeOpp.value)} and keep 4-order pace.</p>{actionMessage ? <p className="mt-2 text-sm text-cyan-200">{actionMessage}</p> : null}</Card>
+        <Card title="Next Action Console"><div className='space-y-2'><Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged in mock mode.`)}>{stageCtas[activeOpp.stage]}</Button>{nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')} in mock mode.`)}>Open Stage Advancement Drawer</Button> : null}<Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setActionMessage('Follow-up scheduled in mock mode.')}>Schedule / Log Follow-up</Button><Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setActionMessage('Note captured in mock mode.')}>Add Note</Button></div></Card>
       </div>
+
+      <Card title="Stage Advancement Drawer (Guided)">
+        <p className="text-sm text-slate-300">This flow collects only rep-ready fields and should complete in under 60 seconds.</p>
+        <div className="mt-2 grid gap-2 md:grid-cols-2 text-xs text-slate-300">
+          <p><span className="font-semibold text-slate-100">Contacted:</span> contact method, outcome, next follow-up date.</p>
+          <p><span className="font-semibold text-slate-100">Mockup Requested:</span> sport, lane, design notes, needed items, urgency.</p>
+          <p><span className="font-semibold text-slate-100">Mockup Delivered:</span> asset/link, delivery date, next follow-up date.</p>
+          <p><span className="font-semibold text-slate-100">Invoice Sent:</span> invoice amount, invoice date, payment follow-up date.</p>
+          <p><span className="font-semibold text-slate-100">Payment Received:</span> payment amount, payment date, handoff ready yes/no.</p>
+          <p><span className="font-semibold text-slate-100">Closed Won:</span> confirm payment received, confirm order handoff created.</p>
+        </div>
+      </Card>
 
       {staleDays >= 7 ? <Card title="⚠ Follow-up Warning"><p className='text-sm text-amber-300'>No follow-up logged in {staleDays} days. Rep should log activity and advance next action today.</p></Card> : null}
 
@@ -95,12 +120,12 @@ export function OpportunityDetailPage() {
             {dealActivity.length ? dealActivity.map((entry) => <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{entry.message}<p className="text-xs text-slate-400">{entry.timestamp} · {entry.user}</p></div>) : <p className="text-slate-400">No activity entries yet.</p>}
           </div>
         </Card>
-        <Card title="Files / Mockup"><p className="text-sm text-slate-300">Creative requests: {summary.total}. Active mockup/design tasks: {summary.active}. Delivered assets: {summary.delivered}.</p></Card>
+        <Card title="Creative / Mockup Panel"><p className="text-sm text-slate-300">Creative requests: {summary.total}. Active requests: {summary.active}. Delivered asset count: {summary.delivered}.</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING, and closes only after PAYMENT RECEIVED.</p></Card>
-        <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost</Button></div></Card>
+        <Card title="Outcome Zone"><div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won (High Consequence)</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost (High Consequence)</Button></div></Card>
       </div>
 
       <Card title="Creative Requests">
