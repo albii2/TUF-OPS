@@ -3,7 +3,7 @@ import { organizations, teamMembers, type CoverageStatus, type Organization, typ
 import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
 import { getStaleOrganizations } from './kpiUtils';
-import tufLeadsCsvRaw from '../assets/tuf_leads_enriched - tuf_leads_enriched.csv?raw';
+import tufLeadsCsvRaw from '../assets/tuf_leads_final_enriched.csv?raw';
 import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
 
 export type OrganizationListParams = {
