@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getStoredUser } from '../auth';
 import { Button, Card, DataTable, EmptyState, Input, Pagination, Select, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
@@ -13,6 +13,7 @@ const PAGE_SIZE = 8;
 
 export function OrganizationsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const user = getStoredUser();
   const canBulkAssign = user?.role === 'OWNER' || user?.role === 'DIRECTOR';
 
@@ -21,7 +22,7 @@ export function OrganizationsPage() {
   const [rep, setRep] = useState('ALL');
   const [territory, setTerritory] = useState('ALL');
   const [director, setDirector] = useState('ALL');
-  const [coverageStatus, setCoverageStatus] = useState('ALL');
+  const [coverageStatus, setCoverageStatus] = useState(searchParams.get('coverageStatus') || 'ALL');
   const [priority, setPriority] = useState('ALL');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
@@ -65,6 +66,7 @@ export function OrganizationsPage() {
     { key: 'director', header: 'Director', cell: (r) => r.assignedDirector },
     { key: 'territory', header: 'Territory', cell: (r) => r.territory ? r.territory.toUpperCase() : 'UNASSIGNED' },
     { key: 'coverage', header: 'Coverage', cell: (r) => r.coverageStatus },
+    { key: 'tier', header: 'Lead Tier', cell: (r) => r.leadTier ?? 'UNASSIGNED' },
     { key: 'priority', header: 'Priority', cell: (r) => r.priority },
     { key: 'pipeline', header: 'Pipeline Value', className: 'text-right min-w-[130px]', cell: (r) => formatCurrency(r.pipelineValue) },
     { key: 'last', header: 'Last Activity', className: 'min-w-[120px] whitespace-nowrap', cell: (r) => formatDate(r.lastActivity) },

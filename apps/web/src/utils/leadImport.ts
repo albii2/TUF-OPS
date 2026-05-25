@@ -7,7 +7,16 @@ export type NormalizedLead = {
   sportsOffered: string[]; sportUrls: string[]; tufZone: string; territory: 'metro'|'north'|'west'|'south'|''; tufPriority: string; sourceType: string; duplicateKey: string; validationErrors: string[];
 };
 
-const TERRITORY_MAP: Record<string, 'metro'|'north'|'west'|'south'> = { metro: 'metro', north: 'north', west: 'west', south: 'south' };
+const TERRITORY_MAP: Record<string, 'metro'|'north'|'west'|'south'> = {
+  metro: 'metro',
+  'tuf metro': 'metro',
+  north: 'north',
+  'tuf north': 'north',
+  west: 'west',
+  'tuf west': 'west',
+  south: 'south',
+  'tuf south': 'south',
+};
 
 export function mapCsvHeaders(headers: string[]) {
   const mapped = headers.map((h) => h.trim().toLowerCase());
@@ -38,7 +47,6 @@ export function validateLeadRow(row: NormalizedLead) {
   if (!row.state) errors.push('state required');
   if (!row.accountType) errors.push('accountType required');
   if (row.primaryContactEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(row.primaryContactEmail)) errors.push('invalid contact email');
-  if (row.tufZone && !row.territory) errors.push('unknown territory/zone');
   return errors;
 }
 

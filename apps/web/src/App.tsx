@@ -23,6 +23,7 @@ import {
   TeamPerformancePage,
   EarningsPage,
   UsersPage,
+  DataHealthPage,
 } from './pages/CrudPages';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
@@ -94,6 +95,7 @@ export default function App() {
         <Route path="/territory/map" element={<PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected>} />
         <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
         <Route path="/users" element={<PageProtected user={user} path="/users"><UsersPage /></PageProtected>} />
+        <Route path="/data-health" element={<PageProtected user={user} path="/data-health"><DataHealthPage /></PageProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

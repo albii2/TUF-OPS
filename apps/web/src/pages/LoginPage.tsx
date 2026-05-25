@@ -38,7 +38,7 @@ export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void })
         <button className="mt-6 w-full rounded-xl border border-cyan-400/50 bg-gradient-to-r from-cyan-500/20 to-blue-500/15 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-cyan-100">
           Enter Command Center
         </button>
-        {error ? <p className="mt-3 text-xs text-rose-300">{error}</p> : <p className="mt-3 text-xs text-slate-500">4-digit PIN access</p>}
+        {error ? <p className="mt-3 text-xs text-rose-300">{error}</p> : <p className="mt-3 text-xs text-slate-500">4-digit PIN access (role account PIN)</p>}
       </form>
       <img src={TufMarkSvg} alt="TUF mark" className="pointer-events-none mt-6 h-10 w-10 object-contain opacity-90" />
     </div>
