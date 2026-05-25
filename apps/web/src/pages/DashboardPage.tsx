@@ -162,7 +162,7 @@ export function DashboardPage({ role }: { role: Role }) {
       <div className="space-y-3"> 
         <h1 className="text-2xl font-semibold text-white">Owner Command Center</h1>
         <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> 
-          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Untouched Accounts" tone="border-amber-500/40 bg-amber-500/15" to="/territory" />
+          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Untouched Accounts" tone="border-amber-500/40 bg-amber-500/15" to="/organizations?coverageStatus=UNTOUCHED" />
           <MetricTile value={formatCurrency(cashBlockedValue)} label="Cash Blocked" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
           <MetricTile value={formatCurrency(closeThisWeekValue)} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
           <MetricTile value={String(zoneRisk)} label="Territory Risk" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory/map" />
