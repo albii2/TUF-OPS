@@ -93,7 +93,7 @@ export function OpportunityDetailPage() {
         <div className="flex flex-wrap gap-2">
           {opportunityStages.map((stage, idx) => {
             const stageIndex = stageFlow.indexOf(stage as any);
-            const done = stageIndex <= currentStageIndex;
+            const done = stageIndex >= 0 && stageIndex <= currentStageIndex;
             const isCurrent = stage === activeOpp.stage;
             return (
               <div key={stage} className={`rounded-md border px-2 py-1 ${isCurrent ? 'border-cyan-400 bg-cyan-500/15' : done ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-slate-800 bg-slate-950/70'}`}>
