@@ -2,8 +2,9 @@ import { getStoredUser } from '../auth';
 import { organizations, teamMembers, type CoverageStatus, type Organization, type TerritoryId } from '../data/mockSalesData';
 import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
-import { DATA_MODE } from './dataMode';
 import { getStaleOrganizations } from './kpiUtils';
+import tufLeadsCsvRaw from '../assets/tuf_leads_enriched - tuf_leads_enriched.csv?raw';
+import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
 
 export type OrganizationListParams = {
   search?: string;
@@ -17,6 +18,7 @@ export type OrganizationListParams = {
 };
 
 const LOCAL_ORGANIZATIONS_KEY = 'tuf_ops_mock_organizations_v1';
+let bootstrapInProgress = false;
 
 function readLocalOrganizations(): Organization[] {
   try {
@@ -30,8 +32,31 @@ function writeLocalOrganizations(rows: Organization[]) {
   localStorage.setItem(LOCAL_ORGANIZATIONS_KEY, JSON.stringify(rows));
 }
 
+function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
+  if (bootstrapInProgress) return;
+  const existing = readLocalOrganizations();
+  if (existing.length) return;
+  bootstrapInProgress = true;
+  const rows = parseCsvText(tufLeadsCsvRaw);
+  if (!rows.length) {
+    bootstrapInProgress = false;
+    return;
+  }
+  const [header, ...body] = rows;
+  const headerKeys = header.map((h) => h.trim());
+  const normalizedLeads = body
+    .map((line) => {
+      const raw = Object.fromEntries(headerKeys.map((key, idx) => [key.toLowerCase(), line[idx] ?? '']));
+      return normalizeLeadRow(raw);
+    });
+  importLeadRows(normalizedLeads);
+  bootstrapInProgress = false;
+}
+
 function getAllOrganizations() {
+  bootstrapOrganizationsFromLeadsCsvIfEmpty();
   const localRows = readLocalOrganizations();
+  if (localRows.length) return localRows;
   const localIds = new Set(localRows.map((row) => row.id));
   return [...localRows, ...organizations.filter((row) => !localIds.has(row.id))];
 }
@@ -52,7 +77,6 @@ function getRoleScopedOrganizations() {
 }
 
 export function listOrganizations(params: OrganizationListParams = {}): Organization[] {
-  if (DATA_MODE !== 'mock') return [];
   return getRoleScopedOrganizations().filter((org) => {
     const matchesSearch = !(params.search ?? '').trim() || [org.name, org.city, org.state, org.assignedRep, org.assignedDirector].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase());
     const matchesStatus = !params.status || params.status === 'ALL' || org.status === params.status;
@@ -66,7 +90,6 @@ export function listOrganizations(params: OrganizationListParams = {}): Organiza
 }
 
 export function getOrganizationById(id: string): Organization | undefined {
-  if (DATA_MODE !== 'mock') return undefined;
   return getRoleScopedOrganizations().find((org) => org.id === id);
 }
 
@@ -91,6 +114,7 @@ function buildMockOrganization(input: {
   assignedDirector: string;
   territory: TerritoryId;
   priority?: Organization['priority'];
+  leadTier?: Organization['leadTier'];
   nextAction?: string;
 }): Organization {
   return {
@@ -107,6 +131,7 @@ function buildMockOrganization(input: {
     status: 'NEW',
     nextAction: input.nextAction ?? 'Call primary contact and confirm sports coverage',
     lastActivity: new Date().toISOString().slice(0, 10),
+    leadTier: input.leadTier ?? 'UNASSIGNED',
     expansionRecommendation: 'Start with Uniform discovery, then map Travel Gear and Team Store potential by sport.',
     laneStatuses: {
       UNIFORM: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Confirm program needs' },
@@ -136,7 +161,7 @@ export function createMockOrganization(input: { name: string; accountType: strin
 export function importLeadRows(
   leads: NormalizedLead[],
 ) {
-  const existing = getAllOrganizations();
+  const existing = readLocalOrganizations();
   const existingKeys = new Set(existing.map((org) => `${org.name}|${org.state}`.toLowerCase()));
   const localRows = readLocalOrganizations();
   const imported: Organization[] = [];
@@ -164,6 +189,14 @@ export function importLeadRows(
       assignedDirector: 'Unassigned',
       territory: (lead.territory || '') as TerritoryId,
       priority: lead.tufPriority.toLowerCase() === 'high' ? 'HIGH' : lead.tufPriority.toLowerCase() === 'low' ? 'LOW' : 'MEDIUM',
+      leadTier:
+        lead.tufPriority.toLowerCase() === 'tier 1' || lead.tufPriority.toLowerCase() === 'tier1'
+          ? 'TIER_1'
+          : lead.tufPriority.toLowerCase() === 'tier 2' || lead.tufPriority.toLowerCase() === 'tier2'
+            ? 'TIER_2'
+            : lead.tufPriority.toLowerCase() === 'tier 3' || lead.tufPriority.toLowerCase() === 'tier3'
+              ? 'TIER_3'
+              : 'UNASSIGNED',
       nextAction: lead.primaryContactName ? `Call ${lead.primaryContactName}` : 'Call primary contact and confirm buying timeline',
     }));
   });

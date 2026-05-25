@@ -1,4 +1,4 @@
-import { opportunities, type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
+import { type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
 import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { DATA_MODE } from './dataMode';
 import { getStoredUser } from '../auth';
@@ -41,9 +41,7 @@ function writeLocalOpportunities(rows: Opportunity[]) {
 }
 
 function getAllOpportunities() {
-  const localRows = readLocalOpportunities();
-  const localIds = new Set(localRows.map((row) => row.id));
-  return [...localRows, ...opportunities.filter((row) => !localIds.has(row.id))];
+  return readLocalOpportunities();
 }
 
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {

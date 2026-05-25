@@ -25,18 +25,38 @@ export function OrganizationDetailPage() {
   });
 
   if (!org) return <EmptyState title="Organization not found" description="Check the selected account and try again." />;
+  const zoneLabel = org.territory === 'north' ? 'TUF NORTH' : org.territory === 'west' ? 'TUF WEST' : org.territory === 'south' ? 'TUF SOUTH' : org.territory === 'metro' ? 'TUF METRO' : 'UNASSIGNED';
+  const activeSports = laneCoverageBySport.map((x) => x.sport).filter(Boolean);
+  const closedRevenue = allOpportunities.filter((o) => o.organizationId === id && o.stage === 'CLOSED_WON').reduce((sum, o) => sum + o.value, 0);
+  const pipelineRevenue = allOpportunities.filter((o) => o.organizationId === id && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).reduce((sum, o) => sum + o.value, 0);
+  const laneStates = [
+    { lane: 'UNIFORM', status: org.laneStatuses.UNIFORM.status },
+    { lane: 'TEAM_STORE', status: org.laneStatuses.TEAM_STORE.status },
+    { lane: 'TRAVEL_GEAR', status: org.laneStatuses.TRAVEL_GEAR.status },
+    { lane: 'LETTERMAN', status: org.laneStatuses.LETTERMAN.status },
+  ];
+  const missingLanes = laneStates.filter((x) => x.status === 'OPEN').map((x) => x.lane);
+  const suggestedNextLane = missingLanes[0] ?? 'Maintain active lane pressure';
 
   return (
     <div className="space-y-3 min-w-0">
-      <Card title="Account Growth Summary">
+      <Card title="Account Penetration Console">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-lg font-semibold">{org.name}</p>
-            <p className="text-sm text-slate-400">{org.city}, {org.state} · Rep {org.assignedRep} · Director {org.assignedDirector}</p>
+            <p className="text-sm text-slate-400">{org.city}, {org.state} · {zoneLabel}</p>
+            <p className="text-xs text-slate-400">Rep {org.assignedRep} · Director {org.assignedDirector} · Lead Tier {org.leadTier ?? 'UNASSIGNED'}</p>
           </div>
           <p className="text-xl font-semibold text-cyan-300">{formatCurrency(org.pipelineValue)}</p>
         </div>
       </Card>
+
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Card title="Account Snapshot"><p className="text-sm text-slate-300">Active Sports: {activeSports.length ? activeSports.join(', ') : 'None logged'}</p></Card>
+        <Card title="Open Opportunities"><p className="text-2xl font-semibold text-cyan-300">{activeOpportunities.length}</p></Card>
+        <Card title="Closed Revenue"><p className="text-2xl font-semibold text-emerald-300">{formatCurrency(closedRevenue)}</p></Card>
+        <Card title="Pipeline Revenue"><p className="text-2xl font-semibold text-cyan-300">{formatCurrency(pipelineRevenue)}</p></Card>
+      </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {revenueLanes.map((lane) => {
@@ -78,8 +98,14 @@ export function OrganizationDetailPage() {
 
       <Card title="Lane Coverage by Sport"><div className='space-y-1 text-sm'>{laneCoverageBySport.map((x) => <p key={x.sport}>{x.sport}: Uniform {x.UNIFORM ? 'Yes' : 'No'} · Team Store {x.TEAM_STORE ? 'Yes' : 'No'} · Travel Gear {x.TRAVEL_GEAR ? 'Yes' : 'No'} · Letterman {x.LETTERMAN ? 'Yes' : 'No'}</p>)}</div></Card>
 
-      <Card title="Where We Can Grow This Account Next">
-        <p className="text-sm text-slate-300">{org.expansionRecommendation}</p>
+      <Card title="Lane Penetration Grid & Next Move">
+        <div className="space-y-1 text-sm text-slate-300">
+          {laneStates.map((row) => <p key={row.lane}>{row.lane}: {row.status}</p>)}
+          <p>Missing Lanes: {missingLanes.length ? missingLanes.join(', ') : 'None'}</p>
+          <p>Suggested Next Lane: <span className="text-cyan-200">{suggestedNextLane}</span></p>
+          <p>Next Best Relationship Move: {org.nextAction}</p>
+          <p>Last Contact: {org.lastActivity}</p>
+        </div>
       </Card>
 
       <Card title="Activity & Relationship Signals">
