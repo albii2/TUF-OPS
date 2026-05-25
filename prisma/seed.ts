@@ -30,22 +30,27 @@ async function main() {
   await prisma.user.deleteMany({});
   console.log("Finished deleting data.");
 
-  // Seed one clean admin user
-  console.log("Seeding admin user...");
-  const email = "admin@tufops.com"
-  const plainPassword = "admin123"
-  const password_hash = await bcrypt.hash(plainPassword, 10)
+  // Seed owner/admin + director accounts
+  console.log("Seeding users...");
+  const baseUsers = [
+    { email: "admin@tufops.com", password: "admin123", full_name: "TUF Admin", role: "admin" },
+    { email: "jason.wolf@tufops.com", password: "2741", full_name: "Jason Wolf", role: "director" },
+    { email: "primeau.hill@tufops.com", password: "3904", full_name: "Primeau Hill", role: "director" },
+  ];
 
-  await prisma.user.create({
-    data: {
-      email,
-      password_hash,
-      full_name: "TUF Admin",
-      role: "admin",
-    },
-  })
+  for (const row of baseUsers) {
+    const password_hash = await bcrypt.hash(row.password, 10);
+    await prisma.user.create({
+      data: {
+        email: row.email,
+        password_hash,
+        full_name: row.full_name,
+        role: row.role,
+      },
+    });
+  }
 
-  console.log(`Seeded 1 admin user: ${email}`)
+  console.log(`Seeded ${baseUsers.length} users (admin + directors).`)
   console.log("Seed finished.");
 }
 
