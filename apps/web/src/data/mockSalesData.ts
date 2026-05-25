@@ -38,6 +38,7 @@ export type Organization = {
   status: 'ACTIVE' | 'WATCH' | 'NEW';
   nextAction: string;
   lastActivity: string;
+  leadTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | 'UNASSIGNED';
   laneStatuses: Record<RevenueLane, { status: LaneStatus; estimatedValue: number; activeOpportunityCount: number; nextAction: string }>;
   expansionRecommendation: string;
 };
