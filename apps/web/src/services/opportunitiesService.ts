@@ -1,6 +1,5 @@
 import { type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
 import { REVENUE_LANES as revenueLanes } from '../config/business';
-import { DATA_MODE } from './dataMode';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';
 
@@ -45,8 +44,6 @@ function getAllOpportunities() {
 }
 
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
-  if (DATA_MODE !== 'mock') return [];
-
   const user = getStoredUser();
   return getAllOpportunities().filter((opp) => {
     const matchesSearch = (params.search ?? '').trim()
@@ -62,7 +59,6 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
 }
 
 export function getOpportunityById(id: string): Opportunity | undefined {
-  if (DATA_MODE !== 'mock') return undefined;
   return listOpportunities({}).find((opp) => opp.id === id);
 }
 
