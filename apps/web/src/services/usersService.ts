@@ -35,14 +35,7 @@ function seedUsers(): ManagedUser[] {
       assignedDirectorId: m.role === 'REP' ? 'u-director' : undefined,
       status: m.active ? 'ACTIVE' : 'INACTIVE',
       avatarColor: COLORS[idx % COLORS.length],
-      pin:
-        m.role === 'OWNER'
-          ? '0000'
-          : m.role === 'DIRECTOR' && m.name === 'Dana Holt'
-            ? '2222'
-            : m.role === 'REP' && m.name === 'Maya Cole'
-              ? '1111'
-              : undefined,
+      pin: m.role === 'OWNER' ? '0000' : undefined,
     };
   });
   return seededTeamMembers.concat([
