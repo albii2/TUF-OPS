@@ -4,6 +4,8 @@ import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
 import { DATA_MODE } from './dataMode';
 import { getStaleOrganizations } from './kpiUtils';
+import tufLeadsCsvRaw from '../assets/tuf_leads_enriched - tuf_leads_enriched.csv?raw';
+import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
 
 export type OrganizationListParams = {
   search?: string;
@@ -30,8 +32,25 @@ function writeLocalOrganizations(rows: Organization[]) {
   localStorage.setItem(LOCAL_ORGANIZATIONS_KEY, JSON.stringify(rows));
 }
 
+function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
+  const existing = readLocalOrganizations();
+  if (existing.length) return;
+  const rows = parseCsvText(tufLeadsCsvRaw);
+  if (!rows.length) return;
+  const [header, ...body] = rows;
+  const headerKeys = header.map((h) => h.trim());
+  const normalizedLeads = body
+    .map((line) => {
+      const raw = Object.fromEntries(headerKeys.map((key, idx) => [key.toLowerCase(), line[idx] ?? '']));
+      return normalizeLeadRow(raw);
+    });
+  importLeadRows(normalizedLeads);
+}
+
 function getAllOrganizations() {
+  bootstrapOrganizationsFromLeadsCsvIfEmpty();
   const localRows = readLocalOrganizations();
+  if (localRows.length) return localRows;
   const localIds = new Set(localRows.map((row) => row.id));
   return [...localRows, ...organizations.filter((row) => !localIds.has(row.id))];
 }
