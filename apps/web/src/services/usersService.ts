@@ -12,6 +12,7 @@ export type ManagedUser = {
   assignedDirectorId?: string;
   status: UserStatus;
   avatarColor: string;
+  pin?: string;
 };
 
 const KEY = 'tuf_ops_users_v1';
@@ -22,7 +23,7 @@ function initials(name: string) {
 }
 
 function seedUsers(): ManagedUser[] {
-  return teamMembers.map((m, idx) => {
+  const seededTeamMembers: ManagedUser[] = teamMembers.map((m, idx) => {
     const [firstName = m.name, lastName = ''] = m.name.split(' ');
     return {
       id: m.id,
@@ -34,8 +35,40 @@ function seedUsers(): ManagedUser[] {
       assignedDirectorId: m.role === 'REP' ? 'u-director' : undefined,
       status: m.active ? 'ACTIVE' : 'INACTIVE',
       avatarColor: COLORS[idx % COLORS.length],
+      pin:
+        m.role === 'OWNER'
+          ? '0000'
+          : m.role === 'DIRECTOR' && m.name === 'Dana Holt'
+            ? '2222'
+            : m.role === 'REP' && m.name === 'Maya Cole'
+              ? '1111'
+              : undefined,
     };
   });
+  return seededTeamMembers.concat([
+    {
+      id: 'u-director-jason-wolf',
+      firstName: 'Jason',
+      lastName: 'Wolf',
+      displayName: 'Jason Wolf',
+      role: 'DIRECTOR',
+      territory: 'north',
+      status: 'ACTIVE',
+      avatarColor: COLORS[1],
+      pin: '2741',
+    },
+    {
+      id: 'u-director-primeau-hill',
+      firstName: 'Primeau',
+      lastName: 'Hill',
+      displayName: 'Primeau Hill',
+      role: 'DIRECTOR',
+      territory: 'west',
+      status: 'ACTIVE',
+      avatarColor: COLORS[2],
+      pin: '3904',
+    },
+  ]);
 }
 
 export function listUsers(): ManagedUser[] {
@@ -82,6 +115,10 @@ export function updateUser(id: string, patch: Partial<ManagedUser>) {
 
 export function getActiveUserByRole(role: Role): ManagedUser | undefined {
   return listUsers().find((u) => u.role === role && u.status === 'ACTIVE');
+}
+
+export function getActiveUserByPin(pin: string): ManagedUser | undefined {
+  return listUsers().find((u) => u.status === 'ACTIVE' && u.pin === pin);
 }
 
 export function avatarInitials(displayName: string) { return initials(displayName); }
