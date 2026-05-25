@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Button, Card, EmptyState, StageBadge } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOpportunityById, useOpportunityStages } from '../hooks/useOpportunities';
+import { useOrganizationById } from '../hooks/useOrganizations';
 import { useActivities } from '../hooks/useReports';
 import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreativeRequests';
 import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
@@ -32,12 +33,15 @@ export function OpportunityDetailPage() {
   const opp = useOpportunityById(id);
   const opportunityStages = useOpportunityStages();
   const dealActivity = useActivities({ entityType: 'OPPORTUNITY', entityId: id });
+  const organization = useOrganizationById(opp?.organizationId);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [refreshTick, setRefreshTick] = useState(0);
   const [actionMessage, setActionMessage] = useState('');
   const [localOpp, setLocalOpp] = useState<Opportunity | undefined>();
+  const [showAdvanceDrawer, setShowAdvanceDrawer] = useState(false);
+  const [advanceForm, setAdvanceForm] = useState<Record<string, string>>({});
   const activeOpp = localOpp ?? opp;
   const creativeRequests = useCreativeRequests(id, refreshTick);
   const [form, setForm] = useState({ requestType: 'MOCKUP' as CreativeRequestType, designTeam: 'APPAREL_MOCKUP' as DesignTeam, priority: 'NORMAL' as CreativePriority, title: '', sport: opp?.sport ?? '', season: opp?.season ?? '', neededItems: [] as string[], designNotes: '', inspirationNotes: '', dueDate: '', assetLinks: '', internalNotes: '' });
@@ -47,6 +51,17 @@ export function OpportunityDetailPage() {
   const currentStageIndex = stageFlow.indexOf(activeOpp.stage as any);
   const nextStage = currentStageIndex >= 0 && currentStageIndex < stageFlow.length - 1 ? stageFlow[currentStageIndex + 1] : null;
   const staleDays = daysSince(activeOpp.lastActivity);
+  const followupTone = staleDays >= 7 ? 'AT RISK' : staleDays >= 3 ? 'NEEDS FOLLOW-UP' : 'ON TRACK';
+  const zoneLabel = organization?.territory === 'north' ? 'TUF NORTH' : organization?.territory === 'west' ? 'TUF WEST' : organization?.territory === 'south' ? 'TUF SOUTH' : 'TUF METRO';
+  const requiredFieldsByStage: Partial<Record<OpportunityStage, { key: string; label: string; type?: 'date' | 'text' }[]>> = {
+    CONTACTED: [{ key: 'contactMethod', label: 'Contact Method' }, { key: 'outcome', label: 'Outcome' }, { key: 'nextFollowupDate', label: 'Next Follow-up Date', type: 'date' }],
+    MOCKUP_REQUESTED: [{ key: 'sport', label: 'Sport' }, { key: 'lane', label: 'Lane' }, { key: 'designNotes', label: 'Design Notes' }, { key: 'neededItems', label: 'Needed Items' }, { key: 'urgency', label: 'Urgency / Due Date' }],
+    MOCKUP_DELIVERED: [{ key: 'assetLink', label: 'Asset / Link' }, { key: 'deliveryDate', label: 'Delivery Date', type: 'date' }, { key: 'nextFollowupDate', label: 'Next Follow-up Date', type: 'date' }],
+    INVOICE_SENT: [{ key: 'invoiceAmount', label: 'Invoice Amount' }, { key: 'invoiceDate', label: 'Invoice Date', type: 'date' }, { key: 'paymentFollowupDate', label: 'Payment Follow-up Date', type: 'date' }],
+    PAYMENT_RECEIVED: [{ key: 'paymentAmount', label: 'Payment Amount' }, { key: 'paymentDate', label: 'Payment Date', type: 'date' }, { key: 'handoffReady', label: 'Handoff Ready (Yes/No)' }],
+    CLOSED_WON: [{ key: 'confirmPaymentReceived', label: 'Confirm Payment Received (Yes/No)' }, { key: 'confirmOrderHandoff', label: 'Confirm Order Handoff Created (Yes/No)' }],
+  };
+  const requiredAdvanceFields = nextStage ? (requiredFieldsByStage[nextStage] ?? []) : [];
 
   const setStage = (stage: OpportunityStage, message: string) => {
     const updated = updateOpportunityStage(activeOpp.id, stage);
@@ -58,34 +73,90 @@ export function OpportunityDetailPage() {
 
   return (
     <div className="space-y-3">
-      <Card title="Deal Summary">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+      <Card title="Deal Command Center">
+        <div className="grid gap-2 lg:grid-cols-2">
+          <div className="space-y-1">
             <p className="text-lg font-semibold">{activeOpp.title}</p>
             <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
-            <p className="text-xs text-slate-400">{activeOpp.lane} · {activeOpp.sport} · {activeOpp.season}</p>
-          </div>
-          <div className="text-left sm:text-right">
-            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
+            <p className="text-xs text-slate-400">Sport: {activeOpp.sport} · Lane: {activeOpp.lane} · Zone: {zoneLabel}</p>
             <p className="text-xs text-slate-400">Assigned Rep: {activeOpp.assignedRep}</p>
+          </div>
+          <div className="text-left lg:text-right">
+            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
+            <p className="text-xs text-slate-400">Current Stage: {activeOpp.stage.replace(/_/g, ' ')}</p>
+            <p className={`text-xs font-semibold ${followupTone === 'AT RISK' ? 'text-amber-300' : 'text-emerald-200'}`}>Follow-up: {followupTone}</p>
           </div>
         </div>
       </Card>
 
-      <Card title="Close Path Progress">
-        <div className="grid gap-2 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
-          {opportunityStages.map((stage) => (
-            <div key={stage} className={`rounded-md border p-2 ${stage === activeOpp.stage ? 'border-cyan-400 bg-cyan-500/15' : 'border-slate-800 bg-slate-950/70'}`}>
-              <StageBadge stage={stage} />
+      <Card title="Close Path Timeline">
+        <div className="flex flex-wrap gap-2">
+          {opportunityStages.map((stage, idx) => {
+            const stageIndex = stageFlow.indexOf(stage as any);
+            const done = stageIndex >= 0 && stageIndex <= currentStageIndex;
+            const isCurrent = stage === activeOpp.stage;
+            return (
+              <div key={stage} className={`rounded-md border px-2 py-1 ${isCurrent ? 'border-cyan-400 bg-cyan-500/15' : done ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-slate-800 bg-slate-950/70'}`}>
+                <span className="text-[10px] text-slate-400">{idx + 1}</span> <StageBadge stage={stage} />
+              </div>
+            );
+          })}
+          {nextStage ? (
+            <div className="rounded-md border border-amber-400/50 bg-amber-500/10 px-2 py-1 text-xs font-semibold text-amber-200">
+              Next Stage: {nextStage.replace(/_/g, ' ')}
             </div>
-          ))}
+          ) : null}
         </div>
       </Card>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{activeOpp.nextAction}</p>{actionMessage ? <p className="mt-2 text-sm text-cyan-200">{actionMessage}</p> : null}</Card>
-        <Card title="Best Next Move"><div className='space-y-2'><Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged in mock mode.`)}>{stageCtas[activeOpp.stage]}</Button>{nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')} in mock mode.`)}>Advance to {nextStage.replace(/_/g,' ')}</Button> : null}</div></Card>
+        <Card title="Mission Priority" className="lg:col-span-2"><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Issue:</span> {staleDays >= 7 ? `No follow-up in ${staleDays} days.` : 'Deal has not reached close path finish.'}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Action:</span> {activeOpp.nextAction}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Impact:</span> Protect {formatCurrency(activeOpp.value)} and keep 4-order pace.</p>{actionMessage ? <p className="mt-2 text-sm text-cyan-200">{actionMessage}</p> : null}</Card>
+        <Card title="Next Action Console"><div className='space-y-2'><Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged in mock mode.`)}>{stageCtas[activeOpp.stage]}</Button>{nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setShowAdvanceDrawer(true)}>Open Stage Advancement Drawer</Button> : null}<Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setActionMessage('Follow-up scheduled in mock mode.')}>Schedule / Log Follow-up</Button><Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setActionMessage('Note captured in mock mode.')}>Add Note</Button></div></Card>
       </div>
+
+      <Card title="Stage Advancement Drawer (Guided)">
+        <p className="text-sm text-slate-300">This flow collects only rep-ready fields and should complete in under 60 seconds.</p>
+        <div className="mt-2 grid gap-2 md:grid-cols-2 text-xs text-slate-300">
+          <p><span className="font-semibold text-slate-100">Contacted:</span> contact method, outcome, next follow-up date.</p>
+          <p><span className="font-semibold text-slate-100">Mockup Requested:</span> sport, lane, design notes, needed items, urgency.</p>
+          <p><span className="font-semibold text-slate-100">Mockup Delivered:</span> asset/link, delivery date, next follow-up date.</p>
+          <p><span className="font-semibold text-slate-100">Invoice Sent:</span> invoice amount, invoice date, payment follow-up date.</p>
+          <p><span className="font-semibold text-slate-100">Payment Received:</span> payment amount, payment date, handoff ready yes/no.</p>
+          <p><span className="font-semibold text-slate-100">Closed Won:</span> confirm payment received, confirm order handoff created.</p>
+        </div>
+      </Card>
+      {showAdvanceDrawer && nextStage ? (
+        <div className="fixed inset-0 z-40 bg-black/60">
+          <div className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-slate-700 bg-[#08111a] p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-base font-semibold text-white">Advance to {nextStage.replace(/_/g, ' ')}</p>
+              <Button className="border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setShowAdvanceDrawer(false)}>Close</Button>
+            </div>
+            <p className="mb-3 text-xs text-slate-400">Required fields only. Target completion: under 60 seconds.</p>
+            <div className="space-y-2">
+              {requiredAdvanceFields.map((field) => (
+                <label key={field.key} className="block text-xs text-slate-300">
+                  {field.label}
+                  <input type={field.type ?? 'text'} value={advanceForm[field.key] ?? ''} onChange={(e) => setAdvanceForm((prev) => ({ ...prev, [field.key]: e.target.value }))} className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm" />
+                </label>
+              ))}
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button onClick={() => {
+                const missing = requiredAdvanceFields.filter((field) => !(advanceForm[field.key] ?? '').trim());
+                if (missing.length) {
+                  setActionMessage(`Missing required fields: ${missing.map((m) => m.label).join(', ')}`);
+                  return;
+                }
+                setStage(nextStage, `Advanced to ${nextStage.replace(/_/g, ' ')} in mock mode with guided drawer fields.`);
+                setShowAdvanceDrawer(false);
+                setAdvanceForm({});
+              }}>Advance Stage</Button>
+              <Button className="border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setShowAdvanceDrawer(false)}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {staleDays >= 7 ? <Card title="⚠ Follow-up Warning"><p className='text-sm text-amber-300'>No follow-up logged in {staleDays} days. Rep should log activity and advance next action today.</p></Card> : null}
 
@@ -95,12 +166,12 @@ export function OpportunityDetailPage() {
             {dealActivity.length ? dealActivity.map((entry) => <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{entry.message}<p className="text-xs text-slate-400">{entry.timestamp} · {entry.user}</p></div>) : <p className="text-slate-400">No activity entries yet.</p>}
           </div>
         </Card>
-        <Card title="Files / Mockup"><p className="text-sm text-slate-300">Creative requests: {summary.total}. Active mockup/design tasks: {summary.active}. Delivered assets: {summary.delivered}.</p></Card>
+        <Card title="Creative / Mockup Panel"><p className="text-sm text-slate-300">Creative requests: {summary.total}. Active requests: {summary.active}. Delivered asset count: {summary.delivered}.</p></Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING, and closes only after PAYMENT RECEIVED.</p></Card>
-        <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost</Button></div></Card>
+        <Card title="Outcome Zone"><div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won (High Consequence)</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost (High Consequence)</Button></div></Card>
       </div>
 
       <Card title="Creative Requests">
