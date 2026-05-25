@@ -1,8 +1,7 @@
 import { getStoredUser } from '../auth';
-import { OwnerEarnings } from '../components/OwnerEarnings';
-import { DirectorEarnings } from '../components/DirectorEarnings';
-import { RepEarnings } from '../components/RepEarnings';
-import { teamMembers, opportunities, orders } from '../data/mockSalesData';
+import { useOpportunities } from '../hooks/useOpportunities';
+import { useOrders } from '../hooks/useOrders';
+import { listUsers } from '../services/usersService';
 import { Card } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 
@@ -20,7 +19,7 @@ type EarningsRow = {
   possibleAtGoal: number;
 };
 
-function buildRow(rep: string): EarningsRow {
+function buildRow(rep: string, opportunities: { id: string; assignedRep: string; stage: string; value: number }[], orders: { opportunityId: string }[]): EarningsRow {
   const orderWonIds = new Set(orders.map((o) => o.opportunityId));
   const won = opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON' && orderWonIds.has(o.id));
   const wonValue = won.reduce((sum, o) => sum + o.value, 0);
@@ -57,8 +56,10 @@ function MoneyCard({ label, value, note }: { label: string; value: string; note:
 
 export function EarningsPage() {
   const user = getStoredUser();
-  const repNames = teamMembers.filter((member) => member.role === 'REP' && member.active).map((member) => member.name);
-  const allRows = repNames.map(buildRow);
+  const opportunities = useOpportunities({});
+  const orders = useOrders({});
+  const repNames = listUsers().filter((member) => member.role === 'REP' && member.status === 'ACTIVE').map((member) => member.displayName);
+  const allRows = repNames.map((rep) => buildRow(rep, opportunities, orders));
   const visibleRows = user?.role === 'REP' ? allRows.filter((row) => row.rep === user.name) : allRows;
   const focusRows = visibleRows.length ? visibleRows : allRows;
   const totalWon = focusRows.reduce((sum, row) => sum + row.wonValue, 0);

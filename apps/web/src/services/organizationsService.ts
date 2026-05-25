@@ -1,10 +1,11 @@
 import { getStoredUser } from '../auth';
-import { organizations, teamMembers, type CoverageStatus, type Organization, type TerritoryId } from '../data/mockSalesData';
+import { type CoverageStatus, type Organization, type TerritoryId } from '../data/mockSalesData';
 import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
 import { getStaleOrganizations } from './kpiUtils';
-import tufLeadsCsvRaw from '../assets/tuf_leads_final_enriched.csv?raw';
+import tufLeadsCsvRaw from '../assets/tuf_leads_enriched - tuf_leads_enriched.csv?raw';
 import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
+import { listUsers } from './usersService';
 
 export type OrganizationListParams = {
   search?: string;
@@ -56,9 +57,7 @@ function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
 function getAllOrganizations() {
   bootstrapOrganizationsFromLeadsCsvIfEmpty();
   const localRows = readLocalOrganizations();
-  if (localRows.length) return localRows;
-  const localIds = new Set(localRows.map((row) => row.id));
-  return [...localRows, ...organizations.filter((row) => !localIds.has(row.id))];
+  return localRows;
 }
 
 function getRoleScopedOrganizations() {
@@ -67,8 +66,8 @@ function getRoleScopedOrganizations() {
   if (!user || user.role === 'OWNER' || user.role === 'OPS') return allOrganizations;
 
   if (user.role === 'DIRECTOR') {
-    const directorProfile = teamMembers.find((m) => m.name === user.name && m.role === 'DIRECTOR');
-    const zoneSet = new Set(directorProfile?.territoryIds ?? []);
+    const directorProfile = listUsers().find((m) => m.displayName === user.name && m.role === 'DIRECTOR');
+    const zoneSet = new Set(directorProfile?.territory ? [directorProfile.territory] : []);
     return allOrganizations.filter((org) => org.assignedDirector === user.name || zoneSet.has(org.territory) || org.assignedDirector === 'Unassigned' || !org.territory);
   }
 
