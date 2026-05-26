@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card } from '../components/primitives';
+import { apiClient } from '../services/apiClient';
 
 type HealthPayload = {
   status: string;
@@ -15,9 +16,7 @@ export function DataHealthPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const resp = await fetch('/api/health/data');
-        if (!resp.ok) throw new Error(`Health API ${resp.status}`);
-        const payload = (await resp.json()) as HealthPayload;
+        const payload = await apiClient<HealthPayload>('/health/data');
         setData(payload);
       } catch (e: any) {
         setError(e?.message || 'Unable to load data health.');
