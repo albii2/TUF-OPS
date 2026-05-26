@@ -17,3 +17,4 @@ export { TeamPerformancePage } from './TeamPerformancePage';
 
 export { EarningsPage } from './EarningsPage';
 export { UsersPage } from './UsersPage';
+export { DataHealthPage } from './DataHealthPage';

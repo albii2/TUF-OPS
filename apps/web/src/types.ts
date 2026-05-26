@@ -11,7 +11,8 @@ export type SidebarKey =
   | 'messages'
   | 'ops_workspace'
   | 'settings'
-  | 'users';
+  | 'users'
+  | 'data_health';
 
 export type AppUser = {
   name: string;

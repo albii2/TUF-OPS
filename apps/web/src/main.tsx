@@ -14,3 +14,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     </Router>
   </React.StrictMode>,
 );
+
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => undefined);
+  });
+}
+
+const launchScreen = document.getElementById('launch-screen');
+if (launchScreen) {
+  window.setTimeout(() => launchScreen.remove(), 700);
+}
