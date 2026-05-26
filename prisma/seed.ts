@@ -33,9 +33,9 @@ async function main() {
   // Seed only the current hiring-phase team accounts
   console.log("Seeding users...");
   const baseUsers = [
-    { email: "albii2@tufops.com", password: "TUFops!2026", full_name: "Albii2", role: "admin" },
-    { email: "jason.wolf@tufops.com", password: "Wolf!2026", full_name: "Jason Wolf", role: "director" },
-    { email: "primeau.hill@tufops.com", password: "Hill!2026", full_name: "Primeau Hill", role: "director" },
+    { email: "albii2@tufops.com", password: "0000", full_name: "Albii2", role: "admin" },
+    { email: "jason.wolf@tufops.com", password: "2741", full_name: "Jason Wolf", role: "director" },
+    { email: "primeau.hill@tufops.com", password: "3904", full_name: "Primeau Hill", role: "sales_rep" },
   ];
 
   for (const row of baseUsers) {

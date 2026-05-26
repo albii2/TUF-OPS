@@ -10,13 +10,13 @@ To access the application, you will need to log in with the credentials provided
 
 -   **Admin Role (You):**
     -   **Email:** `albii2@tufops.com`
-    -   **Password:** `TUFops!2026`
+    -   **Password:** `0000`
 -   **Director Role:**
     -   **Email:** `jason.wolf@tufops.com`
-    -   **Password:** `Wolf!2026`
--   **Director Role:**
+    -   **Password:** `2741`
+-   **Rep Role:**
     -   **Email:** `primeau.hill@tufops.com`
-    -   **Password:** `Hill!2026`
+    -   **Password:** `3904`
 
 ## 2. Dashboard
 
