@@ -27,7 +27,7 @@ export async function GET() {
   const totalRevenue = totalRevenueResult._sum.amount?.toNumber() || 0;
 
   let directorData = null;
-  if (session.user.role === "director" || session.user.role === "admin") {
+  if (session.user.role === "admin") {
     const totalCostResult = await prisma.uniformOrder.aggregate({
       _sum: {
         vendor_cost: true,
