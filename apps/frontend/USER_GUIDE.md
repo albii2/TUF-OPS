@@ -6,14 +6,17 @@ Welcome to the TUF Ops application. This guide provides an overview of the key f
 
 To access the application, you will need to log in with the credentials provided to you. The application uses a secure, credentials-based authentication system.
 
-**Test Credentials:**
+**Team Credentials:**
 
+-   **Admin Role (You):**
+    -   **Email:** `albii2@tufops.com`
+    -   **Password:** `TUFops!2026`
 -   **Director Role:**
-    -   **Email:** `director@tuf.com`
-    -   **Password:** `password123`
--   **Sales Role:**
-    -   **Email:** `sales@tuf.com`
-    -   **Password:** `password123`
+    -   **Email:** `jason.wolf@tufops.com`
+    -   **Password:** `Wolf!2026`
+-   **Director Role:**
+    -   **Email:** `primeau.hill@tufops.com`
+    -   **Password:** `Hill!2026`
 
 ## 2. Dashboard
 
