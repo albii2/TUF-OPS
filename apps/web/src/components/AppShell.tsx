@@ -106,9 +106,11 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
                   }}
                 />
               </div>
-              <select aria-label='Beta role context' className="h-9 rounded-md panel-elevated px-2 text-xs" value={user.role} onChange={(e) => { const next = updateRole(e.target.value as Role); if (next) { setUser(next); navigate('/dashboard'); } }}>
-                {(['OWNER', 'DIRECTOR', 'REP', 'OPS'] as Role[]).filter((role) => role === user.role || activeRoles.has(role)).map((role) => <option key={role} value={role}>{role}</option>)}
-              </select>
+              {user.role === 'OWNER' || user.role === 'OPS' ? (
+                <select aria-label='Beta role context' className="h-9 rounded-md panel-elevated px-2 text-xs" value={user.role} onChange={(e) => { const next = updateRole(e.target.value as Role); if (next) { setUser(next); navigate('/dashboard'); } }}>
+                  {(['OWNER', 'DIRECTOR', 'REP', 'OPS'] as Role[]).filter((role) => role === user.role || activeRoles.has(role)).map((role) => <option key={role} value={role}>{role}</option>)}
+                </select>
+              ) : null}
               <button className="h-9 rounded-md border border-[#1FB6FF]/60 bg-[#10324a] px-3 text-xs text-[#dff5ff]" onClick={() => { logout(); setUser(null); navigate('/login'); }}>{user.name}</button>
             </div>
             {searchMessage ? <p className="mt-2 text-xs text-amber-200">{searchMessage}</p> : null}

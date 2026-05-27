@@ -50,17 +50,19 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      <Card title="Workspace">
-        <div className="space-y-2 text-sm">
-          <label className="block text-[var(--text-secondary)]">Role</label>
-          <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-            <option value="OWNER">OWNER</option>
-            <option value="DIRECTOR">DIRECTOR</option>
-            <option value="REP">REP</option>
-            <option value="OPS">OPS</option>
-          </Select>
-        </div>
-      </Card>
+      {user?.role === 'OWNER' || user?.role === 'OPS' ? (
+        <Card title="Workspace">
+          <div className="space-y-2 text-sm">
+            <label className="block text-[var(--text-secondary)]">Role</label>
+            <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              <option value="OWNER">OWNER</option>
+              <option value="DIRECTOR">DIRECTOR</option>
+              <option value="REP">REP</option>
+              <option value="OPS">OPS</option>
+            </Select>
+          </div>
+        </Card>
+      ) : null}
 
       <Card title="Theme">
         <div className="space-y-2 text-sm">
