@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Founder-Protection Routing Matrix</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f9fafb;
+            color: #1f2937;
+        }
+        h1, h2 {
+            color: #111827;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+        h2 {
+            font-size: 1.4em;
+            margin-top: 1.5em;
+        }
+        .decision-tree {
+            background: white;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .ownership {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .ownership-box {
+            background: white;
+            border-radius: 6px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .hr-owned {
+            border-top: 4px solid #10b981;
+        }
+        .ceo-owned {
+            border-top: 4px solid #f59e0b;
+        }
+        .ownership-box h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+        }
+        .ownership-box ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .ownership-box li {
+            margin: 8px 0;
+        }
+        .decision-rule {
+            background: #eff6ff;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .escalation-trigger {
+            background: #fef3c7;
+            border-left: 4px solid #d97706;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+        .advisory {
+            background: #f3f4f6;
+            border-left: 4px solid #6b7280;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-style: italic;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #111827;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .status-routine {
+            color: #10b981;
+            font-weight: 500;
+        }
+        .status-escalate {
+            color: #dc2626;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <h1>Founder-Protection Routing Matrix</h1>
+
+    <p style="font-size: 1.1em; color: #6b7280; margin-bottom: 20px;">
+        Decision tree for determining when HR owns onboarding execution vs. when the CEO must be involved. Clarifies judgment calls and escalation triggers.
+    </p>
+
+    <h2>Ownership Framework</h2>
+
+    <div class="ownership">
+        <div class="ownership-box hr-owned">
+            <h3>✓ HR Owns (Execution)</h3>
+            <ul>
+                <li>Document preparation and templates</li>
+                <li>Obtaining all signatures</li>
+                <li>System access provisioning (IT coordination)</li>
+                <li>Onboarding checklist execution</li>
+                <li>Background checks and compliance</li>
+                <li>Benefits enrollment and setup</li>
+                <li>Vendor coordination (equipment, etc.)</li>
+                <li>Day 1 logistics and scheduling</li>
+            </ul>
+        </div>
+
+        <div class="ownership-box ceo-owned">
+            <h3>⚠ CEO Owns (Judgment)</h3>
+            <ul>
+                <li>Offer decision and approval</li>
+                <li>Role charter and scope alignment</li>
+                <li>Day 1 deep-dive meetings (Director-level hires)</li>
+                <li>Territory strategy and assignment (TAE roles)</li>
+                <li>Role scope changes mid-onboarding</li>
+                <li>Start-date negotiations (founder impact)</li>
+                <li>School credit dispute resolution</li>
+                <li>Exceptions to standard onboarding terms</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="decision-rule">
+        <strong>Primary Decision Rule:</strong> Does this decision require CEO judgment about founder protection, role fit, or company strategy? Or is it routine HR execution? If the outcome materially affects founder relationships, equity math, or team composition, CEO decides. Otherwise, HR executes.
+    </div>
+
+    <h2>Escalation Triggers (When to Loop CEO)</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Scenario</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Offer negotiation requested</strong><br>Candidate counters on equity, salary, or terms</td>
+                <td class="status-escalate">Escalate immediately</td>
+                <td>HR flags to CEO within 2 hours. CEO decides counter or decline.</td>
+            </tr>
+            <tr>
+                <td><strong>Start date change</strong><br>Candidate requests different start date</td>
+                <td class="status-escalate">Escalate if it affects team timing</td>
+                <td>HR assesses impact on onboarding dependencies and team planning. If affects >1 other role or pushes 2+ weeks, CEO decides.</td>
+            </tr>
+            <tr>
+                <td><strong>Role scope change</strong><br>Candidate asks for different responsibilities</td>
+                <td class="status-escalate">Escalate immediately</td>
+                <td>HR documents requested change and communicates to CEO. CEO approves modified scope or holds original offer.</td>
+            </tr>
+            <tr>
+                <td><strong>School credit dispute</strong><br>Candidate's school has requirements or concerns</td>
+                <td class="status-escalate">Escalate immediately</td>
+                <td>HR documents details. CEO determines willingness to accommodate (e.g., internship vs. FT, public vs. confidential, timeline constraints).</td>
+            </tr>
+            <tr>
+                <td><strong>System access blocked</strong><br>IT/security flags issue during provisioning</td>
+                <td class="status-escalate">Escalate to CTO</td>
+                <td>HR alerts CTO immediately. CTO resolves technical blocker or advises CEO if exception approval needed.</td>
+            </tr>
+            <tr>
+                <td><strong>Signature delay >3 days</strong><br>Candidate has not signed required documents</td>
+                <td class="status-routine">HR follow-up protocol</td>
+                <td>HR sends reminder at day 1 and day 2. Day 3: HR flags to CEO. CEO decides next steps (rescind, extend, escalate).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="advisory">
+        <strong>⚠ CEO Advisory — Protect Your Time:</strong> Do not loop CEO into routine delays, minor blockers, or standard HR execution. Examples of items that should NOT reach CEO: "candidate hasn't submitted W-4 yet," "equipment order delayed," "background check in progress." HR owns the follow-up protocol and escalates only when judgment is required.
+    </div>
+
+    <h2>Routing Decision Tree</h2>
+
+    <div class="decision-tree">
+        <h3>Does this situation involve an offer, role scope, or founder relationship?</h3>
+        <ul>
+            <li><strong>YES:</strong> Evaluate for CEO involvement (see Escalation Triggers above)</li>
+            <li><strong>NO:</strong> Is it document prep, signatures, system setup, or benefits?
+                <ul>
+                    <li><strong>YES:</strong> HR owns. Follow escalation exception protocol if blocked >2 days.</li>
+                    <li><strong>NO:</strong> Ask HR director or CEO for classification.</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+
+    <h2>Key Principles</h2>
+
+    <ol style="background: white; padding: 20px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <li><strong>HR executes by default.</strong> CEO is looped only for judgment calls that affect founder protection, role fit, or company strategy.</li>
+        <li><strong>Escalation is not failure.</strong> HR escalating a legitimate CEO call is correct behavior. Hiding a decision from CEO that affects founder relationships is a mistake.</li>
+        <li><strong>Founder relationships are protected first.</strong> If a situation could materially affect a founder's role, equity math, or standing, CEO decides.</li>
+        <li><strong>Speed matters.</strong> Escalation triggers should reach CEO within 2 hours so decisions are made before candidates lose confidence.</li>
+        <li><strong>Document the decision.</strong> HR records what was escalated, who decided, and why. This creates clarity for future edge cases.</li>
+    </ol>
+
+    <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <p style="color: #6b7280; font-size: 0.9em;">
+        <strong>Last Updated:</strong> 2026-05-27<br>
+        <strong>Owner:</strong> HR Director + CEO<br>
+        <strong>Related Document:</strong> Escalation & Exception Handling SOP
+    </p>
+</body>
+</html>
