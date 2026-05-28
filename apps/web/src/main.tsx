@@ -3,15 +3,18 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
 import './styles.css';
+import { ToastProvider } from './components/toast';
 
 const useHashRouter = window.location.protocol === 'file:';
 const Router = useHashRouter ? HashRouter : BrowserRouter;
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <ToastProvider>
+      <Router>
+        <App />
+      </Router>
+    </ToastProvider>
   </React.StrictMode>,
 );
 

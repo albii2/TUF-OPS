@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getStoredUser, updateUserProfile } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
 import type { Role } from '../types';
+import { useToast } from '../components/toast';
 
 const PREF_KEY = 'tuf_ops_settings_v1';
 
@@ -26,6 +27,7 @@ export function SettingsPage() {
   const [pin, setPin] = useState('0000');
   const [prefs, setPrefs] = useState<UserPrefs>(defaultPrefs);
   const [saved, setSaved] = useState('');
+  const { success, error } = useToast();
 
   useEffect(() => {
     const raw = localStorage.getItem(PREF_KEY);
@@ -35,9 +37,14 @@ export function SettingsPage() {
   }, []);
 
   const saveAll = () => {
-    localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-    updateUserProfile({ name, role });
-    setSaved('Settings saved for this device and beta role context updated.');
+    try {
+      localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
+      updateUserProfile({ name, role });
+      setSaved('Settings saved for this device and beta role context updated.');
+      success('Settings saved ✓');
+    } catch {
+      error('Failed to save. Please try again.', saveAll);
+    }
   };
 
   return (
