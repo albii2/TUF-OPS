@@ -4,6 +4,7 @@ import { createUser, listUsers, updateUser } from '../services/usersService';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
+import { useToast } from '../components/toast';
 
 export function UsersPage() {
   const viewer = getStoredUser();
@@ -14,6 +15,7 @@ export function UsersPage() {
   const [territory, setTerritory] = useState<TerritoryId>('metro');
   const [assignedDirectorId, setAssignedDirectorId] = useState('u-director');
   const [message, setMessage] = useState('');
+  const { success, error } = useToast();
 
   const users = listUsers();
   const directors = users.filter((u) => u.role === 'DIRECTOR');
@@ -31,15 +33,15 @@ export function UsersPage() {
       <Select value={role} onChange={(e)=>setRole(e.target.value as Role)}><option value='DIRECTOR'>DIRECTOR</option><option value='REP'>REP</option><option value='OPS'>OPS</option><option value='OWNER'>OWNER</option></Select>
       <Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId)}><option value='metro'>metro</option><option value='north'>north</option><option value='west'>west</option><option value='south'>south</option></Select>
       <Select value={assignedDirectorId} onChange={(e)=>setAssignedDirectorId(e.target.value)}>{directors.map((d)=><option key={d.id} value={d.id}>{d.displayName}</option>)}</Select>
-      <Button onClick={()=>{ try { if(!firstName.trim()) throw new Error('First name required'); createUser({ firstName, lastName, role, territory, assignedDirectorId: role==='REP'?assignedDirectorId:undefined, status:'ACTIVE' }); setFirstName(''); setLastName(''); setMessage('User created.'); setRefresh((x)=>x+1);} catch (e:any) { setMessage(e.message || 'Unable to create user'); } }}>Create User</Button>
+      <Button onClick={()=>{ try { if(!firstName.trim()) throw new Error('First name required'); createUser({ firstName, lastName, role, territory, assignedDirectorId: role==='REP'?assignedDirectorId:undefined, status:'ACTIVE' }); setFirstName(''); setLastName(''); setMessage('User created.'); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch (e:any) { setMessage(e.message || 'Unable to create user'); error('Failed to save. Please try again.'); } }}>Create User</Button>
     </div> : null}
     <div key={refresh} className='space-y-2'>
       {visible.map((u)=><div key={u.id} className='rounded border border-slate-700 p-2 text-sm flex items-center justify-between'>
         <div><p className='font-semibold'>{u.displayName}</p><p className='text-slate-400'>{u.role} · {u.territory || 'unassigned'} · {u.status}</p></div>
         {canManage || canDirectorManage ? <div className='flex gap-2 items-center'>
-          {canManage && u.role === 'REP' ? <Select value={u.assignedDirectorId || ''} onChange={(e)=>{updateUser(u.id,{assignedDirectorId:e.target.value||undefined}); setRefresh((x)=>x+1);}}><option value=''>unassigned director</option>{directors.map((d)=><option key={d.id} value={d.id}>{d.displayName}</option>)}</Select> : null}
-          {canDirectorManage ? <Select value={u.territory || 'metro'} onChange={(e)=>{updateUser(u.id,{territory:e.target.value as TerritoryId}); setRefresh((x)=>x+1);}}><option value='metro'>metro</option><option value='north'>north</option><option value='west'>west</option><option value='south'>south</option></Select> : null}
-          <Button className='px-2 py-1 text-xs' onClick={()=>{ try { updateUser(u.id,{status:u.status==='ACTIVE'?'INACTIVE':'ACTIVE'}); setMessage('User updated.'); setRefresh((x)=>x+1);} catch (e:any) { setMessage(e.message || 'Unable to update user'); } }}>{u.status==='ACTIVE'?'Archive':'Activate'}</Button>
+          {canManage && u.role === 'REP' ? <Select value={u.assignedDirectorId || ''} onChange={(e)=>{try {updateUser(u.id,{assignedDirectorId:e.target.value||undefined}); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch { error('Failed to save. Please try again.'); }}}><option value=''>unassigned director</option>{directors.map((d)=><option key={d.id} value={d.id}>{d.displayName}</option>)}</Select> : null}
+          {canDirectorManage ? <Select value={u.territory || 'metro'} onChange={(e)=>{try {updateUser(u.id,{territory:e.target.value as TerritoryId}); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch { error('Failed to save. Please try again.'); }}}><option value='metro'>metro</option><option value='north'>north</option><option value='west'>west</option><option value='south'>south</option></Select> : null}
+          <Button className='px-2 py-1 text-xs' onClick={()=>{ try { updateUser(u.id,{status:u.status==='ACTIVE'?'INACTIVE':'ACTIVE'}); setMessage('User updated.'); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch (e:any) { setMessage(e.message || 'Unable to update user'); error('Failed to save. Please try again.'); } }}>{u.status==='ACTIVE'?'Archive':'Activate'}</Button>
         </div> : null}
       </div>)}
     </div>

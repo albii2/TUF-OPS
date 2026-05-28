@@ -8,6 +8,7 @@ import { createMockOrganization } from '../services/organizationsService';
 import { createMockOpportunity } from '../services/opportunitiesService';
 import { useOrganizations } from '../hooks/useOrganizations';
 import type { TerritoryId } from '../data/mockSalesData';
+import { useToast } from '../components/toast';
 
 export function OrganizationNewPage() {
   const navigate = useNavigate();
@@ -15,22 +16,27 @@ export function OrganizationNewPage() {
   const [city, setCity] = useState('');
   const [state, setState] = useState('MN');
   const [accountType, setAccountType] = useState<string>(ACCOUNT_TYPES[0]);
-  const [territory, setTerritory] = useState<TerritoryId>('metro');
-  const [assignedRep, setAssignedRep] = useState(getStoredUser()?.role === 'REP' ? getStoredUser()?.name ?? 'Maya Cole' : 'Maya Cole');
-  const [assignedDirector, setAssignedDirector] = useState('Dana Holt');
-  const [message, setMessage] = useState('');
+  const [territory, setTerritory] = useState<TerritoryId | ''>('');
+  const [assignedRep, setAssignedRep] = useState(getStoredUser()?.role === 'REP' ? getStoredUser()?.name ?? '' : '');
+  const [assignedDirector, setAssignedDirector] = useState('');
+  const { success, error } = useToast();
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setMessage('Account name is required.');
+      error('Failed to save. Please try again.');
       return;
     }
-    const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory, assignedRep, assignedDirector });
+    if (!territory) {
+      error('Failed to save. Please try again.');
+      return;
+    }
+    const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned Director' });
+    success('Organization saved ✓');
     navigate(`/organizations/${created.id}`);
   };
 
-  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId)}><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /><Input value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)} placeholder="Assigned Director" /><Button type="submit" className="md:col-span-2">Save Organization</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;
+  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><div><label className="text-xs text-slate-400">Account Name <span className="text-rose-300">*</span></label><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /></div><div><label className="text-xs text-slate-400">Account Type <span className="text-rose-300">*</span></label><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select></div><div><label className="text-xs text-slate-400">City <span className="text-slate-500">(Optional)</span></label><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /></div><div><label className="text-xs text-slate-400">State <span className="text-slate-500">(Optional)</span></label><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /></div><div><label className="text-xs text-slate-400">Metro <span className="text-rose-300">*</span></label><p className="text-[11px] text-slate-500">Select the sales region.</p><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId | '')}><option value="">—</option><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select></div><div><label className="text-xs text-slate-400">Assigned Rep <span className="text-slate-500">(Optional)</span></label><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /></div><div><label className="text-xs text-slate-400">Assigned Director <span className="text-slate-500">(Optional)</span></label><Input value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)} placeholder="Assigned Director" /></div><Button type="submit" className="md:col-span-2">Save Organization</Button></form></Card>;
 }
 
 export function OpportunityNewPage() {
