@@ -108,6 +108,27 @@ export function OrganizationDetailPage() {
         </div>
       </Card>
 
+      <Card title="Lead Contact Lockbox">
+        <div className="grid gap-3 text-sm text-slate-300 md:grid-cols-3">
+          <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+            <p className="text-xs uppercase text-slate-500">School Phone</p>
+            <p className="font-medium text-slate-100">{org.schoolPhone || 'Not imported'}</p>
+          </div>
+          <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+            <p className="text-xs uppercase text-slate-500">Athletic Director</p>
+            <p className="font-medium text-slate-100">{org.athleticDirectorName || 'Not imported'}</p>
+            <p>{org.athleticDirectorEmail || 'No email'}</p>
+            <p>{org.athleticDirectorPhone || 'No phone'}</p>
+          </div>
+          <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
+            <p className="text-xs uppercase text-slate-500">Head Coach</p>
+            <p className="font-medium text-slate-100">{org.headCoachName || 'Not imported'}</p>
+            <p>{org.headCoachEmail || 'No email'}</p>
+            <p>{org.headCoachPhone || 'No phone'}</p>
+          </div>
+        </div>
+      </Card>
+
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Card title="Account Snapshot"><p className="text-sm text-slate-300">Active Sports: {activeSports.length ? activeSports.join(', ') : 'None logged'}</p></Card>
         <Card title="Open Opportunities"><p className="text-2xl font-semibold text-cyan-300">{activeOpportunities.length}</p></Card>
