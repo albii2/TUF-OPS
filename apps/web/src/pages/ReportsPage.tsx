@@ -7,6 +7,7 @@ import { Button, Card, LaneBadge } from '../components/primitives';
 import { useOrders } from '../hooks/useOrders';
 import { formatCurrency } from '../utils/format';
 import { useReports } from '../hooks/useReports';
+import { getReferralRepEffectiveness, getReferralSourceEffectiveness, listEcosystemReferrals } from '../services/ecosystemReferralsService';
 
 export function ReportsPage() {
   const reportsSummary = useReports();
@@ -18,6 +19,9 @@ export function ReportsPage() {
   const staleOrgs = getStaleAccounts(organizations);
   const nearClose = getNearCloseOpportunities(opportunities);
   const accountability = useMemo(() => reportsSummary.repPerformance.map((rep: any) => ({ ...rep, stale: staleOpps.filter((o)=>o.assignedRep===rep.rep).length, nearClose: nearClose.filter((o)=>o.assignedRep===rep.rep).length })), [reportsSummary, staleOpps, nearClose]);
+  const ecosystemReferrals = listEcosystemReferrals({});
+  const referralSourceEffectiveness = getReferralSourceEffectiveness(ecosystemReferrals);
+  const referralRepEffectiveness = getReferralRepEffectiveness(ecosystemReferrals);
   const [message, setMessage] = useState('');
 
   return (
@@ -60,6 +64,34 @@ export function ReportsPage() {
               <p className="text-slate-300">Open Deals: {rep.openDeals}</p>
             </div>
           ))}
+        </div>
+      </Card>
+
+
+      <Card title="Ecosystem Referral Effectiveness">
+        <div className="grid gap-3 lg:grid-cols-2">
+          <div>
+            <p className="mb-2 text-sm font-semibold text-slate-100">By Source Organization</p>
+            <div className="space-y-2">
+              {referralSourceEffectiveness.slice(0, 5).map((row) => (
+                <div key={row.source} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm">
+                  <p className="font-medium text-slate-100">{row.source}</p>
+                  <p className="text-slate-300">Created {row.created} · Qualified {row.qualified} · Revenue {formatCurrency(row.revenueGenerated)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="mb-2 text-sm font-semibold text-slate-100">By Rep</p>
+            <div className="space-y-2">
+              {referralRepEffectiveness.slice(0, 5).map((row) => (
+                <div key={row.rep} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm">
+                  <p className="font-medium text-slate-100">{row.rep}</p>
+                  <p className="text-slate-300">Created {row.created} · Qualified {row.qualified} · Revenue {formatCurrency(row.revenueGenerated)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </Card>
 

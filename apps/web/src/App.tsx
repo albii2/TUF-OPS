@@ -24,6 +24,7 @@ import {
   EarningsPage,
   UsersPage,
   DataHealthPage,
+  EcosystemPipelinePage,
 } from './pages/CrudPages';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
@@ -73,6 +74,7 @@ export default function App() {
         <Route path="/organizations" element={<PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected>} />
         <Route path="/organizations/new" element={<PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected>} />
         <Route path="/organizations/:id" element={<PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected>} />
+        <Route path="/ecosystem-pipeline" element={<PageProtected user={user} path="/ecosystem-pipeline"><EcosystemPipelinePage /></PageProtected>} />
         <Route path="/opportunities" element={<PageProtected user={user} path="/opportunities"><OpportunitiesPage /></PageProtected>} />
         <Route path="/opportunities/new" element={<PageProtected user={user} path="/opportunities"><OpportunityNewPage /></PageProtected>} />
         <Route path="/opportunities/:id" element={<PageProtected user={user} path="/opportunities"><OpportunityDetailPage /></PageProtected>} />
