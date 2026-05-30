@@ -4,6 +4,7 @@ export type SidebarKey =
   | 'dashboard'
   | 'pipeline'
   | 'organizations'
+  | 'ecosystem'
   | 'programs'
   | 'territory'
   | 'invoices'
