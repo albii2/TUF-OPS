@@ -39,9 +39,24 @@ function parseMinnesotaAddress(address: string) {
     'avenue', 'ave', 'boulevard', 'blvd', 'circle', 'cir', 'court', 'ct', 'drive', 'dr', 'east', 'highway', 'hwy', 'lane', 'ln',
     'north', 'parkway', 'pkwy', 'place', 'pl', 'road', 'rd', 'se', 'south', 'street', 'st', 'trail', 'way', 'west',
   ]);
-  const terminatorIndex = words.reduce((lastIndex, word, index) => (streetTerminators.has(word.toLowerCase().replace(/\.$/, '')) ? index : lastIndex), -1);
-  const cityWords = terminatorIndex >= 0 ? words.slice(terminatorIndex + 1) : words.slice(-2);
-  const city = cityWords.filter((word) => !/^\d+$/.test(word)).join(' ');
+  const directionals = new Set(['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']);
+  const cleanToken = (word: string) => word.toLowerCase().replace(/\.$/, '');
+  const stripNonCityLeadTokens = (candidateWords: string[]) => {
+    const cleaned = [...candidateWords];
+
+    while (cleaned.length && directionals.has(cleanToken(cleaned[0]))) cleaned.shift();
+
+    if (cleaned.length >= 2 && cleanToken(cleaned[0]) === 'po' && cleanToken(cleaned[1]) === 'box') {
+      cleaned.splice(0, Math.min(3, cleaned.length));
+    }
+
+    while (cleaned.length && directionals.has(cleanToken(cleaned[0]))) cleaned.shift();
+
+    return cleaned;
+  };
+  const terminatorIndex = words.reduce((lastIndex, word, index) => (streetTerminators.has(cleanToken(word)) ? index : lastIndex), -1);
+  const rawCityWords = terminatorIndex >= 0 ? words.slice(terminatorIndex + 1) : words.slice(-2);
+  const city = stripNonCityLeadTokens(rawCityWords).join(' ');
   return { city, state: match[2].toUpperCase(), zip: match[3] };
 }
 
