@@ -19,3 +19,4 @@ export { EarningsPage } from './EarningsPage';
 export { UsersPage } from './UsersPage';
 export { DataHealthPage } from './DataHealthPage';
 export { EcosystemPipelinePage } from './EcosystemPipelinePage';
+export { ChangeCredentialPage } from './ChangeCredentialPage';

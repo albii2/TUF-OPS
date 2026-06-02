@@ -1,5 +1,4 @@
 import { getStoredUser } from '../auth';
-import { organizations, opportunities, type Opportunity, type Organization } from '../data/mockSalesData';
 import { listOrganizations } from './organizationsService';
 import { listOpportunities } from './opportunitiesService';
 
@@ -61,36 +60,7 @@ export const warmIntroductionStatuses: WarmIntroductionStatus[] = ['Mentioned', 
 
 const LOCAL_REFERRALS_KEY = 'tuf_ops_mock_ecosystem_referrals_v1';
 
-function buildSeedReferral(org: Organization, opp: Opportunity | undefined, index: number): EcosystemReferral {
-  const statuses: WarmIntroductionStatus[] = ['Mentioned', 'Referred', 'Introduced', 'Contacted', 'Qualified'];
-  const types = referredOrganizationTypes;
-  const status = statuses[index % statuses.length];
-  const estimatedRevenue = 6500 + (index % 8) * 2200;
-  return {
-    id: `ref-seed-${index + 1}`,
-    referralSourceOrganizationId: org.id,
-    referralSourceOrganization: org.name,
-    referralSourceContact: ['Coach Ramirez', 'Alicia Parent', 'Booster Treasurer', 'Club Director'][index % 4],
-    referralSourceRole: ['Head Coach', 'Parent Leader', 'Booster Board', 'Program Director'][index % 4],
-    referredOrganizationName: `${org.city} ${types[index % types.length]}`,
-    referredOrganizationType: types[index % types.length],
-    contactName: ['Jordan Lee', 'Taylor Morgan', 'Sam Carter', 'Casey Brooks'][index % 4],
-    contactEmail: `ecosystem${index + 1}@example.com`,
-    contactPhone: `(612) 555-${String(1200 + index).slice(-4)}`,
-    relationshipNotes: 'Warm ecosystem lead captured without interrupting the primary school conversation.',
-    warmIntroductionStatus: status,
-    linkedOpportunityId: opp?.id,
-    linkedOpportunityName: opp?.title,
-    assignedRep: org.assignedRep,
-    createdAt: `2026-05-${String((index % 20) + 1).padStart(2, '0')}`,
-    estimatedRevenue,
-    revenueGenerated: status === 'Qualified' ? Math.round(estimatedRevenue * 0.85) : 0,
-  };
-}
-
-const seedReferrals: EcosystemReferral[] = organizations.slice(0, 18).map((org, index) =>
-  buildSeedReferral(org, opportunities.find((opp) => opp.organizationId === org.id), index),
-);
+const seedReferrals: EcosystemReferral[] = [];
 
 function readLocalReferrals(): EcosystemReferral[] {
   try {

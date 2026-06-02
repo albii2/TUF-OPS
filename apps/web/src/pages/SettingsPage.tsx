@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getStoredUser, updateUserProfile } from '../auth';
+import { getStoredUser } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
 import type { Role } from '../types';
 import { useToast } from '../components/toast';
@@ -22,9 +22,7 @@ const defaultPrefs: UserPrefs = {
 
 export function SettingsPage() {
   const user = getStoredUser();
-  const [name, setName] = useState(user?.name ?? '');
   const [role, setRole] = useState<Role>(user?.role ?? 'OWNER');
-  const [pin, setPin] = useState('0000');
   const [prefs, setPrefs] = useState<UserPrefs>(defaultPrefs);
   const [saved, setSaved] = useState('');
   const { success, error } = useToast();
@@ -39,8 +37,7 @@ export function SettingsPage() {
   const saveAll = () => {
     try {
       localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-      updateUserProfile({ name, role });
-      setSaved('Settings saved for this device and beta role context updated.');
+      setSaved('Settings saved for this device. Use User Management or Change PIN/Password for secure credential updates.');
       success('Settings saved ✓');
     } catch {
       error('Failed to save. Please try again.', saveAll);
@@ -51,9 +48,8 @@ export function SettingsPage() {
     <div className="grid gap-3 lg:grid-cols-2">
       <Card title="Profile">
         <div className="space-y-2 text-sm">
-          <label className="block text-[var(--text-secondary)]">Display Name</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
-          <p className="text-xs text-[var(--text-secondary)]">Current role permissions and dashboards update based on selected role.</p>
+          <p className="font-semibold text-slate-100">{user?.name}</p>
+          <p className="text-xs text-[var(--text-secondary)]">For security, existing credentials cannot be viewed. Use Change PIN/Password to update your own credential or User Management to reset another user.</p>
         </div>
       </Card>
 
@@ -92,9 +88,8 @@ export function SettingsPage() {
 
       <Card title="Security">
         <div className="space-y-2 text-sm">
-          <label className="block text-[var(--text-secondary)]">PIN (4 digits)</label>
-          <Input type="password" value={pin} maxLength={4} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} />
-          <p className="text-xs text-[var(--text-secondary)]">PIN is local for internal beta sign-in only.</p>
+          <p className="text-xs text-[var(--text-secondary)]">For security, existing credentials cannot be viewed. You may only reset them.</p>
+          <a className="text-cyan-200" href="/change-credential">Change PIN/Password</a>
         </div>
       </Card>
 

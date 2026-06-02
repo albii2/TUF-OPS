@@ -16,6 +16,9 @@ export type SidebarKey =
   | 'data_health';
 
 export type AppUser = {
+  id: string;
   name: string;
+  email: string;
   role: Role;
+  mustChangeCredential: boolean;
 };
