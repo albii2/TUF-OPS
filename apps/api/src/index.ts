@@ -7,6 +7,8 @@ import { productionRequestRoutes } from './modules/production-requests/productio
 import { reportingRoutes } from './modules/reporting/reporting.routes';
 import { orderRoutes } from './modules/orders/orders.routes';
 import { creativeRequestRoutes } from './modules/creative-requests/creative-requests.routes';
+import { userRoutes } from './modules/users/users.routes';
+import { seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 
 const server = fastify();
@@ -28,6 +30,7 @@ server.register(reportingRoutes, { prefix: '/reporting' });
 server.register(productionRequestRoutes, { prefix: '/production-requests' });
 server.register(orderRoutes, { prefix: '/orders' });
 server.register(creativeRequestRoutes);
+server.register(userRoutes, { prefix: '/auth' });
 
 server.get('/health', async () => ({
   status: 'ok',
@@ -55,6 +58,7 @@ server.get('/health/data', async () => {
 
 const start = async () => {
   try {
+    await seedInitialOwnerIfEmpty();
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`Server listening on port ${port}`);
   } catch (err) {
