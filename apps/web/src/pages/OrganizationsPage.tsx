@@ -61,7 +61,7 @@ export function OrganizationsPage() {
 
   const columns: Column<(typeof filtered)[number]>[] = [
     { key: 'select', header: '', cell: (r) => canBulkAssign ? <input type='checkbox' checked={selected.includes(r.id)} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleSelected(r.id); }} /> : null },
-    { key: 'organization', header: 'Organization', cell: (r) => <div><p className='font-medium'>{r.name}</p><p className='text-xs text-slate-400'>{r.city}, {r.state}</p></div> },
+    { key: 'organization', header: 'Organization', cell: (r) => <div><p className='font-medium'>{r.name}</p><p className='text-xs text-slate-400'>{r.city}, {r.state}</p><p className='text-xs text-slate-500'>School {r.schoolPhone || '—'} · AD {r.athleticDirectorEmail || r.athleticDirectorPhone || '—'}</p></div> },
     { key: 'rep', header: 'Rep', cell: (r) => r.assignedRep },
     { key: 'director', header: 'Director', cell: (r) => r.assignedDirector },
     { key: 'territory', header: 'Territory', cell: (r) => r.territory ? r.territory.toUpperCase() : 'UNASSIGNED' },
