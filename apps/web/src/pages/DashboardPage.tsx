@@ -8,6 +8,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { getLanePenetration, getMomentumState, getNearCloseOpportunities, getStaleAccounts, getStaleOpportunities, getStuckOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
+import { getEcosystemReferralSummary } from '../services/ecosystemReferralsService';
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;
@@ -81,6 +82,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const organizations = useOrganizations({});
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
+  const ecosystemSummary = getEcosystemReferralSummary();
 
   const nearClose = getNearCloseOpportunities(opportunities);
   const stuckDeals = getStuckOpportunities(opportunities);
@@ -166,6 +168,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <MetricTile value={formatCurrency(cashBlockedValue)} label="Cash Blocked" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
           <MetricTile value={formatCurrency(closeThisWeekValue)} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
           <MetricTile value={String(zoneRisk)} label="Territory Risk" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory/map" />
+          <MetricTile value={String(ecosystemSummary.created)} label="Ecosystem Referrals" tone="border-violet-500/40 bg-violet-500/15" to="/ecosystem-pipeline" />
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{mission.title}</p><p className="text-sm text-slate-300">{mission.reason}</p><Link to={mission.to} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100">{mission.cta}</Link></div></GlassCard>
         <GlassCard title="OWNER ACTION QUEUE"><div className="space-y-2">{ownerActions.map((action)=> <Link key={action.title} to={action.to} className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3 hover:border-cyan-400/60"><p className="font-semibold text-slate-100">{action.title}</p><p className="text-xs text-slate-400">{action.reason}</p><p className="text-xs text-cyan-200">Impact: {action.impact}</p></Link>)}</div></GlassCard>
@@ -200,6 +203,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <MetricTile value={String(new Set(stuckDeals.map((o) => o.assignedRep)).size)} label="Reps Needing Coaching" tone="border-amber-500/40 bg-amber-500/15" to="/team-performance" />
           <MetricTile value={formatCurrency(nearClose.reduce((sum,o)=>sum+o.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
           <MetricTile value={`${coveragePct}%`} label="Territory Coverage" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory" />
+          <MetricTile value={String(ecosystemSummary.qualified)} label="Qualified Referrals" tone="border-violet-500/40 bg-violet-500/15" to="/ecosystem-pipeline" />
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{mission.title}</p><p className="text-sm text-slate-300">{mission.reason}</p><div className="flex flex-wrap gap-2"><Link to={mission.to} className="rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{mission.cta}</Link><Link to="/my-opportunities" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">My Opportunities</Link><Link to="/territory" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Territory</Link><Link to="/reports" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Reports</Link></div></div></GlassCard>
         <div className="safe-grid grid gap-3 lg:grid-cols-2">
@@ -219,6 +223,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <MetricTile value={formatCurrency(nearClose.reduce((sum,opp)=>sum+opp.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/my-opportunities" />
           <MetricTile value={formatCurrency(pendingPayments.reduce((sum,opp)=>sum+opp.value,0))} label="Cash to Collect" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
           <MetricTile value={String(paymentReceived.length)} label="Payment Received" tone="border-violet-500/40 bg-violet-500/15" to="/my-opportunities" />
+          <MetricTile value={String(ecosystemSummary.created)} label="Ecosystem Referrals" tone="border-fuchsia-500/40 bg-fuchsia-500/15" to="/ecosystem-pipeline" />
           <MetricTile value={momentum} label="Momentum" tone="border-cyan-500/40 bg-cyan-500/15" to="/my-opportunities" />
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{staleOpps.length ? 'Follow up stale opportunity now' : pendingPayments.length ? 'Push near-close invoice follow-up' : 'Contact untouched assigned account'}</p><p className="text-sm text-slate-300">{staleOpps.length ? `${staleOpps.length} opportunities are stale and need activity today.` : pendingPayments.length ? `${pendingPayments.length} deals are waiting on invoice/payment pressure.` : 'Activate account coverage and lane expansion from your assigned book.'}</p><Link to={staleOpps.length ? '/my-opportunities' : pendingPayments.length ? '/orders' : '/organizations'} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Open priority queue</Link></div></GlassCard>
