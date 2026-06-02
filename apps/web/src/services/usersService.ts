@@ -26,7 +26,8 @@ type StoredManagedUser = ManagedUser & {
 export type CredentialAuditAction = 'USER_CREATED' | 'TEMPORARY_CREDENTIAL_GENERATED' | 'CREDENTIAL_RESET' | 'CREDENTIAL_CHANGED' | 'FAILED_CREDENTIAL_ATTEMPT' | 'SUCCESSFUL_LOGIN';
 export type CredentialAuditEntry = { id: string; action: CredentialAuditAction; targetUserId?: string; actorUserId?: string; createdAt: string; metadata: Record<string, unknown> };
 
-const KEY = 'tuf_ops_users_v2';
+const KEY = 'tuf_ops_users_v3';
+const LEGACY_USER_KEYS = ['tuf_ops_users_v1', 'tuf_ops_users_v2'];
 const AUDIT_KEY = 'tuf_ops_credential_audit_v1';
 const COLORS = ['#1FB6FF', '#22C55E', '#F59E0B', '#A855F7', '#EF4444', '#14B8A6'];
 const MAX_FAILED_ATTEMPTS = 5;
@@ -77,6 +78,7 @@ function saveStoredUsers(rows: StoredManagedUser[]) {
 }
 
 function readStoredUsers(): StoredManagedUser[] {
+  LEGACY_USER_KEYS.forEach((key) => localStorage.removeItem(key));
   const raw = localStorage.getItem(KEY);
   if (!raw) {
     saveStoredUsers(seedRows);
