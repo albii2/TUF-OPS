@@ -1,14 +1,7 @@
 import type { AppUser, Role } from './types';
-import { getActiveUserByPin, getActiveUserByRole } from './services/usersService';
+import { authenticateWithCredential, authenticateWithPin, getActiveUserByRole } from './services/usersService';
 
-const ROLE_DEFAULT_USER: Record<Role, string> = {
-  OWNER: 'Coach Bradshaw',
-  DIRECTOR: 'Dana Holt',
-  REP: 'Maya Cole',
-  OPS: 'Taylor Reed',
-};
-
-const USER_KEY = 'tuf_ops_user_v1';
+const USER_KEY = 'tuf_ops_user_v3';
 const ALLOWED_ROLES: Role[] = ['OWNER', 'DIRECTOR', 'REP', 'OPS'];
 
 function persistUser(user: AppUser): AppUser {
@@ -19,8 +12,8 @@ function persistUser(user: AppUser): AppUser {
 
 function isValidStoredUser(value: unknown): value is AppUser {
   if (!value || typeof value !== 'object') return false;
-  const candidate = value as { name?: unknown; role?: unknown };
-  return typeof candidate.name === 'string' && candidate.name.length > 0 && typeof candidate.role === 'string' && ALLOWED_ROLES.includes(candidate.role as Role);
+  const candidate = value as { id?: unknown; name?: unknown; email?: unknown; role?: unknown; mustChangeCredential?: unknown };
+  return typeof candidate.id === 'string' && typeof candidate.name === 'string' && typeof candidate.email === 'string' && typeof candidate.role === 'string' && typeof candidate.mustChangeCredential === 'boolean' && ALLOWED_ROLES.includes(candidate.role as Role);
 }
 
 export function getStoredUser(): AppUser | null {
@@ -38,11 +31,20 @@ export function getStoredUser(): AppUser | null {
   }
 }
 
-export function loginWithPin(pin: string): AppUser | null {
-  const matched = getActiveUserByPin(pin);
+export async function loginWithPin(pin: string): Promise<AppUser | null> {
+  try {
+    const matched = await authenticateWithPin(pin);
+    if (!matched) return null;
+    return persistUser(matched);
+  } catch {
+    return null;
+  }
+}
+
+export async function loginWithCredential(emailOrName: string, credential: string): Promise<AppUser | null> {
+  const matched = await authenticateWithCredential(emailOrName, credential);
   if (!matched) return null;
-  const user: AppUser = { name: matched.displayName, role: matched.role };
-  return persistUser(user);
+  return persistUser(matched);
 }
 
 export function updateRole(role: Role): AppUser | null {
@@ -51,18 +53,17 @@ export function updateRole(role: Role): AppUser | null {
   if (existing.role === role) return existing;
   const active = getActiveUserByRole(role);
   if (!active) return null;
-  const updated = {
+  const updated: AppUser = {
+    id: active.id,
     name: active.displayName,
+    email: active.email,
     role,
+    mustChangeCredential: active.mustChangeCredential,
   };
   return persistUser(updated);
 }
 
-export function updateUserProfile(input: { name: string; role: Role }): AppUser {
-  const user = {
-    name: input.name.trim() || ROLE_DEFAULT_USER[input.role],
-    role: input.role,
-  };
+export function updateStoredUser(user: AppUser): AppUser {
   return persistUser(user);
 }
 

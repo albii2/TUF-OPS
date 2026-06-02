@@ -56,8 +56,7 @@ function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
 
 function getAllOrganizations() {
   bootstrapOrganizationsFromLeadsCsvIfEmpty();
-  const localRows = readLocalOrganizations();
-  return localRows;
+  return readLocalOrganizations();
 }
 
 function getRoleScopedOrganizations() {
@@ -148,8 +147,8 @@ export function createMockOrganization(input: { name: string; accountType: strin
     name: input.name,
     city: input.city || 'TBD',
     state: input.state || 'MN',
-    assignedRep: input.assignedRep || (user?.role === 'REP' ? user.name : 'Maya Cole'),
-    assignedDirector: input.assignedDirector || 'Dana Holt',
+    assignedRep: input.assignedRep || (user?.role === 'REP' ? user.name : 'Unassigned'),
+    assignedDirector: input.assignedDirector || 'Unassigned',
     territory: input.territory || 'metro',
     priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
   });
