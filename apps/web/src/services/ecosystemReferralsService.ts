@@ -58,12 +58,12 @@ export const referredOrganizationTypes: ReferredOrganizationType[] = [
 
 export const warmIntroductionStatuses: WarmIntroductionStatus[] = ['Mentioned', 'Referred', 'Introduced', 'Contacted', 'Qualified'];
 
-const LOCAL_REFERRALS_KEY = 'tuf_ops_ecosystem_referrals_v2';
-const LEGACY_REFERRALS_KEY = 'tuf_ops_mock_ecosystem_referrals_v1';
+const LOCAL_REFERRALS_KEY = 'tuf_ops_ecosystem_referrals_v3';
+const LEGACY_REFERRALS_KEYS = ['tuf_ops_mock_ecosystem_referrals_v1', 'tuf_ops_ecosystem_referrals_v2'];
 
 function readLocalReferrals(): EcosystemReferral[] {
   try {
-    localStorage.removeItem(LEGACY_REFERRALS_KEY);
+    LEGACY_REFERRALS_KEYS.forEach((key) => localStorage.removeItem(key));
     return JSON.parse(localStorage.getItem(LOCAL_REFERRALS_KEY) || '[]') as EcosystemReferral[];
   } catch {
     return [];

@@ -1,3 +1,4 @@
+import { pool } from '@packages/database';
 import { generateTemporaryCredential, hashCredential, validatePermanentCredential, validateTemporaryCredential, verifyCredential } from '../credentials';
 import { __test } from '../users.service';
 
@@ -6,6 +7,11 @@ jest.mock('@packages/database', () => ({
 }));
 
 describe('secure user credentials', () => {
+  beforeEach(() => {
+    (pool.query as jest.Mock).mockReset();
+    (pool.query as jest.Mock).mockResolvedValue({ rows: [] } as any);
+  });
+
   it('hashes credentials and never treats hashes as the original credential', async () => {
     const hash = await hashCredential('4826');
     expect(hash).not.toContain('4826');
@@ -27,5 +33,18 @@ describe('secure user credentials', () => {
     expect((safe as any).credential_hash).toBeUndefined();
     expect((safe as any).password).toBeUndefined();
     expect((safe as any).password_hash).toBeUndefined();
+  });
+
+  it('verifies signed auth tokens and rejects tampered actor identities', async () => {
+    const user = { id: 7, name: 'Owner', email: 'owner@tuf.local', role: 'OWNER', territory: null, assigned_director_id: null, status: 'ACTIVE', must_change_credential: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    (pool.query as jest.Mock).mockResolvedValue({ rows: [user] } as any);
+
+    const token = __test.createAuthToken(user as any);
+    await expect(__test.verifyAuthToken(token)).resolves.toMatchObject({ id: 7, role: 'OWNER' });
+
+    const [payload, signature] = token.split('.');
+    const forgedPayload = Buffer.from(JSON.stringify({ userId: 1, expiresAt: Date.now() + 60_000 })).toString('base64url');
+    await expect(__test.verifyAuthToken(`${forgedPayload}.${signature}`)).resolves.toBeNull();
+    await expect(__test.verifyAuthToken(`${payload}.bad-signature`)).resolves.toBeNull();
   });
 });

@@ -14,6 +14,12 @@ export type ManagedUser = {
   status: UserStatus;
   avatarColor: string;
   mustChangeCredential: boolean;
+  lastLoginAt?: string;
+  lastCredentialAttemptAt?: string;
+  lastActivityAt?: string;
+  loginCount?: number;
+  failedCredentialAttempts?: number;
+  lockedUntil?: string | null;
 };
 
 type StoredManagedUser = ManagedUser & {
@@ -26,8 +32,8 @@ type StoredManagedUser = ManagedUser & {
 export type CredentialAuditAction = 'USER_CREATED' | 'TEMPORARY_CREDENTIAL_GENERATED' | 'CREDENTIAL_RESET' | 'CREDENTIAL_CHANGED' | 'FAILED_CREDENTIAL_ATTEMPT' | 'SUCCESSFUL_LOGIN';
 export type CredentialAuditEntry = { id: string; action: CredentialAuditAction; targetUserId?: string; actorUserId?: string; createdAt: string; metadata: Record<string, unknown> };
 
-const KEY = 'tuf_ops_users_v3';
-const LEGACY_USER_KEYS = ['tuf_ops_users_v1', 'tuf_ops_users_v2'];
+const KEY = 'tuf_ops_users_v4';
+const LEGACY_USER_KEYS = ['tuf_ops_users_v1', 'tuf_ops_users_v2', 'tuf_ops_users_v3'];
 const AUDIT_KEY = 'tuf_ops_credential_audit_v1';
 const COLORS = ['#1FB6FF', '#22C55E', '#F59E0B', '#A855F7', '#EF4444', '#14B8A6'];
 const MAX_FAILED_ATTEMPTS = 5;
@@ -44,7 +50,10 @@ const seedRows: StoredManagedUser[] = [
     territory: 'metro',
     status: 'ACTIVE',
     avatarColor: COLORS[0],
-    mustChangeCredential: true,
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
     credentialSalt: 'seed-owner',
     credentialHash: 'b8bd4925bf3c03b20feaa71da92aa34591227c16ce8540287289839226c499d3',
   },
@@ -58,7 +67,10 @@ const seedRows: StoredManagedUser[] = [
     territory: 'west',
     status: 'ACTIVE',
     avatarColor: COLORS[1],
-    mustChangeCredential: true,
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
     credentialSalt: 'seed-primeau',
     credentialHash: 'ac57fe25e58cda65ee04575f5cd22a908d1b975c072e28fc350514e76f48f982',
   },
@@ -69,8 +81,13 @@ function initials(name: string) {
 }
 
 function sanitize(row: StoredManagedUser): ManagedUser {
-  const { credentialHash: _credentialHash, credentialSalt: _credentialSalt, failedCredentialAttempts: _failed, lockedUntil: _locked, ...safe } = row;
-  return safe;
+  const { credentialHash: _credentialHash, credentialSalt: _credentialSalt, ...safe } = row;
+  return {
+    ...safe,
+    failedCredentialAttempts: safe.failedCredentialAttempts || 0,
+    lockedUntil: safe.lockedUntil || null,
+    loginCount: safe.loginCount || 0,
+  };
 }
 
 function saveStoredUsers(rows: StoredManagedUser[]) {
@@ -111,7 +128,7 @@ async function hashCredential(credential: string, salt = crypto.getRandomValues(
 
 function validateTemporaryCredential(credential: string) {
   if (!credential.trim()) throw new Error('Credential is required');
-  if (!/^\d{4,}$/.test(credential)) throw new Error('Credential must be at least 4 numbers');
+  if (!/^\d{4}$/.test(credential)) throw new Error('PIN must be exactly 4 numbers');
 }
 
 function validatePermanentCredential(credential: string) {
@@ -120,7 +137,7 @@ function validatePermanentCredential(credential: string) {
 }
 
 export function generateTemporaryCredential() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(Math.floor(1000 + Math.random() * 9000));
 }
 
 function audit(action: CredentialAuditAction, targetUserId?: string, actorUserId?: string, metadata: Record<string, unknown> = {}) {
@@ -155,6 +172,9 @@ export async function createUser(input: Omit<ManagedUser, 'id' | 'displayName' |
     mustChangeCredential: true,
     credentialSalt: salt,
     credentialHash: hash,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
   };
   saveStoredUsers([row, ...rows]);
   audit('USER_CREATED', row.id, actor?.id, { role: row.role });
@@ -198,7 +218,7 @@ export async function changeOwnCredential(userId: string, currentCredential: str
   }
   const { salt, hash } = await hashCredential(newCredential);
   const rows = users.map((u) => u.id === userId ? { ...u, credentialSalt: salt, credentialHash: hash, mustChangeCredential: false, failedCredentialAttempts: 0, lockedUntil: null } : u);
-  saveStoredUsers(rows);
+  saveStoredUsers(rows.map((u) => u.id === userId ? { ...u, lastActivityAt: new Date().toISOString() } : u));
   audit('CREDENTIAL_CHANGED', userId, userId, {});
   return sanitize(rows.find((u) => u.id === userId)!);
 }
@@ -207,10 +227,46 @@ export function getActiveUserByRole(role: Role): ManagedUser | undefined {
   return listUsers().find((u) => u.role === role && u.status === 'ACTIVE');
 }
 
+function toAppUser(user: StoredManagedUser): AppUser {
+  return { id: user.id, name: user.displayName, email: user.email, role: user.role, mustChangeCredential: user.mustChangeCredential };
+}
+
+async function recordSuccessfulLogin(user: StoredManagedUser, users: StoredManagedUser[]) {
+  const now = new Date().toISOString();
+  saveStoredUsers(users.map((u) => u.id === user.id ? {
+    ...u,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    lastLoginAt: now,
+    lastActivityAt: now,
+    lastCredentialAttemptAt: now,
+    loginCount: (u.loginCount || 0) + 1,
+  } : u));
+  audit('SUCCESSFUL_LOGIN', user.id, user.id, {});
+}
+
+export async function authenticateWithPin(pin: string): Promise<AppUser | null> {
+  validateTemporaryCredential(pin);
+  const users = readStoredUsers();
+  const now = new Date().toISOString();
+  for (const user of users.filter((u) => u.status === 'ACTIVE')) {
+    if (user.lockedUntil && new Date(user.lockedUntil).getTime() > Date.now()) continue;
+    const pinHash = await digest(`${user.credentialSalt}:${pin}`);
+    if (pinHash === user.credentialHash) {
+      await recordSuccessfulLogin(user, users);
+      return toAppUser(user);
+    }
+  }
+  audit('FAILED_CREDENTIAL_ATTEMPT', undefined, undefined, { reason: 'pin_login' });
+  saveStoredUsers(users.map((u) => ({ ...u, lastCredentialAttemptAt: now })));
+  return null;
+}
+
 export async function authenticateWithCredential(emailOrName: string, credential: string): Promise<AppUser | null> {
   const users = readStoredUsers();
   const lookup = emailOrName.trim().toLowerCase();
   const user = users.find((u) => u.status === 'ACTIVE' && (u.email.toLowerCase() === lookup || u.displayName.toLowerCase() === lookup));
+  const now = new Date().toISOString();
   if (!user) {
     audit('FAILED_CREDENTIAL_ATTEMPT', undefined, undefined, { login: lookup });
     return null;
@@ -223,13 +279,12 @@ export async function authenticateWithCredential(emailOrName: string, credential
   if (credentialHash !== user.credentialHash) {
     const attempts = (user.failedCredentialAttempts || 0) + 1;
     const lockedUntil = attempts >= MAX_FAILED_ATTEMPTS ? new Date(Date.now() + LOCKOUT_MS).toISOString() : null;
-    saveStoredUsers(users.map((u) => u.id === user.id ? { ...u, failedCredentialAttempts: attempts, lockedUntil } : u));
+    saveStoredUsers(users.map((u) => u.id === user.id ? { ...u, failedCredentialAttempts: attempts, lockedUntil, lastCredentialAttemptAt: now } : u));
     audit('FAILED_CREDENTIAL_ATTEMPT', user.id, undefined, { attempts });
     return null;
   }
-  saveStoredUsers(users.map((u) => u.id === user.id ? { ...u, failedCredentialAttempts: 0, lockedUntil: null } : u));
-  audit('SUCCESSFUL_LOGIN', user.id, user.id, {});
-  return { id: user.id, name: user.displayName, email: user.email, role: user.role, mustChangeCredential: user.mustChangeCredential };
+  await recordSuccessfulLogin(user, users);
+  return toAppUser(user);
 }
 
 export function avatarInitials(displayName: string) { return initials(displayName); }

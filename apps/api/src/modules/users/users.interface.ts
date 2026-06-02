@@ -40,3 +40,8 @@ export type ChangeCredentialPayload = {
   current_credential: string;
   new_credential: string;
 };
+
+export type AuthSession = {
+  userId: number;
+  expiresAt: number;
+};

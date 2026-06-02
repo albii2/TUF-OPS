@@ -1,6 +1,16 @@
+const crypto = require('crypto');
+
+function bootstrapHash(credential) {
+  const salt = crypto.randomBytes(16).toString('base64url');
+  const key = crypto.scryptSync(credential, salt, 64, { N: 16384, r: 8, p: 1 });
+  return `scrypt$16384$8$1$${salt}$${key.toString('base64url')}`;
+}
+
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
+  const initialOwnerCredentialHash = bootstrapHash(process.env.INITIAL_OWNER_CREDENTIAL || '0000');
+
   pgm.addColumn('users', {
     role: { type: 'varchar(50)', notNull: true, default: 'REP' },
     territory: { type: 'varchar(50)' },
@@ -15,6 +25,12 @@ exports.up = (pgm) => {
   // Do not migrate legacy plain-text/recoverable values into the new credential column.
   // Existing users must receive a one-time reset after this migration.
   pgm.sql("UPDATE users SET credential_hash = 'MIGRATION_REQUIRES_ADMIN_RESET' WHERE credential_hash IS NULL");
+
+  // Preserve an admin path for databases that already contain legacy users.
+  // The selected bootstrap owner receives a freshly hashed temporary credential and must change it on login.
+  pgm.sql(`UPDATE users
+    SET role = 'OWNER', credential_hash = '${initialOwnerCredentialHash.replace(/'/g, "''")}', must_change_credential = true, status = 'ACTIVE'
+    WHERE id = (SELECT id FROM users ORDER BY CASE WHEN lower(email) IN ('owner@tuf.local', 'coach@tuf.local') OR lower(name) LIKE '%bradshaw%' THEN 0 ELSE 1 END, id LIMIT 1)`);
   pgm.alterColumn('users', 'credential_hash', { notNull: true });
   pgm.dropColumn('users', 'password');
   pgm.addConstraint('users', 'users_role_check', "CHECK (role IN ('OWNER', 'ADMIN', 'DIRECTOR', 'REP', 'OPS'))");

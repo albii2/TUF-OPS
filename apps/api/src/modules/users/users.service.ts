@@ -1,10 +1,48 @@
+import { createHmac, timingSafeEqual } from 'crypto';
 import { pool } from '@packages/database';
 import { generateTemporaryCredential, hashCredential, validatePermanentCredential, validateTemporaryCredential, verifyCredential } from './credentials';
-import type { ChangeCredentialPayload, CreateUserPayload, CredentialAuditAction, LoginPayload, SafeUser, UserRole } from './users.interface';
+import type { AuthSession, ChangeCredentialPayload, CreateUserPayload, CredentialAuditAction, LoginPayload, SafeUser, UserRole } from './users.interface';
 
 const SENSITIVE_FIELDS = new Set(['password', 'password_hash', 'credential_hash']);
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
+const TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
+const AUTH_TOKEN_SECRET = process.env.AUTH_TOKEN_SECRET || process.env.SESSION_SECRET || 'dev-only-change-me';
+
+
+function encodeBase64Url(value: string) {
+  return Buffer.from(value).toString('base64url');
+}
+
+function signPayload(payload: string) {
+  return createHmac('sha256', AUTH_TOKEN_SECRET).update(payload).digest('base64url');
+}
+
+function safeEqual(a: string, b: string) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  return left.length === right.length && timingSafeEqual(left, right);
+}
+
+export function createAuthToken(user: SafeUser): string {
+  const session: AuthSession = { userId: user.id, expiresAt: Date.now() + TOKEN_TTL_MS };
+  const payload = encodeBase64Url(JSON.stringify(session));
+  return `${payload}.${signPayload(payload)}`;
+}
+
+export async function verifyAuthToken(token?: string): Promise<SafeUser | null> {
+  if (!token) return null;
+  const [payload, signature] = token.split('.');
+  if (!payload || !signature || !safeEqual(signature, signPayload(payload))) return null;
+  try {
+    const session = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as AuthSession;
+    if (!session.userId || !session.expiresAt || session.expiresAt < Date.now()) return null;
+    const user = await getSafeUserById(session.userId);
+    return user?.status === 'ACTIVE' ? user : null;
+  } catch {
+    return null;
+  }
+}
 
 function sanitizeUser(row: any): SafeUser {
   const safe: any = {};
@@ -46,8 +84,7 @@ export async function listUsers(): Promise<SafeUser[]> {
   return result.rows.map(sanitizeUser);
 }
 
-export async function createUserWithTemporaryCredential(payload: CreateUserPayload, actorUserId: number) {
-  const actor = await getSafeUserById(actorUserId);
+export async function createUserWithTemporaryCredential(payload: CreateUserPayload, actor: SafeUser) {
   assertAdmin(actor);
   const temporaryCredential = payload.temporary_credential || generateTemporaryCredential();
   validateTemporaryCredential(temporaryCredential);
@@ -61,13 +98,12 @@ export async function createUserWithTemporaryCredential(payload: CreateUserPaylo
     [payload.name.trim(), payload.email.trim(), payload.role, payload.territory ?? null, payload.assigned_director_id ?? null, credentialHash],
   );
   const user = sanitizeUser(result.rows[0]);
-  await audit('USER_CREATED', user.id, actorUserId, { role: user.role });
-  await audit('TEMPORARY_CREDENTIAL_GENERATED', user.id, actorUserId, { reason: 'create_user' });
+  await audit('USER_CREATED', user.id, actor.id, { role: user.role });
+  await audit('TEMPORARY_CREDENTIAL_GENERATED', user.id, actor.id, { reason: 'create_user' });
   return { user, temporaryCredential };
 }
 
-export async function resetUserCredential(targetUserId: number, actorUserId: number, temporaryCredential = generateTemporaryCredential()) {
-  const actor = await getSafeUserById(actorUserId);
+export async function resetUserCredential(targetUserId: number, actor: SafeUser, temporaryCredential = generateTemporaryCredential()) {
   assertAdmin(actor);
   validateTemporaryCredential(temporaryCredential);
   const credentialHash = await hashCredential(temporaryCredential);
@@ -78,8 +114,8 @@ export async function resetUserCredential(targetUserId: number, actorUserId: num
   );
   if (!result.rows[0]) throw new Error('User not found');
   const user = sanitizeUser(result.rows[0]);
-  await audit('CREDENTIAL_RESET', user.id, actorUserId, { reason: 'admin_reset' });
-  await audit('TEMPORARY_CREDENTIAL_GENERATED', user.id, actorUserId, { reason: 'reset' });
+  await audit('CREDENTIAL_RESET', user.id, actor.id, { reason: 'admin_reset' });
+  await audit('TEMPORARY_CREDENTIAL_GENERATED', user.id, actor.id, { reason: 'reset' });
   return { user, temporaryCredential };
 }
 
@@ -105,7 +141,8 @@ export async function loginWithCredential(payload: LoginPayload) {
   }
   await pool.query('UPDATE users SET failed_credential_attempts = 0, locked_until = NULL, last_login_at = NOW() WHERE id = $1', [user.id]);
   await audit('SUCCESSFUL_LOGIN', user.id, user.id, {});
-  return sanitizeUser(user);
+  const safeUser = sanitizeUser(user);
+  return { user: safeUser, token: createAuthToken(safeUser) };
 }
 
 export async function changeOwnCredential(userId: number, payload: ChangeCredentialPayload) {
@@ -128,14 +165,27 @@ export async function changeOwnCredential(userId: number, payload: ChangeCredent
 }
 
 export async function seedInitialOwnerIfEmpty(initialCredential = process.env.INITIAL_OWNER_CREDENTIAL || '0000') {
-  const count = await pool.query('SELECT COUNT(*)::int AS count FROM users');
-  if (count.rows[0]?.count > 0) return;
   validateTemporaryCredential(initialCredential);
+  const ownerCount = await pool.query("SELECT COUNT(*)::int AS count FROM users WHERE role IN ('OWNER', 'ADMIN') AND status = 'ACTIVE'");
+  if (ownerCount.rows[0]?.count > 0) return;
+
+  const count = await pool.query('SELECT COUNT(*)::int AS count FROM users');
+  const credentialHash = await hashCredential(initialCredential);
+  if (count.rows[0]?.count > 0) {
+    await pool.query(
+      `UPDATE users
+       SET role = 'OWNER', credential_hash = $1, must_change_credential = true, status = 'ACTIVE', failed_credential_attempts = 0, locked_until = NULL, updated_at = NOW()
+       WHERE id = (SELECT id FROM users ORDER BY CASE WHEN lower(email) IN ('owner@tuf.local', 'coach@tuf.local') OR lower(name) LIKE '%bradshaw%' THEN 0 ELSE 1 END, id LIMIT 1)`,
+      [credentialHash],
+    );
+    return;
+  }
+
   await pool.query(
     `INSERT INTO users (name, email, role, credential_hash, must_change_credential, status)
      VALUES ($1, $2, $3, $4, true, 'ACTIVE')`,
-    ['Coach Bradshaw', 'owner@tuf.local', 'OWNER' satisfies UserRole, await hashCredential(initialCredential)],
+    ['Coach Bradshaw', 'owner@tuf.local', 'OWNER' satisfies UserRole, credentialHash],
   );
 }
 
-export const __test = { sanitizeUser, audit };
+export const __test = { sanitizeUser, audit, createAuthToken, verifyAuthToken };

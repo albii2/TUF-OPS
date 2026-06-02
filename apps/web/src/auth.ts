@@ -1,7 +1,7 @@
 import type { AppUser, Role } from './types';
-import { authenticateWithCredential, getActiveUserByRole } from './services/usersService';
+import { authenticateWithCredential, authenticateWithPin, getActiveUserByRole } from './services/usersService';
 
-const USER_KEY = 'tuf_ops_user_v2';
+const USER_KEY = 'tuf_ops_user_v3';
 const ALLOWED_ROLES: Role[] = ['OWNER', 'DIRECTOR', 'REP', 'OPS'];
 
 function persistUser(user: AppUser): AppUser {
@@ -26,6 +26,16 @@ export function getStoredUser(): AppUser | null {
       return null;
     }
     return parsed;
+  } catch {
+    return null;
+  }
+}
+
+export async function loginWithPin(pin: string): Promise<AppUser | null> {
+  try {
+    const matched = await authenticateWithPin(pin);
+    if (!matched) return null;
+    return persistUser(matched);
   } catch {
     return null;
   }
