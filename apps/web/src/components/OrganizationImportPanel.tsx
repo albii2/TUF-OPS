@@ -32,13 +32,13 @@ export function OrganizationImportPanel({ existingKeys, onImported }: { existing
           }));
         }} />
       </div>
-      <p className="mt-2 text-xs text-slate-400">Use this flow to import lead accounts, validate quality, and hand ownership for assignment.</p>
+      <p className="mt-2 text-xs text-slate-400">Use this flow to import lead accounts, validate quality, and keep CSV zones locked before assigning directors/reps.</p>
       <div className="mt-2 text-xs text-slate-300">Rows detected: {summary.rows} · Valid: {summary.valid} · Duplicates: {summary.duplicates} · Ready: {summary.ready}</div>
-      {rows.length ? <div className="mt-2 overflow-auto rounded border border-slate-700"><table className="min-w-full text-xs"><thead><tr><th className="px-2 py-1 text-left">organizationName</th><th className="px-2 py-1 text-left">accountType</th><th className="px-2 py-1 text-left">territory</th><th className="px-2 py-1 text-left">validation</th></tr></thead><tbody>{normalized.slice(0,8).map((r, i) => <tr key={i} className="border-t border-slate-800"><td className="px-2 py-1">{r.organizationName}</td><td className="px-2 py-1">{r.accountType}</td><td className="px-2 py-1">{r.territory || 'UNASSIGNED'}</td><td className="px-2 py-1 text-rose-300">{r.validationErrors.join('; ') || 'ok'}</td></tr>)}</tbody></table></div> : null}
+      {rows.length ? <div className="mt-2 overflow-auto rounded border border-slate-700"><table className="min-w-full text-xs"><thead><tr><th className="px-2 py-1 text-left">organizationName</th><th className="px-2 py-1 text-left">accountType</th><th className="px-2 py-1 text-left">territory</th><th className="px-2 py-1 text-left">Contacts</th><th className="px-2 py-1 text-left">validation</th></tr></thead><tbody>{normalized.slice(0,8).map((r, i) => <tr key={i} className="border-t border-slate-800"><td className="px-2 py-1">{r.organizationName}</td><td className="px-2 py-1">{r.accountType}</td><td className="px-2 py-1">{r.territory || 'UNASSIGNED'}</td><td className="px-2 py-1">School {r.phone || '—'} · AD {r.athleticDirectorEmail || r.athleticDirectorPhone || '—'} · Coach {r.headCoachEmail || r.headCoachPhone || '—'}</td><td className="px-2 py-1 text-rose-300">{r.validationErrors.join('; ') || 'ok'}</td></tr>)}</tbody></table></div> : null}
       <div className="mt-2"><Button onClick={() => {
         const result = importLeadRows(normalized);
         setImportMessage(result.created
-          ? `Imported: ${result.created} accounts. Next step: assign Territory → Director → Rep.`
+          ? `Imported: ${result.created} accounts with CSV zones preserved. Next step: assign Director → Rep.`
           : 'No new valid rows to import yet.');
         if (result.created) onImported?.(result.importedIds);
       }}>Import Accounts</Button></div>
