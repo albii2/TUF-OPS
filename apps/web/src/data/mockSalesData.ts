@@ -94,6 +94,8 @@ export const opportunityStages: OpportunityStage[] = ['LEAD_ASSIGNED', 'CONTACTE
 export const teamMembers: TeamMember[] = [
   { id: 'u-owner-coach-bradshaw', name: 'Coach Bradshaw', role: 'OWNER', territoryIds: ['metro', 'north', 'west', 'south'], active: true },
   { id: 'u-director-primeau-hill', name: 'Primeau Hill', role: 'DIRECTOR', territoryIds: ['west'], active: true },
+  { id: 'u-test-director-agent', name: 'Test Director', role: 'DIRECTOR', territoryIds: ['north'], active: true },
+  { id: 'u-test-rep-agent', name: 'Test Rep', role: 'REP', territoryIds: ['north'], active: true },
 ];
 
 // Mock operational records were removed. Runtime lists now come from imported/local/API-backed records only.

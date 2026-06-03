@@ -57,6 +57,42 @@ const seedRows: StoredManagedUser[] = [
     credentialSalt: 'seed-owner',
     credentialHash: 'b8bd4925bf3c03b20feaa71da92aa34591227c16ce8540287289839226c499d3',
   },
+
+  {
+    id: 'u-test-director-agent',
+    firstName: 'Test',
+    lastName: 'Director',
+    displayName: 'Test Director',
+    email: 'test.director@tuf.local',
+    role: 'DIRECTOR',
+    territory: 'north',
+    status: 'ACTIVE',
+    avatarColor: COLORS[2],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    credentialSalt: 'seed-test-director',
+    credentialHash: 'd740b50835303b3f2a83c91e14c126dd7e4742f8b41f0d724faafd513814fcab',
+  },
+  {
+    id: 'u-test-rep-agent',
+    firstName: 'Test',
+    lastName: 'Rep',
+    displayName: 'Test Rep',
+    email: 'test.rep@tuf.local',
+    role: 'REP',
+    territory: 'north',
+    assignedDirectorId: 'u-test-director-agent',
+    status: 'ACTIVE',
+    avatarColor: COLORS[3],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    credentialSalt: 'seed-test-rep',
+    credentialHash: 'cde7539b2567b8d2ceede14bb91469c1cf9ad66be3ffd069080c4af446e6f820',
+  },
   {
     id: 'u-director-primeau-hill',
     firstName: 'Primeau',
@@ -103,11 +139,17 @@ function readStoredUsers(): StoredManagedUser[] {
   }
   try {
     const rows = JSON.parse(raw) as StoredManagedUser[];
-    const migrated = rows.filter((row) => row.displayName === 'Coach Bradshaw' || row.displayName === 'Primeau Hill' || row.id.startsWith('u-local-'));
-    if (migrated.some((row: any) => row.pin) || migrated.length !== rows.length) {
-      const safeRows = migrated.map(({ pin: _pin, ...row }: any) => row) as StoredManagedUser[];
-      saveStoredUsers(safeRows);
-      return safeRows;
+    const seedIds = new Set(seedRows.map((row) => row.id));
+    const seedNames = new Set(seedRows.map((row) => row.displayName));
+    const migrated = rows.filter((row) => seedIds.has(row.id) || seedNames.has(row.displayName) || row.id.startsWith('u-local-'));
+    const safeRows = migrated.map(({ pin: _pin, ...row }: any) => row) as StoredManagedUser[];
+    const mergedRows = [
+      ...safeRows,
+      ...seedRows.filter((seed) => !safeRows.some((row) => row.id === seed.id || row.displayName === seed.displayName)),
+    ];
+    if (migrated.some((row: any) => row.pin) || migrated.length !== rows.length || mergedRows.length !== rows.length) {
+      saveStoredUsers(mergedRows);
+      return mergedRows;
     }
     return rows;
   } catch {
