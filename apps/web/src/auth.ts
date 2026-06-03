@@ -41,6 +41,7 @@ export async function loginWithPin(pin: string): Promise<AppUser | null> {
   }
 }
 
+
 export async function loginWithCredential(emailOrName: string, credential: string): Promise<AppUser | null> {
   const matched = await authenticateWithCredential(emailOrName, credential);
   if (!matched) return null;

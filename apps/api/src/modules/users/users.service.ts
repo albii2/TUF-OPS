@@ -7,15 +7,34 @@ const SENSITIVE_FIELDS = new Set(['password', 'password_hash', 'credential_hash'
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 const TOKEN_TTL_MS = 8 * 60 * 60 * 1000;
-const AUTH_TOKEN_SECRET = process.env.AUTH_TOKEN_SECRET || process.env.SESSION_SECRET || 'dev-only-change-me';
+function isLocalRuntime() {
+  return ['development', 'test'].includes(process.env.NODE_ENV || '') || process.env.ALLOW_INSECURE_DEV_AUTH_SECRET === 'true';
+}
 
+function getAuthTokenSecret() {
+  const secret = process.env.AUTH_TOKEN_SECRET || process.env.SESSION_SECRET;
+  if (secret) return secret;
+  if (isLocalRuntime()) return 'dev-only-change-me';
+  throw new Error('AUTH_TOKEN_SECRET or SESSION_SECRET is required outside local development');
+}
+
+export function assertAuthTokenSecretConfigured() {
+  getAuthTokenSecret();
+}
+
+function requireInitialOwnerCredential() {
+  const credential = process.env.INITIAL_OWNER_CREDENTIAL;
+  if (!credential) throw new Error('INITIAL_OWNER_CREDENTIAL is required to bootstrap or promote an owner account');
+  validateTemporaryCredential(credential);
+  return credential;
+}
 
 function encodeBase64Url(value: string) {
   return Buffer.from(value).toString('base64url');
 }
 
 function signPayload(payload: string) {
-  return createHmac('sha256', AUTH_TOKEN_SECRET).update(payload).digest('base64url');
+  return createHmac('sha256', getAuthTokenSecret()).update(payload).digest('base64url');
 }
 
 function safeEqual(a: string, b: string) {
@@ -79,7 +98,8 @@ async function getUserWithCredentialByEmail(email: string) {
   return result.rows[0] ?? null;
 }
 
-export async function listUsers(): Promise<SafeUser[]> {
+export async function listUsers(actor?: SafeUser | null): Promise<SafeUser[]> {
+  assertAdmin(actor);
   const result = await pool.query('SELECT id, name, email, role, territory, assigned_director_id, status, must_change_credential, created_at, updated_at FROM users ORDER BY name');
   return result.rows.map(sanitizeUser);
 }
@@ -164,13 +184,13 @@ export async function changeOwnCredential(userId: number, payload: ChangeCredent
   return sanitizeUser(result.rows[0]);
 }
 
-export async function seedInitialOwnerIfEmpty(initialCredential = process.env.INITIAL_OWNER_CREDENTIAL || '0000') {
-  validateTemporaryCredential(initialCredential);
+export async function seedInitialOwnerIfEmpty(initialCredential?: string) {
   const ownerCount = await pool.query("SELECT COUNT(*)::int AS count FROM users WHERE role IN ('OWNER', 'ADMIN') AND status = 'ACTIVE'");
   if (ownerCount.rows[0]?.count > 0) return;
 
   const count = await pool.query('SELECT COUNT(*)::int AS count FROM users');
-  const credentialHash = await hashCredential(initialCredential);
+  const credential = initialCredential || requireInitialOwnerCredential();
+  const credentialHash = await hashCredential(credential);
   if (count.rows[0]?.count > 0) {
     await pool.query(
       `UPDATE users
@@ -188,4 +208,4 @@ export async function seedInitialOwnerIfEmpty(initialCredential = process.env.IN
   );
 }
 
-export const __test = { sanitizeUser, audit, createAuthToken, verifyAuthToken };
+export const __test = { sanitizeUser, audit, createAuthToken, verifyAuthToken, getAuthTokenSecret, requireInitialOwnerCredential };

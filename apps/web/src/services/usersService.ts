@@ -262,6 +262,8 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
   return null;
 }
 
+
+
 export async function authenticateWithCredential(emailOrName: string, credential: string): Promise<AppUser | null> {
   const users = readStoredUsers();
   const lookup = emailOrName.trim().toLowerCase();

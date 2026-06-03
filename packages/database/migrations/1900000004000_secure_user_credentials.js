@@ -1,5 +1,13 @@
 const crypto = require('crypto');
 
+
+function requireInitialOwnerCredential() {
+  const credential = process.env.INITIAL_OWNER_CREDENTIAL;
+  if (!credential) throw new Error('INITIAL_OWNER_CREDENTIAL is required before running secure user credential migration');
+  if (!/^\d{4,}$/.test(credential)) throw new Error('INITIAL_OWNER_CREDENTIAL must be at least 4 numbers');
+  return credential;
+}
+
 function bootstrapHash(credential) {
   const salt = crypto.randomBytes(16).toString('base64url');
   const key = crypto.scryptSync(credential, salt, 64, { N: 16384, r: 8, p: 1 });
@@ -9,7 +17,7 @@ function bootstrapHash(credential) {
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-  const initialOwnerCredentialHash = bootstrapHash(process.env.INITIAL_OWNER_CREDENTIAL || '0000');
+  const initialOwnerCredentialHash = bootstrapHash(requireInitialOwnerCredential());
 
   pgm.addColumn('users', {
     role: { type: 'varchar(50)', notNull: true, default: 'REP' },

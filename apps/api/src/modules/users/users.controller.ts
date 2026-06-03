@@ -31,7 +31,11 @@ function handleError(reply: FastifyReply, error: any) {
 export async function listUsersHandler(request: FastifyRequest, reply: FastifyReply) {
   const actor = await requireAuthenticatedUser(request, reply);
   if (!actor) return;
-  return reply.send({ users: await listUsers() });
+  try {
+    return reply.send({ users: await listUsers(actor) });
+  } catch (error) {
+    return handleError(reply, error);
+  }
 }
 
 export async function getMeHandler(request: FastifyRequest, reply: FastifyReply) {
