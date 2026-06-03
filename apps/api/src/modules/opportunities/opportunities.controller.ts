@@ -1,4 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
+import type { Opportunity } from './opportunities.interface';
 import { createOpportunity, getOpportunities, getOpportunitiesByOrganization, updateOpportunityStage, updateOpportunity } from './opportunities.service';
 
 export async function createOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
