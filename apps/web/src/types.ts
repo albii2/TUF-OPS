@@ -10,6 +10,7 @@ export type SidebarKey =
   | 'performance'
   | 'messages'
   | 'ops_workspace'
+  | 'training'
   | 'settings'
   | 'users';
 

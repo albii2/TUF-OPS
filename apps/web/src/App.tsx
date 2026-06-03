@@ -4,6 +4,7 @@ import { AppShell } from './components/AppShell';
 import { getStoredUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { TrainingPage } from './pages/TrainingPage';
 import {
   OpportunitiesPage,
   OpportunityDetailPage,
@@ -94,6 +95,7 @@ export default function App() {
         <Route path="/territory/map" element={<PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected>} />
         <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
         <Route path="/users" element={<PageProtected user={user} path="/users"><UsersPage /></PageProtected>} />
+        <Route path="/training" element={<Protected user={user}><TrainingPage /></Protected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>
