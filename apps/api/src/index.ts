@@ -8,6 +8,7 @@ import { reportingRoutes } from './modules/reporting/reporting.routes';
 import { orderRoutes } from './modules/orders/orders.routes';
 import { creativeRequestRoutes } from './modules/creative-requests/creative-requests.routes';
 import { trainingRoutes } from './modules/training/training.routes';
+import { vendorRoutes } from './modules/vendors/vendors.routes';
 
 const server = fastify();
 const port = Number(process.env.PORT || 4000);
@@ -25,6 +26,7 @@ server.register(productionRequestRoutes, { prefix: '/production-requests' });
 server.register(orderRoutes, { prefix: '/orders' });
 server.register(creativeRequestRoutes);
 server.register(trainingRoutes, { prefix: '/training' });
+server.register(vendorRoutes, { prefix: '/api' });
 
 server.get('/health', async () => ({
   status: 'ok',
