@@ -9,6 +9,7 @@ import { createMockOpportunity } from '../services/opportunitiesService';
 import { useOrganizations } from '../hooks/useOrganizations';
 import type { TerritoryId } from '../data/mockSalesData';
 import { useToast } from '../components/toast';
+import { listUsers } from '../services/usersService';
 
 export function OrganizationNewPage() {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ export function OrganizationNewPage() {
   const [territory, setTerritory] = useState<TerritoryId | ''>('');
   const [assignedRep, setAssignedRep] = useState(getStoredUser()?.role === 'REP' ? getStoredUser()?.name ?? '' : '');
   const [assignedDirector, setAssignedDirector] = useState('');
+  const directors = listUsers().filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE');
   const { success, error } = useToast();
 
   const onSubmit = (e: FormEvent) => {
@@ -31,12 +33,12 @@ export function OrganizationNewPage() {
       error('Failed to save. Please try again.');
       return;
     }
-    const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned Director' });
+    const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
     success('Organization saved ✓');
     navigate(`/organizations/${created.id}`);
   };
 
-  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><div><label className="text-xs text-slate-400">Account Name <span className="text-rose-300">*</span></label><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /></div><div><label className="text-xs text-slate-400">Account Type <span className="text-rose-300">*</span></label><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select></div><div><label className="text-xs text-slate-400">City <span className="text-slate-500">(Optional)</span></label><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /></div><div><label className="text-xs text-slate-400">State <span className="text-slate-500">(Optional)</span></label><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /></div><div><label className="text-xs text-slate-400">Metro <span className="text-rose-300">*</span></label><p className="text-[11px] text-slate-500">Select the sales region.</p><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId | '')}><option value="">—</option><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select></div><div><label className="text-xs text-slate-400">Assigned Rep <span className="text-slate-500">(Optional)</span></label><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /></div><div><label className="text-xs text-slate-400">Assigned Director <span className="text-slate-500">(Optional)</span></label><Input value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)} placeholder="Assigned Director" /></div><Button type="submit" className="md:col-span-2">Save Organization</Button></form></Card>;
+  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><div><label className="text-xs text-slate-400">Account Name <span className="text-rose-300">*</span></label><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /></div><div><label className="text-xs text-slate-400">Account Type <span className="text-rose-300">*</span></label><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select></div><div><label className="text-xs text-slate-400">City <span className="text-slate-500">(Optional)</span></label><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /></div><div><label className="text-xs text-slate-400">State <span className="text-slate-500">(Optional)</span></label><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /></div><div><label className="text-xs text-slate-400">Metro <span className="text-rose-300">*</span></label><p className="text-[11px] text-slate-500">Select the sales region.</p><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId | '')}><option value="">—</option><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select></div><div><label className="text-xs text-slate-400">Assigned Rep <span className="text-slate-500">(Optional)</span></label><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /></div><div><label className="text-xs text-slate-400">Assigned Director <span className="text-slate-500">(Optional)</span></label><Select value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)}><option value="">Unassigned</option>{directors.map((director)=><option key={director.id} value={director.displayName}>{director.displayName}</option>)}</Select></div><Button type="submit" className="md:col-span-2">Save Organization</Button></form></Card>;
 }
 
 export function OpportunityNewPage() {
@@ -48,7 +50,7 @@ export function OpportunityNewPage() {
   const [seasonCode, setSeasonCode] = useState('FA26');
   const [lane, setLane] = useState(REVENUE_LANES[0]);
   const [organizationId, setOrganizationId] = useState(organizations[0]?.id ?? '');
-  const [assignedRep, setAssignedRep] = useState(user?.role === 'REP' ? user.name : organizations[0]?.assignedRep ?? 'Maya Cole');
+  const [assignedRep, setAssignedRep] = useState(user?.role === 'REP' ? user.name : organizations[0]?.assignedRep ?? '');
   const [value, setValue] = useState('15000');
   const [message, setMessage] = useState('');
 
