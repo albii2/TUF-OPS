@@ -1,11 +1,18 @@
 const crypto = require('crypto');
 
 
-function requireInitialOwnerCredential() {
+function isProductionRuntime() {
+  return process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+}
+
+function getBootstrapOwnerCredential() {
   const credential = process.env.INITIAL_OWNER_CREDENTIAL;
-  if (!credential) throw new Error('INITIAL_OWNER_CREDENTIAL is required before running secure user credential migration');
-  if (!/^\d{4,}$/.test(credential)) throw new Error('INITIAL_OWNER_CREDENTIAL must be at least 4 numbers');
-  return credential;
+  if (credential) {
+    if (!/^\d{4,}$/.test(credential)) throw new Error('INITIAL_OWNER_CREDENTIAL must be at least 4 numbers');
+    return credential;
+  }
+  if (isProductionRuntime()) throw new Error('INITIAL_OWNER_CREDENTIAL is required before running secure user credential migration in production');
+  return '0000';
 }
 
 function bootstrapHash(credential) {
@@ -17,7 +24,7 @@ function bootstrapHash(credential) {
 exports.shorthands = undefined;
 
 exports.up = (pgm) => {
-  const initialOwnerCredentialHash = bootstrapHash(requireInitialOwnerCredential());
+  const initialOwnerCredentialHash = bootstrapHash(getBootstrapOwnerCredential());
 
   pgm.addColumn('users', {
     role: { type: 'varchar(50)', notNull: true, default: 'REP' },

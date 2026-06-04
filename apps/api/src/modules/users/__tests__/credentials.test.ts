@@ -66,8 +66,20 @@ describe('secure user credentials', () => {
     expect(() => __test.getAuthTokenSecret()).toThrow('AUTH_TOKEN_SECRET or SESSION_SECRET is required outside local development');
   });
 
-  it('requires an explicit bootstrap owner credential before seeding or promoting an owner', async () => {
+  it('allows local/test bootstrap owner seeding without requiring env credentials', async () => {
     delete process.env.INITIAL_OWNER_CREDENTIAL;
+    (pool.query as jest.Mock)
+      .mockResolvedValueOnce({ rows: [{ count: 0 }] } as any)
+      .mockResolvedValueOnce({ rows: [{ count: 1 }] } as any)
+      .mockResolvedValueOnce({ rows: [] } as any);
+
+    await expect(seedInitialOwnerIfEmpty()).resolves.toBeUndefined();
+    expect(pool.query).toHaveBeenCalledWith(expect.stringContaining('UPDATE users'), [expect.stringMatching(/^scrypt\$/)]);
+  });
+
+  it('requires an explicit bootstrap owner credential in production', async () => {
+    delete process.env.INITIAL_OWNER_CREDENTIAL;
+    process.env.NODE_ENV = 'production';
     (pool.query as jest.Mock)
       .mockResolvedValueOnce({ rows: [{ count: 0 }] } as any)
       .mockResolvedValueOnce({ rows: [{ count: 1 }] } as any);
