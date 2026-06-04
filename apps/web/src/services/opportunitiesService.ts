@@ -12,7 +12,8 @@ export type OpportunityListParams = {
   refreshKey?: number;
 };
 
-const LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_mock_opportunities_v1';
+const LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_opportunities_v2';
+const LEGACY_OPPORTUNITIES_KEY = 'tuf_ops_mock_opportunities_v1';
 
 const nextActionByStage: Record<OpportunityStage, string> = {
   LEAD_ASSIGNED: 'Contact coach and confirm decision owner',
@@ -29,6 +30,7 @@ const nextActionByStage: Record<OpportunityStage, string> = {
 
 function readLocalOpportunities(): Opportunity[] {
   try {
+    localStorage.removeItem(LEGACY_OPPORTUNITIES_KEY);
     return JSON.parse(localStorage.getItem(LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
   } catch {
     return [];
