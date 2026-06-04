@@ -1,12 +1,13 @@
 import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginWithPin } from '../auth';
+import { loginWithCredential } from '../auth';
 import { TufLogo } from '../components/ui';
 import type { AppUser } from '../types';
 import TufMarkSvg from '../assets/tuf-mark.svg';
 
 export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void }) {
-  const [pin, setPin] = useState('');
+  const [login, setLogin] = useState('owner@tuf.local');
+  const [credential, setCredential] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 

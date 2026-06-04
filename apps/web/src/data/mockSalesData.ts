@@ -32,6 +32,13 @@ export type Organization = {
   assignedRep: string;
   assignedDirector: string;
   territory: TerritoryId;
+  schoolPhone?: string;
+  athleticDirectorName?: string;
+  athleticDirectorEmail?: string;
+  athleticDirectorPhone?: string;
+  headCoachName?: string;
+  headCoachEmail?: string;
+  headCoachPhone?: string;
   coverageStatus: CoverageStatus;
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
   pipelineValue: number;
