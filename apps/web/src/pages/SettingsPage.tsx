@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { getStoredUser, updateUserProfile } from '../auth';
+import { getStoredUser } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
 import type { Role } from '../types';
-import { notify } from '../services/feedbackService';
+import { useToast } from '../components/toast';
 
 const PREF_KEY = 'tuf_ops_settings_v1';
 
@@ -22,11 +22,10 @@ const defaultPrefs: UserPrefs = {
 
 export function SettingsPage() {
   const user = getStoredUser();
-  const [name, setName] = useState(user?.name ?? '');
   const [role, setRole] = useState<Role>(user?.role ?? 'OWNER');
-  const [pin, setPin] = useState('0000');
   const [prefs, setPrefs] = useState<UserPrefs>(defaultPrefs);
   const [saved, setSaved] = useState('');
+  const { success, error } = useToast();
 
   useEffect(() => {
     const raw = localStorage.getItem(PREF_KEY);
@@ -37,15 +36,11 @@ export function SettingsPage() {
 
   const saveAll = () => {
     try {
-      const nextRole = user?.role === 'OWNER' ? role : user?.role ?? role;
       localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-      updateUserProfile({ name, role: nextRole });
-      setSaved('Settings saved for this device.');
-      notify('Settings saved.', 'success');
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : 'Please check the settings and try again.';
-      setSaved(detail);
-      notify(`Settings save failed: ${detail}`, 'error');
+      setSaved('Settings saved for this device. Use User Management or Change PIN/Password for secure credential updates.');
+      success('Settings saved ✓');
+    } catch {
+      error('Failed to save. Please try again.', saveAll);
     }
   };
 
@@ -53,24 +48,24 @@ export function SettingsPage() {
     <div className="grid gap-3 lg:grid-cols-2">
       <Card title="Profile">
         <div className="space-y-2 text-sm">
-          <label className="block text-[var(--text-secondary)]">Display Name</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
-          <p className="text-xs text-[var(--text-secondary)]">Profile settings are local to this internal rollout device.</p>
+          <p className="font-semibold text-slate-100">{user?.name}</p>
+          <p className="text-xs text-[var(--text-secondary)]">For security, existing credentials cannot be viewed. Use Change PIN/Password to update your own credential or User Management to reset another user.</p>
         </div>
       </Card>
 
-      <Card title="Workspace">
-        <div className="space-y-2 text-sm">
-          <label className="block text-[var(--text-secondary)]">Role</label>
-          <Select value={role} onChange={(e) => setRole(e.target.value as Role)} disabled={user?.role !== 'OWNER'}>
-            <option value="OWNER">OWNER</option>
-            <option value="DIRECTOR">DIRECTOR</option>
-            <option value="REP">REP</option>
-            <option value="OPS">OPS</option>
-          </Select>
-          {user?.role !== 'OWNER' ? <p className="text-xs text-[var(--text-secondary)]">Role changes require Owner access.</p> : null}
-        </div>
-      </Card>
+      {user?.role === 'OWNER' || user?.role === 'OPS' ? (
+        <Card title="Workspace">
+          <div className="space-y-2 text-sm">
+            <label className="block text-[var(--text-secondary)]">Role</label>
+            <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+              <option value="OWNER">OWNER</option>
+              <option value="DIRECTOR">DIRECTOR</option>
+              <option value="REP">REP</option>
+              <option value="OPS">OPS</option>
+            </Select>
+          </div>
+        </Card>
+      ) : null}
 
       <Card title="Theme">
         <div className="space-y-2 text-sm">
@@ -93,9 +88,8 @@ export function SettingsPage() {
 
       <Card title="Security">
         <div className="space-y-2 text-sm">
-          <label className="block text-[var(--text-secondary)]">PIN (4 digits)</label>
-          <Input type="password" value={pin} maxLength={4} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} />
-          <p className="text-xs text-[var(--text-secondary)]">PIN is local for internal beta sign-in only.</p>
+          <p className="text-xs text-[var(--text-secondary)]">For security, existing credentials cannot be viewed. You may only reset them.</p>
+          <a className="text-cyan-200" href="/change-credential">Change PIN/Password</a>
         </div>
       </Card>
 

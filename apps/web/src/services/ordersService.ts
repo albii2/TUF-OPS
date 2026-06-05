@@ -1,6 +1,5 @@
-import { orders, type Order } from '../data/mockSalesData';
+import { opportunities, orders as seededOrders, type Opportunity, type Order } from '../data/mockSalesData';
 import { DATA_MODE } from './dataMode';
-import { opportunities, type Opportunity } from '../data/mockSalesData';
 import { canViewOrder } from './roleScope';
 
 export type OrderListParams = {
@@ -10,6 +9,8 @@ export type OrderListParams = {
 };
 
 const LOCAL_ORDERS_KEY = 'tuf_ops_mock_orders_v1';
+const LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_opportunities_v2';
+const LEGACY_LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_mock_opportunities_v1';
 
 function readLocalOrders(): Order[] {
   try {
@@ -25,7 +26,9 @@ function writeLocalOrders(rows: Order[]) {
 
 function getAllOpportunities(): Opportunity[] {
   try {
-    const local = JSON.parse(localStorage.getItem('tuf_ops_mock_opportunities_v1') || '[]') as Opportunity[];
+    const current = JSON.parse(localStorage.getItem(LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
+    const legacy = JSON.parse(localStorage.getItem(LEGACY_LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
+    const local = [...current, ...legacy];
     const localIds = new Set(local.map((row) => row.id));
     return [...local, ...opportunities.filter((row) => !localIds.has(row.id))];
   } catch {
@@ -36,7 +39,7 @@ function getAllOpportunities(): Opportunity[] {
 function getAllOrders() {
   const localRows = readLocalOrders();
   const localIds = new Set(localRows.map((row) => row.id));
-  return [...localRows, ...orders.filter((row) => !localIds.has(row.id))];
+  return [...localRows, ...seededOrders.filter((row) => !localIds.has(row.id))];
 }
 
 export function listOrders(params: OrderListParams = {}): Order[] {
@@ -48,7 +51,7 @@ export function listOrders(params: OrderListParams = {}): Order[] {
       ? [order.id, order.organizationName, order.vendor].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
       : true;
     const matchesStatus = !params.productionStatus || params.productionStatus === 'ALL' || order.productionStatus === params.productionStatus;
-    const linkedOpportunity = allOpportunities.find((o) => o.id === order.opportunityId);
+    const linkedOpportunity = allOpportunities.find((opp) => opp.id === order.opportunityId);
     const roleScoped = canViewOrder(order, linkedOpportunity);
     return matchesSearch && matchesStatus && roleScoped;
   });
@@ -63,13 +66,13 @@ export function getOpsWorkspaceQueues() {
   if (DATA_MODE !== 'mock') {
     return { NEEDS_REVIEW: [], READY_FOR_VENDOR: [], IN_PRODUCTION: [], BLOCKED: [], COMPLETED: [] } as Record<Order['productionStatus'], Order[]>;
   }
-  const visibleOrders = listOrders({});
+  const allOrders = listOrders({});
   return {
-    NEEDS_REVIEW: visibleOrders.filter((order) => order.productionStatus === 'NEEDS_REVIEW'),
-    READY_FOR_VENDOR: visibleOrders.filter((order) => order.productionStatus === 'READY_FOR_VENDOR'),
-    IN_PRODUCTION: visibleOrders.filter((order) => order.productionStatus === 'IN_PRODUCTION'),
-    BLOCKED: visibleOrders.filter((order) => order.productionStatus === 'BLOCKED'),
-    COMPLETED: visibleOrders.filter((order) => order.productionStatus === 'COMPLETED'),
+    NEEDS_REVIEW: allOrders.filter((order) => order.productionStatus === 'NEEDS_REVIEW'),
+    READY_FOR_VENDOR: allOrders.filter((order) => order.productionStatus === 'READY_FOR_VENDOR'),
+    IN_PRODUCTION: allOrders.filter((order) => order.productionStatus === 'IN_PRODUCTION'),
+    BLOCKED: allOrders.filter((order) => order.productionStatus === 'BLOCKED'),
+    COMPLETED: allOrders.filter((order) => order.productionStatus === 'COMPLETED'),
   };
 }
 

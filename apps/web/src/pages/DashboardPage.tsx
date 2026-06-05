@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { teamMembers } from '../data/mockSalesData';
 import { GlassCard } from '../components/ui';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
@@ -8,11 +7,11 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { getLanePenetration, getMomentumState, getNearCloseOpportunities, getStaleAccounts, getStaleOpportunities, getStuckOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
+import { getEcosystemReferralSummary } from '../services/ecosystemReferralsService';
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;
-const openStages = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'];
-const pipelineStages = ['CONTACTED', 'MOCKUP_REQUESTED', 'INVOICE_SENT', 'CLOSED_WON'] as const;
+const openStages = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'PAYMENT_RECEIVED'];
 
 function MetricTile({ value, label, tone, to }: { value: string; label: string; tone: string; to: string }) {
   return (
@@ -23,21 +22,6 @@ function MetricTile({ value, label, tone, to }: { value: string; label: string; 
       </div>
       <p className="mt-1 text-sm text-slate-200">{label}</p>
     </Link>
-  );
-}
-
-function ProgressLine({ label, value, total, amount }: { label: string; value: number; total: number; amount: number }) {
-  const pct = Math.min(100, Math.round((value / Math.max(total, 1)) * 100));
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between gap-3 text-xs">
-        <span className="text-slate-300">{label}</span>
-        <span className="font-semibold text-slate-100">{formatCurrency(amount)}</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-        <div className="h-full rounded-full bg-cyan-400" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
   );
 }
 
@@ -94,6 +78,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const organizations = useOrganizations({});
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
+  const ecosystemSummary = getEcosystemReferralSummary();
 
   const nearClose = getNearCloseOpportunities(opportunities);
   const stuckDeals = getStuckOpportunities(opportunities);
@@ -102,8 +87,6 @@ export function DashboardPage({ role }: { role: Role }) {
   const completedOrders = orders.filter((order) => order.productionStatus === 'COMPLETED');
   const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
   const pipelineTotal = openOpps.reduce((sum, opp) => sum + opp.value, 0);
-  const closedValue = opportunities.filter((opp) => opp.stage === 'CLOSED_WON').reduce((sum, opp) => sum + opp.value, 0);
-  const pendingValue = pendingPayments.reduce((sum, opp) => sum + opp.value, 0);
   const lanePenetration = getLanePenetration(organizations);
   const staleOpps = getStaleOpportunities(opportunities, 14);
   const staleAccounts = getStaleAccounts(organizations, 14);
@@ -113,7 +96,6 @@ export function DashboardPage({ role }: { role: Role }) {
   const territoryHealth = getTerritoryHealthLabel(coveragePct);
   const movementStreak = Math.min(7, Math.max(1, activities.length + nearClose.length));
 
-  const unassignedOrgs = organizations.filter((o) => o.assignedRep === 'Unassigned' || o.assignedDirector === 'Unassigned' || !o.territory);
   const closeThisWeekValue = nearClose.reduce((sum, opp) => sum + opp.value, 0);
   const cashBlockedValue = pendingPayments.reduce((sum, opp) => sum + opp.value, 0) + blockedOrders.reduce((sum, order) => sum + order.value, 0);
   const zoneRisk = staleAccounts.length + organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length;
@@ -170,13 +152,13 @@ export function DashboardPage({ role }: { role: Role }) {
       <div className="space-y-3"> 
         <h1 className="text-2xl font-semibold text-white">Owner Command Center</h1>
         <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> 
-          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Untouched Accounts" tone="border-amber-500/40 bg-amber-500/15" to="/territory" />
+          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Untouched Accounts" tone="border-amber-500/40 bg-amber-500/15" to="/organizations?coverageStatus=UNTOUCHED" />
           <MetricTile value={formatCurrency(cashBlockedValue)} label="Cash Blocked" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
           <MetricTile value={formatCurrency(closeThisWeekValue)} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
           <MetricTile value={String(zoneRisk)} label="Territory Risk" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory/map" />
+          <MetricTile value={String(ecosystemSummary.created)} label="Ecosystem Referrals" tone="border-violet-500/40 bg-violet-500/15" to="/ecosystem-pipeline" />
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{mission.title}</p><p className="text-sm text-slate-300">{mission.reason}</p><Link to={mission.to} className="inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100">{mission.cta}</Link></div></GlassCard>
-        <GlassCard title="OWNER ACTION QUEUE"><div className="space-y-2">{ownerActions.map((action)=> <Link key={action.title} to={action.to} className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3 hover:border-cyan-400/60"><p className="font-semibold text-slate-100">{action.title}</p><p className="text-xs text-slate-400">{action.reason}</p><p className="text-xs text-cyan-200">Impact: {action.impact}</p></Link>)}</div></GlassCard>
       </div>
     );
   }
@@ -330,4 +312,3 @@ export function DashboardPage({ role }: { role: Role }) {
       </div>
     );
   }
-

@@ -1,9 +1,9 @@
 import { opportunities, type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
 import { REVENUE_LANES as revenueLanes } from '../config/business';
-import { DATA_MODE } from './dataMode';
-import { buildOpportunityDisplayName } from '../utils/naming';
-import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
 import { getStoredUser } from '../auth';
+import { buildOpportunityDisplayName } from '../utils/naming';
+import { DATA_MODE } from './dataMode';
+import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
 
 export type OpportunityListParams = {
   search?: string;
@@ -14,7 +14,8 @@ export type OpportunityListParams = {
   refreshKey?: number;
 };
 
-const LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_mock_opportunities_v1';
+const LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_opportunities_v2';
+const LEGACY_OPPORTUNITIES_KEY = 'tuf_ops_mock_opportunities_v1';
 
 const nextActionByStage: Record<OpportunityStage, string> = {
   LEAD_ASSIGNED: 'Contact coach and confirm decision owner',
@@ -23,13 +24,15 @@ const nextActionByStage: Record<OpportunityStage, string> = {
   MOCKUP_REQUESTED: 'Confirm mockup delivery date',
   MOCKUP_DELIVERED: 'Send invoice and confirm package',
   INVOICE_SENT: 'Follow up payment timing',
-  DECISION_PENDING: 'Push decision and next production step',
+  DECISION_PENDING: 'Push decision and confirm payment commitment',
+  PAYMENT_RECEIVED: 'Start order handoff and final close checklist',
   CLOSED_WON: 'Review order handoff',
   CLOSED_LOST: 'Review loss reason',
 };
 
 function readLocalOpportunities(): Opportunity[] {
   try {
+    localStorage.removeItem(LEGACY_OPPORTUNITIES_KEY);
     return JSON.parse(localStorage.getItem(LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
   } catch {
     return [];
@@ -118,6 +121,7 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
     MOCKUP_DELIVERED: 68,
     INVOICE_SENT: 80,
     DECISION_PENDING: 74,
+    PAYMENT_RECEIVED: 92,
     CLOSED_WON: 100,
     CLOSED_LOST: 0,
   };

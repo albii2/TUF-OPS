@@ -8,7 +8,8 @@ import { createMockOrganization } from '../services/organizationsService';
 import { createMockOpportunity } from '../services/opportunitiesService';
 import { useOrganizations } from '../hooks/useOrganizations';
 import type { TerritoryId } from '../data/mockSalesData';
-import { notify } from '../services/feedbackService';
+import { useToast } from '../components/toast';
+import { listUsers } from '../services/usersService';
 
 export function OrganizationNewPage() {
   const navigate = useNavigate();
@@ -16,30 +17,33 @@ export function OrganizationNewPage() {
   const [city, setCity] = useState('');
   const [state, setState] = useState('MN');
   const [accountType, setAccountType] = useState<string>(ACCOUNT_TYPES[0]);
-  const [territory, setTerritory] = useState<TerritoryId>('metro');
-  const [assignedRep, setAssignedRep] = useState(getStoredUser()?.role === 'REP' ? getStoredUser()?.name ?? 'Test Rep' : 'Test Rep');
-  const [assignedDirector, setAssignedDirector] = useState(getStoredUser()?.role === 'DIRECTOR' ? getStoredUser()?.name ?? 'Test Director' : 'Test Director');
-  const [message, setMessage] = useState('');
+  const [territory, setTerritory] = useState<TerritoryId | ''>('');
+  const [assignedRep, setAssignedRep] = useState(getStoredUser()?.role === 'REP' ? getStoredUser()?.name ?? '' : '');
+  const [assignedDirector, setAssignedDirector] = useState('');
+  const directors = listUsers().filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE');
+  const { success, error } = useToast();
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setMessage('Account name is required.');
-      notify('Organization save failed: account name is required.', 'error');
+      error('Failed to save. Please try again.');
+      return;
+    }
+    if (!territory) {
+      error('Failed to save. Please try again.');
       return;
     }
     try {
-      const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory, assignedRep, assignedDirector });
-      notify('Organization saved.', 'success');
+      const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
+      success('Organization saved ✓');
       navigate(`/organizations/${created.id}`);
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : 'Please check the organization details and try again.';
-      setMessage(detail);
-      notify(`Organization save failed: ${detail}`, 'error');
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : 'Please check the organization fields and try again.';
+      error(`Organization save failed: ${detail}`);
     }
   };
 
-  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId)}><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /><Input value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)} placeholder="Assigned Director" /><Button type="submit" className="md:col-span-2">Save Organization</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;
+  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><div><label className="text-xs text-slate-400">Account Name <span className="text-rose-300">*</span></label><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /></div><div><label className="text-xs text-slate-400">Account Type <span className="text-rose-300">*</span></label><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select></div><div><label className="text-xs text-slate-400">City <span className="text-slate-500">(Optional)</span></label><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /></div><div><label className="text-xs text-slate-400">State <span className="text-slate-500">(Optional)</span></label><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /></div><div><label className="text-xs text-slate-400">Metro <span className="text-rose-300">*</span></label><p className="text-[11px] text-slate-500">Select the sales region.</p><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId | '')}><option value="">—</option><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select></div><div><label className="text-xs text-slate-400">Assigned Rep <span className="text-slate-500">(Optional)</span></label><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /></div><div><label className="text-xs text-slate-400">Assigned Director <span className="text-slate-500">(Optional)</span></label><Select value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)}><option value="">Unassigned</option>{directors.map((director)=><option key={director.id} value={director.displayName}>{director.displayName}</option>)}</Select></div><Button type="submit" className="md:col-span-2">Save Organization</Button></form></Card>;
 }
 
 export function OpportunityNewPage() {
@@ -51,9 +55,10 @@ export function OpportunityNewPage() {
   const [seasonCode, setSeasonCode] = useState('FA26');
   const [lane, setLane] = useState(REVENUE_LANES[0]);
   const [organizationId, setOrganizationId] = useState(organizations[0]?.id ?? '');
-  const [assignedRep, setAssignedRep] = useState(user?.role === 'REP' ? user.name : organizations[0]?.assignedRep ?? 'Test Rep');
+  const [assignedRep, setAssignedRep] = useState(user?.role === 'REP' ? user.name : organizations[0]?.assignedRep ?? '');
   const [value, setValue] = useState('15000');
   const [message, setMessage] = useState('');
+  const { success, error } = useToast();
 
   const levels = useMemo(() => [...SCHOOL_PROGRAM_LEVELS, ...YOUTH_PROGRAM_LEVELS, ...CLUB_PROGRAM_LEVELS], []);
   const preview = buildOpportunityDisplayName({ programLevel, sport, seasonCode, lane });
@@ -63,7 +68,7 @@ export function OpportunityNewPage() {
     e.preventDefault();
     if (!selectedOrg) {
       setMessage('Select an organization before creating the opportunity.');
-      notify('Opportunity creation failed: select an organization before creating the opportunity.', 'error');
+      error('Opportunity creation failed: Select an organization before creating the opportunity.');
       return;
     }
     try {
@@ -77,12 +82,12 @@ export function OpportunityNewPage() {
         assignedRep: assignedRep || selectedOrg.assignedRep,
         value: Number(value) || 0,
       });
-      notify('Opportunity created.', 'success');
+      success('Opportunity created.');
       navigate(`/opportunities/${created.id}`);
-    } catch (error) {
-      const detail = error instanceof Error ? error.message : 'Please check the opportunity details and try again.';
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : 'Please check the opportunity fields and try again.';
       setMessage(detail);
-      notify(`Opportunity creation failed: ${detail}`, 'error');
+      error(`Opportunity creation failed: ${detail}`);
     }
   };
 

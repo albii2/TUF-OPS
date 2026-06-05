@@ -6,14 +6,17 @@ Welcome to the TUF Ops application. This guide provides an overview of the key f
 
 To access the application, you will need to log in with the credentials provided to you. The application uses a secure, credentials-based authentication system.
 
-**Test Credentials:**
+**Team Credentials:**
 
+-   **Admin Role (You):**
+    -   **Email:** `albii2@tufops.com`
+    -   **Password:** `0000`
 -   **Director Role:**
-    -   **Email:** `director@tuf.com`
-    -   **Password:** `password123`
--   **Sales Role:**
-    -   **Email:** `sales@tuf.com`
-    -   **Password:** `password123`
+    -   **Email:** `jason.wolf@tufops.com`
+    -   **Password:** `2741`
+-   **Rep Role:**
+    -   **Email:** `primeau.hill@tufops.com`
+    -   **Password:** `3904`
 
 ## 2. Dashboard
 
@@ -21,7 +24,7 @@ The Dashboard is the first screen you will see after logging in. It provides a h
 
 -   **Pipeline Stages:** A bar chart visualizing the number of opportunities in each stage of the sales process.
 -   **Total Revenue:** A summary of revenue from all paid invoices.
--   **Director-Level Insights (Director Role Only):** Additional metrics, such as gross margin and total costs, are visible only to users with the 'director' or 'admin' role.
+-   **Owner/Admin Insights:** Additional metrics, such as gross margin and total costs, are visible only to the admin account.
 
 ## 3. Organizations
 

@@ -4,7 +4,6 @@ import { AppShell } from './components/AppShell';
 import { getStoredUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { TrainingPage } from './pages/TrainingPage';
 import {
   OpportunitiesPage,
   OpportunityDetailPage,
@@ -24,6 +23,9 @@ import {
   TeamPerformancePage,
   EarningsPage,
   UsersPage,
+  DataHealthPage,
+  EcosystemPipelinePage,
+  ChangeCredentialPage,
 } from './pages/CrudPages';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
@@ -35,12 +37,14 @@ function Protected({ user, children }: { user: AppUser | null; children: JSX.Ele
 
 function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null; allowedRoles: Role[]; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
+  if (user.mustChangeCredential) return <Navigate to="/change-credential" replace />;
   if (!allowedRoles.includes(user.role)) return <Navigate to="/dashboard" replace />;
   return children;
 }
 
 function PageProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
+  if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
   if (!roleConfig[user.role].visiblePages.includes(path)) return <Navigate to="/dashboard" replace />;
   return children;
 }
@@ -69,10 +73,12 @@ export default function App() {
           </Protected>
         }
       >
-        <Route path="/dashboard" element={dashboard} />
+        <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
+        <Route path="/dashboard" element={user?.mustChangeCredential ? <Navigate to="/change-credential" replace /> : dashboard} />
         <Route path="/organizations" element={<PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected>} />
         <Route path="/organizations/new" element={<PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected>} />
         <Route path="/organizations/:id" element={<PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected>} />
+        <Route path="/ecosystem-pipeline" element={<PageProtected user={user} path="/ecosystem-pipeline"><EcosystemPipelinePage /></PageProtected>} />
         <Route path="/opportunities" element={<PageProtected user={user} path="/opportunities"><OpportunitiesPage /></PageProtected>} />
         <Route path="/opportunities/new" element={<PageProtected user={user} path="/opportunities"><OpportunityNewPage /></PageProtected>} />
         <Route path="/opportunities/:id" element={<PageProtected user={user} path="/opportunities"><OpportunityDetailPage /></PageProtected>} />
@@ -95,7 +101,7 @@ export default function App() {
         <Route path="/territory/map" element={<PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected>} />
         <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
         <Route path="/users" element={<PageProtected user={user} path="/users"><UsersPage /></PageProtected>} />
-        <Route path="/training" element={<Protected user={user}><TrainingPage /></Protected>} />
+        <Route path="/data-health" element={<PageProtected user={user} path="/data-health"><DataHealthPage /></PageProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

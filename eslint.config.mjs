@@ -1,11 +1,14 @@
-
 import tseslint from "typescript-eslint";
-import js from "@eslint/js";
 
 export default [
-  // Global ignores
   {
-    ignores: ["**/node_modules/", "**/dist/", "**/migrations/"]
+    ignores: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.next/**",
+      "**/coverage/**",
+      "**/migrations/**"
+    ]
   },
 
   {
@@ -15,13 +18,17 @@ export default [
     }
   },
 
-  // Base JS config
-  js.configs.recommended,
+  {
+    files: ["**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        ecmaVersion: "latest",
+        sourceType: "module"
+      }
+    }
+  },
 
-  // TypeScript configs
-  ...tseslint.configs.recommended,
-
-  // Custom rules for the project
   {
     rules: {
       "no-restricted-imports": ["error", {
