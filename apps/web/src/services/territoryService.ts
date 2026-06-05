@@ -1,13 +1,12 @@
 import { getStoredUser } from '../auth';
-import { teamMembers } from '../data/mockSalesData';
 import { repCoverage, territories, untouchedAccountsQueue } from '../data/territoryMock';
+import { getManagedTerritoriesForDirector } from './usersService';
 
 function allowedTerritoryIds() {
   const user = getStoredUser();
   if (!user || user.role === 'OWNER') return null;
   if (user.role === 'DIRECTOR') {
-    const director = teamMembers.find((m) => m.name === user.name && m.role === 'DIRECTOR');
-    return new Set(director?.territoryIds ?? []);
+    return new Set(getManagedTerritoriesForDirector(user.name));
   }
   return new Set<string>();
 }

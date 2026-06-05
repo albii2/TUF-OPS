@@ -4,9 +4,13 @@ import { BrowserRouter, HashRouter } from 'react-router-dom';
 import App from './App';
 import './styles.css';
 import { ToastProvider } from './components/toast';
+import { ToastHost } from './components/ToastHost';
+import { runV085DataCleanup } from './services/v085DataCleanup';
 
 const useHashRouter = window.location.protocol === 'file:';
 const Router = useHashRouter ? HashRouter : BrowserRouter;
+
+runV085DataCleanup();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -14,6 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <Router>
         <App />
       </Router>
+      <ToastHost />
     </ToastProvider>
   </React.StrictMode>,
 );

@@ -1,6 +1,7 @@
 import { getStoredUser } from '../auth';
 import { listOrganizations } from './organizationsService';
 import { listOpportunities } from './opportunitiesService';
+import { getManagedRepNamesForDirector } from './usersService';
 
 export type ReferredOrganizationType =
   | 'Youth Football'
@@ -92,7 +93,11 @@ export function listEcosystemReferrals(params: ReferralPipelineParams = {}): Eco
       referral.contactEmail,
       referral.assignedRep,
     ].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase());
-    const roleScoped = !user || user.role === 'OWNER' || user.role === 'OPS' || user.role === 'DIRECTOR' ? true : referral.assignedRep === user.name;
+    const roleScoped = !user || user.role === 'OWNER' || user.role === 'OPS'
+      ? true
+      : user.role === 'DIRECTOR'
+        ? getManagedRepNamesForDirector(user.name).includes(referral.assignedRep)
+        : referral.assignedRep === user.name;
     return matchesStatus && matchesRep && matchesSource && matchesSearch && roleScoped;
   });
 }

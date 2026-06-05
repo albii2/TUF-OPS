@@ -16,7 +16,7 @@ export function OrganizationsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = getStoredUser();
-  const canBulkAssign = user?.role === 'OWNER' || user?.role === 'DIRECTOR';
+  const canBulkAssign = user?.role === 'OWNER';
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
@@ -78,7 +78,7 @@ export function OrganizationsPage() {
 
   return (
     <div className='space-y-3 min-w-0'>
-      <OrganizationImportPanel existingKeys={existingKeys} onImported={(ids) => { setSelected(ids); setRefreshKey((value) => value + 1); setAssignmentCue(`Imported accounts selected (${ids.length}). Review bulk fields below, then assign territory, director, and rep.`); }} />
+      {canBulkAssign ? <OrganizationImportPanel existingKeys={existingKeys} onImported={(ids) => { setSelected(ids); setRefreshKey((value) => value + 1); setAssignmentCue(`Imported accounts selected (${ids.length}). Review bulk fields below, then assign territory, director, and rep.`); }} /> : null}
       <Card title='Accounts & Expansion Pipeline'>
         <div className='safe-grid mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8'>
           <Input placeholder='Search organizations' value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />

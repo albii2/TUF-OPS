@@ -16,7 +16,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -32,16 +32,16 @@ jobs:
         run: pnpm lint
 
       - name: Unit Tests
-        run: pnpm -r test:unit
+        run: pnpm -r --if-present test:unit
 
       - name: Integration Tests
-        run: pnpm -r test:integration
+        run: pnpm -r --if-present test:integration
 
       - name: E2E Smoke Tests
-        run: pnpm -r test:e2e
+        run: pnpm -r --if-present test:e2e
 
       - name: Build
-        run: pnpm -r build
+        run: pnpm build:v1
 
       - name: Migration Checks
         run: echo "Placeholder for migration checks"

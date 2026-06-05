@@ -31,16 +31,16 @@ export const roleConfig: Record<Role, RoleConfig> = {
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/data-health'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'ecosystem', 'performance', 'organizations', 'territory', 'messages', 'programs', 'users', 'settings'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'messages', 'programs'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/settings', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings'],
   },
   REP: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'ecosystem', 'invoices', 'messages', 'settings'],
+    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages'],
     dashboardWidgets: ['Deals Need Action', 'Near Close', 'Payments Pending', 'This Month Progress'],
     primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/settings', '/my-opportunities', '/earnings'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings'],
   },
   OPS: {
     sidebarItems: ['dashboard', 'ops_workspace', 'invoices', 'programs', 'settings'],

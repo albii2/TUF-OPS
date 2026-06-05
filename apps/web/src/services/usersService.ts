@@ -96,8 +96,8 @@ const seedRows: StoredManagedUser[] = [
   {
     id: 'u-director-primeau-hill',
     firstName: 'Primeau',
-    lastName: 'Hill',
-    displayName: 'Primeau Hill',
+    lastName: 'Hill Director',
+    displayName: 'Primeau Hill Director',
     email: 'primeau@tuf.local',
     role: 'DIRECTOR',
     territory: 'west',
@@ -196,6 +196,11 @@ export function listUsers(): ManagedUser[] {
   return readStoredUsers().map(sanitize);
 }
 
+export function seedBaselineUsers(): ManagedUser[] {
+  saveStoredUsers(seedRows);
+  return seedRows.map(sanitize);
+}
+
 export async function createUser(input: Omit<ManagedUser, 'id' | 'displayName' | 'avatarColor' | 'mustChangeCredential'> & { temporaryCredential?: string }, actor?: AppUser | null) {
   if (actor?.role !== 'OWNER') throw new Error('Only Owner/Admin users can create users');
   const rows = readStoredUsers();
@@ -225,7 +230,7 @@ export async function createUser(input: Omit<ManagedUser, 'id' | 'displayName' |
 }
 
 export function updateUser(id: string, patch: Partial<ManagedUser>, actor?: AppUser | null) {
-  if (actor?.role !== 'OWNER' && actor?.role !== 'DIRECTOR') throw new Error('Only Owner/Admin or Director users can update assignments');
+  if (actor?.role !== 'OWNER') throw new Error('Only Owner/Admin users can update users');
   const users = readStoredUsers();
   const target = users.find((u) => u.id === id);
   if (!target) return;
@@ -267,6 +272,19 @@ export async function changeOwnCredential(userId: string, currentCredential: str
 
 export function getActiveUserByRole(role: Role): ManagedUser | undefined {
   return listUsers().find((u) => u.role === role && u.status === 'ACTIVE');
+}
+
+export function getManagedRepNamesForDirector(directorName: string): string[] {
+  const users = listUsers();
+  const director = users.find((u) => u.displayName === directorName && u.role === 'DIRECTOR');
+  if (!director) return [];
+  return users.filter((u) => u.role === 'REP' && u.status === 'ACTIVE' && u.assignedDirectorId === director.id).map((u) => u.displayName);
+}
+
+export function getManagedTerritoriesForDirector(directorName: string): TerritoryId[] {
+  const users = listUsers();
+  const director = users.find((u) => u.displayName === directorName && u.role === 'DIRECTOR');
+  return director?.territory ? [director.territory] : [];
 }
 
 function toAppUser(user: StoredManagedUser): AppUser {

@@ -10,7 +10,7 @@
           "value": "http"
         }
       ],
-      "destination": "https://tufops.app/:path*",
+      "destination": "https://ops.tufsports.us/:path*",
       "permanent": true
     }
   ],
@@ -18,6 +18,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://tuf-ops-api-production.up.railway.app/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }

@@ -37,14 +37,12 @@ export function UsersPage() {
   const users = listUsers();
   const directors = users.filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE');
   const canManage = viewer?.role === 'OWNER';
-  const viewerId = users.find((x) => x.displayName === viewer?.name)?.id;
-  const canDirectorManage = viewer?.role === 'DIRECTOR';
-  const visible = canDirectorManage ? users.filter((u) => u.id === viewerId || (u.role === 'REP' && u.assignedDirectorId === viewerId)) : users;
+  const visible = canManage ? users : [];
   const recentlyActive = visible.filter((u) => u.lastLoginAt && (Date.now() - new Date(u.lastLoginAt).getTime()) <= 7 * 24 * 60 * 60 * 1000).length;
   const neverLoggedIn = visible.filter((u) => !u.lastLoginAt).length;
   const needsCheckIn = visible.filter((u) => getActivityStatus(u).label === 'Needs check-in' || getActivityStatus(u).label === 'Not logged in').length;
 
-  if (!canManage && viewer?.role !== 'DIRECTOR') return <Card title="User Management"><p className="text-sm text-slate-400">Only owner/director access.</p></Card>;
+  if (!canManage) return <Card title="User Management"><p className="text-sm text-slate-400">Only Owner/Admin users can manage users.</p></Card>;
 
   const createSecureUser = async () => {
     try {
@@ -106,7 +104,7 @@ export function UsersPage() {
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="text-sm font-semibold text-slate-100">Activity Tracker</p>
-          <p className="text-xs text-slate-400">Visible to owners/admins and directors so managers can see who is active, stale, or has never logged in.</p>
+          <p className="text-xs text-slate-400">Visible to Owner/Admin users for rollout readiness and account support.</p>
         </div>
         <div className="grid grid-cols-3 gap-2 text-center text-xs">
           <div className="rounded-lg border border-slate-700 px-3 py-2"><p className="text-lg font-semibold text-cyan-100">{recentlyActive}</p><p className="text-slate-400">Active 7d</p></div>
@@ -139,9 +137,8 @@ export function UsersPage() {
     <div key={`rows-${refresh}`} className="space-y-2">
       {visible.map((u)=><div key={u.id} className="rounded border border-slate-700 p-2 text-sm flex items-center justify-between">
         <div><p className="font-semibold">{u.displayName}</p><p className="text-slate-400">{u.role} · {u.territory || 'unassigned'} · {u.status}{u.mustChangeCredential ? ' · must change PIN' : ''}</p></div>
-        {canManage || canDirectorManage ? <div className="flex gap-2 items-center">
+        {canManage ? <div className="flex gap-2 items-center">
           {canManage && u.role === 'REP' ? <Select value={u.assignedDirectorId || ''} onChange={(e)=>{try {updateUser(u.id,{assignedDirectorId:e.target.value||undefined}, viewer); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch { error('Failed to save. Please try again.'); }}}><option value="">unassigned director</option>{directors.map((d)=><option key={d.id} value={d.id}>{d.displayName}</option>)}</Select> : null}
-          {canDirectorManage && u.role === 'REP' ? <Select value={u.territory || 'metro'} onChange={(e)=>{try {updateUser(u.id,{territory:e.target.value as TerritoryId}, viewer); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch { error('Failed to save. Please try again.'); }}}><option value="metro">metro</option><option value="north">north</option><option value="west">west</option><option value="south">south</option></Select> : null}
           {canManage ? <Button className="px-2 py-1 text-xs" onClick={()=>resetCredential(u.id)}>Reset PIN</Button> : null}
           <Button className="px-2 py-1 text-xs" onClick={()=>{ try { updateUser(u.id,{status:u.status==='ACTIVE'?'INACTIVE':'ACTIVE'}, viewer); setMessage('User updated.'); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch (e:any) { setMessage(e.message || 'Unable to update user'); error('Failed to save. Please try again.'); } }}>{u.status==='ACTIVE'?'Archive':'Activate'}</Button>
         </div> : null}

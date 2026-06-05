@@ -1,11 +1,11 @@
 import { getStoredUser } from '../auth';
-import { type CoverageStatus, type Organization, type TerritoryId } from '../data/mockSalesData';
+import { organizations as seededOrganizations, type CoverageStatus, type Organization, type TerritoryId } from '../data/mockSalesData';
 import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
 import { getStaleOrganizations } from './kpiUtils';
 import tufLeadsCsvRaw from '../assets/tuf_leads_final_enriched.csv?raw';
 import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
-import { listUsers } from './usersService';
+import { canViewOrganization } from './roleScope';
 
 export type OrganizationListParams = {
   search?: string;
@@ -107,6 +107,7 @@ function reconcileStoredLeadData() {
 }
 
 function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
+  if (import.meta.env.VITE_ENABLE_LEAD_BOOTSTRAP !== 'true') return;
   if (bootstrapInProgress) return;
   const existing = readLocalOrganizations();
   if (existing.length) return;
@@ -122,22 +123,14 @@ function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
 
 function getAllOrganizations() {
   bootstrapOrganizationsFromLeadsCsvIfEmpty();
-  return readLocalOrganizations();
+  const localRows = readLocalOrganizations();
+  const localIds = new Set(localRows.map((row) => row.id));
+  return [...localRows, ...seededOrganizations.filter((row) => !localIds.has(row.id))];
 }
 
 function getRoleScopedOrganizations() {
-  const user = getStoredUser();
   const allOrganizations = getAllOrganizations();
-  if (!user || user.role === 'OWNER' || user.role === 'OPS') return allOrganizations;
-
-  if (user.role === 'DIRECTOR') {
-    const directorProfile = listUsers().find((m) => m.displayName === user.name && m.role === 'DIRECTOR');
-    const zoneSet = new Set(directorProfile?.territory ? [directorProfile.territory] : []);
-    return allOrganizations.filter((org) => org.assignedDirector === user.name || zoneSet.has(org.territory) || org.assignedDirector === 'Unassigned' || !org.territory);
-  }
-
-  if (user.role === 'REP') return allOrganizations.filter((org) => org.assignedRep === user.name);
-  return allOrganizations;
+  return allOrganizations.filter((org) => canViewOrganization(org));
 }
 
 export function listOrganizations(params: OrganizationListParams = {}): Organization[] {
@@ -222,13 +215,15 @@ function buildMockOrganization(input: {
 
 export function createMockOrganization(input: { name: string; accountType: string; city?: string; state?: string; assignedRep?: string; assignedDirector?: string; territory?: TerritoryId }): Organization {
   const user = getStoredUser();
+  const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep || 'Unassigned';
+  const assignedDirector = user?.role === 'DIRECTOR' ? user.name : input.assignedDirector || 'Unassigned';
   const row = buildMockOrganization({
     id: `org-local-${Date.now()}`,
     name: input.name,
     city: input.city || 'TBD',
     state: input.state || 'MN',
-    assignedRep: input.assignedRep || (user?.role === 'REP' ? user.name : 'Unassigned'),
-    assignedDirector: input.assignedDirector || 'Unassigned',
+    assignedRep,
+    assignedDirector,
     territory: input.territory || 'metro',
     priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
   });
@@ -296,6 +291,8 @@ export function bulkUpdateOrganizations(
   ids: string[],
   patch: Partial<Pick<Organization, 'assignedRep' | 'assignedDirector' | 'territory' | 'coverageStatus'>>,
 ) {
+  const user = getStoredUser();
+  if (user?.role !== 'OWNER') throw new Error('Only Owner/Admin users can bulk update organizations.');
   const idSet = new Set(ids);
   const patchedRows = getAllOrganizations()
     .filter((org) => idSet.has(org.id))
