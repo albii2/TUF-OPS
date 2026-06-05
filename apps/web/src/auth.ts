@@ -1,10 +1,10 @@
 import type { AppUser, Role } from './types';
-import { getActiveUserByRole } from './services/usersService';
+import { getActiveUserByRole, getUserByPin } from './services/usersService';
 
 const ROLE_DEFAULT_USER: Record<Role, string> = {
   OWNER: 'Coach Bradshaw',
-  DIRECTOR: 'Dana Holt',
-  REP: 'Maya Cole',
+  DIRECTOR: 'Test Director',
+  REP: 'Test Rep',
   OPS: 'Taylor Reed',
 };
 
@@ -19,7 +19,7 @@ function persistUser(user: AppUser): AppUser {
 
 function isValidStoredUser(value: unknown): value is AppUser {
   if (!value || typeof value !== 'object') return false;
-  const candidate = value as { name?: unknown; role?: unknown };
+  const candidate = value as { id?: unknown; name?: unknown; role?: unknown };
   return typeof candidate.name === 'string' && candidate.name.length > 0 && typeof candidate.role === 'string' && ALLOWED_ROLES.includes(candidate.role as Role);
 }
 
@@ -39,9 +39,9 @@ export function getStoredUser(): AppUser | null {
 }
 
 export function loginWithPin(pin: string): AppUser | null {
-  if (pin !== '0000') return null;
-  const owner = getActiveUserByRole('OWNER');
-  const user: AppUser = { name: owner?.displayName ?? 'Coach Bradshaw', role: 'OWNER' };
+  const matched = getUserByPin(pin);
+  if (!matched) return null;
+  const user: AppUser = { id: matched.id, name: matched.displayName, role: matched.role };
   return persistUser(user);
 }
 
@@ -52,6 +52,7 @@ export function updateRole(role: Role): AppUser | null {
   const active = getActiveUserByRole(role);
   if (!active) return null;
   const updated = {
+    id: active.id,
     name: active.displayName,
     role,
   };
@@ -59,7 +60,9 @@ export function updateRole(role: Role): AppUser | null {
 }
 
 export function updateUserProfile(input: { name: string; role: Role }): AppUser {
+  const existing = getStoredUser();
   const user = {
+    id: existing?.id,
     name: input.name.trim() || ROLE_DEFAULT_USER[input.role],
     role: input.role,
   };

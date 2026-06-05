@@ -9,6 +9,8 @@ import { neededItemOptions, type CreativePriority, type CreativeRequestType, typ
 import { updateOpportunityStage } from '../services/opportunitiesService';
 import type { Opportunity, OpportunityStage } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
+import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
+import { notify } from '../services/feedbackService';
 
 const stageCtas = {
   LEAD_ASSIGNED: 'Contact coach',
@@ -46,12 +48,19 @@ export function OpportunityDetailPage() {
   const currentStageIndex = stageFlow.indexOf(activeOpp.stage as any);
   const nextStage = currentStageIndex >= 0 && currentStageIndex < stageFlow.length - 1 ? stageFlow[currentStageIndex + 1] : null;
   const staleDays = daysSince(activeOpp.lastActivity);
+  const canAdvance = canAdvanceOpportunity(activeOpp);
 
   const setStage = (stage: OpportunityStage, message: string) => {
-    const updated = updateOpportunityStage(activeOpp.id, stage);
-    if (updated) {
+    try {
+      const updated = updateOpportunityStage(activeOpp.id, stage);
+      if (!updated) throw new Error('Opportunity not found.');
       setLocalOpp(updated);
       setActionMessage(message);
+      notify('Opportunity stage advanced.', 'success');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'You do not have permission to advance this opportunity.';
+      setActionMessage(detail);
+      notify(`Opportunity stage advance failed: ${detail}`, 'error');
     }
   };
 
@@ -82,8 +91,17 @@ export function OpportunityDetailPage() {
       </Card>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{activeOpp.nextAction}</p>{actionMessage ? <p className="mt-2 text-sm text-cyan-200">{actionMessage}</p> : null}</Card>
-        <Card title="Best Next Move"><div className='space-y-2'><Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged in mock mode.`)}>{stageCtas[activeOpp.stage]}</Button>{nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')} in mock mode.`)}>Advance to {nextStage.replace(/_/g,' ')}</Button> : null}</div></Card>
+        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{activeOpp.nextAction}</p>{actionMessage ? <p className={`mt-2 text-sm ${actionMessage.includes('permission') || actionMessage.includes('read-only') ? 'text-amber-200' : 'text-cyan-200'}`}>{actionMessage}</p> : null}</Card>
+        <Card title="Best Next Move">
+          {canAdvance ? (
+            <div className='space-y-2'>
+              <Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged.`)}>{stageCtas[activeOpp.stage]}</Button>
+              {nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')}.`)}>Advance to {nextStage.replace(/_/g,' ')}</Button> : null}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p>
+          )}
+        </Card>
       </div>
 
       {staleDays >= 7 ? <Card title="⚠ Follow-up Warning"><p className='text-sm text-amber-300'>No follow-up logged in {staleDays} days. Rep should log activity and advance next action today.</p></Card> : null}
@@ -99,7 +117,13 @@ export function OpportunityDetailPage() {
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING.</p></Card>
-        <Card title="Outcome Controls"><div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost</Button></div></Card>
+        <Card title="Outcome Controls">
+          {canAdvance ? (
+            <div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won. Review Orders for handoff coverage.')}>Closed Won</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost. Capture loss reason during follow-up review.')}>Closed Lost</Button></div>
+          ) : (
+            <p className="text-sm text-slate-300">Outcome changes are read-only for your current role.</p>
+          )}
+        </Card>
       </div>
 
       <Card title="Creative Requests">

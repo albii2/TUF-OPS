@@ -30,10 +30,10 @@ export const roleConfig: Record<Role, RoleConfig> = {
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/training'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'messages', 'programs', 'users', 'training', 'settings'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'messages', 'programs', 'training'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/reports', '/settings', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/training'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/training'],
   },
   REP: {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'training', 'settings'],

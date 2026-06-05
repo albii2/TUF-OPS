@@ -8,6 +8,7 @@ import { createMockOrganization } from '../services/organizationsService';
 import { createMockOpportunity } from '../services/opportunitiesService';
 import { useOrganizations } from '../hooks/useOrganizations';
 import type { TerritoryId } from '../data/mockSalesData';
+import { notify } from '../services/feedbackService';
 
 export function OrganizationNewPage() {
   const navigate = useNavigate();
@@ -16,18 +17,26 @@ export function OrganizationNewPage() {
   const [state, setState] = useState('MN');
   const [accountType, setAccountType] = useState<string>(ACCOUNT_TYPES[0]);
   const [territory, setTerritory] = useState<TerritoryId>('metro');
-  const [assignedRep, setAssignedRep] = useState(getStoredUser()?.role === 'REP' ? getStoredUser()?.name ?? 'Maya Cole' : 'Maya Cole');
-  const [assignedDirector, setAssignedDirector] = useState('Dana Holt');
+  const [assignedRep, setAssignedRep] = useState(getStoredUser()?.role === 'REP' ? getStoredUser()?.name ?? 'Test Rep' : 'Test Rep');
+  const [assignedDirector, setAssignedDirector] = useState(getStoredUser()?.role === 'DIRECTOR' ? getStoredUser()?.name ?? 'Test Director' : 'Test Director');
   const [message, setMessage] = useState('');
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setMessage('Account name is required.');
+      notify('Organization save failed: account name is required.', 'error');
       return;
     }
-    const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory, assignedRep, assignedDirector });
-    navigate(`/organizations/${created.id}`);
+    try {
+      const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory, assignedRep, assignedDirector });
+      notify('Organization saved.', 'success');
+      navigate(`/organizations/${created.id}`);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'Please check the organization details and try again.';
+      setMessage(detail);
+      notify(`Organization save failed: ${detail}`, 'error');
+    }
   };
 
   return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId)}><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /><Input value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)} placeholder="Assigned Director" /><Button type="submit" className="md:col-span-2">Save Organization</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;
@@ -42,7 +51,7 @@ export function OpportunityNewPage() {
   const [seasonCode, setSeasonCode] = useState('FA26');
   const [lane, setLane] = useState(REVENUE_LANES[0]);
   const [organizationId, setOrganizationId] = useState(organizations[0]?.id ?? '');
-  const [assignedRep, setAssignedRep] = useState(user?.role === 'REP' ? user.name : organizations[0]?.assignedRep ?? 'Maya Cole');
+  const [assignedRep, setAssignedRep] = useState(user?.role === 'REP' ? user.name : organizations[0]?.assignedRep ?? 'Test Rep');
   const [value, setValue] = useState('15000');
   const [message, setMessage] = useState('');
 
@@ -54,19 +63,27 @@ export function OpportunityNewPage() {
     e.preventDefault();
     if (!selectedOrg) {
       setMessage('Select an organization before creating the opportunity.');
+      notify('Opportunity creation failed: select an organization before creating the opportunity.', 'error');
       return;
     }
-    const created = createMockOpportunity({
-      organizationId: selectedOrg.id,
-      organizationName: selectedOrg.name,
-      programLevel,
-      sport,
-      seasonCode,
-      lane,
-      assignedRep: assignedRep || selectedOrg.assignedRep,
-      value: Number(value) || 0,
-    });
-    navigate(`/opportunities/${created.id}`);
+    try {
+      const created = createMockOpportunity({
+        organizationId: selectedOrg.id,
+        organizationName: selectedOrg.name,
+        programLevel,
+        sport,
+        seasonCode,
+        lane,
+        assignedRep: assignedRep || selectedOrg.assignedRep,
+        value: Number(value) || 0,
+      });
+      notify('Opportunity created.', 'success');
+      navigate(`/opportunities/${created.id}`);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'Please check the opportunity details and try again.';
+      setMessage(detail);
+      notify(`Opportunity creation failed: ${detail}`, 'error');
+    }
   };
 
   return <Card title="New Opportunity"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><Select value={organizationId} onChange={(e)=>{ const next = organizations.find((org) => org.id === e.target.value); setOrganizationId(e.target.value); if (next) setAssignedRep(next.assignedRep); }}>{organizations.map((org)=><option key={org.id} value={org.id}>{org.name}</option>)}</Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /><Select value={programLevel} onChange={(e)=>setProgramLevel(e.target.value as typeof programLevel)}>{levels.map((l)=><option key={l}>{l}</option>)}</Select><Select value={sport} onChange={(e)=>setSport(e.target.value as typeof sport)}>{SPORT_OPTIONS.map((s)=><option key={s}>{s}</option>)}</Select><Input value={seasonCode} onChange={(e)=>setSeasonCode(e.target.value.toUpperCase())} placeholder={`Season code (${SEASON_CODES.join('/')})`} /><Select value={lane} onChange={(e)=>setLane(e.target.value as typeof lane)}>{REVENUE_LANES.map((l)=><option key={l}>{l}</option>)}</Select><Input inputMode="numeric" value={value} onChange={(e)=>setValue(e.target.value.replace(/[^\d]/g, ''))} placeholder="Estimated Value" /><p className="md:col-span-2 text-sm text-cyan-200">Display Name Preview: {preview}</p><Button type="submit" className="md:col-span-2">Create Opportunity</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;

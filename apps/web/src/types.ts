@@ -15,6 +15,7 @@ export type SidebarKey =
   | 'users';
 
 export type AppUser = {
+  id?: string;
   name: string;
   role: Role;
 };

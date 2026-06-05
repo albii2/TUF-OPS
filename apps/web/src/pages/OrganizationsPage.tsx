@@ -14,7 +14,7 @@ const PAGE_SIZE = 8;
 export function OrganizationsPage() {
   const navigate = useNavigate();
   const user = getStoredUser();
-  const canBulkAssign = user?.role === 'OWNER' || user?.role === 'DIRECTOR';
+  const canBulkAssign = user?.role === 'OWNER';
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
@@ -28,8 +28,8 @@ export function OrganizationsPage() {
   const [assignmentCue, setAssignmentCue] = useState('');
   const [bulkMessage, setBulkMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
-  const [targetRep, setTargetRep] = useState('Maya Cole');
-  const [targetDirector, setTargetDirector] = useState('Dana Holt');
+  const [targetRep, setTargetRep] = useState('Test Rep');
+  const [targetDirector, setTargetDirector] = useState('Test Director');
   const [targetTerritory, setTargetTerritory] = useState<TerritoryId>('metro');
   const [targetCoverage, setTargetCoverage] = useState<CoverageStatus>('CONTACTED');
 

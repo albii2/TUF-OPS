@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
 
+export type TrainingPhase = 'DAY_1' | 'DAY_1_2' | 'WEEK_1_2' | 'MONTH_1';
+
+const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training`;
+
 export interface TrainingModule {
   id: number;
   title: string;
@@ -59,7 +63,7 @@ export function useTrainingEnrollment(userId: number) {
     const fetchEnrollment = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:4000/training/enrollment?userId=${userId}`);
+        const response = await fetch(`${TRAINING_API_BASE_URL}/enrollment?userId=${userId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch enrollment');
         }
@@ -93,7 +97,7 @@ export function useTrainingModule(moduleId: number, enrollmentId: number) {
   const startModule = async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/training/progress/start', {
+      const response = await fetch(`${TRAINING_API_BASE_URL}/progress/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ enrollmentId, moduleId }),
@@ -111,7 +115,7 @@ export function useTrainingModule(moduleId: number, enrollmentId: number) {
   const completeModule = async (timeSpentSeconds?: number) => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:4000/training/progress/complete', {
+      const response = await fetch(`${TRAINING_API_BASE_URL}/progress/complete`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ enrollmentId, moduleId, timeSpentSeconds }),

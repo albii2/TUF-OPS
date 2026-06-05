@@ -1,9 +1,10 @@
 import { getStoredUser } from '../auth';
-import { organizations, teamMembers, type CoverageStatus, type Organization, type TerritoryId } from '../data/mockSalesData';
+import { organizations, type CoverageStatus, type Organization, type TerritoryId } from '../data/mockSalesData';
 import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
 import { DATA_MODE } from './dataMode';
 import { getStaleOrganizations } from './kpiUtils';
+import { canViewOrganization } from './roleScope';
 
 export type OrganizationListParams = {
   search?: string;
@@ -37,18 +38,8 @@ function getAllOrganizations() {
 }
 
 function getRoleScopedOrganizations() {
-  const user = getStoredUser();
   const allOrganizations = getAllOrganizations();
-  if (!user || user.role === 'OWNER' || user.role === 'OPS') return allOrganizations;
-
-  if (user.role === 'DIRECTOR') {
-    const directorProfile = teamMembers.find((m) => m.name === user.name && m.role === 'DIRECTOR');
-    const zoneSet = new Set(directorProfile?.territoryIds ?? []);
-    return allOrganizations.filter((org) => org.assignedDirector === user.name || zoneSet.has(org.territory) || org.assignedDirector === 'Unassigned' || !org.territory);
-  }
-
-  if (user.role === 'REP') return allOrganizations.filter((org) => org.assignedRep === user.name);
-  return allOrganizations;
+  return allOrganizations.filter(canViewOrganization);
 }
 
 export function listOrganizations(params: OrganizationListParams = {}): Organization[] {
@@ -119,13 +110,15 @@ function buildMockOrganization(input: {
 
 export function createMockOrganization(input: { name: string; accountType: string; city?: string; state?: string; assignedRep?: string; assignedDirector?: string; territory?: TerritoryId }): Organization {
   const user = getStoredUser();
+  const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep || 'Test Rep';
+  const assignedDirector = user?.role === 'DIRECTOR' ? user.name : input.assignedDirector || 'Test Director';
   const row = buildMockOrganization({
     id: `org-local-${Date.now()}`,
     name: input.name,
     city: input.city || 'TBD',
     state: input.state || 'MN',
-    assignedRep: input.assignedRep || (user?.role === 'REP' ? user.name : 'Maya Cole'),
-    assignedDirector: input.assignedDirector || 'Dana Holt',
+    assignedRep,
+    assignedDirector,
     territory: input.territory || 'metro',
     priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
   });

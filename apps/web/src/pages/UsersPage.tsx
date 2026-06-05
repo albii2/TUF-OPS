@@ -18,11 +18,9 @@ export function UsersPage() {
   const users = listUsers();
   const directors = users.filter((u) => u.role === 'DIRECTOR');
   const canManage = viewer?.role === 'OWNER';
-  const viewerId = users.find((x) => x.displayName === viewer?.name)?.id;
-  const canDirectorManage = viewer?.role === 'DIRECTOR';
-  const visible = canDirectorManage ? users.filter((u) => u.role === 'REP' && u.assignedDirectorId === viewerId) : users;
+  const visible = users;
 
-  if (!canManage && viewer?.role !== 'DIRECTOR') return <Card title='User Management'><p className='text-sm text-slate-400'>Only owner/director access.</p></Card>;
+  if (!canManage) return <Card title='User Management'><p className='text-sm text-slate-400'>Only Owner access.</p></Card>;
 
   return <Card title='User Management'>
     {canManage ? <div className='safe-grid mb-3 grid gap-2 md:grid-cols-6'>
@@ -36,9 +34,8 @@ export function UsersPage() {
     <div key={refresh} className='space-y-2'>
       {visible.map((u)=><div key={u.id} className='rounded border border-slate-700 p-2 text-sm flex items-center justify-between'>
         <div><p className='font-semibold'>{u.displayName}</p><p className='text-slate-400'>{u.role} · {u.territory || 'unassigned'} · {u.status}</p></div>
-        {canManage || canDirectorManage ? <div className='flex gap-2 items-center'>
+        {canManage ? <div className='flex gap-2 items-center'>
           {canManage && u.role === 'REP' ? <Select value={u.assignedDirectorId || ''} onChange={(e)=>{updateUser(u.id,{assignedDirectorId:e.target.value||undefined}); setRefresh((x)=>x+1);}}><option value=''>unassigned director</option>{directors.map((d)=><option key={d.id} value={d.id}>{d.displayName}</option>)}</Select> : null}
-          {canDirectorManage ? <Select value={u.territory || 'metro'} onChange={(e)=>{updateUser(u.id,{territory:e.target.value as TerritoryId}); setRefresh((x)=>x+1);}}><option value='metro'>metro</option><option value='north'>north</option><option value='west'>west</option><option value='south'>south</option></Select> : null}
           <Button className='px-2 py-1 text-xs' onClick={()=>{ try { updateUser(u.id,{status:u.status==='ACTIVE'?'INACTIVE':'ACTIVE'}); setMessage('User updated.'); setRefresh((x)=>x+1);} catch (e:any) { setMessage(e.message || 'Unable to update user'); } }}>{u.status==='ACTIVE'?'Archive':'Activate'}</Button>
         </div> : null}
       </div>)}

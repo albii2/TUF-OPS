@@ -67,7 +67,7 @@ export function ReportsPage() {
 
       {user?.role === 'OPS' ? <Card title='Ops Fulfillment Summary'><div className='grid gap-2 md:grid-cols-3'><p className='text-sm text-slate-300'>Blocked orders: {orders.filter((o)=>o.productionStatus==='BLOCKED').length}</p><p className='text-sm text-slate-300'>Needs review: {orders.filter((o)=>o.productionStatus==='NEEDS_REVIEW').length}</p><p className='text-sm text-slate-300'>Vendor-ready: {orders.filter((o)=>o.productionStatus==='READY_FOR_VENDOR').length}</p><p className='text-sm text-slate-300'>In production: {orders.filter((o)=>o.productionStatus==='IN_PRODUCTION').length}</p><p className='text-sm text-slate-300'>Completed: {orders.filter((o)=>o.productionStatus==='COMPLETED').length}</p><p className='text-sm text-slate-300'>Aging blockers: {orders.filter((o)=>o.productionStatus==='BLOCKED' && o.missingInfo.length>0).length}</p></div></Card> : null}
 
-      <div className="flex flex-wrap items-center gap-2"><Button onClick={() => setMessage('Weekly report export prepared in mock mode for beta review.')}>Export Weekly Report</Button><Button onClick={() => setMessage('Monthly report export prepared in mock mode for beta review.')}>Export Monthly Report</Button>{message ? <p className="text-sm text-cyan-200">{message}</p> : null}</div>
+      <div className="flex flex-wrap items-center gap-2"><Button onClick={() => setMessage('Weekly report export prepared for internal review.')}>Export Weekly Report</Button><Button onClick={() => setMessage('Monthly report export prepared for internal review.')}>Export Monthly Report</Button>{message ? <p className="text-sm text-cyan-200">{message}</p> : null}</div>
     </div>
   );
 }

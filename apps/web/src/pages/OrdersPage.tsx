@@ -4,6 +4,9 @@ import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Sele
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
 import { getOrderRiskScore } from '../services/businessSelectors';
+import { createMockOrderFromOpportunity } from '../services/ordersService';
+import { useOpportunities } from '../hooks/useOpportunities';
+import { notify } from '../services/feedbackService';
 
 const PAGE_SIZE = 8;
 
@@ -13,9 +16,11 @@ export function OrdersPage() {
   const [status, setStatus] = useState('ALL');
   const [page, setPage] = useState(1);
   const [message, setMessage] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const allOrders = useOrders({});
-  const filtered = useOrders({ search, productionStatus: status as 'ALL' | 'NEEDS_REVIEW' | 'READY_FOR_VENDOR' | 'IN_PRODUCTION' | 'BLOCKED' | 'COMPLETED' });
+  const allOrders = useOrders({ refreshKey });
+  const filtered = useOrders({ search, productionStatus: status as 'ALL' | 'NEEDS_REVIEW' | 'READY_FOR_VENDOR' | 'IN_PRODUCTION' | 'BLOCKED' | 'COMPLETED', refreshKey });
+  const opportunities = useOpportunities({ refreshKey });
 
   const statuses = useMemo(() => Array.from(new Set(allOrders.map((o) => o.productionStatus))), [allOrders]);
 
@@ -36,6 +41,21 @@ export function OrdersPage() {
     { key: 'actions', header: 'Actions', cell: (r) => <button className="text-xs text-cyan-300" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${r.id}`); }}>Open</button> },
   ];
 
+  const createOrder = () => {
+    try {
+      const existingOpportunityIds = new Set(allOrders.map((order) => order.opportunityId));
+      const sourceOpportunity = opportunities.find((opportunity) => opportunity.stage === 'CLOSED_WON' && !existingOpportunityIds.has(opportunity.id));
+      const created = createMockOrderFromOpportunity(sourceOpportunity);
+      setMessage(`Order created from ${created.organizationName}.`);
+      setRefreshKey((value) => value + 1);
+      notify('Order created.', 'success');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'Close an opportunity before creating an order.';
+      setMessage(detail);
+      notify(`Order creation failed: ${detail}`, 'error');
+    }
+  };
+
   return (
     <Card title="Order Execution Queue" className="min-w-0">
       <div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span>{filtered.length} orders</span><button onClick={() => { setSearch(''); setStatus('ALL'); setPage(1); }} className="text-cyan-300">Reset filters</button></div>
@@ -45,7 +65,7 @@ export function OrdersPage() {
       </div>
       {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(r) => navigate(`/orders/${r.id}`)} /> : <EmptyState title="No orders found" description="Try another filter combination." />}
       <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
-      <div className="mt-3 flex flex-wrap items-center gap-2"><Button onClick={() => setMessage('Mock order creation starts from a Closed Won opportunity handoff. Use an existing order detail for beta QA.')}>Create Order</Button>{message ? <p className="text-sm text-cyan-200">{message}</p> : null}</div>
+      <div className="mt-3 flex flex-wrap items-center gap-2"><Button onClick={createOrder}>Create Order</Button>{message ? <p className="text-sm text-cyan-200">{message}</p> : null}</div>
     </Card>
   );
 }

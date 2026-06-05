@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getStoredUser, updateUserProfile } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
 import type { Role } from '../types';
+import { notify } from '../services/feedbackService';
 
 const PREF_KEY = 'tuf_ops_settings_v1';
 
@@ -35,9 +36,17 @@ export function SettingsPage() {
   }, []);
 
   const saveAll = () => {
-    localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
-    updateUserProfile({ name, role });
-    setSaved('Settings saved for this device and beta role context updated.');
+    try {
+      const nextRole = user?.role === 'OWNER' ? role : user?.role ?? role;
+      localStorage.setItem(PREF_KEY, JSON.stringify(prefs));
+      updateUserProfile({ name, role: nextRole });
+      setSaved('Settings saved for this device.');
+      notify('Settings saved.', 'success');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'Please check the settings and try again.';
+      setSaved(detail);
+      notify(`Settings save failed: ${detail}`, 'error');
+    }
   };
 
   return (
@@ -46,19 +55,20 @@ export function SettingsPage() {
         <div className="space-y-2 text-sm">
           <label className="block text-[var(--text-secondary)]">Display Name</label>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
-          <p className="text-xs text-[var(--text-secondary)]">Current role permissions and dashboards update based on selected role.</p>
+          <p className="text-xs text-[var(--text-secondary)]">Profile settings are local to this internal rollout device.</p>
         </div>
       </Card>
 
       <Card title="Workspace">
         <div className="space-y-2 text-sm">
           <label className="block text-[var(--text-secondary)]">Role</label>
-          <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
+          <Select value={role} onChange={(e) => setRole(e.target.value as Role)} disabled={user?.role !== 'OWNER'}>
             <option value="OWNER">OWNER</option>
             <option value="DIRECTOR">DIRECTOR</option>
             <option value="REP">REP</option>
             <option value="OPS">OPS</option>
           </Select>
+          {user?.role !== 'OWNER' ? <p className="text-xs text-[var(--text-secondary)]">Role changes require Owner access.</p> : null}
         </div>
       </Card>
 

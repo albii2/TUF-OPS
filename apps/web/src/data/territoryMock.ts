@@ -22,35 +22,54 @@ export type WorkloadRow = {
   pipelineValue: number;
 };
 
-export const territories: Territory[] = [
-  { id: 'metro', name: 'TUF Metro', accounts: 112, untouched: 38, pipeline: 185000, closed: 42000, lanePenetration: { uniform: 18, teamStore: 9, travelGear: 6, letterman: 4 } },
-  { id: 'north', name: 'North Zone', accounts: 76, untouched: 29, pipeline: 94000, closed: 18000, lanePenetration: { uniform: 14, teamStore: 7, travelGear: 5, letterman: 3 } },
-  { id: 'west', name: 'West Zone', accounts: 64, untouched: 22, pipeline: 73000, closed: 12000, lanePenetration: { uniform: 13, teamStore: 6, travelGear: 4, letterman: 2 } },
-  { id: 'south', name: 'South Zone', accounts: 44, untouched: 16, pipeline: 60000, closed: 14000, lanePenetration: { uniform: 11, teamStore: 5, travelGear: 3, letterman: 2 } },
-];
+const territoryNames: Record<TerritoryId, string> = {
+  metro: 'TUF Metro',
+  north: 'North Zone',
+  west: 'West Zone',
+  south: 'South Zone',
+};
 
 const stageIsNearClose = (stage: string) => ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'].includes(stage);
 const stageIsStuck = (stage: string) => ['CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED'].includes(stage);
 
+export const territories: Territory[] = (Object.keys(territoryNames) as TerritoryId[]).map((id) => {
+  const territoryOrganizations = organizations.filter((organization) => organization.territory === id);
+  const territoryOpportunities = opportunities.filter((opportunity) => territoryOrganizations.some((organization) => organization.id === opportunity.organizationId));
+  return {
+    id,
+    name: territoryNames[id],
+    accounts: territoryOrganizations.length,
+    untouched: territoryOrganizations.filter((organization) => organization.coverageStatus === 'UNTOUCHED').length,
+    pipeline: territoryOpportunities.filter((opportunity) => !['CLOSED_WON', 'CLOSED_LOST'].includes(opportunity.stage)).reduce((sum, opportunity) => sum + opportunity.value, 0),
+    closed: territoryOpportunities.filter((opportunity) => opportunity.stage === 'CLOSED_WON').reduce((sum, opportunity) => sum + opportunity.value, 0),
+    lanePenetration: {
+      uniform: territoryOpportunities.filter((opportunity) => opportunity.lane === 'UNIFORM').length,
+      teamStore: territoryOpportunities.filter((opportunity) => opportunity.lane === 'TEAM_STORE').length,
+      travelGear: territoryOpportunities.filter((opportunity) => opportunity.lane === 'TRAVEL_GEAR').length,
+      letterman: territoryOpportunities.filter((opportunity) => opportunity.lane === 'LETTERMAN').length,
+    },
+  };
+});
+
 export const repCoverage: WorkloadRow[] = teamMembers
-  .filter((u) => u.role === 'REP' && u.active)
+  .filter((user) => user.role === 'REP' && user.active)
   .map((rep) => {
-    const repOrgs = organizations.filter((o) => o.assignedRep === rep.name);
-    const repOpps = opportunities.filter((o) => o.assignedRep === rep.name);
+    const repOrgs = organizations.filter((organization) => organization.assignedRep === rep.name);
+    const repOpps = opportunities.filter((opportunity) => opportunity.assignedRep === rep.name);
     const territory = rep.territoryIds[0] ?? 'metro';
     return {
       rep: rep.name,
       territory,
       assignedAccounts: repOrgs.length,
-      untouchedAccounts: repOrgs.filter((o) => o.coverageStatus === 'UNTOUCHED').length,
-      activeOpportunities: repOpps.length,
-      nearCloseOpportunities: repOpps.filter((o) => stageIsNearClose(o.stage)).length,
-      stuckOpportunities: repOpps.filter((o) => stageIsStuck(o.stage)).length,
-      closedWonMTD: repOpps.filter((o) => o.stage === 'CLOSED_WON').reduce((sum, o) => sum + o.value, 0),
-      pipelineValue: repOpps.reduce((sum, o) => sum + o.value, 0),
+      untouchedAccounts: repOrgs.filter((organization) => organization.coverageStatus === 'UNTOUCHED').length,
+      activeOpportunities: repOpps.filter((opportunity) => !['CLOSED_WON', 'CLOSED_LOST'].includes(opportunity.stage)).length,
+      nearCloseOpportunities: repOpps.filter((opportunity) => stageIsNearClose(opportunity.stage)).length,
+      stuckOpportunities: repOpps.filter((opportunity) => stageIsStuck(opportunity.stage)).length,
+      closedWonMTD: repOpps.filter((opportunity) => opportunity.stage === 'CLOSED_WON').reduce((sum, opportunity) => sum + opportunity.value, 0),
+      pipelineValue: repOpps.reduce((sum, opportunity) => sum + opportunity.value, 0),
     };
   });
 
 export const untouchedAccountsQueue = organizations
-  .filter((o) => o.coverageStatus === 'UNTOUCHED')
-  .map((o) => ({ id: o.id, name: o.name, territory: o.territory, state: o.state, assignedRep: o.assignedRep }));
+  .filter((organization) => organization.coverageStatus === 'UNTOUCHED')
+  .map((organization) => ({ id: organization.id, name: organization.name, territory: organization.territory, state: organization.state, assignedRep: organization.assignedRep }));
