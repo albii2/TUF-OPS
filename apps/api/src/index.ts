@@ -9,6 +9,8 @@ import { productionRequestRoutes } from './modules/production-requests/productio
 import { reportingRoutes } from './modules/reporting/reporting.routes';
 import { orderRoutes } from './modules/orders/orders.routes';
 import { creativeRequestRoutes } from './modules/creative-requests/creative-requests.routes';
+import { trainingRoutes } from './modules/training/training.routes';
+import { vendorRoutes } from './modules/vendors/vendors.routes';
 import { userRoutes } from './modules/users/users.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
@@ -17,7 +19,7 @@ const server = fastify();
 const port = Number(process.env.PORT || 4000);
 const webDistPath = process.env.WEB_DIST_PATH || path.resolve(__dirname, '../../web/dist');
 const indexHtmlPath = path.join(webDistPath, 'index.html');
-const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?)/;
+const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|reporting(?:\/.*)?|production-requests(?:\/.*)?|creative-requests(?:\/.*)?|training(?:\/.*)?|organizations-manager(?:\/.*)?|users(?:\/.*)?|change-password(?:\/.*)?|settings-user(?:\/.*)?|error(?:\/.*)?|$)/;
 const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,https://ops.tufsports.us,https://tufops.app')
   .split(',')
   .map((origin) => origin.trim())
@@ -75,6 +77,25 @@ server.addHook('onRequest', async (request, reply) => {
   }
 });
 
+server.get('/assets/*', async (request, reply) => {
+  const assetPath = `/assets/${(request.params as { '*': string })['*']}`;
+  const filePath = getSafeStaticPath(assetPath);
+  if (!filePath) return reply.code(404).send({ error: 'Asset not found' });
+  return sendStaticFile(reply, filePath);
+});
+
+server.get('/tuf-logo.svg', async (_request, reply) => {
+  const filePath = getSafeStaticPath('/tuf-logo.svg');
+  if (!filePath) return reply.code(404).send({ error: 'Asset not found' });
+  return sendStaticFile(reply, filePath);
+});
+
+server.get('/tuf-mark.svg', async (_request, reply) => {
+  const filePath = getSafeStaticPath('/tuf-mark.svg');
+  if (!filePath) return reply.code(404).send({ error: 'Asset not found' });
+  return sendStaticFile(reply, filePath);
+});
+
 server.register(organizationRoutes, { prefix: '/api/organizations' });
 server.register(opportunityRoutes, { prefix: '/api/opportunities' });
 server.register(activityRoutes, { prefix: '/api/activities' });
@@ -83,6 +104,8 @@ server.register(productionRequestRoutes, { prefix: '/api/production-requests' })
 server.register(orderRoutes, { prefix: '/api/orders' });
 server.register(creativeRequestRoutes, { prefix: '/api' });
 server.register(userRoutes, { prefix: '/api/auth' });
+server.register(trainingRoutes, { prefix: '/api/training' });
+server.register(vendorRoutes, { prefix: '/api' });
 server.register(organizationRoutes, { prefix: '/api/v1/organizations' });
 server.register(opportunityRoutes, { prefix: '/api/v1/opportunities' });
 server.register(activityRoutes, { prefix: '/api/v1/activities' });
@@ -91,6 +114,7 @@ server.register(productionRequestRoutes, { prefix: '/api/v1/production-requests'
 server.register(orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creativeRequestRoutes, { prefix: '/api/v1' });
 server.register(userRoutes, { prefix: '/api/v1/auth' });
+server.register(trainingRoutes, { prefix: '/api/v1/training' });
 server.register(organizationRoutes, { prefix: '/organizations' });
 server.register(opportunityRoutes, { prefix: '/opportunities' });
 server.register(activityRoutes, { prefix: '/activities' });
@@ -99,6 +123,8 @@ server.register(productionRequestRoutes, { prefix: '/production-requests' });
 server.register(orderRoutes, { prefix: '/orders' });
 server.register(creativeRequestRoutes);
 server.register(userRoutes, { prefix: '/auth' });
+server.register(trainingRoutes, { prefix: '/training' });
+server.register(vendorRoutes, { prefix: '/api' });
 
 server.get('/health', async () => ({
   status: 'ok',
