@@ -70,20 +70,24 @@ export function OpportunityDetailPage() {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-lg font-semibold">{activeOpp.title}</p>
-            <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
-            <p className="text-xs text-slate-400">{activeOpp.lane} · {activeOpp.sport} · {activeOpp.season}</p>
+            <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300 hover:underline">{activeOpp.organizationName}</Link>
+            <div className="mt-1 flex gap-2">
+              <a href={`tel:5550123`} className="rounded bg-slate-800 px-2 py-1 text-[10px] font-bold text-emerald-400 hover:bg-slate-700 transition">CALL COACH</a>
+              <a href={`mailto:coach@school.edu`} className="rounded bg-slate-800 px-2 py-1 text-[10px] font-bold text-sky-400 hover:bg-slate-700 transition">EMAIL COACH</a>
+            </div>
           </div>
           <div className="text-left sm:text-right">
             <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
             <p className="text-xs text-slate-400">Assigned Rep: {activeOpp.assignedRep}</p>
+            <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">{activeOpp.lane} · {activeOpp.sport}</p>
           </div>
         </div>
       </Card>
 
       <Card title="Close Path Progress">
-        <div className="grid gap-2 grid-cols-2 md:grid-cols-3 xl:grid-cols-5">
+        <div className="flex flex-wrap gap-2">
           {opportunityStages.map((stage) => (
-            <div key={stage} className={`rounded-md border p-2 ${stage === activeOpp.stage ? 'border-cyan-400 bg-cyan-500/15' : 'border-slate-800 bg-slate-950/70'}`}>
+            <div key={stage} className={`rounded-md border px-3 py-2 transition-all ${stage === activeOpp.stage ? 'border-cyan-400 bg-cyan-500/15 scale-105 z-10' : 'border-slate-800 bg-slate-950/40 opacity-50'}`}>
               <StageBadge stage={stage} />
             </div>
           ))}
@@ -91,28 +95,63 @@ export function OpportunityDetailPage() {
       </Card>
 
       <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="What Needs to Happen Next to Close" className="lg:col-span-2"><p className="text-sm text-slate-300">{activeOpp.nextAction}</p>{actionMessage ? <p className={`mt-2 text-sm ${actionMessage.includes('permission') || actionMessage.includes('read-only') ? 'text-amber-200' : 'text-cyan-200'}`}>{actionMessage}</p> : null}</Card>
-        <Card title="Best Next Move">
+        <Card title="Next Action" className="lg:col-span-2">
+          <div className="flex items-start gap-3">
+            <div className="mt-1 rounded-full bg-cyan-400 p-1.5 shadow-[0_0_12px_rgba(34,211,238,0.4)]" />
+            <div>
+              <p className="text-base font-bold text-white leading-tight">{activeOpp.nextAction}</p>
+              {staleDays >= 7 && <p className='mt-1 text-xs font-bold text-rose-400 uppercase tracking-tighter'>Action overdue by {staleDays} days</p>}
+            </div>
+          </div>
+          {actionMessage && <p className="mt-3 rounded border border-cyan-500/20 bg-cyan-500/5 p-2 text-xs text-cyan-200">{actionMessage}</p>}
+        </Card>
+        <Card title="Quick Execution">
           {canAdvance ? (
             <div className='space-y-2'>
-              <Button className="w-full" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged.`)}>{stageCtas[activeOpp.stage]}</Button>
-              {nextStage ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')}.`)}>Advance to {nextStage.replace(/_/g,' ')}</Button> : null}
+              <Button className="w-full text-xs py-2" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged.`)}>
+                {stageCtas[activeOpp.stage].toUpperCase()}
+              </Button>
+              {nextStage && (
+                <button 
+                  className='w-full rounded-lg border border-slate-700 bg-slate-800/40 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 transition' 
+                  onClick={() => setStage(nextStage, `Advanced to ${nextStage.replace(/_/g,' ')}.`)}
+                >
+                  ADVANCE TO {nextStage.replace(/_/g,' ')}
+                </button>
+              )}
             </div>
           ) : (
-            <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p>
+            <p className="text-xs text-slate-400 italic text-center py-2">{getAdvanceDeniedMessage(activeOpp)}</p>
           )}
         </Card>
       </div>
 
-      {staleDays >= 7 ? <Card title="⚠ Follow-up Warning"><p className='text-sm text-amber-300'>No follow-up logged in {staleDays} days. Rep should log activity and advance next action today.</p></Card> : null}
-
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Decision Timeline" className="lg:col-span-2">
-          <div className="space-y-2 text-sm">
-            {dealActivity.length ? dealActivity.map((entry) => <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{entry.message}<p className="text-xs text-slate-400">{entry.timestamp} · {entry.user}</p></div>) : <p className="text-slate-400">No activity entries yet.</p>}
+          <div className="space-y-2">
+            {dealActivity.length ? dealActivity.map((entry) => (
+              <div key={entry.id} className="border-l-2 border-slate-800 pl-4 py-1">
+                <p className="text-sm text-slate-200 leading-snug">{entry.message}</p>
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">{entry.timestamp} · {entry.user}</p>
+              </div>
+            )) : <p className="text-xs text-slate-500 italic">No activity logs yet.</p>}
           </div>
         </Card>
-        <Card title="Files / Mockup"><p className="text-sm text-slate-300">Creative requests: {summary.total}. Active mockup/design tasks: {summary.active}. Delivered assets: {summary.delivered}.</p></Card>
+        <Card title="Files / Assets">
+          <div className="space-y-3">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-400 uppercase">Requests</span>
+              <span className="font-bold text-white">{summary.total}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-400 uppercase">Delivered</span>
+              <span className="font-bold text-emerald-400">{summary.delivered}</span>
+            </div>
+            <Button className="w-full text-[10px] h-8 py-0" onClick={() => { setShowForm((v) => !v); setError(''); setSuccess(''); }}>
+              {showForm ? 'CANCEL' : 'NEW REQUEST'}
+            </Button>
+          </div>
+        </Card>
       </div>
 
       <div className="grid gap-3 lg:grid-cols-3">
