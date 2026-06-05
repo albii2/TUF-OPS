@@ -22,12 +22,31 @@ export type WorkloadRow = {
   pipelineValue: number;
 };
 
-export const territories: Territory[] = [
-  { id: 'metro', name: 'TUF Metro', accounts: 112, untouched: 38, pipeline: 185000, closed: 42000, lanePenetration: { uniform: 18, teamStore: 9, travelGear: 6, letterman: 4 } },
-  { id: 'north', name: 'TUF NORTH', accounts: 76, untouched: 29, pipeline: 94000, closed: 18000, lanePenetration: { uniform: 14, teamStore: 7, travelGear: 5, letterman: 3 } },
-  { id: 'west', name: 'TUF WEST', accounts: 64, untouched: 22, pipeline: 73000, closed: 12000, lanePenetration: { uniform: 13, teamStore: 6, travelGear: 4, letterman: 2 } },
-  { id: 'south', name: 'TUF SOUTH', accounts: 44, untouched: 16, pipeline: 60000, closed: 14000, lanePenetration: { uniform: 11, teamStore: 5, travelGear: 3, letterman: 2 } },
-];
+const territoryNames: Record<TerritoryId, string> = {
+  metro: 'TUF Metro',
+  north: 'TUF NORTH',
+  west: 'TUF WEST',
+  south: 'TUF SOUTH',
+};
+
+export const territories: Territory[] = (['metro', 'north', 'west', 'south'] as TerritoryId[]).map((id) => {
+  const territoryOrganizations = organizations.filter((org) => org.territory === id);
+  const territoryOpportunities = opportunities.filter((opportunity) => territoryOrganizations.some((org) => org.id === opportunity.organizationId));
+  return {
+    id,
+    name: territoryNames[id],
+    accounts: territoryOrganizations.length,
+    untouched: territoryOrganizations.filter((org) => org.coverageStatus === 'UNTOUCHED').length,
+    pipeline: territoryOpportunities.filter((opportunity) => !['CLOSED_WON', 'CLOSED_LOST'].includes(opportunity.stage)).reduce((sum, opportunity) => sum + opportunity.value, 0),
+    closed: territoryOpportunities.filter((opportunity) => opportunity.stage === 'CLOSED_WON').reduce((sum, opportunity) => sum + opportunity.value, 0),
+    lanePenetration: {
+      uniform: territoryOpportunities.filter((opportunity) => opportunity.lane === 'UNIFORM').length,
+      teamStore: territoryOpportunities.filter((opportunity) => opportunity.lane === 'TEAM_STORE').length,
+      travelGear: territoryOpportunities.filter((opportunity) => opportunity.lane === 'TRAVEL_GEAR').length,
+      letterman: territoryOpportunities.filter((opportunity) => opportunity.lane === 'LETTERMAN').length,
+    },
+  };
+});
 
 const stageIsNearClose = (stage: string) => ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'].includes(stage);
 const stageIsStuck = (stage: string) => ['CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED'].includes(stage);

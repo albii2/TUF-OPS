@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { getOpsWorkspaceQueues, getOrderById, listOrders, type OrderListParams } from '../services/ordersService';
 
 export function useOrders(params: OrderListParams) {
-  return useMemo(() => listOrders(params), [params.search, params.productionStatus]);
+  return useMemo(() => listOrders(params), [params.search, params.productionStatus, params.refreshKey]);
 }
 
 export function useOrderById(id?: string) {

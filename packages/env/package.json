@@ -6,6 +6,9 @@
   "scripts": {
     "build": "tsc"
   },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
   "dependencies": {
     "zod": "^3.22.4"
   }

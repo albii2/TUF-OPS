@@ -1,7 +1,9 @@
-import { type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
+import { opportunities, type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
 import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';
+import { DATA_MODE } from './dataMode';
+import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
 
 export type OpportunityListParams = {
   search?: string;
@@ -42,11 +44,14 @@ function writeLocalOpportunities(rows: Opportunity[]) {
 }
 
 function getAllOpportunities() {
-  return readLocalOpportunities();
+  const localRows = readLocalOpportunities();
+  const localIds = new Set(localRows.map((row) => row.id));
+  return [...localRows, ...opportunities.filter((row) => !localIds.has(row.id))];
 }
 
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
-  const user = getStoredUser();
+  if (DATA_MODE !== 'mock') return [];
+
   return getAllOpportunities().filter((opp) => {
     const matchesSearch = (params.search ?? '').trim()
       ? [opp.title, opp.organizationName].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
@@ -55,12 +60,13 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
     const matchesLane = !params.lane || params.lane === 'ALL' || opp.lane === params.lane;
     const matchesRep = !params.rep || params.rep === 'ALL' || opp.assignedRep === params.rep;
     const matchesSport = !params.sport || params.sport === 'ALL' || opp.sport === params.sport;
-    const roleScoped = !user ? true : user.role === 'OWNER' ? true : user.role === 'DIRECTOR' ? opp.assignedRep !== '' : opp.assignedRep === user.name;
+    const roleScoped = canViewOpportunity(opp);
     return matchesSearch && matchesStage && matchesLane && matchesRep && matchesSport && roleScoped;
   });
 }
 
 export function getOpportunityById(id: string): Opportunity | undefined {
+  if (DATA_MODE !== 'mock') return undefined;
   return listOpportunities({}).find((opp) => opp.id === id);
 }
 
@@ -82,6 +88,8 @@ export function createMockOpportunity(input: {
   assignedRep: string;
   value: number;
 }) {
+  const user = getStoredUser();
+  const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep;
   const row: Opportunity = {
     id: `opp-local-${Date.now()}`,
     title: buildOpportunityDisplayName({ programLevel: input.programLevel, sport: input.sport, seasonCode: input.seasonCode, lane: input.lane }),
@@ -92,7 +100,7 @@ export function createMockOpportunity(input: {
     season: input.seasonCode,
     stage: 'LEAD_ASSIGNED',
     value: input.value,
-    assignedRep: input.assignedRep,
+    assignedRep,
     nextAction: nextActionByStage.LEAD_ASSIGNED,
     lastActivity: new Date().toISOString().slice(0, 10),
     closeProbability: 20,
@@ -104,6 +112,7 @@ export function createMockOpportunity(input: {
 export function updateOpportunityStage(id: string, stage: OpportunityStage) {
   const existing = getAllOpportunities().find((opp) => opp.id === id);
   if (!existing) return undefined;
+  if (!canAdvanceOpportunity(existing)) throw new Error(getAdvanceDeniedMessage(existing));
   const closeProbabilityByStage: Record<OpportunityStage, number> = {
     LEAD_ASSIGNED: 20,
     CONTACTED: 30,

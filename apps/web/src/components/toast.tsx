@@ -1,11 +1,11 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, type ReactNode, useContext, useMemo, useState } from 'react';
 
 type ToastKind = 'success' | 'error';
 type ToastMessage = { id: number; kind: ToastKind; message: string; retryLabel?: string; onRetry?: () => void };
 
 const ToastContext = createContext<{ success: (message: string) => void; error: (message: string, onRetry?: () => void) => void } | null>(null);
 
-export function ToastProvider({ children }: { children: JSX.Element }) {
+export function ToastProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<ToastMessage[]>([]);
   const remove = (id: number) => setItems((rows) => rows.filter((row) => row.id !== id));
 

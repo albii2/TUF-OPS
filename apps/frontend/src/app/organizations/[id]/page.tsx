@@ -19,7 +19,7 @@ export default function OrganizationDetailsPage() {
 
   useEffect(() => {
     if (id) {
-      async function fetchOrganization() {
+      const fetchOrganization = async () => {
         setLoading(true)
         try {
           const response = await fetch(`/api/organizations/${id}`)

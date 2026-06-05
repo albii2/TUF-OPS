@@ -1,7 +1,7 @@
 import { getStoredUser } from '../auth';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
-import { listUsers } from '../services/usersService';
+import { getManagedRepNamesForDirector, listUsers } from '../services/usersService';
 import { Card } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 
@@ -17,14 +17,19 @@ type EarningsRow = {
   repCommission: number;
   directorOverride: number;
   possibleAtGoal: number;
+  pipelineValue: number;
+  activityStatus: string;
 };
 
-function buildRow(rep: string, opportunities: { id: string; assignedRep: string; stage: string; value: number }[], orders: { opportunityId: string }[]): EarningsRow {
+function buildRow(rep: string, opportunities: { id: string; assignedRep: string; stage: string; value: number; lastActivity?: string }[], orders: { opportunityId: string }[]): EarningsRow {
   const orderWonIds = new Set(orders.map((o) => o.opportunityId));
   const won = opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON' && orderWonIds.has(o.id));
+  const repPipeline = opportunities.filter((o) => o.assignedRep === rep && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage));
   const wonValue = won.reduce((sum, o) => sum + o.value, 0);
   const averageOrderValue = won.length ? wonValue / won.length : TARGET_ORDER_VALUE;
   const remainingOrders = Math.max(MONTHLY_ORDER_GOAL - won.length, 0);
+  const latestActivity = Math.max(...opportunities.filter((o) => o.assignedRep === rep && o.lastActivity).map((o) => new Date(o.lastActivity as string).getTime()), 0);
+  const daysSinceActivity = latestActivity ? (Date.now() - latestActivity) / (1000 * 60 * 60 * 24) : Number.POSITIVE_INFINITY;
   return {
     rep,
     wonCount: won.length,
@@ -32,6 +37,8 @@ function buildRow(rep: string, opportunities: { id: string; assignedRep: string;
     repCommission: wonValue * REP_COMMISSION_RATE,
     directorOverride: wonValue * DIRECTOR_OVERRIDE_RATE,
     possibleAtGoal: (wonValue + remainingOrders * averageOrderValue) * REP_COMMISSION_RATE,
+    pipelineValue: repPipeline.reduce((sum, o) => sum + o.value, 0),
+    activityStatus: daysSinceActivity <= 3 ? 'Active' : daysSinceActivity <= 7 ? 'Needs follow-up' : 'Stale',
   };
 }
 
@@ -58,7 +65,9 @@ export function EarningsPage() {
   const user = getStoredUser();
   const opportunities = useOpportunities({});
   const orders = useOrders({});
-  const repNames = listUsers().filter((member) => member.role === 'REP' && member.status === 'ACTIVE').map((member) => member.displayName);
+  const activeRepNames = listUsers().filter((member) => member.role === 'REP' && member.status === 'ACTIVE').map((member) => member.displayName);
+  const directorRepNames = user?.role === 'DIRECTOR' ? getManagedRepNamesForDirector(user.name) : [];
+  const repNames = user?.role === 'DIRECTOR' ? directorRepNames : activeRepNames;
   const allRows = repNames.map((rep) => buildRow(rep, opportunities, orders));
   const visibleRows = user?.role === 'REP' ? allRows.filter((row) => row.rep === user.name) : allRows;
   const focusRows = visibleRows.length ? visibleRows : allRows;
@@ -74,14 +83,70 @@ export function EarningsPage() {
   const pendingCommission = totalRepCommission * 0.35;
   const paidCommission = totalRepCommission - pendingCommission;
   const remainingOrders = Math.max(totalGoal - totalOrders, 0);
+  const totalPipelineValue = focusRows.reduce((sum, row) => sum + row.pipelineValue, 0);
+
+  if (user?.role === 'DIRECTOR') {
+    return (
+      <div className="space-y-3">
+        <Card title="Director Team Performance">
+          <div className="grid gap-3 lg:grid-cols-[1fr_1.2fr]">
+            <div>
+              <p className="text-sm font-semibold text-white">The team standard is 4 orders per rep per month.</p>
+              <p className="mt-1 text-sm text-slate-300">This view shows order pace, revenue, pipeline, and activity without finance-only individual pay data.</p>
+              <div className="mt-4">
+                <div className="mb-1 flex justify-between text-sm">
+                  <span className="text-slate-300">Team order pace</span>
+                  <span className="font-semibold text-cyan-200">{totalOrders}/{totalGoal}</span>
+                </div>
+                <ProgressBar value={totalOrders} total={totalGoal} />
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <MoneyCard label="Team Revenue" value={formatCurrency(totalWon)} note="Closed-won value linked to order handoff." />
+              <MoneyCard label="Pipeline Value" value={formatCurrency(totalPipelineValue)} note="Open team opportunity value." />
+              <MoneyCard label="Team Orders" value={`${totalOrders}`} note={`${remainingOrders} left to team pace.`} />
+            </div>
+          </div>
+        </Card>
+
+        <Card title="Rep Pace And Activity">
+          <div className="space-y-2">
+            {focusRows.map((row) => {
+              const remaining = Math.max(MONTHLY_ORDER_GOAL - row.wonCount, 0);
+              return (
+                <div key={row.rep} className="grid gap-3 rounded-lg border border-slate-800 bg-slate-950/70 p-3 lg:grid-cols-[1fr_1fr_1fr_1fr_1fr]">
+                  <div>
+                    <p className="font-semibold text-white">{row.rep}</p>
+                    <p className="text-sm text-slate-400">{remaining ? `${remaining} order${remaining === 1 ? '' : 's'} from target` : 'Target reached'}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-300">Orders</p>
+                    <p className="font-semibold text-cyan-200">{Math.min(row.wonCount, MONTHLY_ORDER_GOAL)}/4</p>
+                    <ProgressBar value={row.wonCount} total={MONTHLY_ORDER_GOAL} />
+                  </div>
+                  <p className="text-sm text-slate-300">Revenue: {formatCurrency(row.wonValue)}</p>
+                  <p className="text-sm text-slate-300">Pipeline: {formatCurrency(row.pipelineValue)}</p>
+                  <p className="text-sm text-slate-300">Activity: {row.activityStatus}</p>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  const isRep = user?.role === 'REP';
 
   return (
     <div className="space-y-3">
-      <Card title="Owner Earnings Command Center">
+      <Card title={isRep ? 'My Earnings Progress' : 'Owner Earnings Command Center'}>
         <div className="grid gap-3 lg:grid-cols-[1fr_1.2fr]">
           <div>
             <p className="text-sm font-semibold text-white">The standard is 4 orders per month.</p>
-            <p className="mt-1 text-sm text-slate-300">Commission is calculated from closed-won opportunities that have been handed off into orders.</p>
+            <p className="mt-1 text-sm text-slate-300">
+              {isRep ? 'This view shows only your closed orders, estimated earnings, and pace.' : 'Commission is calculated from closed-won opportunities that have been handed off into orders.'}
+            </p>
             <div className="mt-4">
               <div className="mb-1 flex justify-between text-sm">
                 <span className="text-slate-300">Order pace</span>
@@ -92,10 +157,10 @@ export function EarningsPage() {
             </div>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
-            <MoneyCard label="Made" value={formatCurrency(totalRepCommission)} note="Rep commission earned from eligible orders." />
-            <MoneyCard label="Can Make at Pace" value={formatCurrency(possibleAtGoal)} note="Projected rep commission at 4 orders." />
+            <MoneyCard label={isRep ? 'Estimated Earnings' : 'Made'} value={formatCurrency(totalRepCommission)} note={isRep ? 'Your estimated commission from eligible orders.' : 'Rep commission earned from eligible orders.'} />
+            <MoneyCard label="Can Make at Pace" value={formatCurrency(possibleAtGoal)} note={isRep ? 'Your projected commission at 4 orders.' : 'Projected rep commission at 4 orders.'} />
             <MoneyCard label="Won Revenue" value={formatCurrency(totalWon)} note="Closed-won value linked to orders." />
-            <MoneyCard label="Director Override" value={formatCurrency(totalOverride)} note="2% override on eligible team wins." />
+            {isRep ? <MoneyCard label="Orders Closed" value={`${totalOrders}`} note={`${remainingOrders} left to monthly pace.`} /> : <MoneyCard label="Director Override" value={formatCurrency(totalOverride)} note="2% override on eligible team wins." />}
           </div>
         </div>
       </Card>
