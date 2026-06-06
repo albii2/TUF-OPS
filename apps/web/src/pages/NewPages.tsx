@@ -83,7 +83,7 @@ export function OpportunityNewPage() {
         value: Number(value) || 0,
       });
       success('Opportunity created.');
-      navigate(`/opportunities/${created.id}`);
+      navigate(`${user?.role === 'REP' ? '/my-opportunities' : '/opportunities'}?created=${created.id}`);
     } catch (err) {
       const detail = err instanceof Error ? err.message : 'Please check the opportunity fields and try again.';
       setMessage(detail);

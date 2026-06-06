@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Select, StageBadge, type Column } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOpportunities, useOpportunityStages, useRevenueLanes } from '../hooks/useOpportunities';
@@ -10,13 +10,15 @@ const PAGE_SIZE = 8;
 
 export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }: { forceRep?: string; title?: string } = {}) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const createdOpportunityId = searchParams.get('created');
   const [search, setSearch] = useState('');
   const [stage, setStage] = useState('ALL');
   const [lane, setLane] = useState('ALL');
   const [rep, setRep] = useState(forceRep ?? 'ALL');
   const [sport, setSport] = useState('ALL');
   const [page, setPage] = useState(1);
-  const [view, setView] = useState<'ACTION_NEEDED' | 'NEAR_CLOSE' | 'STALLED' | 'ALL'>('ACTION_NEEDED');
+  const [view, setView] = useState<'ACTION_NEEDED' | 'NEAR_CLOSE' | 'STALLED' | 'ALL'>('ALL');
 
   const allOpportunities = useOpportunities({});
   const opportunityStages = useOpportunityStages();
@@ -101,7 +103,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
     setRep('ALL');
     setSport('ALL');
     setPage(1);
-    setView('ACTION_NEEDED');
+    setView('ALL');
   };
 
   return (
@@ -110,6 +112,12 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
         <h1 className="text-2xl font-bold text-white">{title}</h1>
         <Button onClick={() => navigate('/opportunities/new')}>+ New Opportunity</Button>
       </div>
+
+      {createdOpportunityId ? (
+        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
+          Opportunity created and added to this list. Use the filters below if you need to narrow the pipeline.
+        </div>
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-800 pb-2">
         {(['ACTION_NEEDED', 'NEAR_CLOSE', 'STALLED', 'ALL'] as const).map((v) => (
