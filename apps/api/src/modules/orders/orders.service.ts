@@ -68,3 +68,27 @@ export async function createOrderFromOpportunity(opportunityId: number, options?
 export async function ensureOrderFromClosedWonOpportunity(opportunityId: number): Promise<Order> {
     return createOrderFromOpportunity(opportunityId, { errorOnDuplicate: false });
 }
+
+export async function updateOrderStatus(id: number, status: OrderStatus): Promise<Order> {
+    const result = await pool.query(
+        'UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+        [status, id]
+    );
+    return result.rows[0];
+}
+
+export async function getOrdersByVendor(vendorId: number): Promise<Order[]> {
+    const result = await pool.query(
+        'SELECT * FROM orders WHERE vendor_id = $1 ORDER BY created_at DESC',
+        [vendorId]
+    );
+    return result.rows;
+}
+
+export async function getOrdersByStatus(status: OrderStatus): Promise<Order[]> {
+    const result = await pool.query(
+        'SELECT * FROM orders WHERE status = $1 ORDER BY created_at DESC',
+        [status]
+    );
+    return result.rows;
+}

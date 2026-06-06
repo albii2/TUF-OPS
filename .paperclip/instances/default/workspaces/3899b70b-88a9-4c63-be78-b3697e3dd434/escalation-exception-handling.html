@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escalation & Exception Handling SOP</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f9fafb;
+            color: #1f2937;
+        }
+        h1, h2, h3 {
+            color: #111827;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 10px;
+        }
+        h1 {
+            font-size: 2em;
+            margin-bottom: 0.5em;
+        }
+        h2 {
+            font-size: 1.4em;
+            margin-top: 1.5em;
+        }
+        h3 {
+            font-size: 1.1em;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .exception-block {
+            background: white;
+            border-left: 4px solid #8b5cf6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .timeline {
+            background: white;
+            border-left: 4px solid #0891b2;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .timeline strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #0891b2;
+        }
+        .timeline ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        .timeline li {
+            margin: 8px 0;
+        }
+        .critical {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #d97706;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .info {
+            background: #dbeafe;
+            border-left: 4px solid #0284c7;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .checklist {
+            background: white;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .checklist li {
+            margin: 10px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin: 20px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: #111827;
+        }
+        tr:hover {
+            background: #f9fafb;
+        }
+        .severity-critical {
+            color: #dc2626;
+            font-weight: 600;
+        }
+        .severity-high {
+            color: #d97706;
+            font-weight: 600;
+        }
+        .severity-medium {
+            color: #0284c7;
+            font-weight: 600;
+        }
+        .owner-cto {
+            background: #e0e7ff;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 500;
+            font-size: 0.85em;
+        }
+        .owner-ceo {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 500;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Escalation & Exception Handling SOP</h1>
+
+    <p style="font-size: 1.1em; color: #6b7280; margin-bottom: 20px;">
+        Standard Operating Procedures for handling common onboarding exceptions, delays, and escalations. Defines who acts, timelines, and approval chains.
+    </p>
+
+    <div class="critical">
+        <strong>CRITICAL PRINCIPLE:</strong> Delays are normal. Escalation is not failure. HR escalates exceptions to unblock and keep candidates moving. Always escalate rather than let situations fester.
+    </div>
+
+    <h2>Exception Handling Matrix</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Exception Type</th>
+                <th>Owner</th>
+                <th>Wait Time</th>
+                <th>Escalation Action</th>
+                <th>Approval Authority</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Signature delays</strong><br>(documents unsigned)</td>
+                <td>HR</td>
+                <td>Day 1: Reminder<br>Day 2: Follow-up<br>Day 3: Escalate</td>
+                <td>HR sends escalation summary to CEO. Include: why candidate delay, any concerns expressed, next deadline.</td>
+                <td><span class="owner-ceo">CEO</span> decides whether to rescind, grant extension, or escalate further.</td>
+            </tr>
+            <tr>
+                <td><strong>System access blocked</strong><br>(IT/security issue)</td>
+                <td><span class="owner-cto">CTO</span></td>
+                <td>Immediate escalation</td>
+                <td>HR flags to CTO within 2 hours. CTO diagnostics start immediately.</td>
+                <td><span class="owner-cto">CTO</span> provides workaround or escalates to CEO if exception needed.</td>
+            </tr>
+            <tr>
+                <td><strong>Missing documents</strong><br>(candidate hasn't provided required docs)</td>
+                <td>HR</td>
+                <td>Day 1: First request<br>Day 3: Second request<br>Day 5: Escalate</td>
+                <td>HR documents missing items and notifies CEO. HR proposes deadline extension or contingency plan.</td>
+                <td><span class="owner-ceo">CEO</span> approves extension or escalates.</td>
+            </tr>
+            <tr>
+                <td><strong>School approval pending</strong><br>(credit, status, or release letter)</td>
+                <td>HR</td>
+                <td>Upon discovery: Assess timeline</td>
+                <td>HR notifies CEO immediately with school's expected timeline. HR coordinates intern contingency if start date affected.</td>
+                <td><span class="owner-ceo">CEO</span> decides: delay hire, proceed as intern, or contingent offer.</td>
+            </tr>
+            <tr>
+                <td><strong>Start date changed</strong><br>(candidate requests different date)</td>
+                <td>HR</td>
+                <td>Within 2 hours of request</td>
+                <td>HR assesses impact on other roles and team planning. If affects >1 role or delays >2 weeks, escalate to CEO.</td>
+                <td><span class="owner-ceo">CEO</span> approves new date or asks candidate to honor original date.</td>
+            </tr>
+            <tr>
+                <td><strong>Role scope changed</strong><br>(candidate requests different responsibilities)</td>
+                <td>HR</td>
+                <td>Immediate escalation</td>
+                <td>HR documents requested change and communicates to CEO with analysis of impact.</td>
+                <td><span class="owner-ceo">CEO</span> approves modified offer or stands by original.</td>
+            </tr>
+            <tr>
+                <td><strong>Background check issue</strong><br>(discrepancy or delay)</td>
+                <td>HR</td>
+                <td>Day 3: Follow-up<br>Day 5: Escalate to legal</td>
+                <td>HR investigates and documents issue. If unresolved day 5, escalate to legal counsel and CEO.</td>
+                <td><span class="owner-ceo">CEO</span> + Legal decide on approval or rescission.</td>
+            </tr>
+            <tr>
+                <td><strong>Equipment delays</strong><br>(vendor delay, config issue)</td>
+                <td>HR</td>
+                <td>Day 2: Vendor follow-up<br>Day 5: Escalate</td>
+                <td>HR identifies workaround (loaner laptop, temp setup) or accelerates order. If no resolution by day 5, escalate to IT and CEO.</td>
+                <td>IT lead + CEO determine if candidate can start without equipment or if start date shifts.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Signature Delays — Detailed Protocol</h2>
+
+    <div class="exception-block">
+        <h3>When: Documents haven't been signed by candidate</h3>
+
+        <div class="timeline">
+            <strong>Timeline & HR Actions:</strong>
+            <ul>
+                <li><strong>Day 0 (Send):</strong> HR sends documents with clear deadline for signing (typically +3 business days)</li>
+                <li><strong>Day 1:</strong> HR checks document portal for signature. If not signed, sends friendly reminder via email or Slack.</li>
+                <li><strong>Day 2:</strong> HR sends follow-up message with direct link and ask for status. ("Do you have questions or need support with signing?")</li>
+                <li><strong>Day 3:</strong> If still unsigned, HR calls or texts candidate to understand blocker. Document the reason.</li>
+                <li><strong>Day 3 EOD (Escalate):</strong> HR sends escalation summary to CEO with:
+                    <ul>
+                        <li>Document set and reason for signature</li>
+                        <li>All outreach dates and candidate responses</li>
+                        <li>Reason for delay (if known)</li>
+                        <li>Recommended action (extend, escalate to candidate, rescind)</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="checklist">
+            <strong>Escalation Summary Checklist:</strong>
+            <ul>
+                <li>☐ Document names and what each requires (signature, initials, dates)</li>
+                <li>☐ Original deadline given to candidate</li>
+                <li>☐ All attempts to contact (dates, methods, responses)</li>
+                <li>☐ Any stated concerns from candidate</li>
+                <li>☐ Impact if not signed (onboarding can't proceed, start date at risk, etc.)</li>
+                <li>☐ HR recommendation (proceed, extend 3 days, rescind offer)</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <strong>CEO's Role:</strong> CEO reviews escalation within 2 hours and decides: (1) Grant 3-day extension with clear final deadline, (2) CEO calls candidate to understand issue, or (3) Rescind offer. HR communicates decision to candidate within 4 hours.
+        </div>
+    </div>
+
+    <h2>System Access Blocked — Detailed Protocol</h2>
+
+    <div class="exception-block">
+        <h3>When: IT or security flags an issue during access provisioning</h3>
+
+        <div class="critical">
+            <strong>This is time-critical.</strong> Start-date readiness depends on system access. Escalate immediately.
+        </div>
+
+        <div class="timeline">
+            <strong>Timeline & Actions:</strong>
+            <ul>
+                <li><strong>Day X (Discovery):</strong> IT detects issue (e.g., domain/SSO mismatch, security policy blocker, vendor integration failure)</li>
+                <li><strong>Within 2 hours:</strong> IT escalates to CTO with clear description of issue and estimated resolution time</li>
+                <li><strong>Within 4 hours:</strong> CTO or IT lead notifies HR + CEO with:
+                    <ul>
+                        <li>Issue description and severity</li>
+                        <li>Can we start candidate without full access? (e.g., temp laptop, manual account, etc.)</li>
+                        <li>Estimated time to resolve</li>
+                        <li>Contingency plan if not resolved before start date</li>
+                    </ul>
+                </li>
+                <li><strong>CEO decides:</strong> Proceed with workaround, delay start, or escalate to external vendor</li>
+            </ul>
+        </div>
+
+        <div class="checklist">
+            <strong>CTO's Escalation Checklist:</strong>
+            <ul>
+                <li>☐ Clear description of the technical issue</li>
+                <li>☐ Root cause analysis (if known)</li>
+                <li>☐ Which systems are blocked (email, laptop, VPN, cloud apps, etc.)</li>
+                <li>☐ Can we partially provision? (e.g., email only, loaner hardware)</li>
+                <li>☐ Estimated time to full resolution</li>
+                <li>☐ Contingency if unresolved by start date</li>
+                <li>☐ Risk of delay (affects other roles, external commitments, etc.)</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>Missing Documents — Detailed Protocol</h2>
+
+    <div class="exception-block">
+        <h3>When: Candidate hasn't provided required information or documents</h3>
+
+        <div class="timeline">
+            <strong>Timeline & HR Actions:</strong>
+            <ul>
+                <li><strong>Upon discovery:</strong> HR documents what's missing and adds to onboarding task list</li>
+                <li><strong>Day 1:</strong> HR sends reminder with list of missing items and clear deadline (+3 business days)</li>
+                <li><strong>Day 3:</strong> HR sends follow-up with same items. If no progress, HR calls candidate to understand blockers.</li>
+                <li><strong>Day 5:</strong> If still missing, HR escalates to CEO with assessment:
+                    <ul>
+                        <li>What's missing (W-4, direct deposit, background check, references, etc.)</li>
+                        <li>Why it's needed and when</li>
+                        <li>Candidate's stated reason for delay (if any)</li>
+                        <li>Can we proceed without it? (e.g., start onboarding while waiting for W-4)</li>
+                        <li>Deadline extension recommendation (5 more days? Contingent offer?)</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <strong>Partial Onboarding:</strong> Some documents can be gathered during onboarding (e.g., W-4 at Day 2). Others must be pre-start (background check, offer acceptance). HR categorizes missing items and communicates which ones block start date vs. which ones can follow.
+        </div>
+    </div>
+
+    <h2>School Approval Pending — Detailed Protocol</h2>
+
+    <div class="exception-block">
+        <h3>When: Candidate is waiting for school approval (credit, confidentiality release, status confirmation)</h3>
+
+        <div class="warning">
+            <strong>Immediate Action:</strong> Assess school's timeline immediately upon discovery. Do not assume it will resolve in time.
+        </div>
+
+        <div class="timeline">
+            <strong>Timeline & HR Actions:</strong>
+            <ul>
+                <li><strong>Upon discovery:</strong> HR asks candidate for school timeline and what's required (credit approval, release letter, confidentiality sign-off, etc.)</li>
+                <li><strong>Within 24 hours:</strong> HR documents the school requirement and expected resolution date</li>
+                <li><strong>Immediate escalation:</strong> HR notifies CEO with:
+                    <ul>
+                        <li>School's requirement and why (course credit, internship status, employment permission, etc.)</li>
+                        <li>Expected resolution date from school</li>
+                        <li>Our start date and how much buffer we have</li>
+                        <li>Contingency options:
+                            <ul>
+                                <li>Offer internship instead of FT while waiting for approval</li>
+                                <li>Delay start date to account for school timeline</li>
+                                <li>Proceed and formalize once school approves</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>CEO decision:</strong> CEO approves contingency plan within 4 hours</li>
+                <li><strong>HR coordination:</strong> HR coordinates with school weekly to track progress and updates CEO if timeline slips</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <strong>Intern vs. Full-Time Contingency:</strong> If school requires the candidate to remain an intern for one semester while taking your courses, can we hire as an intern? CEO decides whether this aligns with role needs and budget.
+        </div>
+    </div>
+
+    <h2>Start Date Changed — Detailed Protocol</h2>
+
+    <div class="exception-block">
+        <h3>When: Candidate requests to move their start date</h3>
+
+        <div class="timeline">
+            <strong>Timeline & HR Actions:</strong>
+            <ul>
+                <li><strong>Within 2 hours of request:</strong> HR documents:
+                    <ul>
+                        <li>Original start date</li>
+                        <li>Requested new start date and reason</li>
+                        <li>Impact analysis:
+                            <ul>
+                                <li>How many other roles' onboarding depends on this hire?</li>
+                                <li>Does this push team readiness (e.g., team launch, investor meeting)?</li>
+                                <li>Are there vendor/customer commitments tied to start date?</li>
+                                <li>Total delay (days/weeks)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Decision threshold:</strong>
+                    <ul>
+                        <li><strong>1-2 day delay, no dependencies:</strong> HR can approve without CEO escalation</li>
+                        <li><strong>3+ day delay OR affects >1 other role OR impacts external commitments:</strong> Escalate to CEO</li>
+                    </ul>
+                </li>
+                <li><strong>CEO decision (if needed):</strong> CEO approves new date or asks HR to secure original date commitment from candidate. Decision within 4 hours.</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>Role Scope Changed — Detailed Protocol</h2>
+
+    <div class="exception-block">
+        <h3>When: Candidate requests different responsibilities or title than original offer</h3>
+
+        <div class="critical">
+            <strong>Escalate immediately.</strong> Role scope affects team composition, reporting structure, and compensation. CEO must decide.
+        </div>
+
+        <div class="timeline">
+            <strong>Timeline & Actions:</strong>
+            <ul>
+                <li><strong>Upon request:</strong> HR documents:
+                    <ul>
+                        <li>Original role and responsibilities</li>
+                        <li>Requested change and candidate's reasoning</li>
+                        <li>Impact on:
+                            <ul>
+                                <li>Reporting structure</li>
+                                <li>Team composition and other roles</li>
+                                <li>Equity and compensation</li>
+                                <li>Key responsibilities we need filled</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Same-day escalation:</strong> HR sends summary to CEO. CEO reviews and decides:
+                    <ul>
+                        <li>Approve modified offer (new role charter)</li>
+                        <li>Hold original offer</li>
+                        <li>Decline candidate</li>
+                    </ul>
+                </li>
+                <li><strong>CEO decision within 4 hours.</strong> HR communicates decision to candidate within 6 hours.</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>Escalation Communication Template</h2>
+
+    <div class="checklist" style="background: #f0fdf4; border-left-color: #16a34a;">
+        <strong>Use this template when escalating to CEO:</strong>
+        <pre style="background: white; padding: 15px; border-radius: 4px; overflow-x: auto;">
+SUBJECT: [ESCALATION] [Exception Type] — [Candidate Name] — Action Required
+
+CONTEXT:
+- Candidate: [Name], [Position]
+- Original Start Date: [Date]
+- Exception Type: [Signature Delay / System Access / Missing Docs / etc.]
+
+TIMELINE:
+- [Date]: [What happened]
+- [Date]: [What we did]
+- [Date]: [Current status]
+
+WHAT WE NEED FROM YOU:
+[ ] Approve deadline extension (until [Date])
+[ ] Approve new start date ([Date])
+[ ] Approve contingency plan: [Option 1 / Option 2 / Option 3]
+[ ] Approve role scope change: [Details]
+[ ] Other: [Decision needed]
+
+RECOMMENDATION:
+HR recommends: [Based on timeline, dependencies, candidate signal, etc.]
+
+TIMELINE FOR YOUR DECISION:
+Candidate needs to hear from us by [Time] to [specific reason].
+
+HR Contact: [Your name] — [Slack handle / phone number]
+        </pre>
+    </div>
+
+    <h2>Key Principles & Best Practices</h2>
+
+    <ol style="background: white; padding: 20px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <li><strong>Proactive >> Reactive.</strong> Call candidates on day 1 and day 3 rather than waiting to see if they'll follow up.</li>
+        <li><strong>Document everything.</strong> When you escalate, CEO has full context. When you need to revisit later, the paper trail is clear.</li>
+        <li><strong>Escalate early.</strong> Better to loop CEO in day 3 than day 7 when a candidate gets frustrated.</li>
+        <li><strong>Offer options, not just problems.</strong> When escalating, include 2-3 concrete paths forward so CEO can decide quickly.</li>
+        <li><strong>Communicate back to candidate within 6 hours of CEO decision.</strong> Delays breed doubt. Speed builds confidence.</li>
+        <li><strong>System access is critical path.</strong> All other onboarding activities wait for system access. Flag this immediately if it slips.</li>
+        <li><strong>Founder impact is the filter.</strong> If this exception affects founder relationships, equity math, or team composition, it needs CEO decision. Otherwise, HR decides.</li>
+    </ol>
+
+    <hr style="margin: 40px 0; border: none; border-top: 1px solid #e5e7eb;">
+
+    <p style="color: #6b7280; font-size: 0.9em;">
+        <strong>Last Updated:</strong> 2026-05-27<br>
+        <strong>Owner:</strong> HR Director with CEO oversight<br>
+        <strong>Related Document:</strong> Founder-Protection Routing Matrix<br>
+        <strong>Approvals:</strong> CEO, HR Director, CTO (for system access protocol)
+    </p>
+</body>
+</html>
