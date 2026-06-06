@@ -45,27 +45,21 @@ function DealRow({ title, meta, value, to, nextAction, dueDate }: { title: strin
 function ProgressBar({ count, total, label, projectedPace }: { count: number; total: number; label: string; projectedPace: number }) {
   const pct = Math.min(100, Math.round((count / Math.max(total, 1)) * 100));
   const projectedPct = Math.min(100, Math.round((projectedPace / Math.max(total, 1)) * 100));
-  
+
   let colorClass = 'bg-rose-500';
   if (count >= total) colorClass = 'bg-emerald-500';
   else if (count >= 2) colorClass = 'bg-amber-500';
 
   return (
     <div className="space-y-2">
-      <div className="flex items-end justify-between">
-        <div>
-          <p className="text-2xl font-bold text-white">{count} <span className="text-sm font-normal text-slate-400">/ {total} {label}</span></p>
-          <p className="text-xs text-slate-400">Projected pace: <span className="font-semibold text-slate-200">{projectedPace.toFixed(1)} orders</span></p>
-        </div>
-        <div className="text-right">
-          <p className="text-xs text-slate-400">Monthly Standard</p>
-          <p className={`text-sm font-bold ${count >= total ? 'text-emerald-400' : count >= 2 ? 'text-amber-400' : 'text-rose-400'}`}>
-            {pct}% of Floor
-          </p>
-        </div>
+      <div className="flex items-center justify-between gap-3 text-xs">
+        <p className="truncate text-slate-400">Projected pace: <span className="font-semibold text-slate-200">{projectedPace.toFixed(1)} {label.toLowerCase()}</span></p>
+        <p className={`shrink-0 font-bold ${count >= total ? 'text-emerald-400' : count >= 2 ? 'text-amber-400' : 'text-rose-400'}`}>
+          {pct}% floor
+        </p>
       </div>
-      <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-800/50 border border-slate-700/50">
-        <div className="absolute h-full rounded-full opacity-30 bg-slate-400" style={{ width: `${projectedPct}%` }} />
+      <div className="relative h-2 w-full overflow-hidden rounded-full border border-slate-700/50 bg-slate-800/50">
+        <div className="absolute h-full rounded-full bg-slate-400 opacity-30" style={{ width: `${projectedPct}%` }} />
         <div className={`absolute h-full rounded-full transition-all duration-500 ${colorClass}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -106,6 +100,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const projectedPace = (completedOrders.length / dayOfMonth) * daysInMonth;
   const avgDealValue = openOpps.length ? pipelineTotal / openOpps.length : 1500;
   const estimatedEarnings = projectedPace * avgDealValue * 0.1; // 10% commission mock
+  const monthlyOrderPct = Math.min(100, Math.round((completedOrders.length / Math.max(MONTHLY_ORDER_GOAL, 1)) * 100));
 
   const mission = staleOpps.length
     ? { title: 'Follow up stale opportunity now', reason: `${staleOpps.length} opportunities are stale and need activity today.`, to: '/my-opportunities', cta: 'Open priority queue' }
@@ -226,36 +221,58 @@ export function DashboardPage({ role }: { role: Role }) {
           </div>
         </GlassCard>
 
-        {/* SECTION 2: 4 ORDER MONTHLY STANDARD */}
-        <div className="grid gap-3 lg:grid-cols-3">
-          <GlassCard title="4 ORDER MONTHLY STANDARD" className="lg:col-span-2">
-            <div className="flex flex-col gap-6 md:flex-row md:items-center">
-              <div className="flex-1">
-                <ProgressBar 
-                  count={completedOrders.length} 
-                  total={MONTHLY_ORDER_GOAL} 
-                  label="Orders" 
-                  projectedPace={projectedPace}
-                />
+        {/* SECTION 2: REP COMMAND CENTER KPIS */}
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          <GlassCard title="4 ORDER STANDARD" className="min-w-0">
+            <div className="space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-3xl font-bold leading-none text-white">
+                    {completedOrders.length}
+                    <span className="text-base font-normal text-slate-400"> / {MONTHLY_ORDER_GOAL}</span>
+                  </p>
+                  <p className="mt-1 truncate text-xs text-slate-400">Completed monthly orders</p>
+                </div>
+                <div className="shrink-0 rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1.5 text-right">
+                  <p className={`text-sm font-bold ${completedOrders.length >= MONTHLY_ORDER_GOAL ? 'text-emerald-400' : completedOrders.length >= 2 ? 'text-amber-400' : 'text-rose-400'}`}>
+                    {monthlyOrderPct}%
+                  </p>
+                  <p className="text-[10px] uppercase tracking-wide text-slate-500">of floor</p>
+                </div>
               </div>
-              <div className="shrink-0 border-l border-slate-800 pl-6 md:w-48">
-                <p className="text-xs text-slate-400">Estimated Earnings</p>
-                <p className="text-xl font-bold text-emerald-400">{formatCurrency(estimatedEarnings)}</p>
-                <p className="text-[10px] text-slate-500 mt-1">Based on {projectedPace.toFixed(1)} projected orders at {formatCurrency(avgDealValue)} avg.</p>
-              </div>
+              <ProgressBar 
+                count={completedOrders.length} 
+                total={MONTHLY_ORDER_GOAL} 
+                label="Orders" 
+                projectedPace={projectedPace}
+              />
             </div>
           </GlassCard>
 
-          <GlassCard title="MISSION PRIORITY">
-            <div className="flex h-full flex-col justify-between">
-              <div>
-                <p className="text-base font-bold text-white uppercase tracking-tight">{mission.title}</p>
-                <p className="mt-1 text-sm text-slate-300">{mission.reason}</p>
-                <p className="mt-2 text-xs font-semibold text-rose-400 uppercase">Due Today</p>
+          <GlassCard title="MISSION PRIORITY" className="min-w-0">
+            <div className="space-y-3">
+              <div className="min-w-0">
+                <p className="break-words text-sm font-bold uppercase tracking-tight text-white">{mission.title}</p>
+                <p className="mt-1 text-sm leading-5 text-slate-300">{mission.reason}</p>
+                <p className="mt-2 text-xs font-semibold uppercase text-rose-400">Due Today</p>
               </div>
-              <Link to={mission.to} className="mt-4 inline-block w-full rounded-md bg-cyan-500/10 border border-cyan-400/40 py-2.5 text-center text-sm font-bold text-cyan-100 transition hover:bg-cyan-500/20">
+              <Link to={mission.to} className="inline-flex w-full items-center justify-center rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-center text-sm font-bold text-cyan-100 transition hover:bg-cyan-500/20 sm:w-auto">
                 {mission.cta}
               </Link>
+            </div>
+          </GlassCard>
+
+          <GlassCard title="ESTIMATED EARNINGS" className="min-w-0 md:col-span-2 lg:col-span-1">
+            <div className="space-y-3">
+              <div>
+                <p className="text-3xl font-bold leading-none text-emerald-400">{formatCurrency(estimatedEarnings)}</p>
+                <p className="mt-1 text-xs text-slate-400">Projected from current monthly pace</p>
+              </div>
+              <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-2">
+                <p className="text-xs leading-5 text-slate-300">
+                  Based on <span className="font-semibold text-slate-100">{projectedPace.toFixed(1)}</span> projected orders at <span className="font-semibold text-slate-100">{formatCurrency(avgDealValue)}</span> average deal value.
+                </p>
+              </div>
             </div>
           </GlassCard>
         </div>
