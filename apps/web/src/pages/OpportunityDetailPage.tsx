@@ -1,66 +1,97 @@
 import { Link, useParams } from 'react-router-dom';
 import { useMemo, useState } from 'react';
-import { Button, Card, EmptyState, StageBadge } from '../components/primitives';
+import { Button, Card, EmptyState } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
-import { useOpportunityById, useOpportunityStages } from '../hooks/useOpportunities';
+import { useOpportunityById } from '../hooks/useOpportunities';
 import { useOrganizationById } from '../hooks/useOrganizations';
 import { useActivities } from '../hooks/useReports';
-import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreativeRequests';
-import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
 import { updateOpportunityStage } from '../services/opportunitiesService';
 import type { Opportunity, OpportunityStage } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
 import { notify } from '../services/feedbackService';
+import { getLaneLabel } from '../utils/naming';
 
-const stageCtas = {
+const stageFlow = ['LEAD_ASSIGNED','CONTACTED','DISCOVERY','MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING','PAYMENT_RECEIVED','CLOSED_WON'] as const;
+
+const stageGroups: { key: string; label: string; stages: OpportunityStage[] }[] = [
+  { key: 'lead', label: 'Lead', stages: ['LEAD_ASSIGNED'] },
+  { key: 'contact', label: 'Contact', stages: ['CONTACTED'] },
+  { key: 'discovery', label: 'Discovery', stages: ['DISCOVERY'] },
+  { key: 'mockup', label: 'Mockup', stages: ['MOCKUP_REQUESTED', 'MOCKUP_DELIVERED'] },
+  { key: 'invoice', label: 'Invoice', stages: ['INVOICE_SENT'] },
+  { key: 'decision', label: 'Decision', stages: ['DECISION_PENDING'] },
+  { key: 'payment', label: 'Payment', stages: ['PAYMENT_RECEIVED'] },
+  { key: 'closed', label: 'Closed', stages: ['CLOSED_WON', 'CLOSED_LOST'] },
+];
+
+const nextActionCtas: Record<OpportunityStage, string> = {
   LEAD_ASSIGNED: 'Contact coach',
   CONTACTED: 'Log discovery',
   DISCOVERY: 'Request mockup',
-  MOCKUP_REQUESTED: 'Mark mockup delivered',
-  MOCKUP_DELIVERED: 'Send invoice',
-  INVOICE_SENT: 'Follow up payment',
-  DECISION_PENDING: 'Confirm payment received',
-  PAYMENT_RECEIVED: 'Mark ready to close won',
-  CLOSED_WON: 'View order',
-  CLOSED_LOST: 'Review loss reason',
-} as const;
+  MOCKUP_REQUESTED: 'Advance stage',
+  MOCKUP_DELIVERED: 'Advance stage',
+  INVOICE_SENT: 'Advance stage',
+  DECISION_PENDING: 'Advance stage',
+  PAYMENT_RECEIVED: 'Advance stage',
+  CLOSED_WON: 'Review handoff',
+  CLOSED_LOST: 'Review loss',
+};
 
-const stageFlow = ['LEAD_ASSIGNED','CONTACTED','DISCOVERY','MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING','PAYMENT_RECEIVED','CLOSED_WON'] as const;
+function humanizeStage(stage: OpportunityStage) {
+  return stage
+    .split('_')
+    .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function buildDueState(lastActivity: string) {
+  const staleDays = daysSince(lastActivity);
+  if (staleDays >= 7) return { label: `Overdue ${staleDays}d`, tone: 'border-rose-500/50 bg-rose-500/10 text-rose-200', due: 'Now', overdue: true, staleDays };
+  if (staleDays >= 3) return { label: 'Due Today', tone: 'border-amber-500/50 bg-amber-500/10 text-amber-200', due: 'Today', overdue: false, staleDays };
+  return { label: 'On Track', tone: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-200', due: 'On track', overdue: false, staleDays };
+}
+
+function isPlaceholderPhone(value?: string) {
+  if (!value) return true;
+  const digits = value.replace(/\D/g, '');
+  return digits.length < 10 || digits.startsWith('555') || /^(0+|1+|2+|3+|4+|5+|6+|7+|8+|9+)$/.test(digits);
+}
+
+function isPlaceholderEmail(value?: string) {
+  if (!value) return true;
+  return /(@school\.edu|\.local$|example\.|test\.)/i.test(value);
+}
+
+function DetailChip({ label, value, tone = 'border-slate-700 bg-slate-900/60 text-slate-100' }: { label: string; value: string; tone?: string }) {
+  return <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${tone}`}><span className="text-slate-400">{label}:</span> {value}</span>;
+}
 
 export function OpportunityDetailPage() {
   const { id } = useParams();
   const opp = useOpportunityById(id);
-  const opportunityStages = useOpportunityStages();
   const dealActivity = useActivities({ entityType: 'OPPORTUNITY', entityId: id });
   const organization = useOrganizationById(opp?.organizationId);
-  const [showForm, setShowForm] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [refreshTick, setRefreshTick] = useState(0);
   const [actionMessage, setActionMessage] = useState('');
   const [localOpp, setLocalOpp] = useState<Opportunity | undefined>();
   const [showAdvanceDrawer, setShowAdvanceDrawer] = useState(false);
   const [advanceForm, setAdvanceForm] = useState<Record<string, string>>({});
-  
+  const [showPlaybook, setShowPlaybook] = useState(false);
+
   const activeOpp = localOpp ?? opp;
-  const creativeRequests = useCreativeRequests(id, refreshTick);
-  const [form, setForm] = useState({ requestType: 'MOCKUP' as CreativeRequestType, designTeam: 'APPAREL_MOCKUP' as DesignTeam, priority: 'NORMAL' as CreativePriority, title: '', sport: opp?.sport ?? '', season: opp?.season ?? '', neededItems: [] as string[], designNotes: '', inspirationNotes: '', dueDate: '', assetLinks: '', internalNotes: '' });
-  
-  const summary = useMemo(() => ({ 
-    total: creativeRequests.length, 
-    active: creativeRequests.filter((r) => !['DELIVERED','ARCHIVED'].includes(r.status)).length, 
-    delivered: creativeRequests.filter((r) => r.status === 'DELIVERED').length, 
-    highUrgent: creativeRequests.filter((r) => ['HIGH','URGENT'].includes(r.priority)).length 
-  }), [creativeRequests, refreshTick]);
+
+  const activityTimeline = useMemo(() => [...dealActivity].sort((a, b) => b.timestamp.localeCompare(a.timestamp)), [dealActivity]);
 
   if (!activeOpp) return <EmptyState title="Opportunity not found" description="Select another opportunity from the pipeline table." />;
 
   const currentStageIndex = stageFlow.indexOf(activeOpp.stage as any);
   const nextStage = currentStageIndex >= 0 && currentStageIndex < stageFlow.length - 1 ? stageFlow[currentStageIndex + 1] : null;
-  const staleDays = daysSince(activeOpp.lastActivity);
-  const followupTone = staleDays >= 7 ? 'AT RISK' : staleDays >= 3 ? 'NEEDS FOLLOW-UP' : 'ON TRACK';
+  const dueState = buildDueState(activeOpp.lastActivity);
   const canAdvance = canAdvanceOpportunity(activeOpp);
+  const decisionMaker = organization?.athleticDirectorName;
+  const champion = organization?.headCoachName;
+  const contactPhone = !isPlaceholderPhone(organization?.headCoachPhone) ? organization?.headCoachPhone : !isPlaceholderPhone(organization?.athleticDirectorPhone) ? organization?.athleticDirectorPhone : undefined;
+  const contactEmail = !isPlaceholderEmail(organization?.headCoachEmail) ? organization?.headCoachEmail : !isPlaceholderEmail(organization?.athleticDirectorEmail) ? organization?.athleticDirectorEmail : undefined;
 
   const requiredFieldsByStage: Partial<Record<OpportunityStage, { key: string; label: string; type?: 'date' | 'text' }[]>> = {
     CONTACTED: [{ key: 'contactMethod', label: 'Contact Method' }, { key: 'outcome', label: 'Outcome' }, { key: 'nextFollowupDate', label: 'Next Follow-up Date', type: 'date' }],
@@ -72,7 +103,7 @@ export function OpportunityDetailPage() {
   };
   const requiredAdvanceFields = nextStage ? (requiredFieldsByStage[nextStage] ?? []) : [];
 
-  const setStage = (stage: OpportunityStage, message: string) => {
+  const advanceToStage = (stage: OpportunityStage, message: string) => {
     try {
       const updated = updateOpportunityStage(activeOpp.id, stage);
       if (!updated) throw new Error('Opportunity not found.');
@@ -86,100 +117,109 @@ export function OpportunityDetailPage() {
     }
   };
 
+  const openAdvanceDrawer = () => {
+    if (!canAdvance) return;
+    setShowAdvanceDrawer(true);
+  };
+
   return (
     <div className="space-y-3">
-      <Card title="Deal Command Center">
-        <div className="grid gap-2 lg:grid-cols-2">
-          <div className="space-y-1">
-            <p className="text-lg font-semibold">{activeOpp.title}</p>
-            <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300 hover:underline">{activeOpp.organizationName}</Link>
-            <div className="mt-1 flex gap-2">
-              <a href={`tel:5550123`} className="rounded bg-slate-800 px-2 py-1 text-[10px] font-bold text-emerald-400 hover:bg-slate-700 transition">CALL COACH</a>
-              <a href={`mailto:coach@school.edu`} className="rounded bg-slate-800 px-2 py-1 text-[10px] font-bold text-sky-400 hover:bg-slate-700 transition">EMAIL COACH</a>
-            </div>
+      <Card>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-xl font-bold leading-tight text-white">{activeOpp.title}</p>
+            <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm font-semibold text-cyan-300 hover:underline">{activeOpp.organizationName}</Link>
           </div>
           <div className="text-left lg:text-right">
-            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
-            <p className="text-xs text-slate-400">Assigned Rep: {activeOpp.assignedRep}</p>
-            <div className="mt-1 flex flex-wrap gap-2 lg:justify-end">
-              <span className="text-[10px] text-slate-500 uppercase tracking-widest">{activeOpp.lane} · {activeOpp.sport}</span>
-              <span className={`text-[10px] font-bold uppercase ${followupTone === 'AT RISK' ? 'text-rose-400' : 'text-emerald-400'}`}>{followupTone}</span>
-            </div>
+            <p className="text-3xl font-black leading-none text-cyan-200">{formatCurrency(activeOpp.value)}</p>
+            <p className="mt-1 text-[11px] font-bold uppercase tracking-widest text-slate-500">Value</p>
           </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <DetailChip label="Stage" value={humanizeStage(activeOpp.stage)} tone="border-cyan-500/50 bg-cyan-500/10 text-cyan-100" />
+          <DetailChip label="Lane" value={getLaneLabel(activeOpp.lane)} />
+          <DetailChip label="Sport" value={activeOpp.sport} />
+          <DetailChip label="Rep" value={activeOpp.assignedRep} />
+          <DetailChip label="Due" value={dueState.label} tone={dueState.tone} />
         </div>
       </Card>
 
-      <Card title="Close Path Progress">
-        <div className="flex flex-wrap gap-2">
-          {opportunityStages.map((stage) => {
-            const stageIndex = stageFlow.indexOf(stage as any);
-            const done = stageIndex >= 0 && stageIndex < currentStageIndex;
-            const isCurrent = stage === activeOpp.stage;
+      <Card title="Stage Progress">
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4 xl:grid-cols-8">
+          {stageGroups.map((group) => {
+            const groupIndexes = group.stages.map((stage) => stageFlow.indexOf(stage as any)).filter((index) => index >= 0);
+            const isCurrent = group.stages.includes(activeOpp.stage);
+            const isDone = groupIndexes.length > 0 && Math.max(...groupIndexes) < currentStageIndex;
+            const stageLabel = group.stages.includes(activeOpp.stage) ? humanizeStage(activeOpp.stage) : group.label;
             return (
-              <div key={stage} className={`rounded-md border px-3 py-2 transition-all ${isCurrent ? 'border-cyan-400 bg-cyan-500/15 scale-105 z-10' : done ? 'border-emerald-500/40 bg-emerald-500/10 opacity-70' : 'border-slate-800 bg-slate-950/40 opacity-50'}`}>
-                <StageBadge stage={stage} />
+              <div key={group.key} className={`rounded-lg border p-2 ${isCurrent ? 'border-cyan-300 bg-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.2)]' : isDone ? 'border-emerald-500/40 bg-emerald-500/10' : 'border-slate-800 bg-slate-950/40 opacity-60'}`}>
+                <p className={`text-sm font-black ${isCurrent ? 'text-cyan-100' : isDone ? 'text-emerald-200' : 'text-slate-400'}`}>{isDone ? '✓ ' : ''}{group.label}</p>
+                <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-500">{stageLabel}</p>
               </div>
             );
           })}
         </div>
       </Card>
 
-      <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Next Action" className="lg:col-span-2">
-          <div className="flex items-start gap-3">
-            <div className="mt-1 rounded-full bg-cyan-400 p-1.5 shadow-[0_0_12px_rgba(34,211,238,0.4)]" />
-            <div>
-              <p className="text-base font-bold text-white leading-tight">{activeOpp.nextAction}</p>
-              {staleDays >= 7 && <p className='mt-1 text-xs font-bold text-rose-400 uppercase tracking-tighter'>Action overdue by {staleDays} days</p>}
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
+        <Card title="Next Action">
+          <div className="grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
+            <div className="space-y-2">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Next Action</p>
+                <p className="text-lg font-black text-white">{activeOpp.nextAction}</p>
+              </div>
+              <div className="flex flex-wrap gap-2 text-sm">
+                <span className="rounded-lg border border-slate-800 bg-slate-950/50 px-3 py-1.5 text-slate-200"><span className="text-slate-500">Due:</span> {dueState.due}</span>
+                {dueState.overdue && <span className="rounded-lg border border-rose-500/50 bg-rose-500/10 px-3 py-1.5 font-bold text-rose-200">Overdue warning</span>}
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Button className="min-w-44 text-sm" disabled={!canAdvance || !nextStage} onClick={openAdvanceDrawer}>{nextStage ? 'Advance Stage' : nextActionCtas[activeOpp.stage]}</Button>
+              <button className="rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-xs font-bold text-slate-300 transition hover:bg-slate-800" onClick={() => setActionMessage('Log Activity placeholder: modal planned for a future sprint.')}>Log Activity</button>
             </div>
           </div>
-          {actionMessage && <p className="mt-3 rounded border border-cyan-500/20 bg-cyan-500/5 p-2 text-xs text-cyan-200">{actionMessage}</p>}
+          {!canAdvance && <p className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-100">{getAdvanceDeniedMessage(activeOpp)}</p>}
+          {actionMessage && <p className="mt-2 rounded-lg border border-cyan-500/20 bg-cyan-500/5 p-2 text-xs text-cyan-200">{actionMessage}</p>}
         </Card>
+
         <Card title="Quick Execution">
-          {canAdvance ? (
-            <div className='space-y-2'>
-              <Button className="w-full text-xs py-2" onClick={() => setActionMessage(`${stageCtas[activeOpp.stage]} logged.`)}>
-                {stageCtas[activeOpp.stage].toUpperCase()}
-              </Button>
-              {nextStage && (
-                <button 
-                  className='w-full rounded-lg border border-slate-700 bg-slate-800/40 py-2 text-xs font-bold text-slate-300 hover:bg-slate-800 transition' 
-                  onClick={() => setShowAdvanceDrawer(true)}
-                >
-                  ADVANCE TO {nextStage.replace(/_/g,' ')}
-                </button>
-              )}
+          <div className="space-y-2">
+            <Button className="w-full" disabled={!canAdvance || !nextStage} onClick={openAdvanceDrawer}>{nextStage ? `Advance to ${humanizeStage(nextStage)}` : 'No Stage Advance'}</Button>
+            {!canAdvance && <p className="text-xs text-slate-400">{getAdvanceDeniedMessage(activeOpp)}</p>}
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              {contactPhone && <a href={`tel:${contactPhone}`} className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-center text-xs font-bold text-emerald-200">Call</a>}
+              {contactEmail && <a href={`mailto:${contactEmail}`} className="rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2 text-center text-xs font-bold text-sky-200">Email</a>}
             </div>
-          ) : (
-            <p className="text-xs text-slate-400 italic text-center py-2">{getAdvanceDeniedMessage(activeOpp)}</p>
-          )}
+            {!contactPhone && !contactEmail && <button className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-xs font-bold text-slate-300" onClick={() => setActionMessage('Add Contact Info placeholder: update the organization record before calling or emailing.')}>Add Contact Info</button>}
+          </div>
         </Card>
       </div>
 
       {showAdvanceDrawer && nextStage && canAdvance && (
         <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm">
           <div className="absolute right-0 top-0 h-full w-full max-w-xl overflow-y-auto border-l border-slate-700 bg-[#08111a] p-6 shadow-2xl">
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex items-start justify-between gap-4">
               <div>
-                <p className="text-xl font-bold text-white uppercase tracking-tight">Advance to {nextStage.replace(/_/g, ' ')}</p>
-                <p className="text-xs text-slate-400 mt-1">Capture required fields to maintain data integrity.</p>
+                <p className="text-xl font-bold text-white">Advance to {humanizeStage(nextStage)}</p>
+                <p className="text-xs text-slate-400">Capture required fields before moving the deal.</p>
               </div>
-              <button className="text-slate-500 hover:text-white transition" onClick={() => setShowAdvanceDrawer(false)}>✕</button>
+              <button className="text-slate-500 transition hover:text-white" onClick={() => setShowAdvanceDrawer(false)}>✕</button>
             </div>
-            
+
             <div className="space-y-4">
               {requiredAdvanceFields.length > 0 ? requiredAdvanceFields.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">{field.label}</label>
-                  <input 
-                    type={field.type ?? 'text'} 
-                    value={advanceForm[field.key] ?? ''} 
-                    onChange={(e) => setAdvanceForm((prev) => ({ ...prev, [field.key]: e.target.value }))} 
-                    className="w-full rounded-md border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500" 
+                  <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">{field.label}</label>
+                  <input
+                    type={field.type ?? 'text'}
+                    value={advanceForm[field.key] ?? ''}
+                    onChange={(e) => setAdvanceForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                    className="w-full rounded-md border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
                   />
                 </div>
               )) : (
-                <p className="text-sm text-slate-300 italic">No additional fields required for this stage transition.</p>
+                <p className="text-sm italic text-slate-300">No additional fields required for this stage transition.</p>
               )}
             </div>
 
@@ -190,65 +230,61 @@ export function OpportunityDetailPage() {
                   notify(`Missing required fields: ${missing.map((m) => m.label).join(', ')}`, 'error');
                   return;
                 }
-                setStage(nextStage, `Advanced to ${nextStage.replace(/_/g, ' ')}.`);
+                advanceToStage(nextStage, `Advanced to ${humanizeStage(nextStage)}.`);
                 setShowAdvanceDrawer(false);
                 setAdvanceForm({});
-              }}>CONFIRM ADVANCEMENT</Button>
-              <button 
-                className="w-full rounded-md border border-slate-800 bg-slate-900/30 py-2.5 text-sm font-bold text-slate-400 hover:bg-slate-800 transition" 
-                onClick={() => setShowAdvanceDrawer(false)}
-              >
-                CANCEL
-              </button>
+              }}>Confirm Advancement</Button>
+              <button className="w-full rounded-md border border-slate-800 bg-slate-900/30 py-2.5 text-sm font-bold text-slate-400 transition hover:bg-slate-800" onClick={() => setShowAdvanceDrawer(false)}>Cancel</button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="grid gap-3 lg:grid-cols-3">
-        <Card title="Decision Timeline" className="lg:col-span-2">
-          <div className="space-y-2">
-            {dealActivity.length ? dealActivity.map((entry) => (
-              <div key={entry.id} className="border-l-2 border-slate-800 pl-4 py-1">
-                <p className="text-sm text-slate-200 leading-snug">{entry.message}</p>
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">{entry.timestamp} · {entry.user}</p>
-              </div>
-            )) : <p className="text-xs text-slate-500 italic">No activity logs yet.</p>}
-          </div>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Card title="Relationship Intelligence">
+          {decisionMaker || champion ? (
+            <div className="grid gap-2 text-sm sm:grid-cols-2">
+              <p className="rounded-lg border border-slate-800 bg-slate-950/40 p-2"><span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Decision Maker</span>{decisionMaker ?? 'Not recorded'}</p>
+              <p className="rounded-lg border border-slate-800 bg-slate-950/40 p-2"><span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Champion / Contact</span>{champion ?? 'Not recorded'}</p>
+              <p className="rounded-lg border border-slate-800 bg-slate-950/40 p-2"><span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Last Activity</span>{activeOpp.lastActivity}</p>
+              <p className="rounded-lg border border-slate-800 bg-slate-950/40 p-2"><span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Refresh Window</span>{activeOpp.season || 'Not recorded'}</p>
+              <p className="rounded-lg border border-slate-800 bg-slate-950/40 p-2"><span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Competitor</span>Not recorded</p>
+              <p className="rounded-lg border border-slate-800 bg-slate-950/40 p-2"><span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500">Buying Process</span>Not recorded</p>
+            </div>
+          ) : (
+            <p className="rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-400">No decision path recorded yet.</p>
+          )}
         </Card>
-        <Card title="Files / Assets">
-          <div className="space-y-3">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400 uppercase font-medium">Requests</span>
-              <span className="font-bold text-white">{summary.total}</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-400 uppercase font-medium">Delivered</span>
-              <span className="font-bold text-emerald-400">{summary.delivered}</span>
-            </div>
-            <Button className="w-full text-[10px] h-8 py-0" onClick={() => { setShowForm((v) => !v); setError(''); setSuccess(''); }}>
-              {showForm ? 'CANCEL' : 'NEW REQUEST'}
-            </Button>
+
+        <Card title="Activity Timeline">
+          <div className="mb-2 flex justify-end">
+            <button className="rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-1.5 text-xs font-bold text-slate-300" onClick={() => setActionMessage('Log Activity placeholder: modal planned for a future sprint.')}>Log Activity</button>
+          </div>
+          <div className="space-y-2">
+            {activityTimeline.length ? activityTimeline.map((entry) => (
+              <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/30 p-2">
+                <p className="text-sm leading-snug text-slate-200">{entry.message}</p>
+                <p className="mt-1 text-[10px] uppercase tracking-wider text-slate-500">{entry.timestamp} · {entry.user}</p>
+              </div>
+            )) : <p className="rounded-lg border border-dashed border-slate-700 p-3 text-sm text-slate-400">No activity logged yet.</p>}
           </div>
         </Card>
       </div>
 
-      <Card title="Outcome Controls">
-        <div className="flex flex-col gap-3 lg:flex-row">
-          <div className="flex-1">
-            <p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING.</p>
+      <Card>
+        <button className="flex w-full items-center justify-between text-left" onClick={() => setShowPlaybook((value) => !value)}>
+          <span className="text-sm font-semibold text-white">Strategy & Playbook Guidance</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-cyan-300">{showPlaybook ? 'Hide' : 'Show'}</span>
+        </button>
+        {showPlaybook && (
+          <div className="mt-3 grid gap-2 text-sm text-slate-300 md:grid-cols-2">
+            <p><span className="font-bold text-white">Expansion Ladder:</span> Win the active lane first, then identify the next logical sport or gear category.</p>
+            <p><span className="font-bold text-white">Refresh Cycle:</span> Confirm season timing and uniform replacement windows before asking for commitment.</p>
+            <p><span className="font-bold text-white">Ecosystem Referral:</span> Ask trusted coaches or administrators for warm introductions to adjacent programs.</p>
+            <p><span className="font-bold text-white">Competitive Displacement:</span> Capture incumbent vendor, pain points, and decision timing before positioning TUF.</p>
+            <p><span className="font-bold text-white">Decision Path Mapping:</span> Record the decision maker, champion, approval steps, and payment owner.</p>
           </div>
-          <div className="shrink-0 flex gap-2">
-            {canAdvance ? (
-              <>
-                <Button className="text-xs px-4" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won. Review Orders for handoff coverage.')}>Mark Won</Button>
-                <Button className="text-xs px-4 border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost. Capture loss reason during follow-up review.')}>Mark Lost</Button>
-              </>
-            ) : (
-              <p className="text-sm text-slate-400 italic">Outcome changes are read-only for your current role.</p>
-            )}
-          </div>
-        </div>
+        )}
       </Card>
     </div>
   );
