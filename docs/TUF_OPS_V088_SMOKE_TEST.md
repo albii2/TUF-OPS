@@ -3,6 +3,18 @@
 ## Scope
 Validate that the Orders workflow now behaves like an execution queue and that each order detail page works as a command center with guided stage advancement.
 
+## Opportunity Creation P0 Regression
+1. Log in as Rep with `1357`.
+2. Open **My Opportunities** and confirm the default view is **Action Needed**.
+3. Click **+ New Opportunity**.
+4. Complete required fields and submit.
+5. Confirm success feedback appears: **Opportunity created.**
+6. Confirm the app navigates directly to `/opportunities/:id` for the new opportunity.
+7. Refresh the Opportunity Detail route and confirm the opportunity still loads.
+8. Confirm the opportunity is assigned to the logged-in rep and can be advanced by that rep.
+9. Return to **My Opportunities** and confirm the new Lead Assigned opportunity appears in **Action Needed** until first contact is logged.
+10. Advance or prepare a controlled test opportunity to **Closed Won** and confirm the Closed Won → Order Created handoff path remains testable.
+
 ## Rep — PIN 1357
 1. Log in with `1357`.
 2. Open **Orders**.

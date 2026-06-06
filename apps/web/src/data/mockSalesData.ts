@@ -61,8 +61,15 @@ export type Opportunity = {
   stage: OpportunityStage;
   value: number;
   assignedRep: string;
+  assignedDirector?: string;
+  estimatedValue?: number;
   nextAction: string;
+  nextActionDueDate?: string;
   lastActivity: string;
+  createdAt?: string;
+  updatedAt?: string;
+  dueDate?: string;
+  orderId?: string | null;
   closeProbability: number;
 };
 
