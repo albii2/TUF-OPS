@@ -4,18 +4,21 @@ export type SidebarKey =
   | 'dashboard'
   | 'pipeline'
   | 'organizations'
+  | 'ecosystem'
   | 'programs'
   | 'territory'
   | 'invoices'
   | 'performance'
   | 'messages'
   | 'ops_workspace'
-  | 'training'
   | 'settings'
-  | 'users';
+  | 'users'
+  | 'data_health';
 
 export type AppUser = {
-  id?: string;
+  id: string;
   name: string;
+  email: string;
   role: Role;
+  mustChangeCredential: boolean;
 };

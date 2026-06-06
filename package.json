@@ -33,6 +33,7 @@
     "pnpm": "^9.1.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
+    "typescript-eslint": "^7.2.0",
     "typescript": "^5.4.5"
   },
   "dependencies": {

@@ -44,8 +44,8 @@
 - [ ] Direct visit `/settings`.
 - [ ] Direct visit `/organizations`.
 - [ ] Direct visit `/opportunities`.
-- [ ] Direct visit `/opportunities/opp-test-1`.
-- [ ] Direct visit `/organizations/org-test-1`.
+- [ ] Direct visit `/organizations/org-test-baseline`.
+- [ ] After creating a test opportunity, direct visit `/opportunities/<created-test-opportunity-id>`.
 - [ ] Refresh each route.
 - [ ] Confirm no 404/502.
 

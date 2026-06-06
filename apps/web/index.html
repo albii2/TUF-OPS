@@ -4,8 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TUF Ops</title>
+    <meta name="theme-color" content="#00AEEF" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TUF Ops" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/slash-icon.svg" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/slash-icon.svg" />
+    <style>
+      #launch-screen {
+        position: fixed; inset: 0; display: grid; place-items: center; background: #020617; color: #fff; z-index: 9999;
+        font-family: Inter, system-ui, -apple-system, sans-serif;
+      }
+      .slash { color: #00AEEF; font-size: 64px; letter-spacing: 8px; animation: pulse 1.6s ease-in-out infinite; }
+      .wing { position: absolute; bottom: 24px; opacity: 0.45; font-size: 12px; letter-spacing: 3px; color: #fff; }
+      @keyframes pulse { 0%,100% { text-shadow: 0 0 0 rgba(0,174,239,0.15);} 50% { text-shadow: 0 0 20px rgba(0,174,239,0.55);} }
+    </style>
   </head>
   <body>
+    <div id="launch-screen" aria-hidden="true">
+      <div class="slash">//</div>
+      <div class="wing">TUF</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
