@@ -40,9 +40,10 @@ export function canViewOpportunity(opp: Opportunity) {
 export function canViewOrder(order: Order, linkedOpportunity?: Opportunity) {
   const user = getViewer();
   if (!user || user.role === 'OWNER' || user.role === 'OPS') return true;
-  if (!linkedOpportunity) return false;
-  if (user.role === 'REP') return linkedOpportunity.assignedRep === user.name;
-  if (user.role === 'DIRECTOR') return getDirectorRepSet(user.name).has(linkedOpportunity.assignedRep);
+  const orderRep = order.assignedRep ?? linkedOpportunity?.assignedRep;
+  const orderDirector = order.assignedDirector ?? linkedOpportunity?.assignedDirector;
+  if (user.role === 'REP') return orderRep === user.name;
+  if (user.role === 'DIRECTOR') return orderDirector === user.name || (!!orderRep && getDirectorRepSet(user.name).has(orderRep));
   return false;
 }
 
