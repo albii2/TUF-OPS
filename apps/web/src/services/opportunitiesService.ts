@@ -2,8 +2,7 @@ import { opportunities, type Opportunity, opportunityStages, type OpportunitySta
 import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';
-import { DATA_MODE } from './dataMode';
-import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
+import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage, getDirectorRepSet } from './roleScope';
 
 export type OpportunityListParams = {
   search?: string;
@@ -18,7 +17,7 @@ const LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_opportunities_v2';
 const LEGACY_OPPORTUNITIES_KEY = 'tuf_ops_mock_opportunities_v1';
 
 const nextActionByStage: Record<OpportunityStage, string> = {
-  LEAD_ASSIGNED: 'Contact coach and confirm decision owner',
+  LEAD_ASSIGNED: 'Contact decision maker',
   CONTACTED: 'Log discovery notes',
   DISCOVERY: 'Request mockup with sport and season notes',
   MOCKUP_REQUESTED: 'Confirm mockup delivery date',
@@ -32,8 +31,15 @@ const nextActionByStage: Record<OpportunityStage, string> = {
 
 function readLocalOpportunities(): Opportunity[] {
   try {
-    localStorage.removeItem(LEGACY_OPPORTUNITIES_KEY);
     return JSON.parse(localStorage.getItem(LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
+  } catch {
+    return [];
+  }
+}
+
+function readLegacyOpportunities(): Opportunity[] {
+  try {
+    return JSON.parse(localStorage.getItem(LEGACY_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
   } catch {
     return [];
   }
@@ -45,13 +51,27 @@ function writeLocalOpportunities(rows: Opportunity[]) {
 
 function getAllOpportunities() {
   const localRows = readLocalOpportunities();
-  const localIds = new Set(localRows.map((row) => row.id));
-  return [...localRows, ...opportunities.filter((row) => !localIds.has(row.id))];
+  const legacyRows = readLegacyOpportunities();
+  const persistedRows = [...localRows, ...legacyRows];
+  const persistedIds = new Set(persistedRows.map((row) => row.id));
+  return [...persistedRows, ...opportunities.filter((row) => !persistedIds.has(row.id))];
+}
+
+function addDays(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
+}
+
+function resolveAssignedDirector(input: { assignedRep: string; organizationAssignedDirector?: string }) {
+  const user = getStoredUser();
+  if (user?.role === 'DIRECTOR') return user.name;
+  if (input.organizationAssignedDirector && input.organizationAssignedDirector !== 'Unassigned') return input.organizationAssignedDirector;
+  const matchingDirector = ['Test Director', 'Primeau Hill Director'].find((director) => getDirectorRepSet(director).has(input.assignedRep));
+  return matchingDirector ?? '';
 }
 
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
-  if (DATA_MODE !== 'mock') return [];
-
   return getAllOpportunities().filter((opp) => {
     const matchesSearch = (params.search ?? '').trim()
       ? [opp.title, opp.organizationName].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
@@ -66,7 +86,6 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
 }
 
 export function getOpportunityById(id: string): Opportunity | undefined {
-  if (DATA_MODE !== 'mock') return undefined;
   return listOpportunities({}).find((opp) => opp.id === id);
 }
 
@@ -87,9 +106,19 @@ export function createMockOpportunity(input: {
   lane: RevenueLane;
   assignedRep: string;
   value: number;
+  organizationAssignedDirector?: string;
 }) {
   const user = getStoredUser();
-  const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep;
+  const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep.trim();
+  if (!input.organizationId) throw new Error('Organization is required.');
+  if (!input.organizationName.trim()) throw new Error('Organization name is required.');
+  if (!assignedRep) throw new Error('Assigned rep is required.');
+  if (!input.sport.trim()) throw new Error('Sport is required.');
+  if (!input.seasonCode.trim()) throw new Error('Season is required.');
+  if (input.value < 0) throw new Error('Estimated value cannot be negative.');
+
+  const now = new Date().toISOString();
+  const assignedDirector = resolveAssignedDirector({ assignedRep, organizationAssignedDirector: input.organizationAssignedDirector });
   const row: Opportunity = {
     id: `opp-local-${Date.now()}`,
     title: buildOpportunityDisplayName({ programLevel: input.programLevel, sport: input.sport, seasonCode: input.seasonCode, lane: input.lane }),
@@ -100,12 +129,19 @@ export function createMockOpportunity(input: {
     season: input.seasonCode,
     stage: 'LEAD_ASSIGNED',
     value: input.value,
+    estimatedValue: input.value,
     assignedRep,
+    assignedDirector,
     nextAction: nextActionByStage.LEAD_ASSIGNED,
-    lastActivity: new Date().toISOString().slice(0, 10),
+    nextActionDueDate: addDays(1),
+    dueDate: addDays(1),
+    lastActivity: now,
+    createdAt: now,
+    updatedAt: now,
+    orderId: null,
     closeProbability: 20,
   };
-  writeLocalOpportunities([row, ...readLocalOpportunities()]);
+  writeLocalOpportunities([row, ...readLocalOpportunities().filter((opp) => opp.id !== row.id)]);
   return row;
 }
 
@@ -130,7 +166,8 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
     stage,
     nextAction: nextActionByStage[stage],
     closeProbability: closeProbabilityByStage[stage],
-    lastActivity: new Date().toISOString().slice(0, 10),
+    lastActivity: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
   writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
   return updated;

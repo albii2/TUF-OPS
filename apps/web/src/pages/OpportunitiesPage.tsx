@@ -18,7 +18,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const [rep, setRep] = useState(forceRep ?? 'ALL');
   const [sport, setSport] = useState('ALL');
   const [page, setPage] = useState(1);
-  const [view, setView] = useState<'ACTION_NEEDED' | 'NEAR_CLOSE' | 'STALLED' | 'ALL'>('ALL');
+  const [view, setView] = useState<'ACTION_NEEDED' | 'NEAR_CLOSE' | 'STALLED' | 'ALL'>('ACTION_NEEDED');
 
   const allOpportunities = useOpportunities({});
   const opportunityStages = useOpportunityStages();
@@ -38,8 +38,9 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
     if (view === 'ACTION_NEEDED') {
       list = list.filter((o) => {
         const stale = daysSince(o.lastActivity) > 14;
+        const needsFirstContact = o.stage === 'LEAD_ASSIGNED';
         const needsInvoice = ['INVOICE_SENT', 'DECISION_PENDING'].includes(o.stage);
-        return stale || needsInvoice;
+        return needsFirstContact || stale || needsInvoice;
       });
       list.sort((a, b) => daysSince(b.lastActivity) - daysSince(a.lastActivity));
     } else if (view === 'NEAR_CLOSE') {
@@ -115,7 +116,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
 
       {createdOpportunityId ? (
         <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-100">
-          Opportunity created and added to this list. Use the filters below if you need to narrow the pipeline.
+Opportunity created. It remains in Action Needed until first contact is logged.
         </div>
       ) : null}
 
