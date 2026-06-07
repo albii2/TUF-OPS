@@ -3,9 +3,11 @@ import { useMemo, useState } from 'react';
 import { Button, Card, EmptyState } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOpportunityById } from '../hooks/useOpportunities';
+import { useOrderByOpportunityId } from '../hooks/useOrders';
 import { useOrganizationById } from '../hooks/useOrganizations';
 import { useActivities } from '../hooks/useReports';
 import { updateOpportunityStage } from '../services/opportunitiesService';
+import { createMockOrderFromOpportunity } from '../services/ordersService';
 import type { Opportunity, OpportunityStage } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
@@ -77,9 +79,11 @@ export function OpportunityDetailPage() {
   const [showAdvanceDrawer, setShowAdvanceDrawer] = useState(false);
   const [advanceForm, setAdvanceForm] = useState<Record<string, string>>({});
   const [showPlaybook, setShowPlaybook] = useState(false);
+  const [orderRefreshKey, setOrderRefreshKey] = useState(0);
 
   const activeOpp = localOpp ?? opp;
 
+  const linkedOrder = useOrderByOpportunityId(activeOpp?.id, orderRefreshKey);
   const activityTimeline = useMemo(() => [...dealActivity].sort((a, b) => b.timestamp.localeCompare(a.timestamp)), [dealActivity]);
 
   if (!activeOpp) return <EmptyState title="Opportunity not found" description="Select another opportunity from the pipeline table." />;
@@ -92,6 +96,19 @@ export function OpportunityDetailPage() {
   const champion = organization?.headCoachName;
   const contactPhone = !isPlaceholderPhone(organization?.headCoachPhone) ? organization?.headCoachPhone : !isPlaceholderPhone(organization?.athleticDirectorPhone) ? organization?.athleticDirectorPhone : undefined;
   const contactEmail = !isPlaceholderEmail(organization?.headCoachEmail) ? organization?.headCoachEmail : !isPlaceholderEmail(organization?.athleticDirectorEmail) ? organization?.athleticDirectorEmail : undefined;
+
+  const createOrderHandoff = () => {
+    try {
+      const created = createMockOrderFromOpportunity(activeOpp);
+      setOrderRefreshKey((value) => value + 1);
+      setActionMessage(`Order created: ${created.id}`);
+      notify('Order handoff created.', 'success');
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'Unable to create order handoff.';
+      setActionMessage(detail);
+      notify(`Order handoff failed: ${detail}`, 'error');
+    }
+  };
 
   const requiredFieldsByStage: Partial<Record<OpportunityStage, { key: string; label: string; type?: 'date' | 'text' }[]>> = {
     CONTACTED: [{ key: 'contactMethod', label: 'Contact Method' }, { key: 'outcome', label: 'Outcome' }, { key: 'nextFollowupDate', label: 'Next Follow-up Date', type: 'date' }],
@@ -160,6 +177,18 @@ export function OpportunityDetailPage() {
           })}
         </div>
       </Card>
+
+      {activeOpp.stage === 'CLOSED_WON' ? (
+        <Card title="Order Handoff">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-white">Closed Won → Order Created</p>
+              <p className="text-xs text-slate-400">Uses organization, opportunity, lane/product, sport, value, and assigned rep.</p>
+            </div>
+            {linkedOrder ? <Link className="rounded-lg border border-cyan-500/50 px-3 py-2 text-sm font-bold text-cyan-200" to={`/orders/${linkedOrder.id}`}>Open linked order</Link> : <Button onClick={createOrderHandoff}>Create Order Handoff</Button>}
+          </div>
+        </Card>
+      ) : null}
 
       <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)]">
         <Card title="Next Action">
