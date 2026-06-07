@@ -150,18 +150,28 @@ function buildUpdatedOrder(existing: Order, patch: AdvancementPatch): Order {
   const nextStage = patch.orderStage ?? existing.orderStage;
   const productionStatus = nextStage ? toProductionStatus(nextStage) : patch.productionStatus ?? existing.productionStatus;
   const stageChanged = nextStage && nextStage !== getOrderStage(existing);
+  const missingInfo = nextStage === 'BLOCKED_ON_HOLD'
+    ? [patch.advancementNotes || patch.vendorNotes || existing.missingInfo[0] || 'Order on hold']
+    : stageChanged && nextStage !== 'ORDER_CREATED'
+      ? []
+      : patch.missingInfo ?? existing.missingInfo;
+  const nextAction = patch.nextAction ?? getOrderNextAction({
+    ...existing,
+    ...patch,
+    productionStatus,
+    orderStage: nextStage,
+    missingInfo,
+    nextAction: stageChanged ? undefined : existing.nextAction,
+  } as Order);
+
   return {
     ...existing,
     ...patch,
     productionStatus,
     orderStage: nextStage,
     previousActiveStage: nextStage === 'BLOCKED_ON_HOLD' ? getOrderStage(existing) : existing.previousActiveStage,
-    missingInfo: nextStage === 'BLOCKED_ON_HOLD'
-      ? [patch.advancementNotes || patch.vendorNotes || existing.missingInfo[0] || 'Order on hold']
-      : stageChanged && nextStage !== 'ORDER_CREATED'
-        ? []
-        : patch.missingInfo ?? existing.missingInfo,
-    nextAction: patch.nextAction ?? getOrderNextAction({ ...existing, ...patch, orderStage: nextStage, productionStatus }),
+    missingInfo,
+    nextAction,
   } as Order;
 }
 
