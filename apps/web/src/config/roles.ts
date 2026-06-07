@@ -31,10 +31,10 @@ export const roleConfig: Record<Role, RoleConfig> = {
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/data-health'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'messages', 'programs'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'invoices', 'messages', 'programs'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings'],
   },
   REP: {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages'],
