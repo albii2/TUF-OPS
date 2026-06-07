@@ -2,7 +2,6 @@ import { opportunities, type Opportunity, opportunityStages, type OpportunitySta
 import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';
-import { DATA_MODE } from './dataMode';
 import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage, getDirectorRepSet } from './roleScope';
 
 export type OpportunityListParams = {
@@ -73,8 +72,6 @@ function resolveAssignedDirector(input: { assignedRep: string; organizationAssig
 }
 
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
-  if (DATA_MODE !== 'mock') return [];
-
   return getAllOpportunities().filter((opp) => {
     const matchesSearch = (params.search ?? '').trim()
       ? [opp.title, opp.organizationName].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
@@ -89,7 +86,6 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
 }
 
 export function getOpportunityById(id: string): Opportunity | undefined {
-  if (DATA_MODE !== 'mock') return undefined;
   return listOpportunities({}).find((opp) => opp.id === id);
 }
 
