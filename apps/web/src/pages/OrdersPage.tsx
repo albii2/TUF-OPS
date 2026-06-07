@@ -128,7 +128,12 @@ export function OrdersPage() {
                 </div>
               </button>
             );
-          }) : <EmptyState title="No orders in this queue" description="Try All Orders or create a closed-won handoff." />}
+          }) : (
+            <div className="space-y-2">
+              <EmptyState title={allOrders.length ? 'No orders match this filter' : 'No orders in this queue'} description={allOrders.length ? 'Switch to All Orders to see every order.' : 'Create a closed-won handoff to start the queue.'} />
+              {allOrders.length ? <Button onClick={() => { setQueueFilter('ALL'); setPage(1); }}>Show All Orders</Button> : null}
+            </div>
+          )}
         </div>
         <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
       </Card>

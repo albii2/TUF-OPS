@@ -88,6 +88,7 @@ export type Order = {
   quantity?: number;
   dueDate?: string;
   assignedRep?: string;
+  assignedDirector?: string;
   nextAction?: string;
   nextActionOwner?: string;
   paymentStatus?: string;
@@ -97,6 +98,10 @@ export type Order = {
   customerContact?: string;
   resolutionDueDate?: string;
   completedDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  riskStatus?: 'red' | 'yellow' | 'green' | 'gray';
+  activityIds?: string[];
   missingInfo: string[];
   vendor: string;
   createdDate: string;

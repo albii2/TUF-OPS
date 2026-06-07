@@ -49,6 +49,25 @@ function FieldInput({ field, value, onChange }: { field: AdvancementField; value
   return <Input type={field.type ?? 'text'} value={value} onChange={(event) => onChange(event.target.value)} className="w-full" />;
 }
 
+
+const REQUIRED_YES_GATE_FIELDS = new Set([
+  'paymentReceived',
+  'artworkApproved',
+  'productionSpecsComplete',
+  'sizeQuantityComplete',
+  'vendorConfirmation',
+  'productionComplete',
+  'customerNotified',
+  'deliveryConfirmed',
+  'customerSatisfied',
+  'finalFollowUpScheduled',
+  'blockerResolved',
+]);
+
+function getGateFailures(fields: AdvancementField[], form: Record<string, string>) {
+  return fields.filter((field) => REQUIRED_YES_GATE_FIELDS.has(field.key) && (form[field.key] ?? '') !== 'Yes');
+}
+
 function buildPatchForStage(stage: OrderStage, form: Record<string, string>, existing: Order): Partial<Order> {
   const base: Partial<Order> = {
     orderStage: stage,
@@ -113,6 +132,11 @@ export function OrderDetailPage() {
     const missing = fields.filter((field) => field.required && !(form[field.key] ?? '').trim());
     if (missing.length) {
       notify(`Missing required fields: ${missing.map((field) => field.label).join(', ')}`, 'error');
+      return;
+    }
+    const gateFailures = getGateFailures(fields, form);
+    if (gateFailures.length) {
+      notify(`Cannot advance until these are Yes: ${gateFailures.map((field) => field.label).join(', ')}`, 'error');
       return;
     }
     try {

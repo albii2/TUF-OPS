@@ -15,6 +15,51 @@ Validate that the Orders workflow now behaves like an execution queue and that e
 9. Return to **My Opportunities** and confirm the new Lead Assigned opportunity appears in **Action Needed** until first contact is logged.
 10. Advance or prepare a controlled test opportunity to **Closed Won** and confirm the Closed Won → Order Created handoff path remains testable.
 
+## Closed Won → Order Handoff Persistence
+
+### Owner
+1. Login with `0000`.
+2. Open a Closed Won opportunity.
+3. Click **Create Order Handoff**.
+4. Confirm success feedback appears.
+5. Confirm the button changes to **Open Linked Order**.
+6. Open **Orders**.
+7. Confirm the new **Order Created** order appears in **Action Needed**.
+8. Open the order detail page.
+9. Confirm the order links back to the opportunity.
+
+### Director
+1. Login with `2468`.
+2. Open a team Closed Won opportunity.
+3. Click **Create Order Handoff** if allowed.
+4. Confirm the director warning appears: “You are confirming payment / creating order handoff as a director. This action will be logged.”
+5. Confirm the order appears in Director Orders.
+6. Confirm no commission/payout fields are visible.
+
+### Rep
+1. Login with `1357`.
+2. Open **Orders**.
+3. Confirm the order created from the rep’s assigned opportunity is visible.
+4. Open the order.
+5. Confirm no restricted financial or payout fields are visible.
+
+### Duplicate
+1. Try creating the handoff again.
+2. Confirm the system does not create a duplicate.
+3. Confirm the handoff panel shows **Open Linked Order** and a calm “Order already created for this opportunity.” message.
+
+### Filter
+1. Open **Orders** and confirm it defaults to **Action Needed**.
+2. Confirm **Order Created** appears in **Action Needed**.
+3. Switch to **All Orders**.
+4. Confirm the same order appears.
+
+### Refresh
+1. Refresh Opportunity Detail.
+2. Confirm the linked order still exists.
+3. Refresh Orders.
+4. Confirm the order is still visible.
+
 ## Rep — PIN 1357
 1. Log in with `1357`.
 2. Open **Orders**.

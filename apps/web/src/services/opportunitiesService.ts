@@ -2,6 +2,7 @@ import { opportunities, type Opportunity, opportunityStages, type OpportunitySta
 import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';
+import { DATA_MODE } from './dataMode';
 import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage, getDirectorRepSet } from './roleScope';
 
 export type OpportunityListParams = {
@@ -49,12 +50,36 @@ function writeLocalOpportunities(rows: Opportunity[]) {
   localStorage.setItem(LOCAL_OPPORTUNITIES_KEY, JSON.stringify(rows));
 }
 
+function writeLegacyOpportunities(rows: Opportunity[]) {
+  localStorage.setItem(LEGACY_OPPORTUNITIES_KEY, JSON.stringify(rows));
+}
+
+function removeLegacyOpportunity(id: string) {
+  const remainingLegacyRows = readLegacyOpportunities().filter((row) => row.id !== id);
+  writeLegacyOpportunities(remainingLegacyRows);
+}
+
 function getAllOpportunities() {
   const localRows = readLocalOpportunities();
-  const legacyRows = readLegacyOpportunities();
+  const localIds = new Set(localRows.map((row) => row.id));
+  const legacyRows = readLegacyOpportunities().filter((row) => !localIds.has(row.id));
   const persistedRows = [...localRows, ...legacyRows];
   const persistedIds = new Set(persistedRows.map((row) => row.id));
   return [...persistedRows, ...opportunities.filter((row) => !persistedIds.has(row.id))];
+}
+
+function addDays(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
+}
+
+function resolveAssignedDirector(input: { assignedRep: string; organizationAssignedDirector?: string }) {
+  const user = getStoredUser();
+  if (user?.role === 'DIRECTOR') return user.name;
+  if (input.organizationAssignedDirector && input.organizationAssignedDirector !== 'Unassigned') return input.organizationAssignedDirector;
+  const matchingDirector = ['Test Director', 'Primeau Hill Director'].find((director) => getDirectorRepSet(director).has(input.assignedRep));
+  return matchingDirector ?? '';
 }
 
 function addDays(days: number) {
@@ -170,5 +195,6 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
     updatedAt: new Date().toISOString(),
   };
   writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
+  removeLegacyOpportunity(id);
   return updated;
 }

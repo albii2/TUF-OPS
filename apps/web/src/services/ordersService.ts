@@ -57,7 +57,8 @@ function getAllOpportunities(): Opportunity[] {
   try {
     const current = JSON.parse(localStorage.getItem(LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
     const legacy = JSON.parse(localStorage.getItem(LEGACY_LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
-    const local = [...current, ...legacy];
+    const currentIds = new Set(current.map((row) => row.id));
+    const local = [...current, ...legacy.filter((row) => !currentIds.has(row.id))];
     const localIds = new Set(local.map((row) => row.id));
     return [...local, ...opportunities.filter((row) => !localIds.has(row.id))];
   } catch {
@@ -69,6 +70,30 @@ function getAllOrders() {
   const localRows = readLocalOrders();
   const localIds = new Set(localRows.map((row) => row.id));
   return [...localRows, ...seededOrders.filter((row) => !localIds.has(row.id))];
+}
+
+function findAnyOrderByOpportunityId(opportunityId: string) {
+  return getAllOrders().find((order) => order.opportunityId === opportunityId);
+}
+
+function writeLocalOpportunities(rows: Opportunity[]) {
+  localStorage.setItem(LOCAL_OPPORTUNITIES_KEY, JSON.stringify(rows));
+}
+
+function writeLegacyOpportunities(rows: Opportunity[]) {
+  localStorage.setItem(LEGACY_LOCAL_OPPORTUNITIES_KEY, JSON.stringify(rows));
+}
+
+function linkOpportunityToOrder(opportunity: Opportunity, orderId: string) {
+  const patch = { ...opportunity, orderId, updatedAt: new Date().toISOString() };
+  writeLocalOpportunities([patch, ...((JSON.parse(localStorage.getItem(LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[]).filter((row) => row.id !== opportunity.id))]);
+  writeLegacyOpportunities((JSON.parse(localStorage.getItem(LEGACY_LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[]).filter((row) => row.id !== opportunity.id));
+}
+
+function getInitialOrderOwner(opportunity: Opportunity) {
+  const user = getStoredUser();
+  if (user && ['OWNER', 'DIRECTOR', 'OPS'].includes(user.role)) return user.name;
+  return opportunity.assignedRep;
 }
 
 export function listOrders(params: OrderListParams = {}): Order[] {
@@ -97,6 +122,11 @@ export function getOrderByOpportunityId(opportunityId?: string): Order | undefin
   return listOrders({}).find((order) => order.opportunityId === opportunityId);
 }
 
+export function getAnyOrderByOpportunityId(opportunityId?: string): Order | undefined {
+  if (!opportunityId || DATA_MODE !== 'mock') return undefined;
+  return findAnyOrderByOpportunityId(opportunityId);
+}
+
 export function getOpsWorkspaceQueues() {
   if (DATA_MODE !== 'mock') {
     return { NEEDS_REVIEW: [], READY_FOR_VENDOR: [], IN_PRODUCTION: [], BLOCKED: [], COMPLETED: [] } as Record<Order['productionStatus'], Order[]>;
@@ -114,8 +144,14 @@ export function getOpsWorkspaceQueues() {
 export function createMockOrderFromOpportunity(opportunity?: Opportunity): Order {
   if (!opportunity) throw new Error('Select a closed-won opportunity before creating an order.');
   if (opportunity.stage !== 'CLOSED_WON') throw new Error('Orders can only be created from closed-won opportunities.');
-  if (getAllOrders().some((order) => order.opportunityId === opportunity.id)) throw new Error('An order already exists for this opportunity.');
 
+  const existing = findAnyOrderByOpportunityId(opportunity.id);
+  if (existing) {
+    linkOpportunityToOrder(opportunity, existing.id);
+    return existing;
+  }
+
+  const now = new Date().toISOString();
   const order: Order = {
     id: `ord-local-${Date.now()}`,
     organizationId: opportunity.organizationId,
@@ -130,19 +166,25 @@ export function createMockOrderFromOpportunity(opportunity?: Opportunity): Order
     missingInfo: ['Handoff package review'],
     vendor: 'Unassigned',
     assignedRep: opportunity.assignedRep,
-    nextActionOwner: opportunity.assignedRep,
-    nextAction: 'Confirm payment and complete order handoff.',
-    dueDate: new Date().toISOString().slice(0, 10),
+    assignedDirector: opportunity.assignedDirector,
+    nextActionOwner: getInitialOrderOwner(opportunity),
+    nextAction: 'Confirm payment / prepare production handoff',
+    dueDate: now.slice(0, 10),
+    riskStatus: 'red',
     paymentStatus: 'Pending confirmation',
     artworkStatus: 'Needs approval',
     vendorStatus: 'Vendor not selected',
     shippingStatus: 'Not shipped',
-    createdDate: new Date().toISOString().slice(0, 10),
-    vendorNotes: 'New order created from closed-won opportunity. Review handoff package before vendor routing.',
+    createdDate: now.slice(0, 10),
+    createdAt: now,
+    updatedAt: now,
+    activityIds: [],
+    vendorNotes: 'New order created from closed-won opportunity. Review payment and handoff package before vendor routing.',
   };
-  writeLocalOrders([order, ...readLocalOrders()]);
-  writeLocalActivity({ entityType: 'ORDER', entityId: order.id, message: `Order created from closed-won opportunity ${opportunity.title}.` });
-  writeLocalActivity({ entityType: 'OPPORTUNITY', entityId: opportunity.id, message: `Order handoff created: ${order.id}.` });
+  writeLocalOrders([order, ...readLocalOrders().filter((row) => row.id !== order.id)]);
+  linkOpportunityToOrder(opportunity, order.id);
+  writeLocalActivity({ entityType: 'ORDER', entityId: order.id, message: 'Order created from Closed Won opportunity.' });
+  writeLocalActivity({ entityType: 'OPPORTUNITY', entityId: opportunity.id, message: 'Order handoff created.' });
   return order;
 }
 
@@ -172,6 +214,7 @@ function buildUpdatedOrder(existing: Order, patch: AdvancementPatch): Order {
     previousActiveStage: nextStage === 'BLOCKED_ON_HOLD' ? getOrderStage(existing) : existing.previousActiveStage,
     missingInfo,
     nextAction,
+    updatedAt: new Date().toISOString(),
   } as Order;
 }
 
