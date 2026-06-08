@@ -82,9 +82,35 @@ function resolveAssignedDirector(input: { assignedRep: string; organizationAssig
   return matchingDirector ?? '';
 }
 
-export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
-  if (DATA_MODE !== 'mock') return [];
+function addDays(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
+}
 
+function resolveAssignedDirector(input: { assignedRep: string; organizationAssignedDirector?: string }) {
+  const user = getStoredUser();
+  if (user?.role === 'DIRECTOR') return user.name;
+  if (input.organizationAssignedDirector && input.organizationAssignedDirector !== 'Unassigned') return input.organizationAssignedDirector;
+  const matchingDirector = ['Test Director', 'Primeau Hill Director'].find((director) => getDirectorRepSet(director).has(input.assignedRep));
+  return matchingDirector ?? '';
+}
+
+function addDays(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
+}
+
+function resolveAssignedDirector(input: { assignedRep: string; organizationAssignedDirector?: string }) {
+  const user = getStoredUser();
+  if (user?.role === 'DIRECTOR') return user.name;
+  if (input.organizationAssignedDirector && input.organizationAssignedDirector !== 'Unassigned') return input.organizationAssignedDirector;
+  const matchingDirector = ['Test Director', 'Primeau Hill Director'].find((director) => getDirectorRepSet(director).has(input.assignedRep));
+  return matchingDirector ?? '';
+}
+
+export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
   return getAllOpportunities().filter((opp) => {
     const matchesSearch = (params.search ?? '').trim()
       ? [opp.title, opp.organizationName].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
@@ -99,7 +125,6 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
 }
 
 export function getOpportunityById(id: string): Opportunity | undefined {
-  if (DATA_MODE !== 'mock') return undefined;
   return listOpportunities({}).find((opp) => opp.id === id);
 }
 
