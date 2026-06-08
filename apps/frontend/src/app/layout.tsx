@@ -1,10 +1,9 @@
 import '@/styles/globals.css'
-import { Inter } from 'next/font/google'
 import type { Metadata } from 'next'
 import { Navbar } from '@/components/layout/Navbar'
 import { AuthProvider } from '@/components/auth-provider'
 
-const inter = Inter({ subsets: ['latin'] })
+const fontClassName = 'font-sans'
 
 export const metadata: Metadata = {
   title: 'TUF Ops',
@@ -38,7 +37,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="TUF Ops" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body className={inter.className}>
+      <body className={fontClassName}>
         <AuthProvider>
           <Navbar />
           {children}

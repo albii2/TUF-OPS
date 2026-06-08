@@ -96,6 +96,20 @@ function resolveAssignedDirector(input: { assignedRep: string; organizationAssig
   return matchingDirector ?? '';
 }
 
+function addDays(days: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString();
+}
+
+function resolveAssignedDirector(input: { assignedRep: string; organizationAssignedDirector?: string }) {
+  const user = getStoredUser();
+  if (user?.role === 'DIRECTOR') return user.name;
+  if (input.organizationAssignedDirector && input.organizationAssignedDirector !== 'Unassigned') return input.organizationAssignedDirector;
+  const matchingDirector = ['Test Director', 'Primeau Hill Director'].find((director) => getDirectorRepSet(director).has(input.assignedRep));
+  return matchingDirector ?? '';
+}
+
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
   return getAllOpportunities().filter((opp) => {
     const matchesSearch = (params.search ?? '').trim()
