@@ -55,6 +55,26 @@ function acceptsHtml(acceptHeader: unknown) {
   return typeof acceptHeader === 'string' && acceptHeader.includes('text/html');
 }
 
+function hasDatabaseConfig() {
+  if (process.env.NODE_ENV === 'test') return Boolean(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL);
+  return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
+}
+
+function emptyDataHealthPayload(status: 'ok' | 'degraded', reason?: string) {
+  return {
+    status,
+    timestamp: new Date().toISOString(),
+    backup_last_success_at: process.env.BACKUP_LAST_SUCCESS_AT || null,
+    backup_older_than_24_hours: true,
+    database: reason ? { status: 'unavailable', reason } : { status: 'available' },
+    counts: {
+      organizations: null,
+      opportunities: null,
+      users: null,
+    },
+  };
+}
+
 server.register(cors, {
   origin: corsOrigins,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -106,30 +126,40 @@ server.get('/health', async () => ({
   timestamp: new Date().toISOString(),
 }));
 
-server.get('/health/data', async () => {
-  const [orgs, opps, users] = await Promise.all([
-    pool.query('SELECT COUNT(*)::int AS count FROM organizations'),
-    pool.query('SELECT COUNT(*)::int AS count FROM opportunities'),
-    pool.query('SELECT COUNT(*)::int AS count FROM users'),
-  ]);
+server.get('/health/data', async (request) => {
+  if (!hasDatabaseConfig()) {
+    return emptyDataHealthPayload('degraded', 'database configuration is missing');
+  }
 
-  const now = new Date();
-  const backupLastSuccessAt = process.env.BACKUP_LAST_SUCCESS_AT || null;
-  const backupTimestamp = backupLastSuccessAt ? Date.parse(backupLastSuccessAt) : Number.NaN;
-  const backupAgeHours = Number.isNaN(backupTimestamp) ? null : (now.getTime() - backupTimestamp) / (1000 * 60 * 60);
-  const backupOlderThan24Hours = backupAgeHours === null || backupAgeHours > 24;
+  try {
+    const [orgs, opps, users] = await Promise.all([
+      pool.query('SELECT COUNT(*)::int AS count FROM organizations'),
+      pool.query('SELECT COUNT(*)::int AS count FROM opportunities'),
+      pool.query('SELECT COUNT(*)::int AS count FROM users'),
+    ]);
 
-  return {
-    status: backupOlderThan24Hours ? 'degraded' : 'ok',
-    timestamp: now.toISOString(),
-    backup_last_success_at: backupLastSuccessAt,
-    backup_older_than_24_hours: backupOlderThan24Hours,
-    counts: {
-      organizations: orgs.rows[0]?.count ?? 0,
-      opportunities: opps.rows[0]?.count ?? 0,
-      users: users.rows[0]?.count ?? 0,
-    },
-  };
+    const now = new Date();
+    const backupLastSuccessAt = process.env.BACKUP_LAST_SUCCESS_AT || null;
+    const backupTimestamp = backupLastSuccessAt ? Date.parse(backupLastSuccessAt) : Number.NaN;
+    const backupAgeHours = Number.isNaN(backupTimestamp) ? null : (now.getTime() - backupTimestamp) / (1000 * 60 * 60);
+    const backupOlderThan24Hours = backupAgeHours === null || backupAgeHours > 24;
+
+    return {
+      status: backupOlderThan24Hours ? 'degraded' : 'ok',
+      timestamp: now.toISOString(),
+      backup_last_success_at: backupLastSuccessAt,
+      backup_older_than_24_hours: backupOlderThan24Hours,
+      database: { status: 'available' },
+      counts: {
+        organizations: orgs.rows[0]?.count ?? 0,
+        opportunities: opps.rows[0]?.count ?? 0,
+        users: users.rows[0]?.count ?? 0,
+      },
+    };
+  } catch (error: any) {
+    request.log?.error?.(error);
+    return emptyDataHealthPayload('degraded', error?.code || 'database query failed');
+  }
 });
 
 server.setNotFoundHandler((request, reply) => {
@@ -147,7 +177,11 @@ server.setNotFoundHandler((request, reply) => {
 const start = async () => {
   try {
     assertAuthTokenSecretConfigured();
-    await seedInitialOwnerIfEmpty();
+    if (hasDatabaseConfig()) {
+      await seedInitialOwnerIfEmpty();
+    } else {
+      server.log.warn('Skipping initial owner seed because database configuration is missing');
+    }
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`Server listening on port ${port}`);
   } catch (err) {

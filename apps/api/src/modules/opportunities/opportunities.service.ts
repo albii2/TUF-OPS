@@ -137,8 +137,7 @@ export async function updateOpportunityStage(
   toStage: OpportunityStage,
   changedBy: number,
   note?: string,
-  financialData?: Partial<Opportunity>,
-  options?: { authorizeIllegalTransition?: boolean }
+  financialData?: Partial<Opportunity>
 ): Promise<Opportunity> {
   const client = await pool.connect();
   try {
@@ -157,7 +156,7 @@ export async function updateOpportunityStage(
     const fromStage = currentOpp.stage;
     const isValidTransition = Boolean(VALID_TRANSITIONS[fromStage]?.includes(toStage));
 
-    if (!isValidTransition && !options?.authorizeIllegalTransition) {
+    if (!isValidTransition) {
       throw new Error(`Invalid stage transition from ${fromStage} to ${toStage}`);
     }
 

@@ -1,6 +1,7 @@
 import { pool } from '@packages/database';
 import { createOrganization } from './organizations/organizations.service';
 import { createOpportunity, getOpportunityById, updateOpportunityStage } from './opportunities/opportunities.service';
+import { updateOpportunityStageHandler } from './opportunities/opportunities.controller';
 import { createOrderFromOpportunity } from './orders/orders.service';
 import { createActivity, markActivityComplete } from './activities/activities.service';
 import { ActivityType } from './activities/activities.interface';
@@ -44,6 +45,35 @@ describe('v0.9.0 data integrity hardening', () => {
     });
 
     await expect(updateOpportunityStage(opportunity.id, OpportunityStage.CLOSED_WON, 1, 'skip', { actual_revenue: 1000, actual_cost: 500 })).rejects.toThrow('Invalid stage transition');
+
+    const reply = {
+      statusCode: 200,
+      payload: undefined as unknown,
+      code(code: number) {
+        this.statusCode = code;
+        return this;
+      },
+      send(payload: unknown) {
+        this.payload = payload;
+        return payload;
+      },
+    };
+
+    await updateOpportunityStageHandler(
+      {
+        params: { id: String(opportunity.id) },
+        body: {
+          stage: OpportunityStage.CLOSED_WON,
+          changed_by: 1,
+          actual_revenue: 1000,
+          actual_cost: 500,
+          authorize_illegal_transition: true,
+        },
+      } as any,
+      reply as any
+    );
+    expect(reply.statusCode).toBe(400);
+    expect(reply.payload).toEqual({ message: `Invalid stage transition from ${OpportunityStage.LEAD_ASSIGNED} to ${OpportunityStage.CLOSED_WON}` });
 
     const before = await getOpportunityById(opportunity.id);
     await updateOpportunityStage(opportunity.id, OpportunityStage.CONTACTED, 2, 'called');
