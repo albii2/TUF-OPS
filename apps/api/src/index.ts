@@ -124,7 +124,6 @@ server.register(orderRoutes, { prefix: '/orders' });
 server.register(creativeRequestRoutes);
 server.register(userRoutes, { prefix: '/auth' });
 server.register(trainingRoutes, { prefix: '/training' });
-server.register(vendorRoutes, { prefix: '/api' });
 
 server.get('/health', async () => ({
   status: 'ok',
