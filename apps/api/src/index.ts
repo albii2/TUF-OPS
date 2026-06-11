@@ -112,10 +112,18 @@ server.get('/health/data', async () => {
     pool.query('SELECT COUNT(*)::int AS count FROM opportunities'),
     pool.query('SELECT COUNT(*)::int AS count FROM users'),
   ]);
+
+  const now = new Date();
+  const backupLastSuccessAt = process.env.BACKUP_LAST_SUCCESS_AT || null;
+  const backupTimestamp = backupLastSuccessAt ? Date.parse(backupLastSuccessAt) : Number.NaN;
+  const backupAgeHours = Number.isNaN(backupTimestamp) ? null : (now.getTime() - backupTimestamp) / (1000 * 60 * 60);
+  const backupOlderThan24Hours = backupAgeHours === null || backupAgeHours > 24;
+
   return {
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    backup_last_success_at: process.env.BACKUP_LAST_SUCCESS_AT || null,
+    status: backupOlderThan24Hours ? 'degraded' : 'ok',
+    timestamp: now.toISOString(),
+    backup_last_success_at: backupLastSuccessAt,
+    backup_older_than_24_hours: backupOlderThan24Hours,
     counts: {
       organizations: orgs.rows[0]?.count ?? 0,
       opportunities: opps.rows[0]?.count ?? 0,

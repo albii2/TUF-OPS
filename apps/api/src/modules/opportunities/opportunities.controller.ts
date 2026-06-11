@@ -27,16 +27,16 @@ export async function getOpportunitiesHandler(request: FastifyRequest, reply: Fa
 
 export async function updateOpportunityStageHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as any;
-  const { stage, changed_by, note, actual_revenue, actual_cost, loss_reason } = request.body as any;
+  const { stage, changed_by, note, actual_revenue, actual_cost, loss_reason, authorize_illegal_transition } = request.body as any;
 
   try {
-    const updatedOpportunity = await updateOpportunityStage(Number(id), stage, changed_by, note, { actual_revenue, actual_cost, loss_reason });
+    const updatedOpportunity = await updateOpportunityStage(Number(id), stage, changed_by, note, { actual_revenue, actual_cost, loss_reason }, { authorizeIllegalTransition: authorize_illegal_transition === true });
     return reply.send(updatedOpportunity);
   } catch (error: any) {
     if (error.message.includes('not found')) {
       return reply.code(404).send({ message: error.message });
     }
-    if (error.message.includes('Invalid stage transition') || error.message.includes('required to close an opportunity')) {
+    if (error.message.includes('Invalid stage transition') || error.message.includes('required to close an opportunity') || error.message.includes('cannot be negative')) {
       return reply.code(400).send({ message: error.message });
     }
     return reply.code(500).send({ message: 'Internal Server Error' });

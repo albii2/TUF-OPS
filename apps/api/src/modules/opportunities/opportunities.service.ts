@@ -132,10 +132,20 @@ export async function getOrganizationChannelPenetration(organizationId: number) 
   };
 }
 
-export async function updateOpportunityStage(opportunityId: number, toStage: OpportunityStage, changedBy: number, note?: string, financialData?: Partial<Opportunity>): Promise<Opportunity> {
+export async function updateOpportunityStage(
+  opportunityId: number,
+  toStage: OpportunityStage,
+  changedBy: number,
+  note?: string,
+  financialData?: Partial<Opportunity>,
+  options?: { authorizeIllegalTransition?: boolean }
+): Promise<Opportunity> {
+  const client = await pool.connect();
   try {
-    const currentOpportunityResult = await pool.query<Opportunity>(
-      'SELECT * FROM opportunities WHERE id = $1',
+    await client.query('BEGIN');
+
+    const currentOpportunityResult = await client.query<Opportunity>(
+      'SELECT * FROM opportunities WHERE id = $1 FOR UPDATE',
       [opportunityId]
     );
 
@@ -145,92 +155,101 @@ export async function updateOpportunityStage(opportunityId: number, toStage: Opp
 
     const currentOpp = currentOpportunityResult.rows[0];
     const fromStage = currentOpp.stage;
+    const isValidTransition = Boolean(VALID_TRANSITIONS[fromStage]?.includes(toStage));
 
-    if (!VALID_TRANSITIONS[fromStage] || !VALID_TRANSITIONS[fromStage].includes(toStage)) {
+    if (!isValidTransition && !options?.authorizeIllegalTransition) {
       throw new Error(`Invalid stage transition from ${fromStage} to ${toStage}`);
     }
 
-    let gross_profit: number | undefined;
-    let closed_at: Date | null = null;
+    const mergedFinancialData = { ...currentOpp, ...financialData };
+    let gross_profit: number | null = currentOpp.gross_profit ?? null;
+    let closed_at: Date | null = currentOpp.closed_at ?? null;
+    let actual_revenue: number | undefined | null = currentOpp.actual_revenue ?? null;
+    let actual_cost: number | undefined | null = currentOpp.actual_cost ?? null;
+    let loss_reason: string | undefined | null = currentOpp.loss_reason ?? null;
 
     if (toStage === OpportunityStage.CLOSED_WON) {
-      const { actual_revenue, actual_cost } = { ...currentOpp, ...financialData };
+      actual_revenue = mergedFinancialData.actual_revenue;
+      actual_cost = mergedFinancialData.actual_cost;
       if (actual_revenue === null || actual_cost === null || actual_revenue === undefined || actual_cost === undefined) {
         throw new Error('actual_revenue and actual_cost are required to close an opportunity as won');
       }
-      gross_profit = actual_revenue - actual_cost;
+      gross_profit = Number(actual_revenue) - Number(actual_cost);
+      if (gross_profit < 0) {
+        throw new Error('gross_profit cannot be negative when closing an opportunity as won');
+      }
       closed_at = new Date();
+      loss_reason = null;
     } else if (toStage === OpportunityStage.CLOSED_LOST) {
-      const { loss_reason } = { ...currentOpp, ...financialData };
+      loss_reason = mergedFinancialData.loss_reason;
       if (!loss_reason) {
         throw new Error('loss_reason is required to close an opportunity as lost');
       }
       closed_at = new Date();
+    } else if (financialData) {
+      actual_revenue = financialData.actual_revenue ?? actual_revenue;
+      actual_cost = financialData.actual_cost ?? actual_cost;
+      loss_reason = financialData.loss_reason ?? loss_reason;
     }
 
-    const client = await pool.connect();
-    try {
-      await client.query('BEGIN');
-
-      const updateQuery = `
-        UPDATE opportunities
-        SET
-          stage = $1,
-          last_activity_date = $2,
-          updated_at = current_timestamp,
-          actual_revenue = $3,
-          actual_cost = $4,
-          gross_profit = $5,
-          closed_at = $6,
-          loss_reason = $7
-        WHERE id = $8
-        RETURNING *
-      `;
-
-      const updatedOpportunityResult = await client.query<Opportunity>(updateQuery, [
+    const actionTimestamp = new Date();
+    const updatedOpportunityResult = await client.query<Opportunity>(
+      `UPDATE opportunities
+       SET
+         stage = $1,
+         last_activity_date = $2,
+         updated_at = $2,
+         actual_revenue = $3,
+         actual_cost = $4,
+         gross_profit = $5,
+         closed_at = $6,
+         loss_reason = $7,
+         updated_by = $8
+       WHERE id = $9
+       RETURNING *`,
+      [
         toStage,
-        new Date(),
-        financialData?.actual_revenue,
-        financialData?.actual_cost,
+        actionTimestamp,
+        actual_revenue,
+        actual_cost,
         gross_profit,
         closed_at,
-        financialData?.loss_reason,
+        loss_reason,
+        changedBy,
         opportunityId,
-      ]);
+      ]
+    );
 
-      const updatedOpp = updatedOpportunityResult.rows[0];
+    const updatedOpp = updatedOpportunityResult.rows[0];
 
-      await client.query<OpportunityStageHistory>(
-        'INSERT INTO opportunity_stage_history (opportunity_id, from_stage, to_stage, changed_by, note) VALUES ($1, $2, $3, $4, $5) RETURNING *'
-        , [opportunityId, fromStage, toStage, changedBy, note]
+    await client.query<OpportunityStageHistory>(
+      'INSERT INTO opportunity_stage_history (opportunity_id, from_stage, to_stage, changed_by, note) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [opportunityId, fromStage, toStage, changedBy, note]
+    );
+
+    if (toStage === OpportunityStage.CLOSED_WON) {
+      await createCommission(updatedOpp, client);
+      const existingOrderResult = await client.query<{ id: number }>(
+        'SELECT id FROM orders WHERE opportunity_id = $1 LIMIT 1',
+        [opportunityId]
       );
 
-      if (toStage === OpportunityStage.CLOSED_WON) {
-        await createCommission(updatedOpp);
-        const existingOrderResult = await client.query<{ id: number }>(
-          'SELECT id FROM orders WHERE opportunity_id = $1 LIMIT 1',
-          [opportunityId]
+      if (existingOrderResult.rows.length === 0) {
+        await client.query(
+          'INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4)',
+          [updatedOpp.id, updatedOpp.organization_id, updatedOpp.deal_type, 'CREATED']
         );
-
-        if (existingOrderResult.rows.length === 0) {
-          await client.query(
-            'INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4)',
-            [updatedOpp.id, updatedOpp.organization_id, updatedOpp.deal_type, 'CREATED']
-          );
-        }
       }
-
-      await client.query('COMMIT');
-      return updatedOpp;
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
     }
+
+    await client.query('COMMIT');
+    return updatedOpp;
   } catch (error) {
+    await client.query('ROLLBACK');
     console.error('Error in updateOpportunityStage:', error);
     throw error;
+  } finally {
+    client.release();
   }
 }
 
