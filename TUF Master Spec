@@ -1,229 +1,508 @@
-# TUF Ops Rebuild Version Map Bible (Ironclad) 
- 
- ## Purpose 
- This document is the **single execution source of truth** for rebuilding TUF Ops from scratch with strict sequencing, hard quality gates, and zero ambiguity on what must be true before advancing. 
- 
- **Rule:** if a phase gate is not met, we do not move forward. 
- 
- --- 
- 
- ## Operating Principles (Non-Negotiable) 
- 
- 1. **Foundations before features** — no business feature ships before platform reliability is proven. 
- 2. **Backward-safe by default** — every schema/API change must support staged rollout and rollback. 
- 3. **One-way quality ratchet** — test coverage, observability, and security posture never regress. 
- 4. **Domain boundaries are law** — no UI-embedded business logic and no cross-module leakage. 
- 5. **Evidence-driven progression** — every gate requires measurable artifacts. 
- 
- --- 
- 
- ## Version Ladder (Rebuild Sequence) 
- 
- - **v1.0 Foundation & Hardening** *(Phase 1; mandatory base)* 
- - **v1.1 Core CRM Vertical Slice** *(Organizations + Opportunities parity)* 
- - **v1.2 Workflow Integrity & Timeline** *(activities, transition controls, auditability)* 
- - **v1.3 Invoicing & Async Operations** 
- - **v1.4 Reporting Reliability Layer** 
- - **v1.5 Integrations & Automation at Scale** 
- - **v2.0 Cutover + Optimization** 
- 
- > No skipping versions. If a later version needs a missing dependency from an earlier version, the earlier version is reopened and completed first. 
- 
- --- 
- 
- ## Phase 1 (v1.0) — Foundation & Hardening (The Load-Bearing Phase) 
- 
- ## Objective 
- Build a **scalable, testable, observable, and secure** platform skeleton that can absorb future feature growth without structural rewrites. 
- 
- ## Scope 
- ### A) Repository + Architecture Baseline 
- - Monorepo with strict package boundaries (`apps/*`, `packages/*`, `infra/*`, `docs/*`). 
- - Enforced import rules (lint + tsconfig path constraints). 
- - ADR set for: architecture style, RBAC model, migration strategy, observability standard. 
- 
- ### B) Runtime + Environment Discipline 
- - Deterministic local setup (`pnpm install && pnpm dev` works from clean machine). 
- - Typed environment schema validation at startup. 
- - Separate env profiles: local / preview / staging / production. 
- 
- ### C) Data Platform Hardening 
- - Baseline schema conventions (`created_at`, `updated_at`, `created_by`, `updated_by`). 
- - Migration process with forward and rollback scripts. 
- - Seed strategy for local, test, and staging datasets. 
- - Drift detection in CI. 
- 
- ### D) AuthN/AuthZ Core 
- - Auth.js session backbone with hardened cookie/session policy. 
- - RBAC v1 roles and permission matrix defined and tested. 
- - Authorization checks enforced server-side (not only UI). 
- 
- ### E) Observability + Operational Safety 
- - Structured logging (request ID, user ID, org ID correlation). 
- - Tracing on API + DB critical paths. 
- - Error monitoring and alert routing. 
- - Health/readiness endpoints with dependency checks. 
- 
- ### F) Test & CI Hardening 
- - CI pipeline: typecheck, lint, unit, integration, E2E smoke, migration checks. 
- - Test data factories and reproducible fixtures. 
- - Minimum coverage for core platform modules. 
- 
- ### G) Security Baseline 
- - Secrets handling and rotation playbook. 
- - Dependency + container scanning in CI. 
- - Audit event schema and write path for privileged operations. 
- 
- --- 
- 
- ## Phase 1 Exit Gates (Must All Pass) 
- 
- ### Gate G1 — Architectural Integrity 
- - ✅ Module boundary checks enforced in CI. 
- - ✅ No forbidden cross-import violations. 
- - ✅ ADRs approved for architecture/auth/data/observability. 
- 
- ### Gate G2 — Environment Reliability 
- - ✅ Fresh-machine bootstrap documented and verified by 2+ engineers. 
- - ✅ Env schema validation blocks boot on invalid/missing vars. 
- - ✅ Preview environment auto-provisioning works. 
- 
- ### Gate G3 — Data Safety 
- - ✅ Migration up/down tested on production-like snapshot. 
- - ✅ Drift check green in CI. 
- - ✅ Seed scripts reproducible and idempotent. 
- 
- ### Gate G4 — Security & Access Control 
- - ✅ RBAC matrix implemented and policy tests passing. 
- - ✅ Privileged actions generate audit events. 
- - ✅ Session/auth hardening checklist complete. 
- 
- ### Gate G5 — Observability Readiness 
- - ✅ Traces visible for critical API flows. 
- - ✅ Error alerts route to owner channel. 
- - ✅ SLO dashboard exists for API latency/error rate. 
- 
- ### Gate G6 — Quality Pipeline 
- - ✅ CI completes in target time budget. 
- - ✅ E2E smoke stable across consecutive runs. 
- - ✅ Required test thresholds met. 
- 
- **No-Go Criteria:** any single gate fail blocks version advancement. 
- 
- --- 
- 
- ## Version-by-Version Build Map 
- 
- ## v1.1 — Core CRM Vertical Slice 
- ### Goal 
- Ship production-grade Organizations + Opportunities with strong domain boundaries. 
- 
- ### Deliverables 
- - Organizations domain module (CRUD + ownership + status). 
- - Opportunities domain module (create/list/detail + organization linkage). 
- - Workflow transition guardrails and stage history. 
- 
- ### Acceptance 
- - Parity with current baseline business flow. 
- - End-to-end tests for core lead-to-opportunity journey. 
- - P95 latency and error budgets defined and passing. 
- 
- ## v1.2 — Workflow Integrity & Timeline 
- ### Goal 
- Make work state transitions auditable, queryable, and operationally safe. 
- 
- ### Deliverables 
- - Unified activities timeline. 
- - Tasking/follow-up model. 
- - Workflow rules with explicit state machine constraints. 
- 
- ### Acceptance 
- - Immutable transition history. 
- - No invalid state transitions possible via API. 
- - Audit trail available per record. 
- 
- ## v1.3 — Invoicing & Async Operations 
- ### Goal 
- Introduce financial workflows without blocking request-response paths. 
- 
- ### Deliverables 
- - Invoice lifecycle (draft/finalized/cancelled). 
- - PDF generation and delivery via queue workers. 
- - Retry + dead-letter strategy. 
- 
- ### Acceptance 
- - Zero synchronous long-running invoice processing in API requests. 
- - Recoverable failure paths with operational runbooks. 
- 
- ## v1.4 — Reporting Reliability Layer 
- ### Goal 
- Stabilize KPIs and dashboards with read-model architecture. 
- 
- ### Deliverables 
- - Materialized/read models for dashboard metrics. 
- - Metric dictionary with ownership and formulas. 
- - Scheduled refresh and backfill jobs. 
- 
- ### Acceptance 
- - KPI definitions consistent across UI and exports. 
- - Reporting endpoints meet performance SLOs at target scale. 
- 
- ## v1.5 — Integrations & Automation at Scale 
- ### Goal 
- Enable controlled external interoperability and automation. 
- 
- ### Deliverables 
- - Outbox/event delivery framework. 
- - Webhook management (retry, signature verification, replay protection). 
- - Automation rules engine v1 (reminders/escalations). 
- 
- ### Acceptance 
- - At-least-once external delivery with dedupe protections. 
- - Operational visibility for integration failures. 
- 
- ## v2.0 — Cutover + Optimization 
- ### Goal 
- Complete migration from legacy path and optimize for scale. 
- 
- ### Deliverables 
- - Parallel run validation. 
- - Production cutover and rollback drill completion. 
- - Post-cutover performance tuning and cost controls. 
- 
- ### Acceptance 
- - Cutover executed with rollback confidence. 
- - SLOs sustained for agreed stabilization window. 
- 
- --- 
- 
- ## Standard Definition of Done (Applies to Every Version) 
- 
- 1. Product acceptance criteria met. 
- 2. Unit/integration/E2E coverage complete for changed scope. 
- 3. Observability hooks added for new critical paths. 
- 4. Security checklist complete for new surface area. 
- 5. Runbook updated (deploy, rollback, failure triage). 
- 6. ADR updated if architectural decision changed. 
- 7. Feature flag and rollout strategy documented. 
- 
- --- 
- 
- ## Governance Cadence (To Keep the Map Ironclad) 
- 
- - **Weekly Architecture Review:** validate boundary discipline and technical debt controls. 
- - **Twice-Weekly Delivery Review:** phase gate status + blocker burn-down. 
- - **Release Readiness Review:** mandatory before each version promotion. 
- - **Incident Feedback Loop:** all incidents produce map/rule updates within 72 hours. 
- 
- --- 
- 
- ## Immediate Execution Checklist (Next 10 Working Days) 
- 
- 1. Finalize monorepo skeleton and boundary linting. 
- 2. Stand up CI with full quality pipeline and drift detection. 
- 3. Implement env schema validation and runtime boot guards. 
- 4. Deliver RBAC matrix and authorization policy tests. 
- 5. Wire tracing/logging/error monitoring baseline. 
- 6. Prove migration up/down on production-like snapshot. 
- 7. Draft v1.1 detailed ticket breakdown only after all v1.0 gates are green. 
- 
+# TUF Ops Executable Roadmap — Launch Sprint (Ironclad)
+
+## Purpose
+
+This document is the **single execution source of truth** for completing TUF Ops Revenue Operating System and shipping to production. The platform has successfully navigated foundation and core CRM development. We are now in **final hardening and critical feature completion** phase.
+
+**Rule:** If a launch gate is not met, we do not go live.
+
+---
+
+## Current Status: Pre-Launch Sprint
+
+### What's Complete ✅
+
+**v1.0 & v1.1 — Foundation & Core CRM (DELIVERED)**
+- ✅ Monorepo architecture with enforced boundaries
+- ✅ Auth.js hardened authentication + RBAC framework
+- ✅ Organizations domain (CRUD, ownership, status management)
+- ✅ Opportunities domain (lead-to-close workflow, stage transitions)
+- ✅ Order management and invoice lifecycle
+- ✅ Pipeline visibility and deal progress tracking
+- ✅ Environment configurations (local/preview/staging/production)
+- ✅ CI/CD pipeline with quality gates
+- ✅ Observability baseline (logging, tracing, error monitoring)
+- ✅ Security hardening (secrets, RBAC, audit events)
+- ✅ Core API endpoints tested and validated
+- ✅ Frontend UI for organizations and opportunities (detail pages, pipelines, dashboards)
+
+### What Remains Before Launch 🚀
+
+Only **3 critical streams** block launch:
+
+1. **Core Function Hardening** — Stabilize, harden, and close edge cases
+2. **Notes & Activities** — Complete the unified interaction timeline (regional director requirement)
+3. **TUF Academy Core** — Onboarding and certification framework
+
+---
+
+## Operating Principles (Non-Negotiable)
+
+1. **Launch-ready quality gates** — No feature ships untest, unmonitored, or insecure
+2. **Zero data loss on deploy** — Every migration is reversible; every schema change is backward-safe
+3. **Observability-first** — All new code has tracing, logging, and error handling
+4. **Security by design** — Audit trails immutable, permissions enforced server-side
+5. **Rep + Leadership UX** — Every feature must pass the "works intuitively from day one" test
+
+---
+
+## Launch Version (v2.0) — Revenue Operating System Ready for Production
+
+### 🎯 Goal
+
+Ship a **production-grade revenue operating system** that enables TUF Sports sales teams to manage accounts, opportunities, and interactions with full auditability, leadership visibility, and rep enablement.
+
+**Target Launch:** Stabilized, tested, and deployed to production with rollback confidence.
+
+---
+
+## Stream 1: Core Function Hardening
+
+### Objective
+Close all remaining edge cases, performance issues, and UX gaps in Organizations, Opportunities, Orders, and core workflows.
+
+### Deliverables
+
+#### A) Organizations Module Hardening
+- Bulk account import/export functionality
+- Account merge and deduplication workflows
+- Athlete director / head coach / admin role separation with permissions
+- Contact information validation (phone, email placeholder detection)
+- Account status lifecycle (active, inactive, archived)
+- **Tests:** Unit, integration, and E2E coverage for all workflows
+- **Performance:** P95 latency <500ms for list/detail queries
+
+#### B) Opportunities Module Hardening
+- Stage transition guardrails (prevent invalid transitions)
+- Required field enforcement per stage (e.g., mockup specs, invoice amount)
+- Bulk opportunity updates and status changes
+- Duplicate opportunity detection
+- Lane/product/sport classification consistency
+- **Tests:** Full E2E for lead-to-close journey with all stage transitions
+- **Performance:** Pipeline query <1s for 1000+ opportunities
+
+#### C) Order Management & Invoicing
+- Order creation from opportunity (auto-populate fields)
+- Invoice PDF generation and delivery (via queue, not blocking UI)
+- Payment reconciliation and status tracking
+- Handoff confirmation workflow (design complete? payment received?)
+- **Tests:** End-to-end order-to-payment journey
+- **SLO:** Invoice delivery <5 minutes from creation
+
+#### D) API Reliability & Error Handling
+- All endpoints return structured error responses (error code, message, retry hint)
+- Rate limiting and quota enforcement
+- Request deduplication for idempotent operations
+- Circuit breaker for external service calls (email, PDF generation)
+- **Tests:** Chaos engineering scenarios (service down, slow response, timeouts)
+
+#### E) Frontend UX Polish
+- Loading states and skeleton screens on all pages
+- Real-time validation and form error feedback
+- Undo/redo for critical operations (stage advance, bulk updates)
+- Search/filter performance on large datasets (debouncing, pagination)
+- Responsive design for mobile (reps in field use phones)
+- **Accessibility:** WCAG 2.1 AA compliance for screen readers, keyboard navigation
+
+### Exit Gates
+
+- ✅ All critical user journeys (lead creation → close → invoice) tested E2E
+- ✅ P95 latency benchmarks met for all major queries
+- ✅ Zero data loss scenarios (rollback drills, backup restoration)
+- ✅ Security scan passes (no SQL injection, XSS, CSRF vulnerabilities)
+- ✅ Staging environment mirrors production; smoke tests pass
+- ✅ Runbooks complete for ops team (deploy, rollback, incident response)
+
+---
+
+## Stream 2: Notes & Activities (Unified Interaction Timeline)
+
+### Objective
+Enable reps to document interactions (calls, emails, meetings, notes) and give leadership visibility into deal progress, rep performance, and coaching opportunities.
+
+**Business Value:** Regional director feedback — this is a **rep enablement + leadership tool** for account continuity and sales development.
+
+### Deliverables
+
+#### A) Activity Logging Modal & UI
+
+**Frontend Component:**
+- Modal triggered from Organization and Opportunity detail pages ("Log Activity" button)
+- Activity type selector (Call, Email, Meeting, Note, Task)
+- Rich text editor for notes (basic formatting: bold, italic, lists)
+- Optional fields:
+  - Due date (for tasks → reminder system in v2.1)
+  - Participant names
+  - Outcome/next steps
+- Auto-capture: current user, timestamp, entity (org/opp)
+- Submit → activity saved and timeline refreshed
+
+**Timeline Display:**
+- Chronological list (newest first) of all activities
+- Activity type badge with icon (☎️ Call, ✉️ Email, 💬 Note, etc.)
+- Rep name and timestamp
+- Note preview (first 100 chars, expand on click)
+- Immutable — no edit/delete (audit trail protection)
+
+#### B) Backend API & Data Model
+
+**Endpoints:**
+- `POST /activities` — Create activity (call, email, note, task)
+- `GET /organizations/:id/activities` — List org activities
+- `GET /opportunities/:id/activities` — List opp activities
+- `GET /activities/:id` — View single activity detail
+
+**Data Model:**
+```
+Activity {
+  id: UUID
+  type: 'CALL' | 'EMAIL' | 'MEETING' | 'NOTE' | 'TASK'
+  entityType: 'ORGANIZATION' | 'OPPORTUNITY'
+  entityId: UUID
+  content: string (rich text)
+  createdBy: UUID (user who logged)
+  createdAt: timestamp
+  dueDate?: timestamp (for tasks)
+  participants?: string[]
+  tags?: string[] (for filtering/search)
+  
+  — immutable; no update/delete allowed
+}
+```
+
+**Constraints:**
+- Activities are immutable (audit trail = no modifications)
+- Authorized users only (must have access to org/opp)
+- Server-side validation (no XSS in notes)
+- Indexing on entityId + createdAt for fast timeline queries
+
+#### C) Integration with Existing Entities
+
+- Activity timeline appears on Organization detail page
+- Activity timeline appears on Opportunity detail page
+- Activities tied to org and opp separately (both visible on parent org)
+- Add activity from either org or opp page (context-aware)
+
+#### D) Search & Filtering (Phase 1 MVP)
+
+- Filter activities by type (show only calls, notes, etc.)
+- Date range filter (activities from last 30 days, etc.)
+- Full-text search on note content
+- **Future (v2.1):** AI-powered insights ("common objections", "decision timeline")
+
+### Exit Gates
+
+- ✅ Modal opens, logs activity, timeline refreshes immediately
+- ✅ All activity types (call, email, meeting, note, task) work end-to-end
+- ✅ Activities immutable (no edit/delete via UI or API)
+- ✅ Timeline queries <500ms (even with 1000+ activities)
+- ✅ Permissions enforced (reps can't see activities on accounts they don't own)
+- ✅ E2E test: create activity → verify audit trail → attempt (fail) to delete
+- ✅ Regional director approves UX and workflow
+- ✅ All activities logged for ops visibility (who logged what, when)
+
+---
+
+## Stream 3: TUF Academy Core (Onboarding & Certification Framework)
+
+### Objective
+Build the backbone for coaching, enablement, and rep certification. Reps complete onboarding, study curriculum, and earn certifications (Athlete Management, Sales Process, Product Knowledge).
+
+**Business Value:** Ensure all reps are trained on playbook, reduce onboarding time, create certification path for career development.
+
+### Deliverables
+
+#### A) Academy Dashboard & Navigation
+- Hero section: rep's current progress (onboarding %, certifications earned)
+- "Your Learning Path" — modules assigned by role (new rep vs. veteran vs. manager)
+- "Available Certifications" — browse all cert tracks
+- "Completed & In Progress" — progress bar and completion date
+- Rep profile: certifications earned, completion dates, renewal dates (if applicable)
+
+#### B) Onboarding Module (Mandatory for All Reps)
+- 5-10 core lessons covering:
+  - TUF brand/values/products
+  - Sales process (lead sourcing → close → handoff)
+  - CRM navigation (this app: organizations, opportunities, orders)
+  - Playbook essentials (objection handling, discovery questions)
+  - Compliance (data privacy, contract signing, approval workflows)
+- Lesson format:
+  - Short video (2-5 min) or text + images
+  - Checkpoint quiz (80% pass required to unlock next lesson)
+  - Progress saved locally; completion marked in LMS
+- **Completion gate:** Onboarding MUST be done before rep can log in to sales app (first-time setup)
+
+#### C) Certification Tracks (Launch with 3)
+1. **Athlete Management** — Understanding athlete decision-making, building relationships, follow-up cadence
+2. **Sales Process Excellence** — Qualification, discovery, proposal, negotiation, close
+3. **Product Knowledge** — All TUF product lines, customization options, pricing, inventory
+
+Each track:
+- 3-5 lessons (videos, articles, scenarios)
+- 1 quiz per lesson (pass/fail)
+- Final capstone quiz or scenario-based assessment (>75% to pass)
+- Completion certificate (downloadable, social shareable)
+- Expiration date optional (e.g., annual renewal for compliance)
+
+#### D) Manager Workflows
+- **Assign Certifications** — Manager can assign cert tracks to individual reps or teams
+- **Track Progress** — Dashboard showing rep's module/cert completion % across team
+- **Download Reports** — CSV export of team onboarding & cert status
+- **Coaching Notes** — Attach feedback to rep's profile (visible to rep and manager)
+
+#### E) Admin Controls
+- Create/edit/delete modules, lessons, quizzes (WYSIWYG editor)
+- Bulk upload lessons (markdown or structured JSON)
+- A/B test lessons (track engagement, completion %)
+- Audit trail: who created/updated content, when, by whom
+
+### Exit Gates
+
+- ✅ Onboarding can be completed end-to-end (lessons → quizzes → certificate)
+- ✅ Three certification tracks available and testable
+- ✅ Reps cannot access sales app without onboarding completion (permissions enforced)
+- ✅ Manager dashboard shows team progress accurately
+- ✅ Certificates downloadable and shareable
+- ✅ All lesson content indexed and searchable
+- ✅ E2E scenario: new rep → onboarding → cert → ready for production
+
+---
+
+## Pre-Launch Testing & Deployment
+
+### Staging Environment Validation
+
+1. **Data Validation**
+   - Run data migration on production-like snapshot
+   - Verify no data loss, corruption, or orphaned records
+   - Test rollback to previous schema version
+
+2. **Load Testing**
+   - Simulate 100 concurrent reps using app
+   - Verify all critical queries stay under P95 latency targets
+   - Check database connection pool and memory usage
+
+3. **Security Audit**
+   - Penetration test (OWASP Top 10)
+   - SQL injection, XSS, CSRF, privilege escalation attempts
+   - Dependency scan for known vulnerabilities
+   - SSL/TLS certificate validation
+
+4. **UAT with Regional Director + Sales Team**
+   - Real-world scenario testing (create org → add opp → log activity → close)
+   - Feedback on UX, workflow, terminology
+   - Bug triage and fixes (critical vs. nice-to-have)
+
+5. **Ops Readiness**
+   - Deploy playbook tested and timed (<30 min)
+   - Rollback procedure practiced and validated
+   - Incident response runbook reviewed
+   - On-call rotation established
+
+### Launch Day Procedure
+
+1. **Pre-flight (1 hour before)**
+   - Verify all systems healthy (API, database, CDN)
+   - Confirm backups are current
+   - Alert ops and support teams
+
+2. **Deploy to Production**
+   - Blue-green deployment (zero downtime)
+   - Database migration runs (forward-only, irreversible)
+   - Feature flags enabled for new features
+   - Smoke tests pass (critical workflows)
+
+3. **Post-deployment (2 hours)**
+   - Monitor error rates and latency (dashboards)
+   - Tail logs for anomalies
+   - Reachability test (50 reps log in)
+   - Leadership sign-off: "System ready for sales team"
+
+4. **Rep Onboarding**
+   - Reps log in → forced through Academy onboarding
+   - Support team on standby for access/password issues
+   - Daily scrums first week to catch issues early
+
+---
+
+## Launch Exit Gates (All Must Pass)
+
+### ✅ Functional Completeness
+- [ ] Organizations, Opportunities, Orders all fully functional
+- [ ] Notes & Activities logging working end-to-end
+- [ ] Academy onboarding mandatory and completable
+- [ ] Three certification tracks available
+- [ ] All APIs tested and returning correct responses
+- [ ] All critical user journeys tested E2E
+
+### ✅ Performance & Reliability
+- [ ] P95 latency <500ms for all page loads
+- [ ] P99 latency <2s (outlier threshold)
+- [ ] Zero data loss under failure scenarios
+- [ ] Rollback procedure tested and <30 min
+- [ ] Error rate <0.1% under normal load
+- [ ] 99.9% uptime SLA targets met in staging
+
+### ✅ Security & Compliance
+- [ ] All user inputs validated server-side
+- [ ] No SQL injection, XSS, or CSRF vulnerabilities
+- [ ] RBAC enforced for all endpoints
+- [ ] Audit trail logging all privileged actions
+- [ ] Sensitive data encrypted at rest and in transit
+- [ ] Dependency scan passes (no critical vulns)
+
+### ✅ Observability & Ops
+- [ ] All critical code paths have tracing + logging
+- [ ] Error alerts routing to ops channel
+- [ ] Dashboards live (latency, error rate, user activity)
+- [ ] Runbooks written and reviewed
+- [ ] Incident response procedure practiced
+- [ ] On-call rotation confirmed
+
+### ✅ UAT & Stakeholder Sign-Off
+- [ ] Regional director approves UX and feature set
+- [ ] Sales leadership confirms readiness
+- [ ] Compliance/legal approves (if needed)
+- [ ] Ops team signs off on runbooks
+
+### ✅ Documentation
+- [ ] Admin guide for Academy content management
+- [ ] Rep onboarding guide (walk through app, Academy)
+- [ ] Manager guide (progress tracking, reporting)
+- [ ] Ops runbook (deploy, rollback, incident response)
+
+---
+
+## Post-Launch (v2.0 Follow-On Work)
+
+### Phase 2a — Activity Intelligence (30 days post-launch)
+- Automated activity summaries (daily digest of team activity)
+- Activity insights dashboard (most active reps, deal velocity metrics)
+- Predictive "deal at risk" alerts based on activity patterns
+- Activity templates (pre-filled for common calls: discovery, follow-up, close)
+
+### Phase 2b — Advanced Academy Features (60 days post-launch)
+- Gamification (leaderboards for cert completion, badges)
+- Peer learning (reps record and share successful calls)
+- AI-powered coaching (analyze calls, suggest improvements)
+- Mobile app for offline lesson access
+
+### Phase 2c — Integrations & Automation (90 days post-launch)
+- Slack integration (activity notifications, quick log)
+- Outlook/Gmail sync (capture email activity automatically)
+- Zapier/Make.com integration (3rd-party workflow automation)
+- Calendar sync (meeting invites auto-create activities)
+
+---
+
+## Standard Definition of Done (Launch Criteria)
+
+1. ✅ Product acceptance criteria met (UAT sign-off)
+2. ✅ Unit/integration/E2E coverage complete
+3. ✅ Observability hooks deployed (tracing, logging, monitoring)
+4. ✅ Security checklist complete (no vulns, RBAC enforced)
+5. ✅ Runbook written and tested
+6. ✅ Feature flags configured for safe rollout
+7. ✅ Documentation complete and reviewed
+8. ✅ Stakeholders (regional director, ops, sales) sign off
+
+---
+
+## Launch Week Execution Checklist
+
+### Days 1-2: Final Testing & Validation
+- [ ] Stream 1 (Hardening): All exit gates verified
+- [ ] Stream 2 (Notes & Activities): UAT sign-off received
+- [ ] Stream 3 (Academy): New rep can complete onboarding
+- [ ] Staging environment fully mirrors production
+
+### Days 3-4: Deployment Prep & Final QA
+- [ ] Deployment playbook rehearsed (blue-green live)
+- [ ] Database migration tested on production-like data
+- [ ] Rollback procedure confirmed and timed
+- [ ] On-call team briefed and ready
+- [ ] Final security audit passed
+
+### Day 5: Launch Day
+- [ ] 1 hour pre-flight: All systems go
+- [ ] Deploy to production (blue-green)
+- [ ] Run smoke tests (critical workflows)
+- [ ] Monitor for 2 hours: error rates, latency, logs
+- [ ] Regional director + sales leadership sign off
+- [ ] Begin rep onboarding wave (50% of team)
+
+### Days 6-7: Post-Launch Monitoring
+- [ ] Daily scrums (ops, support, product)
+- [ ] Bug triage and hot-fix deployment if needed
+- [ ] Rep feedback collection (Slack polls, quick calls)
+- [ ] Metrics dashboard live (usage, engagement, errors)
+- [ ] Onboard remaining 50% of reps
+
+---
+
+## Success Metrics (30-Day Post-Launch)
+
+### Rep Engagement
+- [ ] >90% of reps log in to app at least once
+- [ ] >80% complete Academy onboarding
+- [ ] >50% log at least one activity (call, email, note)
+- [ ] Average session duration >10 minutes
+
+### System Reliability
+- [ ] 99.9% uptime (max 43 minutes downtime/month)
+- [ ] P95 latency <500ms maintained
+- [ ] Error rate <0.1% under normal load
+- [ ] Zero unplanned rollbacks
+
+### Business Impact
+- [ ] 25% reduction in deal close time (vs. legacy system)
+- [ ] 100% of reps have audit trail of interactions
+- [ ] Leadership can coach on specific deal patterns
+- [ ] Academy reduces onboarding time by 40%
+
+---
+
+## Operating Principles — Ironclad Rules for Launch
+
+1. **No feature ships without automated tests** — 80%+ code coverage minimum
+2. **All APIs return structured responses** — Error messages, retry hints, tracing IDs
+3. **Zero data loss on deploy** — Migration reversible; backup always fresh
+4. **Security audits pass before deploy** — No exceptions, no workarounds
+5. **Rep UX tested by real reps** — Not just QA; regional director approval required
+6. **Observability first** — Every error, every slow query, every audit event logged
+7. **Rollback ready always** — Procedure practiced; time to rollback <30 min
+8. **Incidents fuel retrospectives** — Post-mortem and roadmap updates within 48 hours
+
+---
+
+## Next Steps
+
+### Immediate (This Week)
+1. [ ] Finalize Stream 1 (Hardening) remaining edge cases — **DUE DATE: [Insert]**
+2. [ ] Complete Stream 2 (Notes & Activities) modal + backend — **DUE DATE: [Insert]**
+3. [ ] Ship Stream 3 (Academy) onboarding module + 3 cert tracks — **DUE DATE: [Insert]**
+4. [ ] Begin staging environment load testing
+5. [ ] Schedule UAT with regional director
+
+### Next Week
+1. [ ] All three streams complete and in staging
+2. [ ] Full E2E testing across all workflows
+3. [ ] Security audit begins
+4. [ ] Ops runbooks drafted
+
+### Pre-Launch Week
+1. [ ] UAT sign-off received
+2. [ ] Security audit passed
+3. [ ] Blue-green deployment rehearsed
+4. [ ] On-call team trained and ready
+5. [ ] All exit gates verified
+
+### Launch Week
+1. [ ] Deploy to production (Day 5)
+2. [ ] Monitor 24/7 (first week)
+3. [ ] Begin rep onboarding
+4. [ ] Daily sync-ups
+
+---
+
+**This is the roadmap to revenue. Execute it with precision. Launch with confidence.**
