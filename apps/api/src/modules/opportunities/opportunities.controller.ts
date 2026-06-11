@@ -36,7 +36,7 @@ export async function updateOpportunityStageHandler(request: FastifyRequest, rep
     if (error.message.includes('not found')) {
       return reply.code(404).send({ message: error.message });
     }
-    if (error.message.includes('Invalid stage transition') || error.message.includes('required to close an opportunity')) {
+    if (error.message.includes('Invalid stage transition') || error.message.includes('required to close an opportunity') || error.message.includes('cannot be negative')) {
       return reply.code(400).send({ message: error.message });
     }
     return reply.code(500).send({ message: 'Internal Server Error' });

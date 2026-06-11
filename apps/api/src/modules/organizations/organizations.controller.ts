@@ -6,7 +6,10 @@ export async function createOrganizationHandler(request: FastifyRequest, reply: 
   try {
     const organization = await createOrganization(request.body as any);
     return reply.code(201).send(organization);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message?.includes('already exists') || error.message?.includes('required')) {
+      return reply.code(409).send({ message: error.message });
+    }
     return reply.code(500).send({ message: 'Error creating organization' });
   }
 }
@@ -29,8 +32,15 @@ export async function getOrganizationByIdHandler(request: FastifyRequest, reply:
 
 export async function updateOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as any;
-  const organization = await updateOrganization(id, request.body as any);
-  return reply.send(organization);
+  try {
+    const organization = await updateOrganization(id, request.body as any);
+    return reply.send(organization);
+  } catch (error: any) {
+    if (error.message?.includes('already exists') || error.message?.includes('required')) {
+      return reply.code(409).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Error updating organization' });
+  }
 }
 
 export async function deleteOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
