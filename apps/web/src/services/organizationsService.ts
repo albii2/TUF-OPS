@@ -107,7 +107,7 @@ function reconcileStoredLeadData() {
 }
 
 function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
-  if (import.meta.env.VITE_ENABLE_LEAD_BOOTSTRAP !== 'true') return;
+  if (import.meta.env.VITE_ENABLE_LEAD_BOOTSTRAP === 'false') return;
   if (bootstrapInProgress) return;
   const existing = readLocalOrganizations();
   if (existing.length) return;

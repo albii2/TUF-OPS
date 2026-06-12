@@ -18,7 +18,9 @@
     "dev:api": "pnpm --filter @apps/api dev",
     "dev:v1": "pnpm --parallel --filter web --filter @apps/api dev",
     "test:e2e": "playwright test",
-    "test:e2e:prod": "pnpm --filter web build && playwright test"
+    "test:e2e:prod": "pnpm --filter web build && playwright test",
+    "db:seed:leads": "dotenv -e .env -- node packages/database/seed_leads_from_csv.js",
+    "deploy:check:web": "pnpm --filter web build"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
