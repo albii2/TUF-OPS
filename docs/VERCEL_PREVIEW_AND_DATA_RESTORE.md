@@ -45,3 +45,32 @@ The seed is idempotent. It will:
 ## Restore bundled lead data in the browser preview
 
 The Vite app now bootstraps bundled leads by default when browser-local organization storage is empty. Set `VITE_ENABLE_LEAD_BOOTSTRAP=false` only if you deliberately want an empty smoke-test dataset.
+
+## Railway migration troubleshooting from your terminal
+
+### Error: `Not run migration ... is preceding already run migration ...`
+
+This means Railway already has a newer migration recorded in its migration table, but your checkout also contains an older-timestamp migration that still needs to be marked/applied. The current known case is:
+
+- pending older migration: `1776804365915_-name-add-channel-type-to-opportunities`
+- already-run newer migration: `1800000000000_create-users-table`
+
+For this legacy Railway database shape, run the Railway-safe migration script once:
+
+```bash
+export DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DBNAME"
+pnpm -w run db:migrate:railway
+```
+
+`db:migrate:railway` disables only the node-pg-migrate ordering guard. It still runs the pending migration files and records them normally. Use it only for an existing Railway database that reports the out-of-order migration error; new local/test databases should keep using `pnpm -w db:migrate`.
+
+### Error: `Command "db:seed:leads" not found`
+
+Run the seed script through `pnpm run` from the repository root so pnpm resolves the root workspace script explicitly:
+
+```bash
+export DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DBNAME"
+pnpm -w run db:seed:leads
+```
+
+If that still says the script is missing, you are not on a checkout that contains the data-restore scripts. Pull the latest branch/PR first, then rerun the command from the folder that contains `package.json` and `pnpm-workspace.yaml`.
