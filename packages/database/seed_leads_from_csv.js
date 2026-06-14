@@ -122,9 +122,9 @@ async function upsertOrganization(client, lead, actorUserId) {
   const existing = await client.query(
     `SELECT id, state
      FROM organizations
-     WHERE lower(btrim(name)) = lower(btrim($1))
-       AND (upper(btrim(coalesce(state, ''))) = upper(btrim($2)) OR coalesce(state, '') = '')
-     ORDER BY CASE WHEN upper(btrim(coalesce(state, ''))) = upper(btrim($2)) THEN 0 ELSE 1 END, id
+     WHERE lower(btrim(name)) = lower(btrim($1::text))
+       AND (upper(btrim(coalesce(state, ''))) = upper(btrim($2::text)) OR coalesce(state, '') = '')
+     ORDER BY CASE WHEN upper(btrim(coalesce(state, ''))) = upper(btrim($2::text)) THEN 0 ELSE 1 END, id
      LIMIT 1`,
     [lead.name, lead.state],
   );
@@ -132,10 +132,10 @@ async function upsertOrganization(client, lead, actorUserId) {
   if (existing.rows[0]) {
     await client.query(
       `UPDATE organizations
-       SET state = CASE WHEN coalesce(state, '') = '' THEN $2 ELSE state END,
-           updated_by = $3,
+       SET state = CASE WHEN coalesce(state, '') = '' THEN $2::varchar ELSE state END,
+           updated_by = $3::integer,
            updated_at = current_timestamp
-       WHERE id = $1`,
+       WHERE id = $1::integer`,
       [existing.rows[0].id, lead.state, actorUserId],
     );
     return { id: existing.rows[0].id, created: false };
@@ -143,7 +143,7 @@ async function upsertOrganization(client, lead, actorUserId) {
 
   const inserted = await client.query(
     `INSERT INTO organizations (name, state, status, created_by, updated_by)
-     VALUES ($1, $2, 'active', $3, $3)
+     VALUES ($1::varchar, $2::varchar, 'active', $3::integer, $3::integer)
      RETURNING id`,
     [lead.name, lead.state, actorUserId],
   );
@@ -155,12 +155,12 @@ async function ensureContacts(client, organizationId, lead) {
   const contactName = lead.athleticDirectorName || `${lead.name} Athletic Director`;
   await client.query(
     `INSERT INTO contacts (organization_id, name, email, phone, role)
-     SELECT $1, $2, $3, $4, 'Athletic Director'
+     SELECT $1::integer, $2::varchar, $3::varchar, $4::varchar, 'Athletic Director'::varchar
      WHERE NOT EXISTS (
        SELECT 1 FROM contacts
-       WHERE organization_id = $1
-         AND lower(coalesce(email, '')) = lower(coalesce($3, ''))
-         AND lower(name) = lower($2)
+       WHERE organization_id = $1::integer
+         AND lower(coalesce(email, '')) = lower(coalesce($3::text, ''))
+         AND lower(name) = lower($2::text)
      )`,
     [organizationId, contactName, lead.athleticDirectorEmail, lead.athleticDirectorPhone],
   );
@@ -174,14 +174,14 @@ async function ensureOpportunities(client, organizationId, organizationName, act
          name, organization_id, sport, season, year, status, value, created_by, updated_by,
          stage, last_activity_date, deal_type, channel_type
        )
-       SELECT $1, $2, $3, $4, $5, 'open', 0, $6, $6, 'LEAD_ASSIGNED', current_timestamp, $7, $7
+       SELECT $1::varchar, $2::integer, $3::varchar, $4::varchar, $5::integer, 'open'::varchar, 0::numeric, $6::integer, $6::integer, 'LEAD_ASSIGNED'::varchar, current_timestamp, $7::varchar, $7::varchar
        WHERE NOT EXISTS (
          SELECT 1 FROM opportunities
-         WHERE organization_id = $2
-           AND sport = $3
-           AND season = $4
-           AND year = $5
-           AND channel_type = $7
+         WHERE organization_id = $2::integer
+           AND sport = $3::varchar
+           AND season = $4::varchar
+           AND year = $5::integer
+           AND channel_type = $7::varchar
        )`,
       [`${organizationName} - ${channelType}`, organizationId, DEFAULT_SPORT, DEFAULT_SEASON, DEFAULT_YEAR, actorUserId, channelType],
     );
