@@ -73,7 +73,7 @@ Interns
 ### Authentication PIN Structure
 Authentication PIN ranges align strictly with role hierarchies:
 - **8XXX (Executive Leadership & Special Accounts)**:
-  - Auqueith Bradshaw (Owner): `8188`
+  - A.Bradshaw (Owner): `8188`
   - Jennifer Schmitz (Director - Inactive): `8173`
 - **7XXX (State Directors)**:
   - Primeau Hill (Director): `7428`
