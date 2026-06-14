@@ -13,12 +13,15 @@
     "db:reset:test": "pnpm -w db:reset",
     "db:reset": "dotenv -e .env -- node packages/database/reset_db.js",
     "db:migrate": "dotenv -e .env -- node-pg-migrate -m packages/database/migrations up",
+    "db:migrate:railway": "dotenv -e .env -- node-pg-migrate --no-check-order -m packages/database/migrations up",
     "db:verify": "dotenv -e .env -- node -e \"const {Client}=require('pg');(async()=>{const c=new Client({connectionString:process.env.TEST_DATABASE_URL});await c.connect();const r=await c.query(\\\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' ORDER BY table_name\\\");console.log(r.rows.map(x=>x.table_name).join('\\\\n'));await c.end();})();\"",
     "dev:web": "pnpm --filter web dev",
     "dev:api": "pnpm --filter @apps/api dev",
     "dev:v1": "pnpm --parallel --filter web --filter @apps/api dev",
     "test:e2e": "playwright test",
-    "test:e2e:prod": "pnpm --filter web build && playwright test"
+    "test:e2e:prod": "pnpm --filter web build && playwright test",
+    "db:seed:leads": "dotenv -e .env -- node packages/database/seed_leads_from_csv.js",
+    "deploy:check:web": "pnpm --filter web build"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
