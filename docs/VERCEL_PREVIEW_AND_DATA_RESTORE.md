@@ -73,4 +73,14 @@ export DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DBNAME"
 pnpm -w run db:seed:leads
 ```
 
-If that still says the script is missing, you are not on a checkout that contains the data-restore scripts. Pull the latest branch/PR first, then rerun the command from the folder that contains `package.json` and `pnpm-workspace.yaml`.
+If either `db:migrate:railway` or `db:seed:leads` says the script is missing, you are not on a checkout that contains the data-restore scripts. Pull the latest branch/PR first, then rerun the command from the folder that contains `package.json` and `pnpm-workspace.yaml`.
+
+If you need to unblock yourself before your local checkout has those scripts, run the underlying commands directly from the repository root:
+
+```bash
+export DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DBNAME"
+./node_modules/.bin/node-pg-migrate --no-check-order -m packages/database/migrations up
+node packages/database/seed_leads_from_csv.js
+```
+
+The direct commands do the same work as the scripts: the first applies pending migrations while bypassing the legacy ordering guard, and the second imports the bundled CSV leads.
