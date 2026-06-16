@@ -35,8 +35,8 @@ type StoredManagedUser = ManagedUser & {
 export type CredentialAuditAction = 'USER_CREATED' | 'TEMPORARY_CREDENTIAL_GENERATED' | 'CREDENTIAL_RESET' | 'CREDENTIAL_CHANGED' | 'FAILED_CREDENTIAL_ATTEMPT' | 'SUCCESSFUL_LOGIN';
 export type CredentialAuditEntry = { id: string; action: CredentialAuditAction; targetUserId?: string; actorUserId?: string; createdAt: string; metadata: Record<string, unknown> };
 
-const KEY = 'tuf_ops_users_v4';
-const LEGACY_USER_KEYS = ['tuf_ops_users_v1', 'tuf_ops_users_v2', 'tuf_ops_users_v3'];
+const KEY = 'tuf_ops_users_v5';
+const LEGACY_USER_KEYS = ['tuf_ops_users_v1', 'tuf_ops_users_v2', 'tuf_ops_users_v3', 'tuf_ops_users_v4'];
 const AUDIT_KEY = 'tuf_ops_credential_audit_v1';
 const COLORS = ['#1FB6FF', '#22C55E', '#F59E0B', '#A855F7', '#EF4444', '#14B8A6'];
 const MAX_FAILED_ATTEMPTS = 5;
