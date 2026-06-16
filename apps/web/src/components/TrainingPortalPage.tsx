@@ -3,6 +3,7 @@ import { useTrainingEnrollment, TrainingPhase } from '../hooks/useTrainingEnroll
 import TrainingPhaseView from './TrainingPhaseView';
 import ProgressRing from './ProgressRing';
 import { getStoredUser } from '../auth';
+import TufLogoSvg from '../assets/tuf-logo.svg';
 
 const PHASES = ['DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1'];
 const PHASE_LABELS: Record<string, string> = {
@@ -56,11 +57,17 @@ export default function TrainingPortalPage() {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-          <div>
-            <h1 className="text-3xl font-black tracking-tight text-white">TUF Academy</h1>
-            <p className="text-slate-400 mt-1 text-sm font-semibold uppercase tracking-wider">
-              {enrollmentData.role} Curriculum • Current Phase: {PHASE_LABELS[enrollmentData.current_phase]}
-            </p>
+          <div className="flex items-center gap-4">
+            <img src={TufLogoSvg} alt="TUF Logo" className="h-10 w-auto opacity-95" />
+            <div className="h-8 w-px bg-slate-800 hidden sm:block" />
+            <div>
+              <h1 className="text-2xl font-black tracking-tight text-white uppercase">
+                TUF Academy
+              </h1>
+              <p className="text-slate-400 mt-0.5 text-xs font-bold uppercase tracking-wider">
+                {enrollmentData.role} Curriculum • Current Phase: {PHASE_LABELS[enrollmentData.current_phase]}
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-3 rounded-lg border border-slate-800 bg-[#070c13]/90 px-4 py-3">
             <ProgressRing percentage={completionMetrics.percentComplete} size={60} strokeWidth={6} />
