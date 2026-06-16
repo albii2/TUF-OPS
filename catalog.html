@@ -1,0 +1,1559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TUF Sports Apparel | Summer-Fall 2026 Team Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090a0f;
+      --bg-card: #12141c;
+      --primary: #f59e0b; /* Amber Gold */
+      --primary-hover: #d97706;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --border: #222530;
+      --accent: #dc2626; /* Crimson Red */
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-sans: 'Outfit', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.5;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Screen UI Layout */
+    .catalog-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    /* Top Nav Bar for easy browsing on screen */
+    .catalog-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(9, 10, 15, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Document Sheet Container */
+    .catalog-pages {
+      margin-top: 70px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    /* Individual Page Layout */
+    .catalog-page {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border);
+      width: 100%;
+      aspect-ratio: 1 / 1.294; /* Standard catalog proportion */
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+    }
+
+    .page-header span.brand {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Page Footer */
+    .page-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .page-number {
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    /* Cover Page (Page 1) */
+    .cover-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .cover-title-area {
+      margin-top: 20px;
+    }
+
+    .cover-brand {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: white;
+      margin-bottom: 5px;
+    }
+
+    .cover-tagline {
+      font-size: 1.1rem;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .cover-image-container {
+      width: 100%;
+      height: 50%;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin: 20px 0;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+    }
+
+    .cover-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .cover-footer {
+      margin-bottom: 20px;
+    }
+
+    .warranty-badge {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: white;
+      border: 2px solid var(--primary);
+      padding: 10px 24px;
+      display: inline-block;
+      margin-bottom: 10px;
+      background-color: rgba(245, 158, 11, 0.05);
+    }
+
+    .season-text {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* Split Page Layout (Photos + Details) */
+    .page-layout-split {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 30px;
+      flex-grow: 1;
+      height: calc(100% - 90px);
+    }
+
+    .details-column {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .photo-column {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      height: 100%;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .photo-column img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Standard Elements */
+    h2.section-title {
+      font-family: var(--font-display);
+      font-size: 1.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: white;
+      margin-bottom: 15px;
+      border-left: 5px solid var(--primary);
+      padding-left: 12px;
+    }
+
+    .product-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .product-item {
+      background-color: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .product-item-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+    }
+
+    .sku-badge {
+      color: var(--primary);
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+    }
+
+    .price-badge {
+      color: white;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+    }
+
+    .product-item-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .product-item-meta {
+      display: flex;
+      gap: 8px;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .product-item-meta span {
+      background-color: rgba(255,255,255,0.05);
+      padding: 1px 6px;
+      border-radius: 3px;
+    }
+
+    /* Product DNA block (Hero style) */
+    .dna-block {
+      border: 1px dashed var(--border);
+      background-color: rgba(0,0,0,0.15);
+      border-radius: 6px;
+      padding: 16px;
+    }
+
+    .dna-block h4 {
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--primary);
+      margin-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+    }
+
+    .dna-list {
+      list-style-type: none;
+    }
+
+    .dna-list li {
+      font-size: 0.78rem;
+      color: var(--text-main);
+      padding-left: 12px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .dna-list li::before {
+      content: '▪';
+      color: var(--primary);
+      position: absolute;
+      left: 0;
+      top: 0;
+      font-size: 0.65rem;
+    }
+
+    /* Full Width Grid Layouts */
+    .page-layout-grid {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: calc(100% - 90px);
+    }
+
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      flex-grow: 1;
+    }
+
+    .grid-item {
+      background-color: rgba(255,255,255,0.01);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Sizing Tables */
+    .table-container {
+      margin-bottom: 15px;
+    }
+
+    .table-title {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .spec-table th, .spec-table td {
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      text-align: center;
+    }
+
+    .spec-table th {
+      background-color: rgba(255,255,255,0.03);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .spec-table tr:nth-child(even) {
+      background-color: rgba(255,255,255,0.01);
+    }
+
+    /* Typography & Color Guides */
+    .guide-box {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .color-swatch-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .swatch {
+      width: 30px;
+      height: 30px;
+      border-radius: 4px;
+      border: 1px solid #333;
+      position: relative;
+    }
+
+    .swatch-label {
+      font-size: 0.6rem;
+      text-align: center;
+      margin-top: 4px;
+      color: var(--text-muted);
+    }
+
+    /* How to Order Steps */
+    .order-step {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      background-color: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      padding: 15px;
+      border-radius: 6px;
+    }
+
+    .step-number {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .step-text h4 {
+      font-size: 0.95rem;
+      margin-bottom: 4px;
+      color: white;
+    }
+
+    .step-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .order-contact-box {
+      background-color: rgba(245, 158, 11, 0.03);
+      border: 1px solid var(--primary);
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .order-contact-box p {
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+    }
+
+    .order-email {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+
+    /* PDF Action Download Floating Button (only screen) */
+    .download-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: var(--primary);
+      color: var(--bg-dark);
+      border: none;
+      padding: 14px 24px;
+      border-radius: 50px;
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .download-fab:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Screen-specific TOC grid */
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed var(--border);
+      padding: 6px 0;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .toc-item:hover {
+      color: var(--primary);
+    }
+
+    /* Print Formatting Styles */
+    @media print {
+      body {
+        background-color: white;
+        color: black;
+      }
+
+      .catalog-nav, .download-fab {
+        display: none !important;
+      }
+
+      .catalog-pages {
+        margin-top: 0 !important;
+        gap: 0 !important;
+        max-width: 100% !important;
+      }
+
+      .catalog-page {
+        width: 210mm !important;
+        height: 297mm !important; /* A4 aspect ratio or letter */
+        aspect-ratio: auto !important;
+        margin: 0 !important;
+        padding: 20mm !important;
+        border: none !important;
+        box-shadow: none !important;
+        background-color: white !important;
+        color: black !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+
+      .page-header {
+        border-color: #ddd !important;
+        color: #666 !important;
+      }
+
+      .page-header span.brand {
+        color: black !important;
+      }
+
+      .page-footer {
+        border-color: #ddd !important;
+        color: #666 !important;
+      }
+
+      .page-number {
+        color: black !important;
+      }
+
+      .cover-brand {
+        color: black !important;
+      }
+
+      .cover-tagline {
+        color: #444 !important;
+      }
+
+      .warranty-badge {
+        color: black !important;
+        border-color: black !important;
+        background-color: #f0f0f0 !important;
+      }
+
+      h2.section-title {
+        color: black !important;
+        border-color: black !important;
+      }
+
+      .product-item {
+        background-color: #f9f9f9 !important;
+        border-color: #ddd !important;
+      }
+
+      .sku-badge {
+        color: #444 !important;
+      }
+
+      .price-badge {
+        color: black !important;
+      }
+
+      .product-item-meta span {
+        background-color: #eee !important;
+        color: #333 !important;
+      }
+
+      .dna-block {
+        border-color: #ccc !important;
+        background-color: #f9f9f9 !important;
+      }
+
+      .dna-block h4 {
+        color: black !important;
+        border-color: #ddd !important;
+      }
+
+      .dna-list li::before {
+        color: black !important;
+      }
+
+      .spec-table th, .spec-table td {
+        border-color: #ccc !important;
+        color: black !important;
+      }
+
+      .spec-table th {
+        background-color: #f0f0f0 !important;
+      }
+
+      .guide-box {
+        border-color: #ccc !important;
+      }
+
+      .order-step {
+        background-color: #f9f9f9 !important;
+        border-color: #ddd !important;
+      }
+
+      .step-number {
+        color: black !important;
+      }
+
+      .step-text h4 {
+        color: black !important;
+      }
+
+      .order-contact-box {
+        border-color: black !important;
+        background-color: #f9f9f9 !important;
+      }
+
+      .order-email {
+        color: black !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Nav Bar (Only Screen) -->
+  <nav class="catalog-nav">
+    <button class="nav-btn active" onclick="scrollToPage(1, this)">Cover</button>
+    <button class="nav-btn" onclick="scrollToPage(2, this)">TOC</button>
+    <button class="nav-btn" onclick="scrollToPage(3, this)">TUF Overdrive™</button>
+    <button class="nav-btn" onclick="scrollToPage(4, this)">TUF Overtime™</button>
+    <button class="nav-btn" onclick="scrollToPage(5, this)">TUF Flex™</button>
+    <button class="nav-btn" onclick="scrollToPage(6, this)">TUF ISSUE™ SHIFT</button>
+    <button class="nav-btn" onclick="scrollToPage(7, this)">Wrestling</button>
+    <button class="nav-btn" onclick="scrollToPage(8, this)">Lettermen</button>
+    <button class="nav-btn" onclick="scrollToPage(9, this)">Tech Suits</button>
+    <button class="nav-btn" onclick="scrollToPage(10, this)">Hoodies/Shorts</button>
+    <button class="nav-btn" onclick="scrollToPage(11, this)">Tees</button>
+    <button class="nav-btn" onclick="scrollToPage(12, this)">Acc.</button>
+    <button class="nav-btn" onclick="scrollToPage(13, this)">Bags</button>
+    <button class="nav-btn" onclick="scrollToPage(14, this)">Sizing</button>
+    <button class="nav-btn" onclick="scrollToPage(15, this)">Specs</button>
+    <button class="nav-btn" onclick="scrollToPage(16, this)">Order</button>
+  </nav>
+
+  <div class="catalog-wrapper">
+    <div class="catalog-pages">
+
+      <!-- PAGE 1: COVER -->
+      <section class="catalog-page" id="page-1">
+        <div class="page-header">
+          <span>TUF Sports Apparel</span>
+          <span>Internal Document</span>
+        </div>
+        <div class="cover-content">
+          <div class="cover-title-area">
+            <h1 class="cover-brand">TUF Sports Apparel</h1>
+            <div class="cover-tagline">FIELD WORK™ Collection</div>
+            <div class="season-text">Summer / Fall 2026 Team Catalog</div>
+          </div>
+          
+          <div class="cover-image-container">
+            <img src="file:///Users/coachbradshaw/.gemini/antigravity/brain/f609e3b5-b43e-46d7-89aa-ac1cedba590d/tuf_football_hero_1781537581975.png" alt="TUF Football Uniform Hero">
+          </div>
+
+          <div class="cover-footer">
+            <div class="warranty-badge">Built for Teams. Backed for Life.™</div>
+            <div class="season-text">Version 1.0 | order@tufsports.us</div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>CONFIDENTIAL</span>
+          <span class="page-number">Page 1</span>
+        </div>
+      </section>
+
+      <!-- PAGE 2: TABLE OF CONTENTS -->
+      <section class="catalog-page" id="page-2">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Summer / Fall 2026</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">Table of Contents</h2>
+          
+          <div class="toc-grid" style="margin: 40px 0; flex-grow: 1;">
+            <a href="#page-3" class="toc-item"><span>Page 3: TUF Overdrive™ Football Uniforms</span> <span>Uniforms</span></a>
+            <a href="#page-4" class="toc-item"><span>Page 4: TUF Overtime™ Basketball Uniforms</span> <span>Uniforms</span></a>
+            <a href="#page-5" class="toc-item"><span>Page 5: TUF Flex™ Baseball Uniforms</span> <span>Uniforms</span></a>
+            <a href="#page-6" class="toc-item"><span>Page 6: TUF ISSUE™ SHIFT - 7v7 & Flag</span> <span>Uniforms</span></a>
+            <a href="#page-7" class="toc-item"><span>Page 7: TUF Mat-Lock™ Wrestling Singlets</span> <span>Uniforms</span></a>
+            <a href="#page-8" class="toc-item"><span>Page 8: TUF Lettermen Jackets</span> <span>Outerwear</span></a>
+            <a href="#page-9" class="toc-item"><span>Page 9: TUF Third-Shift™ Tech Suits</span> <span>Outerwear</span></a>
+            <a href="#page-10" class="toc-item"><span>Page 10: Third-Shift™ Hoodies & ISSUE™ Shorts</span> <span>Apparel</span></a>
+            <a href="#page-11" class="toc-item"><span>Page 11: TUF ISSUE™ Fan & Team Tees</span> <span>Apparel</span></a>
+            <a href="#page-12" class="toc-item"><span>Page 12: TUF ISSUE™ Accessories & Sleeves</span> <span>Accessories</span></a>
+            <a href="#page-13" class="toc-item"><span>Page 13: TUF ISSUE™ Travel Bags & luggage</span> <span>Travel</span></a>
+            <a href="#page-14" class="toc-item"><span>Page 14: Sizing Specs & Charts</span> <span>Technical</span></a>
+            <a href="#page-15" class="toc-item"><span>Page 15: Color & Custom Font Guide</span> <span>Options</span></a>
+            <a href="#page-16" class="toc-item"><span>Page 16: How to Submit Your Order</span> <span>Contact</span></a>
+          </div>
+
+          <div class="dna-block">
+            <h4>TUF Brand Promise</h4>
+            <p style="font-size: 0.8rem; color: var(--text-main);">
+              TUF Sports Apparel combines heavyweight manufacturing durability with cutting-edge textile technologies. All garments are designed for high-impact gameday performance and are backed by our <strong>TUF Ironclad Guarantee™</strong>.
+            </p>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>TUF Sports Apparel</span>
+          <span class="page-number">Page 2</span>
+        </div>
+      </section>
+
+      <!-- PAGE 3: CUSTOM FOOTBALL UNIFORMS -->
+      <section class="catalog-page" id="page-3">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Uniform Systems</span>
+        </div>
+        <div class="page-layout-split">
+          <div class="details-column">
+            <div>
+              <h2 class="section-title">TUF Overdrive™ Football Uniforms</h2>
+              
+              <div class="product-list">
+                <div class="product-item">
+                  <div class="product-item-header">
+                    <span class="sku-badge">TUF-AF-TW-1SET</span>
+                    <span class="price-badge">$70.00</span>
+                  </div>
+                  <div class="product-item-desc">TUF Overdrive™ Football Uniform (1 Set) - TW</div>
+                  <div class="product-item-meta"><span>TUF Weld-Twill™</span><span>9 Wks</span></div>
+                </div>
+                <div class="product-item">
+                  <div class="product-item-header">
+                    <span class="sku-badge">TUF-AF-SUB-1SET</span>
+                    <span class="price-badge">$60.00</span>
+                  </div>
+                  <div class="product-item-desc">TUF Overdrive™ Football Uniform (1 Set) - Sub</div>
+                  <div class="product-item-meta"><span>TUF Dri-Forge™ Dye-Fusion</span><span>6 Wks</span></div>
+                </div>
+                <div class="product-item">
+                  <div class="product-item-header">
+                    <span class="sku-badge">TUF-AF-SUB-2J1P</span>
+                    <span class="price-badge">$100.00</span>
+                  </div>
+                  <div class="product-item-desc">Sublimated Set (2 Jerseys, 1 Pant)</div>
+                  <div class="product-item-meta"><span>Dri-Forge™</span><span>TUF Lock-Fit™</span><span>6 Wks</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dna-block">
+              <h4>Product DNA</h4>
+              <ul class="dna-list">
+                <li>Gameday Jerseys: **TUF Overdrive™ Football Jersey** built with heavyweight **TUF Mill-Knit™** polyester and **TUF Dri-Forge™** side panels.</li>
+                <li>Practice Uniforms: **TUF Grind™ Football Practice Jersey & Pants** built for high durability and training impact.</li>
+                <li>**TUF Lock-Fit™** athletic cut prevents pad grabbing.</li>
+                <li>Custom-detailed with TUF Weld-Twill™ heavy pro-style lettering.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="photo-column">
+            <img src="file:///Users/coachbradshaw/.gemini/antigravity/brain/f609e3b5-b43e-46d7-89aa-ac1cedba590d/tuf_football_hero_1781537581975.png" alt="TUF Football Uniform">
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 3</span>
+        </div>
+      </section>
+
+      <!-- PAGE 4: TUF OVERTIME™ BASKETBALL UNIFORMS -->
+      <section class="catalog-page" id="page-4">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Uniform Systems</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF Overtime™ Basketball Uniforms</h2>
+          
+          <div class="grid-2x2">
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BB-TW-1SET</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">Overtime™ TW Uniform Set</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Standard gameday set decorated in heavy-stitch TUF Weld-Twill™.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$60.00</span>
+                <span class="badge" style="font-size: 0.6rem;">6 Wks</span>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BB-TW-2SET</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">Overtime™ TW Home/Away Set</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Two complete jerseys and shorts custom-decorated in Tackle Twill.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$110.00</span>
+                <span class="badge" style="font-size: 0.6rem;">6 Wks</span>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BB-SUB-1SET</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">Overtime™ Sublimated Set</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Fully sublimated set featuring rich graphics infused directly into mesh fibers.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$55.00</span>
+                <span class="badge" style="font-size: 0.6rem;">4 Wks</span>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BB-SUB-2SET</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">Overtime™ Sub Home/Away Set</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Home and away sublimated jersey sets with matching game shorts.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$100.00</span>
+                <span class="badge" style="font-size: 0.6rem;">4 Wks</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dna-block" style="margin-top: 20px;">
+            <h4>Basketball Product DNA</h4>
+            <ul class="dna-list">
+              <li>Jerseys & Shorts: **TUF Overtime™ Basketball Uniforms** built with **TUF Steel-Vent™** mesh.</li>
+              <li>Lightweight, breathable feel with integrated **TUF Dri-Forge™** moisture control.</li>
+              <li>Loose, comfortable **TUF Lock-Fit™** athletic cut with wide shoulders.</li>
+              <li>Anti-chafing flatlock seams and ribbed comfort waistband.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 4</span>
+        </div>
+      </section>
+
+      <!-- PAGE 5: TUF FLEX™ BASEBALL UNIFORMS -->
+      <section class="catalog-page" id="page-5">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Uniform Systems</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF Flex™ Baseball Uniforms</h2>
+          
+          <div class="grid-2x2">
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BSB-SUB-JERS</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">TUF Flex™ Sub Jersey</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Full button-front jersey with rich sublimation designs.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$25.00</span>
+                <span class="badge" style="font-size: 0.6rem;">6 Wks</span>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BSB-SUB-PANT</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">TUF Flex™ Sub Pants</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Durable, fully sublimated pants with elastic bottom hem.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$25.00</span>
+                <span class="badge" style="font-size: 0.6rem;">6 Wks</span>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BSB-TW-JERS</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">TUF Flex™ Weld-Twill™ Jersey</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Pro-style tackle twill buttons jersey, heavyweight durability.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$30.00</span>
+                <span class="badge" style="font-size: 0.6rem;">6 Wks</span>
+              </div>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BSB-TW-PANT</span>
+                <h3 style="font-size: 1.1rem; margin: 4px 0 8px 0;">TUF Flex™ Weld-Twill™ Pants</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Heavyweight gameday pants with custom piping details.</p>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$30.00</span>
+                <span class="badge" style="font-size: 0.6rem;">6 Wks</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="dna-block" style="margin-top: 20px;">
+            <h4>Baseball Product DNA</h4>
+            <ul class="dna-list">
+              <li>Jersey: **TUF Flex™ Baseball Jersey** with lightweight breathable **TUF Dri-Forge™** performance knit.</li>
+              <li>Pants: **TUF Flex™ Baseball Pants** (TUF Diamond™ line) made from durable **TUF Mill-Knit™** polyester.</li>
+              <li>Brass zipper fly with double-snap front closure and reinforced belt loops.</li>
+              <li>Dual-layered reinforced knees for ultimate sliding protection.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 5</span>
+        </div>
+      </section>
+
+      <!-- PAGE 6: TUF ISSUE™ SHIFT 7V7 & FLAG SYSTEMS -->
+      <section class="catalog-page" id="page-6">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>TUF ISSUE™ SHIFT 7v7 Uniforms</span>
+        </div>
+        <div class="page-layout-split">
+          <div class="photo-column">
+            <img src="file:///Users/coachbradshaw/.gemini/antigravity/brain/f609e3b5-b43e-46d7-89aa-ac1cedba590d/tuf_7v7_hero_1781537626207.png" alt="TUF 7v7 Athlete Action">
+          </div>
+          <div class="details-column">
+            <div>
+              <h2 class="section-title">TUF ISSUE™ SHIFT 7v7</h2>
+              
+              <div class="product-list">
+                <div class="product-item">
+                  <div class="product-item-header">
+                    <span class="sku-badge">TUF-7V7-SUB-1SET</span>
+                    <span class="price-badge">$50.00</span>
+                  </div>
+                  <div class="product-item-desc">TUF ISSUE™ SHIFT Sublimated Top & Bottom Compression Set</div>
+                  <div class="product-item-meta"><span>Dri-Forge™</span><span>3-4 Wks</span></div>
+                </div>
+                <div class="product-item">
+                  <div class="product-item-header">
+                    <span class="sku-badge">TUF-7V7-SUB-2SET</span>
+                    <span class="price-badge">$108.00</span>
+                  </div>
+                  <div class="product-item-desc">TUF ISSUE™ SHIFT 2 Sublimated Jerseys & 1 Pant</div>
+                  <div class="product-item-meta"><span>Dri-Forge™</span><span>TUF Lock-Fit™</span><span>3-4 Wks</span></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dna-block">
+              <h4>SHIFT Product DNA</h4>
+              <ul class="dna-list">
+                <li>Made with standard-issue **TUF Power-Stretch™** spandex.</li>
+                <li>Wicking **TUF Dri-Forge™** moisture control system.</li>
+                <li>4-way stretch panels for dynamic, zero-drag movement.</li>
+                <li>Sleek, aerodynamic **TUF Lock-Fit™** compression cuts.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 6</span>
+        </div>
+      </section>
+
+      <!-- PAGE 7: WRESTLING SINGLETS -->
+      <section class="catalog-page" id="page-7">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Uniform Systems</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF Mat-Lock™ Wrestling Singlets</h2>
+          
+          <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 30px;">
+            <div class="product-item" style="padding: 24px;">
+              <div class="product-item-header">
+                <span class="sku-badge" style="font-size: 1.1rem;">TUF-WR-SUB-1SET</span>
+                <span class="price-badge" style="font-size: 1.5rem;">$50.00</span>
+              </div>
+              <h3 style="margin: 8px 0; font-size: 1.3rem;">TUF Mat-Lock™ Wrestling Singlet</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+                Our fully sublimated competition singlet. Built to snap back, resist tearing, and keep wrestlers dry under intense pressure.
+              </p>
+              <div class="product-item-meta"><span>TUF Power-Stretch™</span><span>TUF Dri-Forge™</span><span>4 Weeks Lead Time</span></div>
+            </div>
+
+            <div class="dna-block">
+              <h4>Wrestling Product DNA</h4>
+              <ul class="dna-list">
+                <li>Heavyweight **TUF Power-Stretch™** compression spandex.</li>
+                <li>Dri-wicking **TUF Dri-Forge™** technology keeps body dry and comfortable.</li>
+                <li>Double-stitched seams with reinforced flatlock joints to prevent tearing.</li>
+                <li>Non-slip silicone leg grippers hold the singlet securely in place.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 7</span>
+        </div>
+      </section>
+
+      <!-- PAGE 8: TUF-LTM LETTERMEN JACKETS -->
+      <section class="catalog-page" id="page-8">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Outerwear & Streetwear</span>
+        </div>
+        <div class="page-layout-split">
+          <div class="details-column">
+            <div>
+              <h2 class="section-title">Lettermen Jackets</h2>
+              
+              <div class="product-item" style="margin-bottom: 20px;">
+                <div class="product-item-header">
+                  <span class="sku-badge" style="font-size: 1rem;">TUF-LTM</span>
+                  <span class="price-badge" style="font-size: 1.3rem;">$200.00</span>
+                </div>
+                <h3 style="font-size: 1.15rem; margin: 4px 0;">TUF Lettermen Jacket</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Our premier high-margin showcase outerwear item.</p>
+                <div class="product-item-meta"><span>Chenille patch</span><span>6 Wks</span></div>
+              </div>
+            </div>
+
+            <div class="dna-block">
+              <h4>Lettermen Product DNA</h4>
+              <ul class="dna-list">
+                <li>Shell: 24oz heavy-grade Melton wool body.</li>
+                <li>Sleeves: Premium genuine cowhide leather sleeves.</li>
+                <li>Lining: Quilted satin interior lining for optimal warmth.</li>
+                <li>Fully custom chenille back lettering and embroidered patch layouts.</li>
+                <li>Protected by our TUF Ironclad Guarantee™ for lifetime durability.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="photo-column">
+            <img src="file:///Users/coachbradshaw/.gemini/antigravity/brain/f609e3b5-b43e-46d7-89aa-ac1cedba590d/tuf_lettermen_hero_1781537601852.png" alt="TUF Lettermen Jacket">
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 8</span>
+        </div>
+      </section>
+
+      <!-- PAGE 9: TUF THIRD-SHIFT™ TECH SUITS -->
+      <section class="catalog-page" id="page-9">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Training Apparel</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF Third-Shift™ Tech Suits</h2>
+          
+          <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 30px;">
+            <div class="product-item" style="padding: 24px;">
+              <div class="product-item-header">
+                <span class="sku-badge" style="font-size: 1.1rem;">TUF-TECH</span>
+                <span class="price-badge" style="font-size: 1.5rem;">$75.00</span>
+              </div>
+              <h3 style="margin: 8px 0; font-size: 1.3rem;">TUF Third-Shift™ Tech Suit (Set)</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+                Complete matching training jacket and jogger set. Ideal for team travel, pre-game warmups, and representation.
+              </p>
+              <div class="product-item-meta"><span>TUF Cold-Forge™ Fleece</span><span>Sublimated Details</span><span>3 Wks Lead Time</span></div>
+            </div>
+
+            <div class="dna-block">
+              <h4>Tech Suit Product DNA</h4>
+              <ul class="dna-list">
+                <li>Fabric: Double-knit **TUF Cold-Forge™** stretch performance fleece.</li>
+                <li>Technology: Built-in **TUF Dri-Forge™** thermal ventilation inserts.</li>
+                <li>Jacket: Full front zipper, high-zip neck for warmth, side zip pockets.</li>
+                <li>Jogger: Tapered **TUF Lock-Fit™** cut, zippered ankle cuffs, elastic drawcord waistband.</li>
+                <li>Colors: Team Black, Mid Grey, Team Navy, Team Maroon.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 9</span>
+        </div>
+      </section>
+
+      <!-- PAGE 10: TRAINING GEAR - HOODIES & SHORTS -->
+      <section class="catalog-page" id="page-10">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Training Apparel</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF Third-Shift™ Hoodies & TUF ISSUE™ Shorts</h2>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex-grow: 1; align-items: stretch;">
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-HOOD</span>
+                <h3 style="font-size: 1.15rem; margin: 4px 0 8px 0;">TUF Third-Shift™ Hoodie</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Premium fleece hoodie with front kangaroo pocket.</p>
+                <ul class="dna-list">
+                  <li style="font-size: 0.7rem;">Heavyweight **TUF Cold-Forge™** fabric.</li>
+                  <li style="font-size: 0.7rem;">Screen Print or Heat Transfer decoration.</li>
+                  <li style="font-size: 0.7rem;">Ribbed cuffs and waistband.</li>
+                </ul>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$50.00</span>
+                <span class="badge" style="font-size: 0.6rem;">2 Wks</span>
+              </div>
+            </div>
+
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-SHORT</span>
+                <h3 style="font-size: 1.15rem; margin: 4px 0 8px 0;">TUF ISSUE™ Performance Shorts</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">Training shorts built with 4-way stretch fabric.</p>
+                <ul class="dna-list">
+                  <li style="font-size: 0.7rem;">Lightweight **TUF Power-Stretch™** fabric.</li>
+                  <li style="font-size: 0.7rem;">Integrated **TUF Dri-Forge™** moisture wicking.</li>
+                  <li style="font-size: 0.7rem;">Comfort elastic band with drawcord.</li>
+                </ul>
+              </div>
+              <div class="price-row" style="border: none; padding: 0;">
+                <span class="price">$30.00</span>
+                <span class="badge" style="font-size: 0.6rem;">2 Wks</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 10</span>
+        </div>
+      </section>
+
+      <!-- PAGE 11: TUF ISSUE™ FAN & TEAM TEES -->
+      <section class="catalog-page" id="page-11">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Fan & Team Apparel</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF ISSUE™ Fan & Team Tees</h2>
+          
+          <div class="grid-2x2" style="margin-bottom: 20px;">
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-TEE</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">TUF ISSUE™ Team Shirt</h3>
+                <p style="font-size: 0.7rem; color: var(--text-muted);">Standard crewneck team shirt, customized screenprint.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$35.00</span>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-PLAYER-TEE</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">TUF ISSUE™ Player Graphic Tee</h3>
+                <p style="font-size: 0.7rem; color: var(--text-muted);">Bold roster number and graphic layout tee.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$35.00</span>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-MAMA</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">TUF ISSUE™ Mama Shirt</h3>
+                <p style="font-size: 0.7rem; color: var(--text-muted);">Dedicated custom print fan shirt for families.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$35.00</span>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-LS</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">TUF ISSUE™ Long Sleeve Shirt</h3>
+                <p style="font-size: 0.7rem; color: var(--text-muted);">Crewneck long sleeve tee for late-season training.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$35.00</span>
+            </div>
+          </div>
+
+          <div class="dna-block">
+            <h4>Tee Fabric DNA</h4>
+            <ul class="dna-list">
+              <li>Woven from 100% ringspun combed cotton or lightweight polyester blend.</li>
+              <li>Moisture-wicking **TUF Dri-Forge™** technology in polyester-blend shirts.</li>
+              <li>Fully preshrunk, shoulder-to-shoulder seam taping, double-needle stitching.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 11</span>
+        </div>
+      </section>
+
+      <!-- PAGE 12: HEADWEAR & ACCESSORIES -->
+      <section class="catalog-page" id="page-12">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Accessories & Headwear</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF ISSUE™ Headwear & Accessories</h2>
+          
+          <div class="grid-2x2">
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-HAT</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">Team Hat</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Structured snapback hat with 3D embroidery front logo.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$30.00</span>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-BEANIE</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">Team Beanie</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Fold-over cuff stretch knit beanie, embroidered logo patch.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$30.00</span>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-SLEEVE</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">TUF ISSUE™ Arm Sleeve</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Moisture-wicking compression arm sleeve with silicone grip band.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$10.00</span>
+            </div>
+            <div class="grid-item">
+              <div>
+                <span class="sku-badge">TUF-1LEG</span>
+                <h3 style="font-size: 1rem; margin: 4px 0;">TUF ISSUE™ 1-Leg Sleeve</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted);">Full leg compression sleeve made with TUF Power-Stretch™.</p>
+              </div>
+              <span class="price" style="font-size: 1.15rem; margin-top: 8px;">$20.00</span>
+            </div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 12</span>
+        </div>
+      </section>
+
+      <!-- PAGE 13: TRAVEL BAGS -->
+      <section class="catalog-page" id="page-13">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Travel luggage</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">TUF ISSUE™ Travel Bags</h2>
+          
+          <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 30px;">
+            <div class="product-item" style="padding: 24px;">
+              <div class="product-item-header">
+                <span class="sku-badge" style="font-size: 1.1rem;">TUF-BAG</span>
+                <span class="price-badge" style="font-size: 1.5rem;">$35.00</span>
+              </div>
+              <h3 style="margin: 8px 0; font-size: 1.3rem;">TUF ISSUE™ Backpack</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">
+                Heavy-duty team travel backpack. Features a dedicated shoe/cleat compartment to keep dirty gear separate from your uniforms.
+              </p>
+              <div class="product-item-meta"><span>Water-Resistant Shell</span><span>Woven Logo</span><span>3 Weeks Lead Time</span></div>
+            </div>
+
+            <div class="dna-block">
+              <h4>Backpack Product DNA</h4>
+              <ul class="dna-list">
+                <li>Shell: 600D ripstop water-resistant polyester canvas.</li>
+                <li>Cleat/Wet compartment with zippered bottom entry.</li>
+                <li>Dual side mesh pockets for bottles/accessories.</li>
+                <li>Padded laptop sleeve inside primary compartment.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 13</span>
+        </div>
+      </section>
+
+      <!-- PAGE 14: SIZING SPECS -->
+      <section class="catalog-page" id="page-14">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Technical specs</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">Measurement & Sizing Charts</h2>
+          
+          <div class="table-container">
+            <div class="table-title">Custom Jerseys (Inches)</div>
+            <table class="spec-table">
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th>Chest Width</th>
+                  <th>Bottom Opening (Full)</th>
+                  <th>Back Length</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>S</td><td>32"</td><td>35 7/8"</td><td>29 1/2"</td></tr>
+                <tr><td>M</td><td>34"</td><td>35 7/8"</td><td>29 1/2"</td></tr>
+                <tr><td>L</td><td>38"</td><td>39 7/8"</td><td>29 1/2"</td></tr>
+                <tr><td>XL</td><td>42"</td><td>43 7/8"</td><td>29 1/2"</td></tr>
+                <tr><td>2XL</td><td>46"</td><td>47 7/8"</td><td>29 1/2"</td></tr>
+                <tr><td>3XL</td><td>50"</td><td>51 7/8"</td><td>29 1/2"</td></tr>
+                <tr><td>4XL</td><td>54"</td><td>55 7/8"</td><td>29 1/2"</td></tr>
+                <tr><td>5XL</td><td>58"</td><td>59 7/8"</td><td>29 1/2"</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-container">
+            <div class="table-title">Custom Pants (Inches)</div>
+            <table class="spec-table">
+              <thead>
+                <tr>
+                  <th>Size</th>
+                  <th>Waist Relaxed</th>
+                  <th>Waist Stretched</th>
+                  <th>Leg Opening (Standard)</th>
+                  <th>Inseam</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>S</td><td>25 1/2"</td><td>30 1/8"</td><td>8 3/8"</td><td>14"</td></tr>
+                <tr><td>M</td><td>27 3/8"</td><td>32"</td><td>9 3/8"</td><td>14 5/8"</td></tr>
+                <tr><td>L</td><td>29 1/2"</td><td>34 1/8"</td><td>10 1/2"</td><td>14 3/4"</td></tr>
+                <tr><td>XL</td><td>31 3/8"</td><td>36"</td><td>11 3/4"</td><td>14 3/4"</td></tr>
+                <tr><td>2XL</td><td>33 1/4"</td><td>37 7/8"</td><td>12 3/8"</td><td>14 3/4"</td></tr>
+                <tr><td>3XL</td><td>35 1/8"</td><td>39 3/4"</td><td>12 1/2"</td><td>14 3/4"</td></tr>
+                <tr><td>4XL</td><td>37"</td><td>41 5/8"</td><td>12 5/8"</td><td>14 3/4"</td></tr>
+                <tr><td>5XL</td><td>39"</td><td>43 1/2"</td><td>12 3/4"</td><td>14 3/4"</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>TUF Sports Apparel</span>
+          <span class="page-number">Page 14</span>
+        </div>
+      </section>
+
+      <!-- PAGE 15: CUSTOMIZATION OPTIONS -->
+      <section class="catalog-page" id="page-15">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Custom Options</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">Custom Uniform Options</h2>
+          <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px; font-style: italic;">
+            *Note: All team colors and font selections are fully customizable to match your organization's brand.*
+          </p>
+
+          <div class="guide-box">
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px; font-family: var(--font-display); color: var(--primary);">Standard Colors</h3>
+            <div class="color-swatch-row">
+              <div><div class="swatch" style="background-color: #000000;"></div><div class="swatch-label">Black</div></div>
+              <div><div class="swatch" style="background-color: #ffffff;"></div><div class="swatch-label">White</div></div>
+              <div><div class="swatch" style="background-color: #808080;"></div><div class="swatch-label">Grey</div></div>
+              <div><div class="swatch" style="background-color: #800000;"></div><div class="swatch-label">Maroon</div></div>
+              <div><div class="swatch" style="background-color: #70b3e6;"></div><div class="swatch-label">Car. Blue</div></div>
+              <div><div class="swatch" style="background-color: #cc5500;"></div><div class="swatch-label">B. Orange</div></div>
+              <div><div class="swatch" style="background-color: #004d25;"></div><div class="swatch-label">Green</div></div>
+              <div><div class="swatch" style="background-color: #e6b800;"></div><div class="swatch-label">Gold</div></div>
+            </div>
+          </div>
+
+          <div class="guide-box">
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px; font-family: var(--font-display); color: var(--primary);">Font Selections</h3>
+            <ul class="specs-list" style="list-style-type: none; font-size: 0.8rem;">
+              <li style="padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                <strong>LONG SHOT</strong> <span style="color: var(--text-muted);">Tall, condensed varsity block</span>
+              </li>
+              <li style="padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                <strong>FAST</strong> <span style="color: var(--text-muted);">Modern, dynamic forward italic</span>
+              </li>
+              <li style="padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between;">
+                <strong>CHICAGO</strong> <span style="color: var(--text-muted);">Heavyweight, geometric traditional block</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="guide-box">
+            <h3 style="font-size: 0.95rem; margin-bottom: 8px; font-family: var(--font-display); color: var(--primary);">Sleeve Custom Stripe Options</h3>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">
+              Basic Jet, Varsity 2-Stripe, Elite, Team Logo, USA, Alter-Ego.
+            </p>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>TUF Sports Apparel</span>
+          <span class="page-number">Page 15</span>
+        </div>
+      </section>
+
+      <!-- PAGE 16: ORDER SUBMISSION -->
+      <section class="catalog-page" id="page-16">
+        <div class="page-header">
+          <span class="brand">TUF Sports Apparel</span>
+          <span>Submit Order</span>
+        </div>
+        <div class="page-layout-grid">
+          <h2 class="section-title">Get Your Squad Ready</h2>
+          
+          <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+            <div class="order-step">
+              <div class="step-number">01</div>
+              <div class="step-text">
+                <h4>Submit Vector Artwork</h4>
+                <p>Provide us your program logo in vector format (.AI, .EPS, or editable PDF) and specify your team colors.</p>
+              </div>
+            </div>
+            
+            <div class="order-step">
+              <div class="step-number">02</div>
+              <div class="step-text">
+                <h4>Design Custom Mockups</h4>
+                <p>Our design team will deliver custom-tailored uniform and apparel mockups within 3 business days.</p>
+              </div>
+            </div>
+            
+            <div class="order-step">
+              <div class="step-number">03</div>
+              <div class="step-text">
+                <h4>Approve & Produce</h4>
+                <p>Approve your designs, submit your sizes and roster, and we kick off manufacturing immediately.</p>
+              </div>
+            </div>
+
+            <div class="order-contact-box">
+              <p>Ready to build? Email us today:</p>
+              <div class="order-email">order@tufsports.us</div>
+            </div>
+          </div>
+        </div>
+        <div class="page-footer">
+          <span>BUILT FOR TEAMS. BACKED FOR LIFE.™</span>
+          <span class="page-number">Page 16</span>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Download Floating Action Button (Only Screen) -->
+  <button class="download-fab" onclick="window.print()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+    Download PDF Catalog
+  </button>
+
+  <script>
+    function scrollToPage(pageNum, btn) {
+      // Toggle active button style
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const pageEl = document.getElementById('page-' + pageNum);
+      if (pageEl) {
+        // Scroll smoothly to target page
+        const topOffset = pageEl.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({
+          top: topOffset,
+          behavior: 'smooth'
+        });
+      }
+    }
+
+    // Active button tracking on scroll
+    window.onscroll = () => {
+      const scrollPos = window.scrollY + 120;
+      const pages = document.querySelectorAll('.catalog-page');
+      const navButtons = document.querySelectorAll('.nav-btn');
+
+      pages.forEach((page, idx) => {
+        const pageTop = page.offsetTop;
+        const pageBottom = pageTop + page.offsetHeight;
+
+        if (scrollPos >= pageTop && scrollPos < pageBottom) {
+          navButtons.forEach(b => b.classList.remove('active'));
+          navButtons[idx].classList.add('active');
+        }
+      });
+    };
+  </script>
+</body>
+</html>

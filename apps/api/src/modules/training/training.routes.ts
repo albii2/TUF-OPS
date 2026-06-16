@@ -7,6 +7,9 @@ import {
   completeModuleHandler,
   getProgressHandler,
   recordFrictionPointHandler,
+  toggleHrDocsHandler,
+  toggleDirectorSignoffHandler,
+  getCertificationStatusHandler,
 } from './training.controller';
 
 export async function trainingRoutes(server: FastifyInstance) {
@@ -30,4 +33,14 @@ export async function trainingRoutes(server: FastifyInstance) {
 
   // Record a friction point
   server.post('/friction-point', recordFrictionPointHandler);
+
+  // Toggle HR documents completion
+  server.post('/reps/:id/hr-docs', toggleHrDocsHandler);
+
+  // Toggle Director sign-off
+  server.post('/reps/:id/director-signoff', toggleDirectorSignoffHandler);
+
+  // Retrieve certification status
+  server.get('/reps/:id/certification-status', getCertificationStatusHandler);
 }
+

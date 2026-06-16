@@ -1,0 +1,21 @@
+import { FastifyRequest, FastifyReply } from 'fastify';
+export declare function createVendorController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getVendorController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getVendorsController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function updateVendorController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function createVendorAgreementController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getVendorAgreementsController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getActiveVendorAgreementController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function recordPerformanceController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getPerformanceController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function createPaymentController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getPaymentsController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function updatePaymentStatusController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function assignOrderController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getOrderAssignmentsController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getVendorActiveOrdersController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function updateSettlementController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getPendingPaymentsController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getCapacityUtilizationController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getAllCapacityStatusController(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+//# sourceMappingURL=vendors.controller.d.ts.map

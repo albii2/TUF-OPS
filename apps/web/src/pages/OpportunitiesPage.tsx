@@ -4,6 +4,7 @@ import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Sele
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOpportunities, useOpportunityStages, useRevenueLanes } from '../hooks/useOpportunities';
 import { getNearCloseOpportunities } from '../services/businessSelectors';
+import { canCreateOpportunity } from '../services/roleScope';
 import type { OpportunityStage } from '../data/mockSalesData';
 
 const PAGE_SIZE = 8;
@@ -74,7 +75,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
         <Select value={lane} onChange={(e) => { setLane(e.target.value); setPage(1); }}><option value="ALL">All Lanes</option>{revenueLanes.map((l: string) => <option key={l}>{l}</option>)}</Select>
         {forceRep ? <div className='h-10 rounded-lg border border-[#2b4368] bg-[#020b1e]/95 px-3 text-sm text-slate-300 flex items-center'>Rep: {forceRep}</div> : <Select value={rep} onChange={(e) => { setRep(e.target.value); setPage(1); }}><option value="ALL">All Reps</option>{reps.map((r) => <option key={r}>{r}</option>)}</Select>}
         <Select value={sport} onChange={(e) => { setSport(e.target.value); setPage(1); }}><option value="ALL">All Sports</option>{sports.map((s: string) => <option key={s}>{s}</option>)}</Select>
-        <Button className="min-h-11" onClick={() => navigate('/opportunities/new')}>New Opportunity</Button>
+        <Button className="min-h-11" disabled={!canCreateOpportunity()} onClick={() => navigate('/opportunities/new')}>New Opportunity</Button>
       </div>
       {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(r) => navigate(`/opportunities/${r.id}`)} /> : <EmptyState title="No opportunities found" description="Adjust filters or search to broaden results." />}
       <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />

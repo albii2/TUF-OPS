@@ -9,7 +9,7 @@ export type ManagedUser = {
   displayName: string;
   email: string;
   role: Role;
-  territory: TerritoryId | '';
+  territory: string;
   assignedDirectorId?: string;
   status: UserStatus;
   avatarColor: string;
@@ -20,6 +20,9 @@ export type ManagedUser = {
   loginCount?: number;
   failedCredentialAttempts?: number;
   lockedUntil?: string | null;
+  hrDocsCompleted?: boolean;
+  directorSignedOff?: boolean;
+  isCertified?: boolean;
 };
 
 type StoredManagedUser = ManagedUser & {
@@ -44,8 +47,8 @@ const seedRows: StoredManagedUser[] = [
     id: 'u-owner-coach-bradshaw',
     firstName: 'Coach',
     lastName: 'Bradshaw',
-    displayName: 'Coach Bradshaw',
-    email: 'owner@tuf.local',
+    displayName: 'A Bradshaw',
+    email: 'abradshaw@tufsports.us',
     role: 'OWNER',
     territory: 'metro',
     status: 'ACTIVE',
@@ -54,51 +57,18 @@ const seedRows: StoredManagedUser[] = [
     failedCredentialAttempts: 0,
     lockedUntil: null,
     loginCount: 0,
+    hrDocsCompleted: true,
+    directorSignedOff: true,
+    isCertified: true,
     credentialSalt: 'seed-owner',
     credentialHash: 'b8bd4925bf3c03b20feaa71da92aa34591227c16ce8540287289839226c499d3',
-  },
-
-  {
-    id: 'u-test-director-agent',
-    firstName: 'Test',
-    lastName: 'Director',
-    displayName: 'Test Director',
-    email: 'test.director@tuf.local',
-    role: 'DIRECTOR',
-    territory: 'north',
-    status: 'ACTIVE',
-    avatarColor: COLORS[2],
-    mustChangeCredential: false,
-    failedCredentialAttempts: 0,
-    lockedUntil: null,
-    loginCount: 0,
-    credentialSalt: 'seed-test-director',
-    credentialHash: 'd740b50835303b3f2a83c91e14c126dd7e4742f8b41f0d724faafd513814fcab',
-  },
-  {
-    id: 'u-test-rep-agent',
-    firstName: 'Test',
-    lastName: 'Rep',
-    displayName: 'Test Rep',
-    email: 'test.rep@tuf.local',
-    role: 'REP',
-    territory: 'north',
-    assignedDirectorId: 'u-test-director-agent',
-    status: 'ACTIVE',
-    avatarColor: COLORS[3],
-    mustChangeCredential: false,
-    failedCredentialAttempts: 0,
-    lockedUntil: null,
-    loginCount: 0,
-    credentialSalt: 'seed-test-rep',
-    credentialHash: 'cde7539b2567b8d2ceede14bb91469c1cf9ad66be3ffd069080c4af446e6f820',
   },
   {
     id: 'u-director-primeau-hill',
     firstName: 'Primeau',
-    lastName: 'Hill Director',
-    displayName: 'Primeau Hill Director',
-    email: 'primeau@tuf.local',
+    lastName: 'Hill',
+    displayName: 'Primeau Hill',
+    email: 'primeau.hill@tufsports.us',
     role: 'DIRECTOR',
     territory: 'west',
     status: 'ACTIVE',
@@ -107,9 +77,96 @@ const seedRows: StoredManagedUser[] = [
     failedCredentialAttempts: 0,
     lockedUntil: null,
     loginCount: 0,
+    hrDocsCompleted: true,
+    directorSignedOff: true,
+    isCertified: true,
     credentialSalt: 'seed-primeau',
     credentialHash: 'ac57fe25e58cda65ee04575f5cd22a908d1b975c072e28fc350514e76f48f982',
   },
+  {
+    id: 'u-rep-jason-mulder',
+    firstName: 'Jason',
+    lastName: 'Mulder',
+    displayName: 'Jason Mulder',
+    email: 'jvmulder@gmail.com',
+    role: 'REP',
+    territory: 'Prior Lake / Shakopee / Burnsville / Savage',
+    assignedDirectorId: 'u-director-primeau-hill',
+    status: 'ACTIVE',
+    avatarColor: COLORS[2],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    hrDocsCompleted: false,
+    directorSignedOff: false,
+    isCertified: false,
+    credentialSalt: 'seed-jason',
+    credentialHash: 'f3b23c04274dad26e542afda28d5bddf6896c5550e6d23ed6cf08c027f2ff9b0',
+  },
+  {
+    id: 'u-rep-david-lundberg',
+    firstName: 'David',
+    lastName: 'Lundberg',
+    displayName: 'David Lundberg',
+    email: 'lundbergdave18@gmail.com',
+    role: 'REP',
+    territory: 'Bloomington / Richfield / Minnetonka',
+    assignedDirectorId: 'u-director-primeau-hill',
+    status: 'ACTIVE',
+    avatarColor: COLORS[3],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    hrDocsCompleted: false,
+    directorSignedOff: false,
+    isCertified: false,
+    credentialSalt: 'seed-david',
+    credentialHash: 'c60074e2660742b8e9442c489fed80d4dcd3adc0087375eed1ac736654729d66',
+  },
+  {
+    id: 'u-rep-shayla-hilliard',
+    firstName: 'Shayla',
+    lastName: 'Hilliard',
+    displayName: 'Shayla Hilliard',
+    email: 'shaylahilliard17@gmail.com',
+    role: 'REP',
+    territory: 'Elk River / Anoka / Champlin',
+    assignedDirectorId: 'u-director-primeau-hill',
+    status: 'ACTIVE',
+    avatarColor: COLORS[4],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    hrDocsCompleted: false,
+    directorSignedOff: false,
+    isCertified: false,
+    credentialSalt: 'seed-shayla',
+    credentialHash: 'ed31f3fa0be958f5c966697a15e4c19ec8975ad249b6d4fc436d2048cb394386',
+  },
+  {
+    id: 'u-rep-josh-hoffman',
+    firstName: 'Josh',
+    lastName: 'Hoffman',
+    displayName: 'Josh Hoffman',
+    email: 'jhoffman@kipsu.com',
+    role: 'REP',
+    territory: 'Minneapolis / St. Paul Metro',
+    assignedDirectorId: 'u-director-primeau-hill',
+    status: 'ACTIVE',
+    avatarColor: COLORS[5],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    hrDocsCompleted: false,
+    directorSignedOff: false,
+    isCertified: false,
+    credentialSalt: 'seed-josh',
+    credentialHash: '5b8880ceb089c547b15bb8b1144dca8e2b4c09164e54e28325f1c7137415a5e2',
+  }
 ];
 
 function initials(name: string) {
@@ -284,11 +341,66 @@ export function getManagedRepNamesForDirector(directorName: string): string[] {
 export function getManagedTerritoriesForDirector(directorName: string): TerritoryId[] {
   const users = listUsers();
   const director = users.find((u) => u.displayName === directorName && u.role === 'DIRECTOR');
-  return director?.territory ? [director.territory] : [];
+  return director?.territory ? [director.territory as TerritoryId] : [];
 }
 
 function toAppUser(user: StoredManagedUser): AppUser {
-  return { id: user.id, name: user.displayName, email: user.email, role: user.role, mustChangeCredential: user.mustChangeCredential };
+  return {
+    id: user.id,
+    name: user.displayName,
+    email: user.email,
+    role: user.role,
+    mustChangeCredential: user.mustChangeCredential,
+    hrDocsCompleted: user.hrDocsCompleted,
+    directorSignedOff: user.directorSignedOff,
+    isCertified: user.isCertified
+  };
+}
+
+export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
+  const users = readStoredUsers();
+  const rows = users.map((u) => {
+    if (u.id === id) {
+      const isCertified = u.role !== 'REP' || (hrDocsCompleted && (u.directorSignedOff || false));
+      return { ...u, hrDocsCompleted, isCertified };
+    }
+    return u;
+  });
+  saveStoredUsers(rows);
+
+  const rawUser = localStorage.getItem('tuf_ops_user_v3');
+  if (rawUser) {
+    const current = JSON.parse(rawUser);
+    if (current.id === id) {
+      current.hrDocsCompleted = hrDocsCompleted;
+      current.isCertified = hrDocsCompleted && (current.directorSignedOff || false);
+      localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
+    }
+  }
+}
+
+export function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean) {
+  const users = readStoredUsers();
+  const rows = users.map((u) => {
+    if (u.id === id) {
+      const isCertified = u.role !== 'REP' || ((u.hrDocsCompleted || false) && directorSignedOff);
+      return { ...u, directorSignedOff, isCertified };
+    }
+    return u;
+  });
+  saveStoredUsers(rows);
+
+  const rawUser = localStorage.getItem('tuf_ops_user_v3');
+  if (rawUser) {
+    const current = JSON.parse(rawUser);
+    if (current.id === id) {
+      current.directorSignedOff = directorSignedOff;
+      current.isCertified = (current.hrDocsCompleted || false) && directorSignedOff;
+      localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
+    }
+  }
 }
 
 async function recordSuccessfulLogin(user: StoredManagedUser, users: StoredManagedUser[]) {

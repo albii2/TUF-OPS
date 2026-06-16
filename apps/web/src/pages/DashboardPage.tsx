@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { GlassCard } from '../components/ui';
 import { getStoredUser } from '../auth';
@@ -9,6 +10,7 @@ import { useOrganizations } from '../hooks/useOrganizations';
 import { getLanePenetration, getMomentumState, getNearCloseOpportunities, getStaleAccounts, getStaleOpportunities, getStuckOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
 import { getEcosystemReferralSummary } from '../services/ecosystemReferralsService';
 import { formatCurrency } from '../utils/format';
+import { listUsers, toggleUserHrDocs, toggleUserDirectorSignoff } from '../services/usersService';
 
 const MONTHLY_ORDER_GOAL = 4;
 const openStages = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT'];
@@ -68,6 +70,7 @@ function ProgressBar({ count, total, label, projectedPace }: { count: number; to
 }
 
 export function DashboardPage({ role }: { role: Role }) {
+  const [refreshKey, setRefreshKey] = useState(0);
   const opportunities = useOpportunities({});
   const currentUser = getStoredUser();
   const organizations = useOrganizations({});
@@ -179,6 +182,9 @@ export function DashboardPage({ role }: { role: Role }) {
         ? { title: 'Assign untouched accounts', reason: `${untouchedAccounts} accounts remain untouched in your territory scope.`, to:'/organizations', cta:'Organizations' }
         : { title: 'Push near-close deals', reason: `${nearClose.length} near-close deals need invoice pressure this week.`, to:'/my-opportunities', cta:'My Opportunities' };
 
+    const allUsers = useMemo(() => listUsers(), [refreshKey]);
+    const directReps = useMemo(() => allUsers.filter(u => u.role === 'REP' && u.assignedDirectorId === currentUser?.id), [allUsers, currentUser]);
+
     return (
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold text-white">Director Coaching Room</h1>
@@ -189,6 +195,57 @@ export function DashboardPage({ role }: { role: Role }) {
           <MetricTile value={`${coveragePct}%`} label="Territory Coverage" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory" />
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{directorMission.title}</p><p className="text-sm text-slate-300">{directorMission.reason}</p><div className="flex flex-wrap gap-2"><Link to={directorMission.to} className="rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{directorMission.cta}</Link><Link to="/my-opportunities" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">My Opportunities</Link><Link to="/territory" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Territory</Link><Link to="/reports" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Reports</Link></div></div></GlassCard>
+        
+        {/* Onboarding & Sign-off Management */}
+        {directReps.length > 0 && (
+          <GlassCard title="REPS ONBOARDING & SIGN-OFF">
+            <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">Verify onboarding progress and authorize core systems access</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {directReps.map((rep) => (
+                <div key={rep.id} className="rounded-lg border border-slate-800 bg-[#070c13]/60 p-3 flex flex-col justify-between gap-3">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-sm text-slate-100">{rep.displayName}</p>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${rep.isCertified ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                        {rep.isCertified ? 'Certified' : 'Blocked'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1 truncate">Territory: {rep.territory}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        toggleUserHrDocs(rep.id, !rep.hrDocsCompleted);
+                        setRefreshKey((k) => k + 1);
+                      }}
+                      className={`flex-1 rounded py-1.5 text-xs font-bold transition border ${
+                        rep.hrDocsCompleted 
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25' 
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      {rep.hrDocsCompleted ? 'HR Approved ✓' : 'Verify HR docs'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        toggleUserDirectorSignoff(rep.id, !rep.directorSignedOff);
+                        setRefreshKey((k) => k + 1);
+                      }}
+                      className={`flex-1 rounded py-1.5 text-xs font-bold transition border ${
+                        rep.directorSignedOff 
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25' 
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      {rep.directorSignedOff ? 'Signed Off ✓' : 'Sign Off Rep'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+        )}
+
         <div className="safe-grid grid gap-3 lg:grid-cols-2">
           <GlassCard title="COACHING QUEUE"><div className="space-y-2">{repCoachingGrid.slice(0,6).map((row)=><Link key={row.rep} to="/team-opportunities" className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3"><p className="font-semibold text-slate-100">{row.rep}</p><p className="text-xs text-slate-400">Issue: stale {row.stale} · stuck {row.stuck} · near-close {row.nearClose}</p><p className="text-xs text-cyan-200">Action: coach next action + invoice pressure · Impact {formatCurrency(row.pipeline)}</p></Link>)}</div></GlassCard>
           <GlassCard title="MY SELLING PANEL"><p className="text-sm text-slate-300">My opportunities: {myOpps.length} · Near-close: {myNearClose.length} · Pipeline: {formatCurrency(myPipeline)}</p><div className="mt-2 space-y-2">{myOpps.slice(0,4).map((opp)=><DealRow key={opp.id} title={opp.nextAction} meta={`${opp.organizationName} · ${opp.stage}`} value={opp.value} to={`/opportunities/${opp.id}`} />)}</div></GlassCard>

@@ -7,6 +7,9 @@ import {
   markModuleCompleted,
   getUserEnrollment,
   recordFrictionPoint,
+  toggleHrDocs,
+  toggleDirectorSignoff,
+  getCertificationStatus,
 } from './training.service';
 import { TrainingRole } from './training.interface';
 
@@ -133,3 +136,54 @@ export async function recordFrictionPointHandler(request: FastifyRequest, reply:
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
+
+export async function toggleHrDocsHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as any;
+    const { hrDocsCompleted } = request.body as any;
+
+    if (id === undefined || hrDocsCompleted === undefined) {
+      return reply.code(400).send({ message: 'User id and hrDocsCompleted are required' });
+    }
+
+    const result = await toggleHrDocs(parseInt(id, 10), !!hrDocsCompleted);
+    return reply.send(result);
+  } catch (error: any) {
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export async function toggleDirectorSignoffHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as any;
+    const { directorSignedOff } = request.body as any;
+
+    if (id === undefined || directorSignedOff === undefined) {
+      return reply.code(400).send({ message: 'User id and directorSignedOff are required' });
+    }
+
+    const result = await toggleDirectorSignoff(parseInt(id, 10), !!directorSignedOff);
+    return reply.send(result);
+  } catch (error: any) {
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export async function getCertificationStatusHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as any;
+
+    if (!id) {
+      return reply.code(400).send({ message: 'User id is required' });
+    }
+
+    const result = await getCertificationStatus(parseInt(id, 10));
+    return reply.send(result);
+  } catch (error: any) {
+    if (error.message.includes('not found')) {
+      return reply.code(404).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+

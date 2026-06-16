@@ -13,7 +13,8 @@ export type SidebarKey =
   | 'ops_workspace'
   | 'settings'
   | 'users'
-  | 'data_health';
+  | 'data_health'
+  | 'academy';
 
 export type AppUser = {
   id: string;
@@ -21,4 +22,7 @@ export type AppUser = {
   email: string;
   role: Role;
   mustChangeCredential: boolean;
+  hrDocsCompleted?: boolean;
+  directorSignedOff?: boolean;
+  isCertified?: boolean;
 };

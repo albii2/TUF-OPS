@@ -1,4 +1,5 @@
 import { getStoredUser } from '../auth';
+import type { AppUser } from '../types';
 import type { Opportunity, Order, Organization, TerritoryId } from '../data/mockSalesData';
 import { getManagedRepNamesForDirector, getManagedTerritoriesForDirector } from './usersService';
 
@@ -47,9 +48,24 @@ export function canViewOrder(order: Order, linkedOpportunity?: Opportunity) {
   return false;
 }
 
+export function isRepCertified(user: AppUser | null) {
+  if (!user) return false;
+  if (user.role === 'OWNER' || user.role === 'OPS' || user.role === 'DIRECTOR') return true;
+  return user.isCertified === true;
+}
+
+export function canCreateOpportunity() {
+  const user = getViewer();
+  if (!user) return false;
+  if (user.role === 'OWNER' || user.role === 'OPS') return true;
+  if (user.role === 'REP') return isRepCertified(user);
+  return false;
+}
+
 export function canAdvanceOpportunity(opp: Opportunity) {
   const user = getViewer();
   if (!user) return false;
+  if (!isRepCertified(user)) return false;
   if (user.role === 'OWNER') return true;
   if (user.role === 'REP') return opp.assignedRep === user.name;
   return false;
@@ -58,6 +74,7 @@ export function canAdvanceOpportunity(opp: Opportunity) {
 export function getAdvanceDeniedMessage(opp: Opportunity) {
   const user = getViewer();
   if (!user) return 'Log in before advancing an opportunity.';
+  if (!isRepCertified(user)) return 'Onboarding and certification is required before you can perform sales actions.';
   if (user.role === 'DIRECTOR') return 'Directors have read-only stage visibility for rep-owned opportunities in V0.8.5.';
   if (user.role === 'REP' && opp.assignedRep !== user.name) return 'You can only advance opportunities assigned to you.';
   return 'You do not have permission to advance this opportunity.';

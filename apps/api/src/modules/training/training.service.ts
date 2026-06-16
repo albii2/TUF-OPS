@@ -221,7 +221,103 @@ export async function markModuleCompleted(
     }
   }
 
+  await checkAndUpdateCertification(enrollment.user_id);
   return { progress, enrollment: updatedEnrollment };
+}
+
+export async function checkAndUpdateCertification(userId: number): Promise<boolean> {
+  const userRes = await pool.query('SELECT role, hr_docs_completed, director_signed_off FROM users WHERE id = $1', [userId]);
+  if (userRes.rows.length === 0) return false;
+  const user = userRes.rows[0];
+
+  // Owner, Director, Ops are exempt
+  if (user.role === 'OWNER' || user.role === 'DIRECTOR' || user.role === 'OPS') {
+    await pool.query('UPDATE users SET is_certified = true WHERE id = $1', [userId]);
+    return true;
+  }
+
+  // Check enrollment
+  const enrollmentRes = await pool.query('SELECT id, role FROM training_enrollments WHERE user_id = $1', [userId]);
+  if (enrollmentRes.rows.length === 0) {
+    await pool.query('UPDATE users SET is_certified = false WHERE id = $1', [userId]);
+    return false;
+  }
+  const enrollment = enrollmentRes.rows[0];
+
+  // Count modules vs completed modules
+  const modulesRes = await pool.query('SELECT COUNT(*) as count FROM training_modules WHERE role = $1', [enrollment.role]);
+  const progressRes = await pool.query(
+    'SELECT COUNT(*) as count FROM training_progress WHERE enrollment_id = $1 AND status = $2',
+    [enrollment.id, 'COMPLETED']
+  );
+
+  const totalModules = parseInt(modulesRes.rows[0].count, 10);
+  const completedModules = parseInt(progressRes.rows[0].count, 10);
+
+  const modulesCompleted = totalModules > 0 && completedModules >= totalModules;
+  const isCertified = modulesCompleted && user.hr_docs_completed && user.director_signed_off;
+
+  await pool.query('UPDATE users SET is_certified = $1 WHERE id = $2', [isCertified, userId]);
+  return isCertified;
+}
+
+export async function toggleHrDocs(userId: number, hrDocsCompleted: boolean): Promise<any> {
+  const result = await pool.query(
+    'UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, director_signed_off, is_certified',
+    [hrDocsCompleted, userId]
+  );
+  await checkAndUpdateCertification(userId);
+  return result.rows[0];
+}
+
+export async function toggleDirectorSignoff(userId: number, directorSignedOff: boolean): Promise<any> {
+  const result = await pool.query(
+    'UPDATE users SET director_signed_off = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, director_signed_off, is_certified',
+    [directorSignedOff, userId]
+  );
+  await checkAndUpdateCertification(userId);
+  return result.rows[0];
+}
+
+export async function getCertificationStatus(userId: number): Promise<any> {
+  const userRes = await pool.query(
+    'SELECT id, name, role, hr_docs_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    [userId]
+  );
+  if (userRes.rows.length === 0) {
+    throw new Error('User not found');
+  }
+  const user = userRes.rows[0];
+
+  let modulesPercent = 0;
+  let totalModules = 0;
+  let completedModules = 0;
+
+  const enrollmentRes = await pool.query('SELECT id, role FROM training_enrollments WHERE user_id = $1', [userId]);
+  if (enrollmentRes.rows.length > 0) {
+    const enrollment = enrollmentRes.rows[0];
+    const modulesRes = await pool.query('SELECT COUNT(*) as count FROM training_modules WHERE role = $1', [enrollment.role]);
+    const progressRes = await pool.query(
+      'SELECT COUNT(*) as count FROM training_progress WHERE enrollment_id = $1 AND status = $2',
+      [enrollment.id, 'COMPLETED']
+    );
+    totalModules = parseInt(modulesRes.rows[0].count, 10);
+    completedModules = parseInt(progressRes.rows[0].count, 10);
+    modulesPercent = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
+  }
+
+  return {
+    userId: user.id,
+    name: user.name,
+    role: user.role,
+    hrDocsCompleted: user.hr_docs_completed,
+    directorSignedOff: user.director_signed_off,
+    isCertified: user.is_certified,
+    modulesPercent,
+    modulesCompleted: totalModules > 0 && completedModules >= totalModules,
+    completedModules,
+    totalModules
+  };
 }
 
 export async function getEnrollmentById(enrollmentId: number): Promise<TrainingEnrollment> {
@@ -257,3 +353,4 @@ export async function recordFrictionPoint(
     [enrollmentId, moduleId || null, frictionPointText, resolutionText || null]
   );
 }
+

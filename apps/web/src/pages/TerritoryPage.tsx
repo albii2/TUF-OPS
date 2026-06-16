@@ -8,6 +8,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { listUsers } from '../services/usersService';
 import { Card, DataTable, type Column, SmallKpi } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
+import type { TerritoryId } from '../data/mockSalesData';
 
 export function TerritoryPage() {
   const user = getStoredUser();
@@ -28,7 +29,7 @@ export function TerritoryPage() {
 
   const repRows = listUsers()
     .filter((m) => m.role === 'REP' && m.status === 'ACTIVE')
-    .filter((m) => (m.territory ? scopedZones.has(m.territory) : false))
+    .filter((m) => (m.territory ? scopedZones.has(m.territory as TerritoryId) : false))
     .map((rep) => {
       const repOrgs = scopedOrgs.filter((o) => o.assignedRep === rep.displayName);
       const repOpps = scopedOpps.filter((o) => o.assignedRep === rep.displayName);

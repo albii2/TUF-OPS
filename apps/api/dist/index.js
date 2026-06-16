@@ -14,6 +14,7 @@ const production_requests_routes_1 = require("./modules/production-requests/prod
 const reporting_routes_1 = require("./modules/reporting/reporting.routes");
 const orders_routes_1 = require("./modules/orders/orders.routes");
 const creative_requests_routes_1 = require("./modules/creative-requests/creative-requests.routes");
+const training_routes_1 = require("./modules/training/training.routes");
 const users_routes_1 = require("./modules/users/users.routes");
 const users_service_1 = require("./modules/users/users.service");
 const database_1 = require("@packages/database");
@@ -114,6 +115,7 @@ server.register(production_requests_routes_1.productionRequestRoutes, { prefix: 
 server.register(orders_routes_1.orderRoutes, { prefix: '/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes);
 server.register(users_routes_1.userRoutes, { prefix: '/auth' });
+server.register(training_routes_1.trainingRoutes, { prefix: '/training' });
 server.get('/health', async () => ({
     status: 'ok',
     service: 'tuf-ops-api',
@@ -151,6 +153,18 @@ server.get('/health/data', async (request) => {
         request.log?.error?.(error);
         return emptyDataHealthPayload('degraded', error?.code || 'database query failed');
     }
+});
+server.setNotFoundHandler((request, reply) => {
+    if (request.method !== 'GET')
+        return reply.code(404).send({ error: 'Not found' });
+    const requestPath = request.url.split('?')[0];
+    const staticPath = getSafeStaticPath(requestPath);
+    if (staticPath)
+        return sendStaticFile(reply, staticPath);
+    if (!requestPath.startsWith('/api') && acceptsHtml(request.headers.accept) && (0, node_fs_1.existsSync)(indexHtmlPath)) {
+        return sendStaticFile(reply, indexHtmlPath);
+    }
+    return reply.code(404).send({ error: 'Not found' });
 });
 server.setNotFoundHandler((request, reply) => {
     if (request.method !== 'GET')
