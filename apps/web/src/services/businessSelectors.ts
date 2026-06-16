@@ -1,4 +1,5 @@
 import type { Opportunity, Organization, Order, RevenueLane } from '../data/mockSalesData';
+import { getOrderRisk } from './orderWorkflow';
 import { getMomentumState as getUnifiedMomentumState, getStaleOpenOpportunities, getStaleOrganizations } from './kpiUtils';
 
 const NEAR_CLOSE_STAGES: Opportunity['stage'][] = ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'];
@@ -39,14 +40,7 @@ export function getOrganizationPriorityScore(org: Organization): number {
 }
 
 export function getOrderRiskScore(order: Order): number {
-  const statusWeight: Record<Order['productionStatus'], number> = {
-    NEEDS_REVIEW: 80,
-    BLOCKED: 100,
-    READY_FOR_VENDOR: 40,
-    IN_PRODUCTION: 25,
-    COMPLETED: 0,
-  };
-  return statusWeight[order.productionStatus] + order.missingInfo.length * 15;
+  return getOrderRisk(order).rank;
 }
 
 export function getOpenPipelineValue(opportunities: Opportunity[]): number {

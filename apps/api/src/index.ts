@@ -9,6 +9,8 @@ import { productionRequestRoutes } from './modules/production-requests/productio
 import { reportingRoutes } from './modules/reporting/reporting.routes';
 import { orderRoutes } from './modules/orders/orders.routes';
 import { creativeRequestRoutes } from './modules/creative-requests/creative-requests.routes';
+import { trainingRoutes } from './modules/training/training.routes';
+import { vendorRoutes } from './modules/vendors/vendors.routes';
 import { userRoutes } from './modules/users/users.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
@@ -119,6 +121,7 @@ server.register(productionRequestRoutes, { prefix: '/production-requests' });
 server.register(orderRoutes, { prefix: '/orders' });
 server.register(creativeRequestRoutes);
 server.register(userRoutes, { prefix: '/auth' });
+server.register(trainingRoutes, { prefix: '/training' });
 
 server.get('/health', async () => ({
   status: 'ok',
@@ -160,6 +163,18 @@ server.get('/health/data', async (request) => {
     request.log?.error?.(error);
     return emptyDataHealthPayload('degraded', error?.code || 'database query failed');
   }
+});
+
+server.setNotFoundHandler((request, reply) => {
+  if (request.method !== 'GET') return reply.code(404).send({ error: 'Not found' });
+
+  const requestPath = request.url.split('?')[0];
+  const staticPath = getSafeStaticPath(requestPath);
+  if (staticPath) return sendStaticFile(reply, staticPath);
+  if (!requestPath.startsWith('/api') && acceptsHtml(request.headers.accept) && existsSync(indexHtmlPath)) {
+    return sendStaticFile(reply, indexHtmlPath);
+  }
+  return reply.code(404).send({ error: 'Not found' });
 });
 
 server.setNotFoundHandler((request, reply) => {

@@ -20,6 +20,15 @@ export interface Order {
     production_notes?: string;
     tracking_info?: any;
     delivery_date?: Date;
+    vendor_settlement_status?: 'PENDING' | 'INVOICED' | 'PAID' | 'DISPUTED' | 'REFUNDED';
+    vendor_invoice_id?: string;
+    vendor_invoice_date?: Date;
+    vendor_payment_due_date?: Date;
+    vendor_paid_date?: Date;
+    order_value?: number;
+    vendor_payment_amount?: number;
+    quantity_ordered?: number;
+    unit_price?: number;
     created_at: Date;
     updated_at: Date;
 }

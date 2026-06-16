@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStoredUser } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
@@ -64,6 +64,13 @@ export function OpportunityNewPage() {
   const preview = buildOpportunityDisplayName({ programLevel, sport, seasonCode, lane });
   const selectedOrg = organizations.find((org) => org.id === organizationId) ?? organizations[0];
 
+  useEffect(() => {
+    if (!organizationId && organizations[0]) {
+      setOrganizationId(organizations[0].id);
+      if (user?.role !== 'REP') setAssignedRep(organizations[0].assignedRep);
+    }
+  }, [organizationId, organizations, user?.role]);
+
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!selectedOrg) {
@@ -91,5 +98,5 @@ export function OpportunityNewPage() {
     }
   };
 
-  return <Card title="New Opportunity"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><Select value={organizationId} onChange={(e)=>{ const next = organizations.find((org) => org.id === e.target.value); setOrganizationId(e.target.value); if (next) setAssignedRep(next.assignedRep); }}>{organizations.map((org)=><option key={org.id} value={org.id}>{org.name}</option>)}</Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /><Select value={programLevel} onChange={(e)=>setProgramLevel(e.target.value as typeof programLevel)}>{levels.map((l)=><option key={l}>{l}</option>)}</Select><Select value={sport} onChange={(e)=>setSport(e.target.value as typeof sport)}>{SPORT_OPTIONS.map((s)=><option key={s}>{s}</option>)}</Select><Input value={seasonCode} onChange={(e)=>setSeasonCode(e.target.value.toUpperCase())} placeholder={`Season code (${SEASON_CODES.join('/')})`} /><Select value={lane} onChange={(e)=>setLane(e.target.value as typeof lane)}>{REVENUE_LANES.map((l)=><option key={l}>{l}</option>)}</Select><Input inputMode="numeric" value={value} onChange={(e)=>setValue(e.target.value.replace(/[^\d]/g, ''))} placeholder="Estimated Value" /><p className="md:col-span-2 text-sm text-cyan-200">Display Name Preview: {preview}</p><Button type="submit" className="md:col-span-2">Create Opportunity</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;
+  return <Card title="New Opportunity"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><Select value={organizationId} onChange={(e)=>{ const next = organizations.find((org) => org.id === e.target.value); setOrganizationId(e.target.value); if (next && user?.role !== 'REP') setAssignedRep(next.assignedRep); }}>{organizations.map((org)=><option key={org.id} value={org.id}>{org.name}</option>)}</Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" disabled={user?.role === 'REP'} /><Select value={programLevel} onChange={(e)=>setProgramLevel(e.target.value as typeof programLevel)}>{levels.map((l)=><option key={l}>{l}</option>)}</Select><Select value={sport} onChange={(e)=>setSport(e.target.value as typeof sport)}>{SPORT_OPTIONS.map((s)=><option key={s}>{s}</option>)}</Select><Input value={seasonCode} onChange={(e)=>setSeasonCode(e.target.value.toUpperCase())} placeholder={`Season code (${SEASON_CODES.join('/')})`} /><Select value={lane} onChange={(e)=>setLane(e.target.value as typeof lane)}>{REVENUE_LANES.map((l)=><option key={l}>{l}</option>)}</Select><Input inputMode="numeric" value={value} onChange={(e)=>setValue(e.target.value.replace(/[^\d]/g, ''))} placeholder="Estimated Value" /><p className="md:col-span-2 text-sm text-cyan-200">Display Name Preview: {preview}</p><Button type="submit" className="md:col-span-2">Create Opportunity</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;
 }

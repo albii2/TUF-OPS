@@ -48,7 +48,7 @@ export function listOrders(params: OrderListParams = {}): Order[] {
   const allOpportunities = getAllOpportunities();
   return getAllOrders().filter((order) => {
     const matchesSearch = (params.search ?? '').trim()
-      ? [order.id, order.organizationName, order.vendor].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
+      ? [order.id, order.title, order.organizationName, order.vendor, stageLabel].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
       : true;
     const matchesStatus = !params.productionStatus || params.productionStatus === 'ALL' || order.productionStatus === params.productionStatus;
     const linkedOpportunity = allOpportunities.find((opp) => opp.id === order.opportunityId);
@@ -60,6 +60,16 @@ export function listOrders(params: OrderListParams = {}): Order[] {
 export function getOrderById(id: string): Order | undefined {
   if (DATA_MODE !== 'mock') return undefined;
   return listOrders({}).find((order) => order.id === id);
+}
+
+export function getOrderByOpportunityId(opportunityId?: string): Order | undefined {
+  if (!opportunityId || DATA_MODE !== 'mock') return undefined;
+  return listOrders({}).find((order) => order.opportunityId === opportunityId);
+}
+
+export function getAnyOrderByOpportunityId(opportunityId?: string): Order | undefined {
+  if (!opportunityId || DATA_MODE !== 'mock') return undefined;
+  return findAnyOrderByOpportunityId(opportunityId);
 }
 
 export function getOpsWorkspaceQueues() {

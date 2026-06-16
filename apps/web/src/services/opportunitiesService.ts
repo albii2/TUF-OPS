@@ -36,8 +36,15 @@ const nextActionByStage: Record<OpportunityStage, string> = {
 
 function readLocalOpportunities(): Opportunity[] {
   try {
-    localStorage.removeItem(LEGACY_OPPORTUNITIES_KEY);
     return JSON.parse(localStorage.getItem(LOCAL_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
+  } catch {
+    return [];
+  }
+}
+
+function readLegacyOpportunities(): Opportunity[] {
+  try {
+    return JSON.parse(localStorage.getItem(LEGACY_OPPORTUNITIES_KEY) || '[]') as Opportunity[];
   } catch {
     return [];
   }
@@ -45,6 +52,15 @@ function readLocalOpportunities(): Opportunity[] {
 
 function writeLocalOpportunities(rows: Opportunity[]) {
   localStorage.setItem(LOCAL_OPPORTUNITIES_KEY, JSON.stringify(rows));
+}
+
+function writeLegacyOpportunities(rows: Opportunity[]) {
+  localStorage.setItem(LEGACY_OPPORTUNITIES_KEY, JSON.stringify(rows));
+}
+
+function removeLegacyOpportunity(id: string) {
+  const remainingLegacyRows = readLegacyOpportunities().filter((row) => row.id !== id);
+  writeLegacyOpportunities(remainingLegacyRows);
 }
 
 function getAllOpportunities() {
@@ -91,6 +107,7 @@ export function createMockOpportunity(input: {
   lane: RevenueLane;
   assignedRep: string;
   value: number;
+  organizationAssignedDirector?: string;
 }) {
   const user = getStoredUser();
   const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep;
@@ -109,7 +126,7 @@ export function createMockOpportunity(input: {
     lastActivity: new Date().toISOString().slice(0, 10),
     closeProbability: 20,
   };
-  writeLocalOpportunities([row, ...readLocalOpportunities()]);
+  writeLocalOpportunities([row, ...readLocalOpportunities().filter((opp) => opp.id !== row.id)]);
   return row;
 }
 
@@ -136,8 +153,10 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
     stage,
     nextAction: nextActionByStage[stage],
     closeProbability: closeProbabilityByStage[stage],
-    lastActivity: new Date().toISOString().slice(0, 10),
+    lastActivity: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
   writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
+  removeLegacyOpportunity(id);
   return updated;
 }

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Select, type Column } from '../components/primitives';
+import { Button, Card, EmptyState, Input, LaneBadge, Pagination } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
 import { getOrderRiskScore } from '../services/businessSelectors';
@@ -10,10 +10,18 @@ import { notify } from '../services/feedbackService';
 
 const PAGE_SIZE = 8;
 
+const filters: { key: OrderQueueFilter; label: string }[] = [
+  { key: 'ACTION_NEEDED', label: 'Action Needed' },
+  { key: 'IN_PRODUCTION', label: 'In Production' },
+  { key: 'BLOCKED', label: 'Blocked' },
+  { key: 'COMPLETED', label: 'Completed' },
+  { key: 'ALL', label: 'All Orders' },
+];
+
 export function OrdersPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('ALL');
+  const [queueFilter, setQueueFilter] = useState<OrderQueueFilter>('ACTION_NEEDED');
   const [page, setPage] = useState(1);
   const [message, setMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -22,24 +30,35 @@ export function OrdersPage() {
   const filtered = useOrders({ search, productionStatus: status as 'ALL' | 'NEEDS_REVIEW' | 'READY_FOR_VENDOR' | 'IN_PRODUCTION' | 'BLOCKED' | 'COMPLETED', refreshKey });
   const opportunities = useOpportunities({ refreshKey });
 
-  const statuses = useMemo(() => Array.from(new Set(allOrders.map((o) => o.productionStatus))), [allOrders]);
+  const filtered = useMemo(
+    () => searchedOrders.filter((order) => matchesOrderQueueFilter(order, queueFilter)).sort(sortOrdersForExecution),
+    [queueFilter, searchedOrders],
+  );
+
+  const counts = useMemo(() => filters.reduce<Record<OrderQueueFilter, number>>((acc, filter) => {
+    acc[filter.key] = allOrders.filter((order) => matchesOrderQueueFilter(order, filter.key)).length;
+    return acc;
+  }, { ACTION_NEEDED: 0, IN_PRODUCTION: 0, BLOCKED: 0, COMPLETED: 0, ALL: 0 }), [allOrders]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const prioritized = [...filtered].sort((a, b) => getOrderRiskScore(b) - getOrderRiskScore(a));
-  const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const columns: Column<(typeof filtered)[number]>[] = [
-    { key: 'order', header: 'Order', cell: (r) => <div><p className='font-semibold text-slate-100'>{r.id}</p><p className='text-xs text-slate-400'>{r.organizationName}</p></div> },
-    { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
-    { key: 'lane', header: 'Lane', className: 'min-w-[140px] whitespace-nowrap', cell: (r) => <LaneBadge lane={r.lane} /> },
-    { key: 'value', header: 'Value', className: 'text-right min-w-[120px]', cell: (r) => formatCurrency(r.value) },
-    { key: 'status', header: 'Production Status', className: 'min-w-[170px] whitespace-nowrap', cell: (r) => <span className={r.productionStatus==='BLOCKED' ? 'text-rose-200' : 'text-slate-200'}>{r.productionStatus.replace(/_/g,' ')}</span> },
-    { key: 'missing', header: 'Blocking Items', className: 'min-w-[220px]', cell: (r) => (r.missingInfo.length ? r.missingInfo.join(', ') : 'Clear') },
-    { key: 'vendor', header: 'Vendor', cell: (r) => r.vendor },
-    { key: 'created', header: 'Created Date', className: 'min-w-[130px] whitespace-nowrap', cell: (r) => formatDate(r.createdDate) },
-    { key: 'actions', header: 'Actions', cell: (r) => <button className="text-xs text-cyan-300" onClick={(e) => { e.stopPropagation(); navigate(`/orders/${r.id}`); }}>Open</button> },
-  ];
+  const createOrder = () => {
+    try {
+      const existingOpportunityIds = new Set(allOrders.map((order) => order.opportunityId));
+      const sourceOpportunity = opportunities.find((opportunity) => opportunity.stage === 'CLOSED_WON' && !existingOpportunityIds.has(opportunity.id));
+      const created = createMockOrderFromOpportunity(sourceOpportunity);
+      setMessage(`Order created from ${created.organizationName}.`);
+      setRefreshKey((value) => value + 1);
+      notify('Order created.', 'success');
+      navigate(`/orders/${created.id}`);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : 'Close an opportunity before creating an order.';
+      setMessage(detail);
+      notify(`Order creation failed: ${detail}`, 'error');
+    }
+  };
 
   const createOrder = () => {
     try {
