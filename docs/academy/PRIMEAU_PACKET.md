@@ -17,7 +17,7 @@ Review the role mandate, team structure, and compensation overview in the [State
 Understand the four revenue lanes and package boundaries in the [Product Guide](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/03_product_training/PRODUCT_GUIDE.md).
 
 ### 3. Sales Playbook & Pipeline
-Familiarize yourself with the 10-stage pipeline flow and referral scripts in the [Sales Playbook](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/04_sales_training/SALES_PLAYBOOK.md).
+Familiarize yourself with the 5-stage pipeline flow and referral scripts in the [Sales Playbook](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/04_sales_training/SALES_PLAYBOOK.md).
 
 ### 4. TUF Ops Quickstart
 Review the dashboard navigation, mockup creation, and order handoff process in the [TUF Ops Quickstart](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/05_tuf_ops/TUF_OPS_QUICKSTART.md).

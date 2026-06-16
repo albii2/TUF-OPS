@@ -16,7 +16,7 @@ async function createProductionRequest(data) {
         throw new Error('Opportunity not found');
     }
     if (type === production_requests_interface_1.ProductionRequestType.SAMPLE) {
-        const allowedTypes = ['UNIFORM', 'JACKETS'];
+        const allowedTypes = ['UNIFORM', 'LETTERMAN'];
         if (opportunity.deal_type === null || opportunity.deal_type === undefined || !allowedTypes.includes(opportunity.deal_type)) {
             throw new Error(`Sample requests not allowed for deal type: ${opportunity.deal_type}`);
         }

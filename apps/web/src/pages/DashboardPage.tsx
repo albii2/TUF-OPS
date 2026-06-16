@@ -12,8 +12,8 @@ import { getEcosystemReferralSummary } from '../services/ecosystemReferralsServi
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;
-const openStages = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'PAYMENT_RECEIVED'];
-const pipelineStages = ['CONTACTED', 'MOCKUP_REQUESTED', 'INVOICE_SENT', 'CLOSED_WON'] as const;
+const openStages = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT'];
+const pipelineStages = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT', 'CLOSED_WON'] as const;
 
 function MetricTile({ value, label, tone, to }: { value: string; label: string; tone: string; to: string }) {
   return (
@@ -87,8 +87,8 @@ export function DashboardPage({ role }: { role: Role }) {
   const nearClose = getNearCloseOpportunities(opportunities);
   const stuckDeals = getStuckOpportunities(opportunities);
   const openOpps = opportunities.filter((opp) => openStages.includes(opp.stage));
-  const pendingPayments = opportunities.filter((opp) => ['INVOICE_SENT', 'DECISION_PENDING'].includes(opp.stage));
-  const paymentReceived = opportunities.filter((opp) => opp.stage === 'PAYMENT_RECEIVED');
+  const pendingPayments = opportunities.filter((opp) => opp.stage === 'INVOICE_SENT');
+  const paymentReceived = opportunities.filter((opp) => opp.stage === 'INVOICE_SENT');
   const completedOrders = orders.filter((order) => order.productionStatus === 'COMPLETED');
   const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
   const pipelineTotal = openOpps.reduce((sum, opp) => sum + opp.value, 0);

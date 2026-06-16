@@ -14,20 +14,24 @@ import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/role
 import { notify } from '../services/feedbackService';
 
 const stageCtas = {
-  LEAD_ASSIGNED: 'Contact coach',
-  CONTACTED: 'Log discovery',
-  DISCOVERY: 'Request mockup',
-  MOCKUP_REQUESTED: 'Mark mockup delivered',
-  MOCKUP_DELIVERED: 'Send invoice',
+  LEAD_ENGAGED: 'Contact coach',
+  DISCOVERY: 'Conduct discovery',
+  MOCKUP_STAGE: 'Send invoice',
   INVOICE_SENT: 'Follow up payment',
-  DECISION_PENDING: 'Confirm payment received',
-  PAYMENT_RECEIVED: 'Mark ready to close won',
   CLOSED_WON: 'View order',
   CLOSED_LOST: 'Review loss reason',
+
+  // Legacy mappings for backward compatibility:
+  LEAD_ASSIGNED: 'Contact coach',
+  CONTACTED: 'Contact coach',
+  MOCKUP_REQUESTED: 'Send invoice',
+  MOCKUP_DELIVERED: 'Send invoice',
+  DECISION_PENDING: 'Follow up payment',
+  PAYMENT_RECEIVED: 'Follow up payment',
 } as const;
 
 
-const stageFlow = ['LEAD_ASSIGNED','CONTACTED','DISCOVERY','MOCKUP_REQUESTED','MOCKUP_DELIVERED','INVOICE_SENT','DECISION_PENDING','PAYMENT_RECEIVED','CLOSED_WON'] as const;
+const stageFlow = ['LEAD_ENGAGED','DISCOVERY','MOCKUP_STAGE','INVOICE_SENT','CLOSED_WON'] as const;
 
 
 export function OpportunityDetailPage() {
@@ -57,14 +61,12 @@ export function OpportunityDetailPage() {
   const zoneLabel = organization?.territory === 'north' ? 'TUF NORTH' : organization?.territory === 'west' ? 'TUF WEST' : organization?.territory === 'south' ? 'TUF SOUTH' : 'TUF METRO';
   const canAdvance = canAdvanceOpportunity(activeOpp);
   const requiredFieldsByStage: Partial<Record<OpportunityStage, { key: string; label: string; type?: 'date' | 'text' }[]>> = {
-    CONTACTED: [{ key: 'contactMethod', label: 'Contact Method' }, { key: 'outcome', label: 'Outcome' }, { key: 'nextFollowupDate', label: 'Next Follow-up Date', type: 'date' }],
-    MOCKUP_REQUESTED: [{ key: 'sport', label: 'Sport' }, { key: 'lane', label: 'Lane' }, { key: 'designNotes', label: 'Design Notes' }, { key: 'neededItems', label: 'Needed Items' }, { key: 'urgency', label: 'Urgency / Due Date' }],
-    MOCKUP_DELIVERED: [{ key: 'assetLink', label: 'Asset / Link' }, { key: 'deliveryDate', label: 'Delivery Date', type: 'date' }, { key: 'nextFollowupDate', label: 'Next Follow-up Date', type: 'date' }],
+    DISCOVERY: [{ key: 'budgetConfirmed', label: 'Confirm Budget Alignment (Yes/No)' }, { key: 'rosterSize', label: 'Estimated Roster Size' }, { key: 'timelineConfirmed', label: 'Confirm Season Timeline (Yes/No)' }],
+    MOCKUP_STAGE: [{ key: 'sport', label: 'Sport' }, { key: 'lane', label: 'Lane' }, { key: 'designNotes', label: 'Design Notes' }, { key: 'neededItems', label: 'Needed Items' }, { key: 'urgency', label: 'Urgency / Due Date' }],
     INVOICE_SENT: [{ key: 'invoiceAmount', label: 'Invoice Amount' }, { key: 'invoiceDate', label: 'Invoice Date', type: 'date' }, { key: 'paymentFollowupDate', label: 'Payment Follow-up Date', type: 'date' }],
-    PAYMENT_RECEIVED: [{ key: 'paymentAmount', label: 'Payment Amount' }, { key: 'paymentDate', label: 'Payment Date', type: 'date' }, { key: 'handoffReady', label: 'Handoff Ready (Yes/No)' }],
     CLOSED_WON: [{ key: 'confirmPaymentReceived', label: 'Confirm Payment Received (Yes/No)' }, { key: 'confirmOrderHandoff', label: 'Confirm Order Handoff Created (Yes/No)' }],
   };
-  const requiredAdvanceFields = nextStage ? (requiredFieldsByStage[nextStage] ?? []) : [];
+  const requiredAdvanceFields = nextStage ? (requiredFieldsByStage[nextStage as OpportunityStage] ?? []) : [];
 
   const setStage = (stage: OpportunityStage, message: string) => {
     try {

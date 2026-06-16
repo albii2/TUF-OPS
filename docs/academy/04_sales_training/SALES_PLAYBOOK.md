@@ -1,23 +1,28 @@
 # TUF Sales Playbook & Pipeline Process
 
-This guide details the TUF sales methodology, how we qualify accounts, and how to execute our 10-stage opportunity pipeline.
+This guide details the TUF sales methodology, how we qualify accounts, and how to execute our consolidated 5-stage opportunity pipeline.
 
 ---
 
-## The 10-Stage Pipeline Flow
+## The 5-Stage Pipeline Flow
 
-Your opportunity pipeline is built around actions, not passive tracking. You must advance deals through these exact stages:
+Your opportunity pipeline is streamlined to minimize administrative load, keeping focus on active deals. You must advance deals through these exact stages in TUF Ops:
 
-1.  **Lead Assigned**: A new target school/program is assigned to you in TUF Ops.
-2.  **Contacted**: Initial contact made (call or email logged).
-3.  **Discovery**: Discovery meeting conducted; confirmed season timing and current vendor.
-4.  **Mockup Requested**: Mockup request form submitted to the design team.
-5.  **Mockup Delivered**: Custom designs sent and presented to the coach/administrator.
-6.  **Invoice Sent**: Digital invoice created and sent to the school/booster payment contact.
-7.  **Decision Pending**: Reviewing package options and follow-ups on payment commitment.
-8.  **Payment Received**: Payment confirmed via cash, check, or online gateway.
-9.  **Closed Won**: Order handoff package finalized and sent to Ops.
-10. **Closed Lost**: Opportunity marked lost with documented loss reasons (e.g. price, vendor relationship).
+1. **Lead Engaged**: A target school/program is assigned or self-sourced, and initial outreach (call/email) has begun.
+2. **Discovery (Mandatory Gate)**: A detailed discovery meeting is conducted. You must confirm the Decision Maker, Roster Size, Season Timing, and Budget. *Note: TUF Ops locks custom mockup requests until these fields are completed.*
+3. **Mockup Stage**: The mockup request is submitted to our design team and the custom concepts are delivered to the client.
+4. **Invoice Sent**: Reviewing options, finalizing package, and sending the digital invoice to the billing contact.
+5. **Closed Won / Closed Lost**: Finalizing payment, triggering the order handoff, or documenting loss reasons.
+
+---
+
+## Pipeline & Workload Constraints
+
+To ensure maximum focus, speed, and responsiveness:
+- **25-Account Capacity Cap**: No representative may manage more than **25 active opportunities** at any time. Focus on high-value, high-probability targets. If you reach this cap, you must advance, close, or archive existing deals before accepting new leads.
+- **Mandatory Discovery Gate**: Design resources are valuable. You are strictly prohibited from submitting mockup requests until the Discovery checklist is completed and logged in TUF Ops.
+- **45% Margin Floor**: We prioritize profit over empty volume. All deals must hit or exceed a **45% gross margin floor**. Representatives should not discount unless absolutely necessary to close a deal, as commissions are tiered based on realized margin.
+- **Midwest Print Buffering**: To support our main production network in Pakistan, we maintain vetted local Midwest textile printers for a 7-day turnaround buffer during peak seasonal crunch.
 
 ---
 
@@ -38,10 +43,10 @@ Coaches and athletic directors talk to each other constantly. Leverage this netw
 
 ---
 
-## Defining a Qualified Opportunity
+## Defining a Qualified Opportunity (Discovery Checklist)
 
-An account is only qualified as an **Active Opportunity** when you confirm:
-- **Decision Maker**: You are in contact with the person who has buying authority (Coach, AD, or Booster President).
-- **Roster / Roster Size**: You know the approximate number of players.
-- **Season/Replacement Cycle**: You have identified when their current uniform cycle ends.
-- **Pricing Alignment**: They have agreed that our standard packages fit their budget limits.
+An account is only qualified as an **Active Opportunity** when you confirm and enter the following into TUF Ops:
+- **Decision Maker**: Contact with the buying authority (Coach, AD, or Booster President).
+- **Roster / Roster Size**: Approximate player count.
+- **Season/Replacement Cycle**: When their current uniforms are due for replacement.
+- **Pricing Alignment**: Agreement that our packages fit their budget limits (respecting the 45% margin floor).

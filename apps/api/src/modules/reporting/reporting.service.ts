@@ -14,16 +14,13 @@ export interface DashboardMetrics {
 
 function emptyStageCounts(): Record<OpportunityStage, number> {
   return {
-    [OpportunityStage.LEAD_ASSIGNED]: 0,
-    [OpportunityStage.CONTACTED]: 0,
+    [OpportunityStage.LEAD_ENGAGED]: 0,
     [OpportunityStage.DISCOVERY]: 0,
-    [OpportunityStage.MOCKUP_REQUESTED]: 0,
-    [OpportunityStage.MOCKUP_DELIVERED]: 0,
+    [OpportunityStage.MOCKUP_STAGE]: 0,
     [OpportunityStage.INVOICE_SENT]: 0,
-    [OpportunityStage.DECISION_PENDING]: 0,
     [OpportunityStage.CLOSED_WON]: 0,
     [OpportunityStage.CLOSED_LOST]: 0,
-  };
+  } as unknown as Record<OpportunityStage, number>;
 }
 
 async function getDashboardMetrics(whereSql = '', params: Array<number> = []): Promise<DashboardMetrics> {

@@ -19,7 +19,8 @@ To ensure all representatives and directors maintain absolute operational excell
 ### Phase 3: Sales Execution
 - [ ] Read the TUF Sales Playbook.
 - [ ] Practice a mock discovery call with your State Director.
-- [ ] Understand the 10-stage opportunity pipeline criteria.
+- [ ] Understand the 5-stage opportunity pipeline criteria and Mandatory Discovery Gate.
+- [ ] Maintain compliance with the 25-account workload capacity cap.
 
 ### Phase 4: System Operations
 - [ ] Complete the TUF Ops Quickstart Guide review.

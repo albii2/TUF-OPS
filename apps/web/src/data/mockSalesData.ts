@@ -2,16 +2,18 @@ import { REVENUE_LANES as revenueLanes } from '../config/business';
 export type RevenueLane = 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN';
 export type LaneStatus = 'OPEN' | 'ACTIVE' | 'WON' | 'LOST';
 export type OpportunityStage =
+  | 'LEAD_ENGAGED'
+  | 'DISCOVERY'
+  | 'MOCKUP_STAGE'
+  | 'INVOICE_SENT'
+  | 'CLOSED_WON'
+  | 'CLOSED_LOST'
   | 'LEAD_ASSIGNED'
   | 'CONTACTED'
-  | 'DISCOVERY'
   | 'MOCKUP_REQUESTED'
   | 'MOCKUP_DELIVERED'
-  | 'INVOICE_SENT'
   | 'DECISION_PENDING'
-  | 'PAYMENT_RECEIVED'
-  | 'CLOSED_WON'
-  | 'CLOSED_LOST';
+  | 'PAYMENT_RECEIVED';
 
 export type CoverageStatus = 'UNTOUCHED' | 'CONTACTED' | 'ACTIVE' | 'CLOSED';
 export type TerritoryId = 'metro' | 'north' | 'west' | 'south';
@@ -89,7 +91,7 @@ export type Activity = {
   user: string;
 };
 
-export const opportunityStages: OpportunityStage[] = ['LEAD_ASSIGNED', 'CONTACTED', 'DISCOVERY', 'MOCKUP_REQUESTED', 'MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING', 'PAYMENT_RECEIVED', 'CLOSED_WON', 'CLOSED_LOST'];
+export const opportunityStages: OpportunityStage[] = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT', 'CLOSED_WON', 'CLOSED_LOST'];
 
 export const teamMembers: TeamMember[] = [
   { id: 'u-owner-coach-bradshaw', name: 'Coach Bradshaw', role: 'OWNER', territoryIds: ['metro', 'north', 'west', 'south'], active: true },

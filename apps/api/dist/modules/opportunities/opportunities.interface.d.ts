@@ -1,17 +1,37 @@
 export declare enum OpportunityStage {
-    LEAD_ASSIGNED = "LEAD_ASSIGNED",
-    CONTACTED = "CONTACTED",
-    CONVERSATION_STARTED = "CONVERSATION_STARTED",
-    NEEDS_IDENTIFIED = "NEEDS_IDENTIFIED",
-    PROPOSAL_SENT = "PROPOSAL_SENT",
-    DECISION_PENDING = "DECISION_PENDING",
+    LEAD_ENGAGED = "LEAD_ENGAGED",
+    DISCOVERY = "DISCOVERY",
+    MOCKUP_STAGE = "MOCKUP_STAGE",
+    INVOICE_SENT = "INVOICE_SENT",
     CLOSED_WON = "CLOSED_WON",
-    CLOSED_LOST = "CLOSED_LOST"
+    CLOSED_LOST = "CLOSED_LOST",
+    LEAD_ASSIGNED = "LEAD_ENGAGED",
+    CONTACTED = "LEAD_ENGAGED",
+    MOCKUP_REQUESTED = "MOCKUP_STAGE",
+    MOCKUP_DELIVERED = "MOCKUP_STAGE",
+    DECISION_PENDING = "INVOICE_SENT",
+    NOT_STARTED = "LEAD_ENGAGED",
+    CONTACT_INITIATED = "LEAD_ENGAGED",
+    MOCKUP_IN_PROGRESS = "MOCKUP_STAGE",
+    MOCKUP_APPROVED = "MOCKUP_STAGE",
+    SAMPLE_REQUESTED = "INVOICE_SENT",
+    SAMPLE_IN_PRODUCTION = "INVOICE_SENT",
+    SAMPLE_APPROVED = "INVOICE_SENT",
+    PAYMENT_RECEIVED = "INVOICE_SENT"
+}
+export declare enum OpportunityChannelType {
+    UNIFORM = "UNIFORM",
+    TRAVEL_GEAR = "TRAVEL_GEAR",
+    TEAM_STORE = "TEAM_STORE",
+    LETTERMAN = "LETTERMAN"
 }
 export interface Opportunity {
     id: number;
     name: string;
     organization_id: number;
+    sport?: string;
+    season?: string;
+    year?: number;
     status: string;
     value: number;
     created_by: number;
@@ -19,6 +39,7 @@ export interface Opportunity {
     created_at: Date;
     updated_at: Date;
     stage: OpportunityStage;
+    channel_type: OpportunityChannelType | null;
     next_action?: string;
     expected_close_date?: Date;
     last_activity_date: Date;

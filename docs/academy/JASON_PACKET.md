@@ -17,7 +17,7 @@ Review our team values, customer-first service focus, and core principles in the
 Understand the products you are selling, the four revenue lanes (Uniforms, Travel Gear, Team Store, Letterman), and pricing rules in the [Product Guide](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/03_product_training/PRODUCT_GUIDE.md).
 
 ### 3. Sales Playbook & Pipeline Stages
-Learn the 10-stage pipeline flow, opportunity qualification requirements, and conference referral techniques in the [Sales Playbook](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/04_sales_training/SALES_PLAYBOOK.md).
+Learn the 5-stage pipeline flow, opportunity qualification requirements, and conference referral techniques in the [Sales Playbook](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/04_sales_training/SALES_PLAYBOOK.md).
 
 ### 4. TUF Ops Quickstart
 Walk through the software dashboard, next-action checklists, and mockup request processes in the [TUF Ops Quickstart](file:///Users/coachbradshaw/Documents/trae_projects/TUF/docs/academy/05_tuf_ops/TUF_OPS_QUICKSTART.md).

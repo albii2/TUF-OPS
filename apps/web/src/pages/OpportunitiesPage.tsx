@@ -4,6 +4,7 @@ import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Sele
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOpportunities, useOpportunityStages, useRevenueLanes } from '../hooks/useOpportunities';
 import { getNearCloseOpportunities } from '../services/businessSelectors';
+import type { OpportunityStage } from '../data/mockSalesData';
 
 const PAGE_SIZE = 8;
 
@@ -19,7 +20,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const allOpportunities = useOpportunities({});
   const filtered = useOpportunities({
     search,
-    stage: stage as 'ALL' | 'LEAD_ASSIGNED' | 'CONTACTED' | 'DISCOVERY' | 'MOCKUP_REQUESTED' | 'MOCKUP_DELIVERED' | 'INVOICE_SENT' | 'DECISION_PENDING' | 'CLOSED_WON' | 'CLOSED_LOST',
+    stage: stage as 'ALL' | OpportunityStage,
     lane: lane as 'ALL' | 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN',
     rep: forceRep ?? rep,
     sport,

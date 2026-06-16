@@ -34,9 +34,16 @@ You are responsible for recruiting, onboarding, and certifying the TAEs in your 
 Your dashboard tracks zone and school coverage:
 - Ensuring schools assigned to your reps are actively contacted.
 - Monitoring territory exposure (reducing the percentage of untouched schools).
-- Resolving stuck opportunities (stale > 14 days without follow-up).
+- Resolving stuck opportunities (stale > 10 to 21 days depending on pipeline stage).
 
-### 3. Hiring & Recruiting Funnel
+### 3. Operational Controls & Margin Health
+As territory manager, you must enforce critical operational boundaries:
+- **Workload Limits**: Monitor rep pipelines and enforce the **25 active opportunities cap** per representative.
+- **Discovery Gate**: Ensure mockup requests are not submitted prematurely without qualified discovery.
+- **45% Margin Floor**: Enforce the 45% gross margin floor policy on all quotes and invoice drafts. Reps must not offer discounts unless required to close the deal.
+- **Midwest Print Buffering**: Ensure that local backup textile printers are engaged for a 7-day turnaround buffer during seasonal peak times to protect referral loops.
+
+### 4. Hiring & Recruiting Funnel
 You lead the local talent funnel in your state, keeping tabs on:
 - Candidate applicants.
 - Scheduling and conducting interviews.

@@ -20,16 +20,20 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
     return result.rows[0];
 }
 
-const VALID_TRANSITIONS: Record<OpportunityStage, OpportunityStage[]> = {
-  [OpportunityStage.LEAD_ASSIGNED]: [OpportunityStage.CONTACTED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.CONTACTED]: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.DISCOVERY]: [OpportunityStage.MOCKUP_REQUESTED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.MOCKUP_REQUESTED]: [OpportunityStage.MOCKUP_DELIVERED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.MOCKUP_DELIVERED]: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.DECISION_PENDING, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.DECISION_PENDING]: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
+const VALID_TRANSITIONS: Record<string, OpportunityStage[]> = {
+  [OpportunityStage.LEAD_ENGAGED]: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.DISCOVERY]: [OpportunityStage.MOCKUP_STAGE, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.MOCKUP_STAGE]: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.CLOSED_WON]: [],
   [OpportunityStage.CLOSED_LOST]: [],
+
+  // Legacy mappings for backward compatibility:
+  LEAD_ASSIGNED: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
+  CONTACTED: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
+  MOCKUP_REQUESTED: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
+  MOCKUP_DELIVERED: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
+  DECISION_PENDING: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
 };
 
 function normalizeChannelType(value: unknown): OpportunityChannelType | null {
@@ -80,7 +84,7 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
       value ?? 0,
       created_by,
       updated_by,
-      stage || OpportunityStage.LEAD_ASSIGNED,
+      stage || OpportunityStage.LEAD_ENGAGED,
       next_action,
       expected_close_date,
       last_activity_date || new Date(),
@@ -111,10 +115,10 @@ export async function getOrganizationChannelPenetration(organizationId: number) 
   );
 
   const channels = {
-    uniform: OpportunityStage.LEAD_ASSIGNED,
-    travel_gear: OpportunityStage.LEAD_ASSIGNED,
-    team_store: OpportunityStage.LEAD_ASSIGNED,
-    letterman: OpportunityStage.LEAD_ASSIGNED,
+    uniform: OpportunityStage.LEAD_ENGAGED,
+    travel_gear: OpportunityStage.LEAD_ENGAGED,
+    team_store: OpportunityStage.LEAD_ENGAGED,
+    letterman: OpportunityStage.LEAD_ENGAGED,
   };
 
   for (const row of result.rows) {
