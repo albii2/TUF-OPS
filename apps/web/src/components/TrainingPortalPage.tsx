@@ -3,7 +3,8 @@ import { useTrainingEnrollment, TrainingPhase } from '../hooks/useTrainingEnroll
 import TrainingPhaseView from './TrainingPhaseView';
 import ProgressRing from './ProgressRing';
 import { getStoredUser } from '../auth';
-import TufLogoSvg from '../assets/tuf-logo.svg';
+import TufAcademyLogo from '../assets/tuf-academy.png';
+import TufAcademyShield from '../assets/tuf-academy-shield.png';
 
 const PHASES = ['DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1'];
 const PHASE_LABELS: Record<string, string> = {
@@ -58,13 +59,11 @@ export default function TrainingPortalPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
           <div className="flex items-center gap-4">
-            <img src={TufLogoSvg} alt="TUF Logo" className="h-10 w-auto opacity-95" />
+            <img src={TufAcademyShield} alt="TUF Academy Shield" className="h-12 w-auto opacity-95 object-contain" />
             <div className="h-8 w-px bg-slate-800 hidden sm:block" />
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-white uppercase">
-                TUF Academy
-              </h1>
-              <p className="text-slate-400 mt-0.5 text-xs font-bold uppercase tracking-wider">
+              <img src={TufAcademyLogo} alt="TUF Academy" className="h-9 w-auto object-contain" />
+              <p className="text-slate-400 mt-1 text-xs font-bold uppercase tracking-wider">
                 {enrollmentData.role} Curriculum • Current Phase: {PHASE_LABELS[enrollmentData.current_phase]}
               </p>
             </div>
