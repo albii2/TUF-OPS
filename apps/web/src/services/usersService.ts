@@ -35,8 +35,8 @@ type StoredManagedUser = ManagedUser & {
 export type CredentialAuditAction = 'USER_CREATED' | 'TEMPORARY_CREDENTIAL_GENERATED' | 'CREDENTIAL_RESET' | 'CREDENTIAL_CHANGED' | 'FAILED_CREDENTIAL_ATTEMPT' | 'SUCCESSFUL_LOGIN';
 export type CredentialAuditEntry = { id: string; action: CredentialAuditAction; targetUserId?: string; actorUserId?: string; createdAt: string; metadata: Record<string, unknown> };
 
-const KEY = 'tuf_ops_users_v6';
-const LEGACY_USER_KEYS = ['tuf_ops_users_v1', 'tuf_ops_users_v2', 'tuf_ops_users_v3', 'tuf_ops_users_v4', 'tuf_ops_users_v5'];
+const KEY = 'tuf_ops_users_v7';
+const LEGACY_USER_KEYS = ['tuf_ops_users_v1', 'tuf_ops_users_v2', 'tuf_ops_users_v3', 'tuf_ops_users_v4', 'tuf_ops_users_v5', 'tuf_ops_users_v6'];
 const AUDIT_KEY = 'tuf_ops_credential_audit_v1';
 const COLORS = ['#1FB6FF', '#22C55E', '#F59E0B', '#A855F7', '#EF4444', '#14B8A6'];
 const MAX_FAILED_ATTEMPTS = 5;
@@ -61,7 +61,7 @@ const seedRows: StoredManagedUser[] = [
     directorSignedOff: true,
     isCertified: true,
     credentialSalt: 'seed-owner',
-    credentialHash: 'b8bd4925bf3c03b20feaa71da92aa34591227c16ce8540287289839226c499d3',
+    credentialHash: '65ab4c8d753725601c51da06f3a2ca1752466b7719f9ec8ffb4cc518b8eaf962',
   },
   {
     id: 'u-director-primeau-hill',
@@ -81,7 +81,7 @@ const seedRows: StoredManagedUser[] = [
     directorSignedOff: true,
     isCertified: true,
     credentialSalt: 'seed-primeau',
-    credentialHash: 'ac57fe25e58cda65ee04575f5cd22a908d1b975c072e28fc350514e76f48f982',
+    credentialHash: '1ae172702387440e02923886c5b0513aff04861cd4f9fb23bfd934a927c0428b',
   },
   {
     id: 'u-rep-jason-mulder',

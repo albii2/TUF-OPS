@@ -2,10 +2,12 @@ import bcrypt from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 
 const baselineUsers = [
-  { email: "owner@tuf.local", password: "0000", full_name: "Coach Bradshaw", role: "admin" },
-  { email: "primeau.director@tuf.local", password: "3904", full_name: "Primeau Hill Director", role: "director" },
-  { email: "test.director@tuf.local", password: "2468", full_name: "Test Director", role: "director" },
-  { email: "test.rep@tuf.local", password: "1357", full_name: "Test Rep", role: "sales_rep" },
+  { email: "abradshaw@tufsports.us", password: "8188", full_name: "A Bradshaw VP", role: "admin" },
+  { email: "primeau.hill@tufsports.us", password: "7428", full_name: "Primeau Hill", role: "director" },
+  { email: "jvmulder@gmail.com", password: "6187", full_name: "Jason Mulder", role: "sales_rep" },
+  { email: "lundbergdave18@gmail.com", password: "6243", full_name: "David Lundberg", role: "sales_rep" },
+  { email: "shaylahilliard17@gmail.com", password: "5219", full_name: "Shayla Hilliard", role: "sales_rep" },
+  { email: "jhoffman@kipsu.com", password: "5080", full_name: "Josh Hoffman", role: "sales_rep" },
 ]
 
 async function cleanupDemoData() {
