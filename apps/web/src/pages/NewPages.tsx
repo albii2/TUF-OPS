@@ -73,9 +73,18 @@ export function OpportunityNewPage() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!selectedOrg) {
-      setMessage('Select an organization before creating the opportunity.');
-      error('Opportunity creation failed: Select an organization before creating the opportunity.');
+    setMessage('');
+    const missing: string[] = [];
+    if (!selectedOrg) missing.push('Organization');
+    if (!((assignedRep || selectedOrg?.assignedRep || user?.name) ?? '').trim()) missing.push('Assigned Rep');
+    if (!programLevel.trim()) missing.push('Program Level');
+    if (!sport.trim()) missing.push('Sport');
+    if (!seasonCode.trim()) missing.push('Season');
+    if (!lane.trim()) missing.push('Lane');
+    if (missing.length) {
+      const detail = `Missing required field${missing.length > 1 ? 's' : ''}: ${missing.join(', ')}.`;
+      setMessage(detail);
+      error(`Opportunity creation failed: ${detail}`);
       return;
     }
     try {
@@ -87,6 +96,7 @@ export function OpportunityNewPage() {
         seasonCode,
         lane,
         assignedRep: assignedRep || selectedOrg.assignedRep,
+        organizationAssignedDirector: selectedOrg.assignedDirector,
         value: Number(value) || 0,
       });
       success('Opportunity created.');
