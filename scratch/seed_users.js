@@ -24,9 +24,9 @@ async function seed() {
   const ownerRes = await pool.query(
     `INSERT INTO users (name, email, role, credential_hash, must_change_credential, status, hr_docs_completed, director_signed_off, is_certified)
      VALUES ($1, lower($2), $3, $4, false, 'ACTIVE', true, true, true) RETURNING id`,
-    ['A Bradshaw', 'abradshaw@tufsports.us', 'OWNER', ownerHash]
+    ['A Bradshaw VP', 'abradshaw@tufsports.us', 'OWNER', ownerHash]
   );
-  console.log('Seeded Owner (A Bradshaw):', ownerRes.rows[0].id);
+  console.log('Seeded Owner (A Bradshaw VP):', ownerRes.rows[0].id);
 
   // 2. Primeau Hill (Minnesota State Director)
   const primeauHash = hashCredential('7428');
