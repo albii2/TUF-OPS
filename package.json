@@ -8,8 +8,8 @@
     "test:int": "dotenv -e .env -- pnpm -w db:reset:test && dotenv -e .env -- pnpm -w db:migrate:test && pnpm --filter @apps/api test:run",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "typecheck:v1": "pnpm --filter @apps/api exec tsc --noEmit && pnpm --filter web check",
-    "db:migrate:test": "pnpm -w db:migrate",
+    "typecheck:v1": "pnpm --filter @apps/api exec tsc --noEmit && pnpm --filter web exec tsc --noEmit",
+    "db:migrate:test": "dotenv -e .env -- sh -c 'DATABASE_URL=\"$TEST_DATABASE_URL\" node-pg-migrate -m packages/database/migrations up'",
     "db:reset:test": "pnpm -w db:reset",
     "db:reset": "dotenv -e .env -- node packages/database/reset_db.js",
     "db:migrate": "dotenv -e .env -- node-pg-migrate -m packages/database/migrations up",
@@ -21,7 +21,11 @@
     "test:e2e": "playwright test",
     "test:e2e:prod": "pnpm --filter web build && playwright test",
     "db:seed:leads": "dotenv -e .env -- node packages/database/seed_leads_from_csv.js",
-    "deploy:check:web": "pnpm --filter web build"
+    "deploy:check:web": "pnpm --filter web build",
+    "db:migrate:railway:prod": "node-pg-migrate --no-check-order -m packages/database/migrations up",
+    "dev": "pnpm --parallel --filter web --filter @apps/api dev",
+    "predev": "echo '\u25b6 Starting TUF Ops local dev...' && pnpm typecheck:v1",
+    "db:seed:test-accounts": "dotenv -e .env -- node packages/database/seed_test_training_accounts.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
@@ -37,7 +41,8 @@
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript-eslint": "^7.2.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "eslint": "^8.57.1"
   },
   "dependencies": {
     "pg": "^8.20.0",
