@@ -1,0 +1,27 @@
+name: Migrate Railway DB
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/database/migrations/**'
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.RAILWAY_DATABASE_URL }}
+      NODE_ENV: production
+      INITIAL_OWNER_CREDENTIAL: ${{ secrets.INITIAL_OWNER_CREDENTIAL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Run pending migrations on Railway
+        run: pnpm db:migrate:railway:prod
