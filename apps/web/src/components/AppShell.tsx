@@ -10,6 +10,7 @@ import { listOrganizations } from '../services/organizationsService';
 import { SportsTicker } from './SportsTicker';
 import { listUsers } from '../services/usersService';
 import TufMarkSvg from '../assets/tuf-mark.svg';
+import TufAcademyLogo from '../assets/tuf-academy.png';
 
 export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUser | null) => void }) {
   const navigate = useNavigate();
@@ -53,8 +54,12 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
       <div className="mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="hidden border-r border-[var(--border)] bg-[#070c13]/95 p-3.5 md:flex md:flex-col">
           <div className="flex h-20 items-center justify-start px-1"><TufLogo compact /></div>
+          <NavLink to="/training" className={({ isActive }) => `mb-3 block rounded-xl border p-3 transition ${isActive ? 'border-cyan-300/60 bg-cyan-400/10 shadow-lg shadow-cyan-950/30' : 'border-cyan-400/20 bg-[#050b12]/80 hover:border-cyan-300/50 hover:bg-[#0d2234]/70'}`}>
+            <img src={TufAcademyLogo} alt="TUF Academy" className="h-10 w-auto object-contain" />
+            <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200">Certification Hub</p>
+          </NavLink>
           <nav className="mt-3.5 space-y-1 flex-1">
-            {navItems.map((nav) => {
+            {navItems.filter((nav) => nav.key !== 'academy').map((nav) => {
               return (
                 <NavLink key={nav.key} to={nav.route} className={({ isActive }) => `block rounded-md border px-3 py-1.5 text-sm ${isActive ? 'glow-blue border-[#1FB6FF] bg-[#0d2234] text-[#dff5ff]' : 'border-transparent text-[var(--text-secondary)] hover:border-[var(--border)] hover:bg-[#0d1723]'}`}>
                   {nav.label}
@@ -75,7 +80,10 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           <div className="mb-3 md:hidden">
             <div className="mb-2 flex h-16 items-center justify-start px-1"><TufLogo compact /></div>
             <nav className="flex gap-2 overflow-x-auto pb-1">
-              {navItems.map((nav) => (
+              <NavLink to="/training" className={({ isActive }) => `shrink-0 rounded-md border px-3 py-2 ${isActive ? 'border-cyan-300/60 bg-cyan-400/10' : 'border-cyan-400/20 bg-[#0b1118]'}`}>
+                <img src={TufAcademyLogo} alt="TUF Academy" className="h-7 w-auto object-contain" />
+              </NavLink>
+              {navItems.filter((nav) => nav.key !== 'academy').map((nav) => (
                 <NavLink key={nav.key} to={nav.route} className={({ isActive }) => `shrink-0 rounded-md border px-3 py-2 text-xs ${isActive ? 'border-[#1FB6FF] bg-[#0d2234] text-[#dff5ff]' : 'border-[var(--border)] bg-[#0b1118] text-[var(--text-secondary)]'}`}>
                   {nav.label}
                 </NavLink>

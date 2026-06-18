@@ -1,24 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { useTrainingEnrollment, TrainingPhase } from '../hooks/useTrainingEnrollment';
+import { ACADEMY_PHASE_LABELS, ACADEMY_PHASES, useTrainingEnrollment } from '../hooks/useTrainingEnrollment';
 import TrainingPhaseView from './TrainingPhaseView';
 import ProgressRing from './ProgressRing';
 import { getStoredUser } from '../auth';
 import TufAcademyLogo from '../assets/tuf-academy.png';
-import TufAcademyShield from '../assets/tuf-academy-shield.png';
 
-const PHASES = ['DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1'];
-const PHASE_LABELS: Record<string, string> = {
-  DAY_1: 'Day 1',
-  DAY_1_2: 'Day 1-2',
-  WEEK_1_2: 'Week 1-2',
-  MONTH_1: 'Month 1',
-};
+const PHASES: string[] = [...ACADEMY_PHASES];
+const PHASE_LABELS = ACADEMY_PHASE_LABELS;
 
 export default function TrainingPortalPage() {
   const user = getStoredUser();
   const userId = user ? parseInt(user.id.replace('u-local-', '').replace('u-rep-', '').replace('u-director-', ''), 10) || 21 : 21; // Jason Mulder fallback
   const { enrollment, loading, error } = useTrainingEnrollment(userId);
-  const [selectedPhase, setSelectedPhase] = useState<string>('DAY_1');
+  const [selectedPhase, setSelectedPhase] = useState<string>('LEVEL_1_OPERATOR');
   const [certStatus, setCertStatus] = useState<any>(null);
 
   const { enrollment: enrollmentData, completionMetrics } = enrollment || {};
@@ -50,29 +44,29 @@ export default function TrainingPortalPage() {
     return <div className="p-8 text-rose-400">Error loading training portal: {error || 'No enrollment data available'}</div>;
   }
 
-  const currentPhaseIndex = PHASES.indexOf(enrollmentData.current_phase);
+  const currentPhaseIndex = Math.max(PHASES.indexOf(enrollmentData.current_phase), 0);
   const visiblePhases = PHASES.slice(0, currentPhaseIndex + 2);
 
   return (
     <div className="min-h-screen text-slate-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
-          <div className="flex items-center gap-4">
-            <img src={TufAcademyShield} alt="TUF Academy Shield" className="h-12 w-auto opacity-95 object-contain" />
-            <div className="h-8 w-px bg-slate-800 hidden sm:block" />
-            <div>
-              <img src={TufAcademyLogo} alt="TUF Academy" className="h-9 w-auto object-contain" />
-              <p className="text-slate-400 mt-1 text-xs font-bold uppercase tracking-wider">
-                {enrollmentData.role} Curriculum • Current Phase: {PHASE_LABELS[enrollmentData.current_phase]}
-              </p>
+        <div className="relative overflow-hidden rounded-2xl border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(31,182,255,0.22),transparent_38%),linear-gradient(135deg,rgba(7,12,19,0.98),rgba(3,7,12,0.94))] p-5 shadow-2xl shadow-cyan-950/30 md:p-7">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-3xl">
+              <img src={TufAcademyLogo} alt="TUF Academy" className="h-14 w-auto object-contain drop-shadow-[0_0_22px_rgba(31,182,255,0.25)] sm:h-16" />
+              <p className="mt-4 text-xs font-black uppercase tracking-[0.24em] text-cyan-200">Sales Certification • Territory Development • Product Mastery</p>
+              <h1 className="mt-3 text-2xl font-black leading-tight text-white md:text-4xl">The operating system for self-sufficient TUF territory developers.</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Create reps capable of identifying, creating, advancing, closing, and expanding athletic program opportunities with minimal leadership intervention.</p>
+              <p className="mt-3 text-xs font-bold uppercase tracking-wider text-slate-400">{enrollmentData.role} Curriculum • Current Certification: {PHASE_LABELS[enrollmentData.current_phase] || enrollmentData.current_phase}</p>
             </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg border border-slate-800 bg-[#070c13]/90 px-4 py-3">
+            <div className="flex items-center gap-4 rounded-2xl border border-cyan-400/20 bg-[#050b12]/90 px-5 py-4 shadow-xl shadow-black/30">
             <ProgressRing percentage={completionMetrics.percentComplete} size={60} strokeWidth={6} />
             <div>
               <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Course Progress</p>
               <p className="text-lg font-black text-cyan-300">{completionMetrics.percentComplete}% Complete</p>
+            </div>
             </div>
           </div>
         </div>
@@ -103,16 +97,16 @@ export default function TrainingPortalPage() {
                     {certStatus.modulesPercent === 100 ? 'Done' : `${certStatus.modulesPercent}%`}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-2">Complete all modules and pass phase exams in TUF Academy.</p>
+                <p className="text-xs text-slate-500 mt-2">Complete required certifications, quizzes, and practical exercises in TUF Academy.</p>
               </div>
               <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. HR Verification</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Practical Exercise</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded ${certStatus.hrDocsCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
                     {certStatus.hrDocsCompleted ? 'Filed' : 'Pending'}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-2">Submit and verify direct deposit, tax forms, and background checks with HR.</p>
+                <p className="text-xs text-slate-500 mt-2">Complete the assigned practical exercise before director review.</p>
               </div>
               <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
                 <div className="flex items-center justify-between">
@@ -147,7 +141,7 @@ export default function TrainingPortalPage() {
         {/* Phase Completion Status Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {PHASES.map((phase) => {
-            const status = completionMetrics.phaseCompletionStatus[phase];
+            const status = completionMetrics.phaseCompletionStatus[phase] || { completed: 0, total: enrollment.modules.filter((module) => module.phase === phase).length, percentComplete: 0 };
             const isUnlocked = PHASES.indexOf(phase) <= currentPhaseIndex + 1;
             return (
               <div
@@ -182,7 +176,7 @@ export default function TrainingPortalPage() {
 
         {/* Modules for Selected Phase */}
         <div className="rounded-xl border border-slate-800 bg-[#070c13]/40 p-5">
-          <h2 className="text-lg font-black text-white mb-4">{PHASE_LABELS[selectedPhase]} Onboarding Modules</h2>
+          <h2 className="text-lg font-black text-white mb-4">{PHASE_LABELS[selectedPhase]} Certification Modules</h2>
           <TrainingPhaseView
             phase={selectedPhase}
             enrollment={enrollment}
@@ -193,7 +187,7 @@ export default function TrainingPortalPage() {
         {/* Completion Message */}
         {enrollmentData.status === 'COMPLETED' && (
           <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
-            <h3 className="text-base font-bold text-emerald-200">🎉 Onboarding Modules Completed!</h3>
+            <h3 className="text-base font-bold text-emerald-200">🎉 Certification Modules Completed!</h3>
             <p className="text-sm text-slate-300 mt-1.5">
               You have completed all curriculum modules. Once your HR paperwork is filed and your State Director signs off, your sales permissions will unlock automatically.
             </p>
