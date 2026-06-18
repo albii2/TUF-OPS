@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "typecheck:v1": "pnpm --filter @apps/api exec tsc --noEmit && pnpm --filter web exec tsc --noEmit",
-    "db:migrate:test": "pnpm -w db:migrate",
+    "db:migrate:test": "dotenv -e .env -- sh -c 'DATABASE_URL=\"$TEST_DATABASE_URL\" node-pg-migrate -m packages/database/migrations up'",
     "db:reset:test": "pnpm -w db:reset",
     "db:reset": "dotenv -e .env -- node packages/database/reset_db.js",
     "db:migrate": "dotenv -e .env -- node-pg-migrate -m packages/database/migrations up",
@@ -24,7 +24,8 @@
     "deploy:check:web": "pnpm --filter web build",
     "db:migrate:railway:prod": "node-pg-migrate --no-check-order -m packages/database/migrations up",
     "dev": "pnpm --parallel --filter web --filter @apps/api dev",
-    "predev": "echo '\u25b6 Starting TUF Ops local dev...' && pnpm typecheck:v1"
+    "predev": "echo '\u25b6 Starting TUF Ops local dev...' && pnpm typecheck:v1",
+    "db:seed:test-accounts": "dotenv -e .env -- node packages/database/seed_test_training_accounts.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
