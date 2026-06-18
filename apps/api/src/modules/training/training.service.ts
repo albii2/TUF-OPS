@@ -12,9 +12,13 @@ import {
 
 const PHASE_ORDER = [TrainingPhase.DAY_1, TrainingPhase.DAY_1_2, TrainingPhase.WEEK_1_2, TrainingPhase.MONTH_1];
 
+function persistedTrainingRole(role: TrainingRole): TrainingRole {
+  return role === TrainingRole.REP ? TrainingRole.TAE : role;
+}
+
 export async function getModulesByRole(role: TrainingRole, phase?: TrainingPhase): Promise<TrainingModule[]> {
   let query = 'SELECT * FROM training_modules WHERE role = $1';
-  const params: any[] = [role];
+  const params: any[] = [persistedTrainingRole(role)];
 
   if (phase) {
     query += ' AND phase = $2';
@@ -27,6 +31,8 @@ export async function getModulesByRole(role: TrainingRole, phase?: TrainingPhase
 }
 
 export async function enrollUserInTraining(userId: number, role: TrainingRole): Promise<TrainingEnrollment> {
+  const enrollmentRole = persistedTrainingRole(role);
+
   // Check if user already enrolled
   const existing = await pool.query('SELECT * FROM training_enrollments WHERE user_id = $1', [userId]);
 
@@ -39,7 +45,7 @@ export async function enrollUserInTraining(userId: number, role: TrainingRole): 
     `INSERT INTO training_enrollments (user_id, role, status, current_phase, enrolled_at, created_at, updated_at)
      VALUES ($1, $2, $3, $4, NOW(), NOW(), NOW())
      RETURNING *`,
-    [userId, role, TrainingEnrollmentStatus.ACTIVE, TrainingPhase.DAY_1]
+    [userId, enrollmentRole, TrainingEnrollmentStatus.ACTIVE, TrainingPhase.DAY_1]
   );
 
   return result.rows[0];
@@ -353,4 +359,3 @@ export async function recordFrictionPoint(
     [enrollmentId, moduleId || null, frictionPointText, resolutionText || null]
   );
 }
-

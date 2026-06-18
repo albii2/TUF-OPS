@@ -16,9 +16,12 @@ exports.recordFrictionPoint = recordFrictionPoint;
 const database_1 = require("@packages/database");
 const training_interface_1 = require("./training.interface");
 const PHASE_ORDER = [training_interface_1.TrainingPhase.DAY_1, training_interface_1.TrainingPhase.DAY_1_2, training_interface_1.TrainingPhase.WEEK_1_2, training_interface_1.TrainingPhase.MONTH_1];
+function persistedTrainingRole(role) {
+    return role === training_interface_1.TrainingRole.REP ? training_interface_1.TrainingRole.TAE : role;
+}
 async function getModulesByRole(role, phase) {
     let query = 'SELECT * FROM training_modules WHERE role = $1';
-    const params = [role];
+    const params = [persistedTrainingRole(role)];
     if (phase) {
         query += ' AND phase = $2';
         params.push(phase);
@@ -28,6 +31,7 @@ async function getModulesByRole(role, phase) {
     return result.rows;
 }
 async function enrollUserInTraining(userId, role) {
+    const enrollmentRole = persistedTrainingRole(role);
     // Check if user already enrolled
     const existing = await database_1.pool.query('SELECT * FROM training_enrollments WHERE user_id = $1', [userId]);
     if (existing.rows.length > 0) {
@@ -36,7 +40,7 @@ async function enrollUserInTraining(userId, role) {
     // Create new enrollment
     const result = await database_1.pool.query(`INSERT INTO training_enrollments (user_id, role, status, current_phase, enrolled_at, created_at, updated_at)
      VALUES ($1, $2, $3, $4, NOW(), NOW(), NOW())
-     RETURNING *`, [userId, role, training_interface_1.TrainingEnrollmentStatus.ACTIVE, training_interface_1.TrainingPhase.DAY_1]);
+     RETURNING *`, [userId, enrollmentRole, training_interface_1.TrainingEnrollmentStatus.ACTIVE, training_interface_1.TrainingPhase.DAY_1]);
     return result.rows[0];
 }
 async function getEnrollmentWithProgress(enrollmentId) {

@@ -4,6 +4,7 @@ exports.TrainingEnrollmentStatus = exports.TrainingProgressStatus = exports.Trai
 var TrainingRole;
 (function (TrainingRole) {
     TrainingRole["TAE"] = "TAE";
+    TrainingRole["REP"] = "REP";
     TrainingRole["DIRECTOR"] = "DIRECTOR";
     TrainingRole["ADMIN"] = "ADMIN";
 })(TrainingRole || (exports.TrainingRole = TrainingRole = {}));

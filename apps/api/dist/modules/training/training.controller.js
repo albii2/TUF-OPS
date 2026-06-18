@@ -16,7 +16,7 @@ async function getModulesByRoleHandler(request, reply) {
     try {
         const { role, phase } = request.query;
         if (!role || !Object.values(training_interface_1.TrainingRole).includes(role)) {
-            return reply.code(400).send({ message: 'Valid role (TAE, DIRECTOR, ADMIN) is required' });
+            return reply.code(400).send({ message: 'Valid role (TAE, REP, DIRECTOR, ADMIN) is required' });
         }
         const modules = await (0, training_service_1.getModulesByRole)(role, phase);
         return reply.send(modules);
@@ -32,7 +32,7 @@ async function enrollUserHandler(request, reply) {
             return reply.code(400).send({ message: 'userId and role are required' });
         }
         if (!Object.values(training_interface_1.TrainingRole).includes(role)) {
-            return reply.code(400).send({ message: 'Valid role (TAE, DIRECTOR, ADMIN) is required' });
+            return reply.code(400).send({ message: 'Valid role (TAE, REP, DIRECTOR, ADMIN) is required' });
         }
         const enrollment = await (0, training_service_1.enrollUserInTraining)(userId, role);
         return reply.code(201).send(enrollment);

@@ -1,5 +1,6 @@
 export declare enum TrainingRole {
     TAE = "TAE",
+    REP = "REP",
     DIRECTOR = "DIRECTOR",
     ADMIN = "ADMIN"
 }

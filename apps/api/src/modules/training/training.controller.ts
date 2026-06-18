@@ -18,7 +18,7 @@ export async function getModulesByRoleHandler(request: FastifyRequest, reply: Fa
     const { role, phase } = request.query as any;
 
     if (!role || !Object.values(TrainingRole).includes(role)) {
-      return reply.code(400).send({ message: 'Valid role (TAE, DIRECTOR, ADMIN) is required' });
+      return reply.code(400).send({ message: 'Valid role (TAE, REP, DIRECTOR, ADMIN) is required' });
     }
 
     const modules = await getModulesByRole(role, phase);
@@ -37,7 +37,7 @@ export async function enrollUserHandler(request: FastifyRequest, reply: FastifyR
     }
 
     if (!Object.values(TrainingRole).includes(role)) {
-      return reply.code(400).send({ message: 'Valid role (TAE, DIRECTOR, ADMIN) is required' });
+      return reply.code(400).send({ message: 'Valid role (TAE, REP, DIRECTOR, ADMIN) is required' });
     }
 
     const enrollment = await enrollUserInTraining(userId, role);
@@ -186,4 +186,3 @@ export async function getCertificationStatusHandler(request: FastifyRequest, rep
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
-

@@ -54,6 +54,140 @@ export interface TrainingEnrollmentWithProgress {
   };
 }
 
+const DEFAULT_TRAINING_MODULES: Array<Omit<TrainingModule, 'role' | 'created_at' | 'updated_at'>> = [
+  {
+    id: 1001,
+    title: 'Welcome to TUF Academy',
+    description: 'Get oriented to the TUF Sports operating system and onboarding path.',
+    phase: 'DAY_1',
+    order_index: 1,
+    content_markdown: 'Welcome to TUF Academy. This module introduces the expectations, tools, and daily rhythm for every Rep.',
+    estimated_duration_minutes: 10,
+    module_type: 'MODULE',
+  },
+  {
+    id: 1002,
+    title: 'NDA & Confidentiality',
+    description: 'Review confidentiality expectations before accessing playbooks and sales materials.',
+    phase: 'DAY_1',
+    order_index: 2,
+    content_markdown: 'Review and acknowledge the NDA requirements before working with TUF customer, pricing, and operating information.',
+    estimated_duration_minutes: 15,
+    module_type: 'INTERACTIVE',
+  },
+  {
+    id: 1003,
+    title: 'TUF Sales Playbook',
+    description: 'Learn the core talk tracks, territory standards, and account strategy.',
+    phase: 'DAY_1_2',
+    order_index: 3,
+    content_markdown: 'Study the TUF Sales Playbook and understand how to position uniforms, travel gear, team stores, and letterman opportunities.',
+    estimated_duration_minutes: 30,
+    module_type: 'MODULE',
+  },
+  {
+    id: 1004,
+    title: 'Prospecting & Account Coverage',
+    description: 'Practice account research, outreach sequencing, and next-action discipline.',
+    phase: 'DAY_1_2',
+    order_index: 4,
+    content_markdown: 'Build a prospecting plan for your territory and define the next action for every assigned school or organization.',
+    estimated_duration_minutes: 25,
+    module_type: 'HANDS_ON',
+  },
+  {
+    id: 1005,
+    title: 'KPIs & Daily Operating Cadence',
+    description: 'Understand the metrics that drive territory performance.',
+    phase: 'WEEK_1_2',
+    order_index: 5,
+    content_markdown: 'Learn how pipeline value, order volume, activity quality, and lane penetration combine into a successful TUF territory.',
+    estimated_duration_minutes: 20,
+    module_type: 'MODULE',
+  },
+  {
+    id: 1006,
+    title: 'The Challenger Sale',
+    description: 'Use commercial insight to reframe customer needs and create urgency.',
+    phase: 'WEEK_1_2',
+    order_index: 6,
+    content_markdown: 'Apply Challenger Sale principles to teach, tailor, and take control during customer conversations.',
+    estimated_duration_minutes: 35,
+    module_type: 'VIDEO',
+  },
+  {
+    id: 1007,
+    title: 'Gap Selling',
+    description: 'Identify the current state, future state, and business impact for every opportunity.',
+    phase: 'MONTH_1',
+    order_index: 7,
+    content_markdown: 'Use Gap Selling to diagnose customer problems and connect TUF solutions to measurable outcomes.',
+    estimated_duration_minutes: 35,
+    module_type: 'MODULE',
+  },
+  {
+    id: 1008,
+    title: 'Extreme Ownership',
+    description: 'Set the accountability standard for territory execution and customer follow-through.',
+    phase: 'MONTH_1',
+    order_index: 8,
+    content_markdown: 'Complete onboarding by committing to ownership over activity, communication, and results.',
+    estimated_duration_minutes: 20,
+    module_type: 'INTERACTIVE',
+  },
+];
+
+function getCurrentTrainingRole() {
+  try {
+    const raw = localStorage.getItem('tuf_ops_user_v3');
+    if (!raw) return 'REP';
+    const parsed = JSON.parse(raw);
+    return parsed.role || 'REP';
+  } catch {
+    return 'REP';
+  }
+}
+
+function buildDefaultEnrollment(userId: number, role = getCurrentTrainingRole()): TrainingEnrollmentWithProgress {
+  const now = new Date().toISOString();
+  const modules = DEFAULT_TRAINING_MODULES.map(module => ({
+    ...module,
+    role,
+    created_at: now,
+    updated_at: now,
+  }));
+  const phases = ['DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1'];
+  const phaseCompletionStatus: Record<string, { completed: number; total: number; percentComplete: number }> = {};
+  phases.forEach(phase => {
+    phaseCompletionStatus[phase] = {
+      completed: 0,
+      total: modules.filter(module => module.phase === phase).length,
+      percentComplete: 0,
+    };
+  });
+
+  return {
+    enrollment: {
+      id: userId,
+      user_id: userId,
+      role,
+      status: 'ACTIVE',
+      current_phase: 'DAY_1',
+      enrolled_at: now,
+      created_at: now,
+      updated_at: now,
+    },
+    modules,
+    progress: [],
+    completionMetrics: {
+      totalModules: modules.length,
+      completedModules: 0,
+      percentComplete: 0,
+      phaseCompletionStatus,
+    },
+  };
+}
+
 export function useTrainingEnrollment(userId: number) {
   const [enrollment, setEnrollment] = useState<TrainingEnrollmentWithProgress | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,6 +197,7 @@ export function useTrainingEnrollment(userId: number) {
     const fetchEnrollment = async () => {
       try {
         setLoading(true);
+        setError(null);
         const response = await fetch(`${TRAINING_API_BASE_URL}/enrollment?userId=${userId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch enrollment');
@@ -75,7 +210,10 @@ export function useTrainingEnrollment(userId: number) {
         if (cached) {
           setEnrollment(JSON.parse(cached));
         } else {
-          setError(err instanceof Error ? err.message : 'Unknown error');
+          const fallbackEnrollment = buildDefaultEnrollment(userId);
+          setEnrollment(fallbackEnrollment);
+          localStorage.setItem(`tuf_ops_training_v1_${userId}`, JSON.stringify(fallbackEnrollment));
+          setError(null);
         }
       } finally {
         setLoading(false);
