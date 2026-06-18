@@ -54,87 +54,60 @@ export interface TrainingEnrollmentWithProgress {
   };
 }
 
+export const ACADEMY_PHASES = [
+  'LEVEL_1_OPERATOR',
+  'LEVEL_2_PRODUCT',
+  'LEVEL_3_TERRITORY',
+  'LEVEL_4_SALES',
+  'LEVEL_5_EXPANSION',
+  'SPECIALIZED_TRACKS',
+  'LEVEL_7_DIRECTOR',
+  'MARKET_MASTERY',
+] as const;
+
+export const ACADEMY_PHASE_LABELS: Record<string, string> = {
+  LEVEL_1_OPERATOR: 'Level 1 • TUF Operator',
+  LEVEL_2_PRODUCT: 'Level 2 • Product',
+  LEVEL_3_TERRITORY: 'Level 3 • Territory Development',
+  LEVEL_4_SALES: 'Level 4 • Sales',
+  LEVEL_5_EXPANSION: 'Level 5 • Account Expansion',
+  SPECIALIZED_TRACKS: 'Specialized Tracks',
+  LEVEL_7_DIRECTOR: 'Level 7 • Director',
+  MARKET_MASTERY: 'Market Mastery',
+  DAY_1: 'Legacy • Day 1',
+  DAY_1_2: 'Legacy • Day 1-2',
+  WEEK_1_2: 'Legacy • Week 1-2',
+  MONTH_1: 'Legacy • Month 1',
+};
+
+function lessonContent(title: string, application: string, action = 'Open TUF Ops, identify five assigned athletic programs, and create one specific next action for each account before lunch.'): string {
+  return `## Learning Objective\nUse ${title} to improve the rep's ability to identify, create, advance, close, or expand athletic program opportunities.\n\n## Why It Matters\nTUF Academy exists to create self-sufficient territory developers who can consistently generate a minimum of four orders per month through disciplined prospecting, consultative selling, account expansion, and ecosystem development.\n\n## Core Lesson\nLearn the operating standard, buyer context, opportunity triggers, and qualification signals connected to ${title}. The rep should connect every conversation to a current state, desired state, business gap, next step, and expansion path.\n\n## TUF-Specific Application\n${application}\n\n## Real-World Example\nA rep starts with a football uniform conversation, maps the athletic director, booster contact, youth feeder program, and seasonal buying window, then expands the account into player packs, a team store, and lettermen timing.\n\n## Common Mistakes\nTreating TUF as a generic apparel vendor; leaving calls without a next step; failing to map additional sports, boosters, youth programs, stores, player packs, lettermen, and refresh cycles.\n\n## Action Steps\n1. Identify the buyer and buying window.\n2. Diagnose the current state, desired state, and gap.\n3. Position the TUF solution with a clear commercial insight.\n4. Create a dated follow-up and ecosystem expansion path.\n\n## Knowledge Check\nScenario question: Which buyer, pain, implication, next step, and expansion opportunity should be documented before the opportunity advances?\n\n## Practical Exercise\n${action}\n\n## Tomorrow Morning\n${action}`;
+}
+
+const productApplication = (name: string, sport: string) => `${name} serves ${sport}. Reps must know what it is, who buys it, when they buy it, how to position it, typical objections, expansion opportunities, team store opportunities, player pack opportunities, lettermen opportunities, and the exact follow-up that creates the next sale.`;
+
+const module = (id: number, phase: string, order_index: number, title: string, description: string, content: string, requiredScore: number, module_type = 'CERTIFICATION_MODULE'): Omit<TrainingModule, 'role' | 'created_at' | 'updated_at'> => ({
+  id,
+  title,
+  description: `${description} Required score: ${requiredScore}%.`,
+  phase,
+  order_index,
+  content_markdown: content,
+  estimated_duration_minutes: 30,
+  module_type,
+});
+
 const DEFAULT_TRAINING_MODULES: Array<Omit<TrainingModule, 'role' | 'created_at' | 'updated_at'>> = [
-  {
-    id: 1001,
-    title: 'Welcome to TUF Academy',
-    description: 'Get oriented to the TUF Sports operating system and onboarding path.',
-    phase: 'DAY_1',
-    order_index: 1,
-    content_markdown: 'Welcome to TUF Academy. This module introduces the expectations, tools, and daily rhythm for every Rep.',
-    estimated_duration_minutes: 10,
-    module_type: 'MODULE',
-  },
-  {
-    id: 1002,
-    title: 'NDA & Confidentiality',
-    description: 'Review confidentiality expectations before accessing playbooks and sales materials.',
-    phase: 'DAY_1',
-    order_index: 2,
-    content_markdown: 'Review and acknowledge the NDA requirements before working with TUF customer, pricing, and operating information.',
-    estimated_duration_minutes: 15,
-    module_type: 'INTERACTIVE',
-  },
-  {
-    id: 1003,
-    title: 'TUF Sales Playbook',
-    description: 'Learn the core talk tracks, territory standards, and account strategy.',
-    phase: 'DAY_1_2',
-    order_index: 3,
-    content_markdown: 'Study the TUF Sales Playbook and understand how to position uniforms, travel gear, team stores, and letterman opportunities.',
-    estimated_duration_minutes: 30,
-    module_type: 'MODULE',
-  },
-  {
-    id: 1004,
-    title: 'Prospecting & Account Coverage',
-    description: 'Practice account research, outreach sequencing, and next-action discipline.',
-    phase: 'DAY_1_2',
-    order_index: 4,
-    content_markdown: 'Build a prospecting plan for your territory and define the next action for every assigned school or organization.',
-    estimated_duration_minutes: 25,
-    module_type: 'HANDS_ON',
-  },
-  {
-    id: 1005,
-    title: 'KPIs & Daily Operating Cadence',
-    description: 'Understand the metrics that drive territory performance.',
-    phase: 'WEEK_1_2',
-    order_index: 5,
-    content_markdown: 'Learn how pipeline value, order volume, activity quality, and lane penetration combine into a successful TUF territory.',
-    estimated_duration_minutes: 20,
-    module_type: 'MODULE',
-  },
-  {
-    id: 1006,
-    title: 'The Challenger Sale',
-    description: 'Use commercial insight to reframe customer needs and create urgency.',
-    phase: 'WEEK_1_2',
-    order_index: 6,
-    content_markdown: 'Apply Challenger Sale principles to teach, tailor, and take control during customer conversations.',
-    estimated_duration_minutes: 35,
-    module_type: 'VIDEO',
-  },
-  {
-    id: 1007,
-    title: 'Gap Selling',
-    description: 'Identify the current state, future state, and business impact for every opportunity.',
-    phase: 'MONTH_1',
-    order_index: 7,
-    content_markdown: 'Use Gap Selling to diagnose customer problems and connect TUF solutions to measurable outcomes.',
-    estimated_duration_minutes: 35,
-    module_type: 'MODULE',
-  },
-  {
-    id: 1008,
-    title: 'Extreme Ownership',
-    description: 'Set the accountability standard for territory execution and customer follow-through.',
-    phase: 'MONTH_1',
-    order_index: 8,
-    content_markdown: 'Complete onboarding by committing to ownership over activity, communication, and results.',
-    estimated_duration_minutes: 20,
-    module_type: 'INTERACTIVE',
-  },
+  ...['Understanding TUF Ops','Navigating the Dashboard','Organizations, Opportunities, Activities & Orders','Territory Ownership','Performance Expectations & Four Orders Per Month'].map((title, i) => module(1101 + i, 'LEVEL_1_OPERATOR', i + 1, title, 'Understand TUF and TUF Ops so reps can operate independently.', lessonContent(title, 'Operate TUF Ops as the command center for accounts, opportunities, activities, orders, and four-order-per-month execution.'), 80)),
+  ...[
+    ['Football — TUF Overdrive™','football'], ['Basketball — TUF Overtime™','basketball'], ['Baseball — TUF Flex™','baseball'], ['Volleyball','volleyball'], ['Hockey','hockey programs in Minnesota, Wisconsin, and hockey-focused markets'], ['Wrestling — TUF Mat-Lock™','wrestling'], ['7v7 & Flag — TUF ISSUE™ SHIFT','7v7 and flag football'], ["Women's Basketball", "girls and women's basketball"], ["Women's Volleyball", "girls and women's volleyball"], ["Women's Flag Football", "girls and women's flag football"], ['Softball','softball'], ["Women's Soccer & Training Apparel", "girls and women's soccer and training"], ['Player Packs','all athletic programs'], ['Team Stores','schools, youth, travel, club, and fan ecosystems'], ['Lettermen Jackets','school pride and annual recognition cycles'], ['Tech Suits — TUF Third-Shift™','performance training'], ['Hoodies & Shorts','team and fan basics'], ['Fan & Team Tees','fundraising and fan apparel'], ['Headwear & Accessories','add-on and spirit opportunities'], ['Travel Bags','travel gear'], ['Production & Fulfillment','lead times, mockups, artwork, production, and delivery'],
+  ].map(([title, sport], i) => module(1201 + i, 'LEVEL_2_PRODUCT', i + 1, title, 'Know products better than coaches and connect each product to ecosystem expansion.', lessonContent(title, productApplication(title, sport)), 90, 'PRODUCT_CERTIFICATION')),
+  ...['Fanatical Prospecting for TUF','Understanding Athletic Departments','Account Intelligence & Opportunity Extraction','Expansion Ladder™','Ecosystem Referral™','Refresh Cycle™','Pipeline Management','Forecasting'].map((title, i) => module(1301 + i, 'LEVEL_3_TERRITORY', i + 1, title, 'Generate opportunities through disciplined prospecting and account mapping.', lessonContent(title, 'Map each school from athletic director to coaches, boosters, youth, travel, camps, additional sports, player packs, team stores, lettermen, and TUF School potential.'), 85)),
+  ...['SPIN Selling for Coaches','Discovery Meetings','Gap Selling for Athletic Programs','Challenger Selling','Presenting Solutions','Objection Handling: Budget, Vendor, Timing & Brand Loyalty','Negotiation','Closing Techniques'].map((title, i) => module(1401 + i, 'LEVEL_4_SALES', i + 1, title, 'Close business through consultative discovery, insight, empathy, and next-step control.', lessonContent(title, 'Use situation, problem, implication, need-payoff, current-state/desired-state gaps, teaching insights, and tactical empathy without copying any third-party framework.'), 85)),
+  ...['Growing Existing Accounts','Cross-Selling Sports','Player Pack Expansion','Team Store Expansion','Lettermen Expansion','Building TUF Schools'].map((title, i) => module(1501 + i, 'LEVEL_5_EXPANSION', i + 1, title, 'Increase account value through multi-sport agreements and long-term ecosystem development.', lessonContent(title, 'Convert single-order customers into annual athletic partnerships across sports, stores, player packs, lettermen, youth, travel, and fan apparel.'), 85)),
+  ...["Women's Division Sales Certification", 'Hockey Certification', 'Wrestling Certification'].map((title, i) => module(1601 + i, 'SPECIALIZED_TRACKS', i + 1, title, 'Specialized certification required for relevant roles, territories, or market focus.', lessonContent(title, 'Apply specialized buyer knowledge, buying cycles, booster dynamics, store strategy, and expansion planning for the assigned market or division.'), 85, 'SPECIALIZED_CERTIFICATION')),
+  ...['Recruiting','Interviewing','Training Reps','Pipeline Reviews','Forecasting','Performance Management','Territory Expansion','Building State Organizations','Leadership Accountability'].map((title, i) => module(1701 + i, 'LEVEL_7_DIRECTOR', i + 1, title, 'Certify State and Regional Directors to recruit, coach, forecast, and scale accountable territory organizations.', lessonContent(title, 'Directors use Academy standards to develop reps, review pipelines, enforce four-order-per-month execution, and build scalable state organizations.'), 85, 'DIRECTOR_CERTIFICATION')),
+  ...['Minnesota Market Mastery','Wisconsin Market Mastery','Illinois Market Mastery'].map((title, i) => module(1801 + i, 'MARKET_MASTERY', i + 1, title, 'Regional playbook for buying cycles, priority sports, booster opportunities, and ecosystem timing.', lessonContent(title, 'Document football, basketball, hockey, wrestling, youth, travel, booster, lettermen, and team store cycles where relevant. Future markets can be added as new market mastery modules.'), 85, 'MARKET_PLAYBOOK')),
 ];
 
 function getCurrentTrainingRole() {
@@ -156,7 +129,7 @@ function buildDefaultEnrollment(userId: number, role = getCurrentTrainingRole())
     created_at: now,
     updated_at: now,
   }));
-  const phases = ['DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1'];
+  const phases = ACADEMY_PHASES;
   const phaseCompletionStatus: Record<string, { completed: number; total: number; percentComplete: number }> = {};
   phases.forEach(phase => {
     phaseCompletionStatus[phase] = {
@@ -172,7 +145,7 @@ function buildDefaultEnrollment(userId: number, role = getCurrentTrainingRole())
       user_id: userId,
       role,
       status: 'ACTIVE',
-      current_phase: 'DAY_1',
+      current_phase: 'LEVEL_1_OPERATOR',
       enrolled_at: now,
       created_at: now,
       updated_at: now,
@@ -291,7 +264,7 @@ export function useTrainingModule(moduleId: number, enrollmentId: number) {
       const totalModules = data.modules.length;
       const percentComplete = Math.round((completedModules / totalModules) * 100) || 0;
       
-      const phases = ['DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1'];
+      const phases = ACADEMY_PHASES;
       const phaseCompletionStatus: Record<string, { completed: number; total: number; percentComplete: number }> = {};
       phases.forEach(p => {
         const phaseModules = data.modules.filter(m => m.phase === p);
