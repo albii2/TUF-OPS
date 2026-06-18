@@ -38,7 +38,7 @@ async function upsertUser(client, user, credential) {
   const assignedDirectorId = directorResult.rows[0]?.id ?? null;
   const hash = credentialHash(credential);
 
-  await client.query(
+  const result = await client.query(
     `INSERT INTO users (name, email, role, territory, assigned_director_id, credential_hash, must_change_credential, status, failed_credential_attempts, locked_until, created_at, updated_at)
      VALUES ($1, lower($2), $3, $4, $5, $6, false, 'ACTIVE', 0, NULL, NOW(), NOW())
      ON CONFLICT (email) DO UPDATE SET
@@ -51,9 +51,34 @@ async function upsertUser(client, user, credential) {
        status = 'ACTIVE',
        failed_credential_attempts = 0,
        locked_until = NULL,
-       updated_at = NOW()`,
+       updated_at = NOW()
+     RETURNING id, role`,
     [user.name, user.email, user.role, user.territory, assignedDirectorId, hash],
   );
+
+  return result.rows[0];
+}
+
+function trainingRoleForUser(userRole) {
+  if (userRole === 'REP') return 'TAE';
+  if (userRole === 'DIRECTOR') return 'DIRECTOR';
+  if (userRole === 'ADMIN' || userRole === 'OWNER') return 'ADMIN';
+  return null;
+}
+
+async function ensureTrainingEnrollment(client, userId, userRole) {
+  const trainingRole = trainingRoleForUser(userRole);
+  if (!trainingRole) return false;
+
+  const existing = await client.query('SELECT id FROM training_enrollments WHERE user_id = $1 LIMIT 1', [userId]);
+  if (existing.rows.length > 0) return false;
+
+  await client.query(
+    `INSERT INTO training_enrollments (user_id, role, status, current_phase, enrolled_at, created_at, updated_at)
+     VALUES ($1, $2, 'ACTIVE', 'DAY_1', NOW(), NOW(), NOW())`,
+    [userId, trainingRole],
+  );
+  return true;
 }
 
 async function main() {
@@ -65,10 +90,14 @@ async function main() {
 
   await client.connect();
   try {
+    let enrollmentsCreated = 0;
     for (const user of TEST_USERS) {
-      await upsertUser(client, user, credential);
+      const seededUser = await upsertUser(client, user, credential);
+      if (await ensureTrainingEnrollment(client, seededUser.id, seededUser.role)) {
+        enrollmentsCreated += 1;
+      }
     }
-    console.log(`Seeded ${TEST_USERS.length} test training accounts.`);
+    console.log(`Seeded ${TEST_USERS.length} test training accounts and created ${enrollmentsCreated} training enrollments.`);
   } finally {
     await client.end();
   }
