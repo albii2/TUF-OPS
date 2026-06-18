@@ -6,11 +6,22 @@ export enum TrainingRole {
 }
 
 export enum TrainingPhase {
-  DAY_1 = 'DAY_1',
-  DAY_1_2 = 'DAY_1_2',
-  WEEK_1_2 = 'WEEK_1_2',
-  MONTH_1 = 'MONTH_1',
+  LEVEL_1_OPERATOR = 'LEVEL_1_OPERATOR',
+  LEVEL_2_PRODUCT = 'LEVEL_2_PRODUCT',
+  LEVEL_3_TERRITORY = 'LEVEL_3_TERRITORY',
+  LEVEL_4_SALES = 'LEVEL_4_SALES',
+  LEVEL_5_EXPANSION = 'LEVEL_5_EXPANSION',
+  SPECIALIZED_TRACKS = 'SPECIALIZED_TRACKS',
+  LEVEL_7_DIRECTOR = 'LEVEL_7_DIRECTOR',
+  MARKET_MASTERY = 'MARKET_MASTERY',
 }
+
+export const LEGACY_PHASE_MAP: Record<string, TrainingPhase> = {
+  DAY_1: TrainingPhase.LEVEL_1_OPERATOR,
+  DAY_1_2: TrainingPhase.LEVEL_2_PRODUCT,
+  WEEK_1_2: TrainingPhase.LEVEL_4_SALES,
+  MONTH_1: TrainingPhase.LEVEL_5_EXPANSION,
+};
 
 export enum TrainingModuleType {
   VIDEO = 'VIDEO',

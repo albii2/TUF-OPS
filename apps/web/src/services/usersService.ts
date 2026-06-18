@@ -22,6 +22,7 @@ export type ManagedUser = {
   lockedUntil?: string | null;
   hrDocsCompleted?: boolean;
   directorSignedOff?: boolean;
+  practicalExerciseCompleted?: boolean;
   isCertified?: boolean;
 };
 
@@ -353,6 +354,7 @@ function toAppUser(user: StoredManagedUser): AppUser {
     mustChangeCredential: user.mustChangeCredential,
     hrDocsCompleted: user.hrDocsCompleted,
     directorSignedOff: user.directorSignedOff,
+    practicalExerciseCompleted: user.practicalExerciseCompleted,
     isCertified: user.isCertified
   };
 }
@@ -361,7 +363,7 @@ export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
   const users = readStoredUsers();
   const rows = users.map((u) => {
     if (u.id === id) {
-      const isCertified = u.role !== 'REP' || (hrDocsCompleted && (u.directorSignedOff || false));
+      const isCertified = u.role !== 'REP' || (hrDocsCompleted && (u.practicalExerciseCompleted || false) && (u.directorSignedOff || false));
       return { ...u, hrDocsCompleted, isCertified };
     }
     return u;
@@ -373,7 +375,7 @@ export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
     const current = JSON.parse(rawUser);
     if (current.id === id) {
       current.hrDocsCompleted = hrDocsCompleted;
-      current.isCertified = hrDocsCompleted && (current.directorSignedOff || false);
+      current.isCertified = hrDocsCompleted && (current.practicalExerciseCompleted || false) && (current.directorSignedOff || false);
       localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
       window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
     }
@@ -384,7 +386,7 @@ export function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean
   const users = readStoredUsers();
   const rows = users.map((u) => {
     if (u.id === id) {
-      const isCertified = u.role !== 'REP' || ((u.hrDocsCompleted || false) && directorSignedOff);
+      const isCertified = u.role !== 'REP' || ((u.hrDocsCompleted || false) && (u.practicalExerciseCompleted || false) && directorSignedOff);
       return { ...u, directorSignedOff, isCertified };
     }
     return u;
@@ -396,7 +398,7 @@ export function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean
     const current = JSON.parse(rawUser);
     if (current.id === id) {
       current.directorSignedOff = directorSignedOff;
-      current.isCertified = (current.hrDocsCompleted || false) && directorSignedOff;
+      current.isCertified = (current.hrDocsCompleted || false) && (current.practicalExerciseCompleted || false) && directorSignedOff;
       localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
       window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
     }

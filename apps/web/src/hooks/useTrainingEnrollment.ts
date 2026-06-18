@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 
-export type TrainingPhase = 'DAY_1' | 'DAY_1_2' | 'WEEK_1_2' | 'MONTH_1';
+export type TrainingPhase = typeof ACADEMY_PHASES[number];
 
 const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training`;
+const IS_PRODUCTION = import.meta.env.PROD || import.meta.env.VITE_APP_ENV === 'production';
 
 export interface TrainingModule {
   id: number;
@@ -179,6 +180,12 @@ export function useTrainingEnrollment(userId: number) {
         setEnrollment(data);
         localStorage.setItem(`tuf_ops_training_v1_${userId}`, JSON.stringify(data));
       } catch (err) {
+        if (IS_PRODUCTION) {
+          setEnrollment(null);
+          setError('TUF Academy certification must be loaded from the database in production. Local fallback is disabled.');
+          return;
+        }
+
         const cached = localStorage.getItem(`tuf_ops_training_v1_${userId}`);
         if (cached) {
           setEnrollment(JSON.parse(cached));
