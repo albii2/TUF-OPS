@@ -1,12 +1,18 @@
 import { getStoredUser } from '../auth';
 import { repCoverage, territories, untouchedAccountsQueue } from '../data/territoryMock';
+import type { TerritoryId } from '../data/mockSalesData';
+import { listOrganizations } from './organizationsService';
 import { getManagedTerritoriesForDirector } from './usersService';
 
 function allowedTerritoryIds() {
   const user = getStoredUser();
-  if (!user || user.role === 'OWNER') return null;
+  if (!user || user.role === 'OWNER' || user.role === 'OPS') return null;
   if (user.role === 'DIRECTOR') {
-    return new Set(getManagedTerritoriesForDirector(user.name));
+    const explicitTerritories = getManagedTerritoriesForDirector(user.name);
+    const organizationTerritories = listOrganizations({})
+      .map((org) => org.territory)
+      .filter((territory): territory is TerritoryId => Boolean(territory));
+    return new Set<TerritoryId>([...explicitTerritories, ...organizationTerritories]);
   }
   return new Set<string>();
 }

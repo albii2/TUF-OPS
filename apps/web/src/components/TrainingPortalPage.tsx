@@ -5,8 +5,15 @@ import ProgressRing from './ProgressRing';
 import { getStoredUser } from '../auth';
 import TufAcademyLogo from '../assets/tuf-academy.png';
 
-const PHASES: string[] = [...ACADEMY_PHASES];
+const ACADEMY_PHASE_KEYS: string[] = [...ACADEMY_PHASES];
+const LEGACY_PHASE_KEYS = ['DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1'];
 const PHASE_LABELS = ACADEMY_PHASE_LABELS;
+
+function getRenderablePhases(modulePhases: string[], currentPhase?: string) {
+  const hasAcademyModules = modulePhases.some((phase) => ACADEMY_PHASE_KEYS.includes(phase));
+  const basePhases = hasAcademyModules ? ACADEMY_PHASE_KEYS : LEGACY_PHASE_KEYS;
+  return Array.from(new Set([...basePhases, ...modulePhases, ...(currentPhase ? [currentPhase] : [])]));
+}
 
 export default function TrainingPortalPage() {
   const user = getStoredUser();
@@ -36,6 +43,19 @@ export default function TrainingPortalPage() {
     }
   }, [user, completionMetrics?.percentComplete]);
 
+
+  useEffect(() => {
+    if (!enrollment || !enrollmentData) return;
+
+    const phases = getRenderablePhases(enrollment.modules.map((module) => module.phase), enrollmentData.current_phase);
+    const selectedPhaseHasModules = enrollment.modules.some((module) => module.phase === selectedPhase);
+    const currentPhaseHasModules = enrollment.modules.some((module) => module.phase === enrollmentData.current_phase);
+
+    if (!phases.includes(selectedPhase) || (!selectedPhaseHasModules && currentPhaseHasModules)) {
+      setSelectedPhase(enrollmentData.current_phase);
+    }
+  }, [enrollment, enrollmentData, selectedPhase]);
+
   if (loading) {
     return <div className="p-8 text-slate-300">Loading training portal...</div>;
   }
@@ -44,6 +64,7 @@ export default function TrainingPortalPage() {
     return <div className="p-8 text-rose-400">Error loading training portal: {error || 'No enrollment data available'}</div>;
   }
 
+  const PHASES = getRenderablePhases(enrollment.modules.map((module) => module.phase), enrollmentData.current_phase);
   const currentPhaseIndex = Math.max(PHASES.indexOf(enrollmentData.current_phase), 0);
   const visiblePhases = PHASES.slice(0, currentPhaseIndex + 2);
 
@@ -53,15 +74,15 @@ export default function TrainingPortalPage() {
         {/* Header */}
         <div className="relative overflow-hidden rounded-2xl border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(31,182,255,0.22),transparent_38%),linear-gradient(135deg,rgba(7,12,19,0.98),rgba(3,7,12,0.94))] p-5 shadow-2xl shadow-cyan-950/30 md:p-7">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-3xl">
-              <img src={TufAcademyLogo} alt="TUF Academy" className="h-14 w-auto object-contain drop-shadow-[0_0_22px_rgba(31,182,255,0.25)] sm:h-16" />
+          <div className="flex flex-col items-center gap-6 text-center">
+            <div className="mx-auto max-w-3xl">
+              <img src={TufAcademyLogo} alt="TUF Academy" className="mx-auto h-14 w-auto object-contain drop-shadow-[0_0_22px_rgba(31,182,255,0.25)] sm:h-16" />
               <p className="mt-4 text-xs font-black uppercase tracking-[0.24em] text-cyan-200">Sales Certification • Territory Development • Product Mastery</p>
               <h1 className="mt-3 text-2xl font-black leading-tight text-white md:text-4xl">The operating system for self-sufficient TUF territory developers.</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Create reps capable of identifying, creating, advancing, closing, and expanding athletic program opportunities with minimal leadership intervention.</p>
               <p className="mt-3 text-xs font-bold uppercase tracking-wider text-slate-400">{enrollmentData.role} Curriculum • Current Certification: {PHASE_LABELS[enrollmentData.current_phase] || enrollmentData.current_phase}</p>
             </div>
-            <div className="flex items-center gap-4 rounded-2xl border border-cyan-400/20 bg-[#050b12]/90 px-5 py-4 shadow-xl shadow-black/30">
+            <div className="mx-auto flex items-center gap-4 rounded-2xl border border-cyan-400/20 bg-[#050b12]/90 px-5 py-4 text-left shadow-xl shadow-black/30">
             <ProgressRing percentage={completionMetrics.percentComplete} size={60} strokeWidth={6} />
             <div>
               <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Course Progress</p>

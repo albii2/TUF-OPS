@@ -3,6 +3,7 @@ import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';
 import { DATA_MODE } from './dataMode';
+import { getOrganizationById } from './organizationsService';
 import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
 
 export type OpportunityListParams = {
@@ -80,7 +81,7 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
     const matchesLane = !params.lane || params.lane === 'ALL' || opp.lane === params.lane;
     const matchesRep = !params.rep || params.rep === 'ALL' || opp.assignedRep === params.rep;
     const matchesSport = !params.sport || params.sport === 'ALL' || opp.sport === params.sport;
-    const roleScoped = canViewOpportunity(opp);
+    const roleScoped = canViewOpportunity(opp) || Boolean(getOrganizationById(opp.organizationId));
     return matchesSearch && matchesStage && matchesLane && matchesRep && matchesSport && roleScoped;
   });
 }
