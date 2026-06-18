@@ -5,7 +5,7 @@ import { TerritoryCommandMap } from '../components/TerritoryCommandMap';
 import { useTerritories } from '../hooks/useTerritory';
 import { useOrganizations, useStaleAccounts } from '../hooks/useOrganizations';
 import { useOpportunities } from '../hooks/useOpportunities';
-import { listUsers } from '../services/usersService';
+import { getManagedRepNamesForDirector, listUsers } from '../services/usersService';
 import { Card, DataTable, type Column, SmallKpi } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import type { TerritoryId } from '../data/mockSalesData';
@@ -27,9 +27,15 @@ export function TerritoryPage() {
 
   const pressure = getTerritoryHealthLabel(scopedOrgs.length ? Math.round(((scopedOrgs.length-untouched.length)/scopedOrgs.length)*100) : 0);
 
+  const managedRepNames = user?.role === 'DIRECTOR' ? new Set(getManagedRepNamesForDirector(user.name)) : null;
   const repRows = listUsers()
     .filter((m) => m.role === 'REP' && m.status === 'ACTIVE')
-    .filter((m) => (m.territory ? scopedZones.has(m.territory as TerritoryId) : false))
+    .filter((m) => {
+      if (managedRepNames?.has(m.displayName)) return true;
+      const hasScopedTerritory = m.territory ? scopedZones.has(m.territory as TerritoryId) : false;
+      const hasScopedAccounts = scopedOrgs.some((org) => org.assignedRep === m.displayName);
+      return hasScopedTerritory || hasScopedAccounts;
+    })
     .map((rep) => {
       const repOrgs = scopedOrgs.filter((o) => o.assignedRep === rep.displayName);
       const repOpps = scopedOpps.filter((o) => o.assignedRep === rep.displayName);
