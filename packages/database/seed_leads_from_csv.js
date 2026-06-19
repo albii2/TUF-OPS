@@ -100,7 +100,7 @@ function normalizeZone(rawZone, city = '') {
   if (lower === 'tuf north' || lower === 'north') return 'TUF North';
   if (lower === 'tuf west' || lower === 'west') return 'TUF West';
   if (lower === 'tuf south' || lower === 'south') return 'TUF South';
-  if (lower === 'tuf east' || lower === 'east') return 'TUF East';
+  if (lower === 'tuf east' || lower === 'east') return 'TUF Metro';
   if (lower === 'unassigned') return 'Unassigned';
   const cityKey = String(city || '').toLowerCase();
   if (/duluth|st\.? cloud|anoka|elk river|andover|blaine|champlin|coon rapids|forest lake/.test(cityKey)) return 'TUF North';
