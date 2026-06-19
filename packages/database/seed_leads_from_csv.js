@@ -88,7 +88,7 @@ function leadRowsFromCsv(csvPath) {
       athleticDirectorEmail: raw.activities_director_email ? raw.activities_director_email.toLowerCase() : null,
       athleticDirectorPhone: raw.activities_director_phone_number || raw.phone_number || null,
       priority: priorityFromLead(raw.tuf_priority),
-      zone: raw.tuf_zone || null,
+      zone: (raw.tuf_zone && raw.tuf_zone.trim().toLowerCase() === 'tuf east') ? 'TUF Metro' : (raw.tuf_zone || null),
     };
   }).filter((lead) => lead.name.length > 0);
 }
