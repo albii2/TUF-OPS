@@ -10,13 +10,14 @@ import { bulkUpdateOrganizations } from '../services/organizationsService';
 import { listUsers } from '../services/usersService';
 import type { CoverageStatus, TerritoryId } from '../data/mockSalesData';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 100;
 
 export function OrganizationsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = getStoredUser();
   const canBulkAssign = user?.role === 'OWNER';
+  const isPrimeauDirector = user?.role === 'DIRECTOR' && user.name === 'Primeau Hill';
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');
@@ -79,6 +80,7 @@ export function OrganizationsPage() {
   return (
     <div className='space-y-3 min-w-0'>
       {canBulkAssign ? <OrganizationImportPanel existingKeys={existingKeys} onImported={(ids) => { setSelected(ids); setRefreshKey((value) => value + 1); setAssignmentCue(`Imported accounts selected (${ids.length}). Review bulk fields below, then assign territory, director, and rep.`); }} /> : null}
+      {isPrimeauDirector ? <div className='rounded-md border border-cyan-400/30 bg-cyan-500/10 p-3 text-sm text-cyan-100'>Primeau director view: showing TUF Metro and TUF North schools assigned to Primeau plus schools assigned to Primeau-managed reps. Up to 100 schools display per page.</div> : null}
       <Card title='Accounts & Expansion Pipeline'>
         <div className='safe-grid mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8'>
           <Input placeholder='Search organizations' value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />

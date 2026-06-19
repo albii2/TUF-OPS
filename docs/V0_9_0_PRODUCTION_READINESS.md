@@ -1,138 +1,74 @@
-# TUF Ops v0.9.0 Production Readiness Plan
+# v0.9.0 Production Readiness — Academy Gate
 
-## Purpose
+## App authority
 
-v0.9.0 is a production-readiness reset. The objective is not feature expansion. The objective is to make TUF Ops safe for real reps, real schools, real opportunities, real orders, and real commissions.
+- **Authoritative production web app:** `apps/web` (Vite React). Root scripts `dev`, `dev:v1`, `build:v1`, `deploy:check:web`, and root `vercel.json` route the launchable app through the `web` workspace.
+- **Authoritative backend API:** `apps/api` (Fastify). The API owns database-backed training, orders, commissions, and reporting metrics.
+- **Non-authoritative legacy app:** `apps/frontend` (Next.js) is not the current production authority for v0.9.0 launch readiness. Do not duplicate launch-critical gating or metric logic there unless deployment authority changes.
 
-Until this work is complete, reps should use TUF Academy for onboarding and certification while live CRM access remains restricted.
+## Seed and data safety
 
-## Launch posture
+- Destructive database reset is blocked whenever `NODE_ENV`, `VERCEL_ENV`, `APP_ENV`, `RAILWAY_ENVIRONMENT`, or `RAILWAY_ENVIRONMENT_NAME` is `production`/`prod`.
+- Production-safe baseline seed paths must be idempotent upserts only: approved users/roles, training enrollments, real business lead/account baseline data, and no mock orders/opportunities/commissions.
+- Test-account seed requires `TEST_ACCOUNT_CREDENTIAL`; default credentials are not embedded.
 
-Allowed before v0.9.0 is complete:
+## Academy phase alignment
 
-- TUF Academy orientation
-- Product education
-- Sales process training
-- Practical exercises
-- Director review and sign-off
+Persisted Academy phases are aligned to the v0.9.0 frontend contract:
 
-Blocked before v0.9.0 is complete:
+1. `LEVEL_1_OPERATOR`
+2. `LEVEL_2_PRODUCT`
+3. `LEVEL_3_TERRITORY`
+4. `LEVEL_4_SALES`
+5. `LEVEL_5_EXPANSION`
+6. `SPECIALIZED_TRACKS`
+7. `LEVEL_7_DIRECTOR`
+8. `MARKET_MASTERY`
 
-- Live account creation by reps
-- Live opportunity ownership changes by reps
-- Live order creation by reps
-- Commission-facing dashboards
-- Production imports without admin review
-- Destructive seed or reset scripts against production
+Migration `1900000009000_v090_production_readiness_gates.js` maps legacy phase data (`DAY_1`, `DAY_1_2`, `WEEK_1_2`, `MONTH_1`) to the new canonical values before applying stricter constraints.
 
-## Non-negotiable production rules
+## Certification and CRM gate
 
-1. Production database must be separate from development and preview.
-2. Production must not contain mock/demo schools, opportunities, orders, activities, or commissions.
-3. Destructive seed scripts must fail in production.
-4. Dashboard metrics must come from server-side source-of-truth query services.
-5. Commission calculations must be server-side and derived from paid/finalized order records.
-6. Touched/untouched school counts must be derived from auditable activity records, not assignment alone.
-7. Role permissions must be tested for owner/admin, director, and rep views.
-8. Academy certification must be database-backed before it unlocks CRM access.
-9. Frontend fallback/demo data must not control certification or CRM access in production.
-10. Backups and rollback procedure must be documented before launch.
+In production, rep certification is database-backed only. Local/demo fallback may be used for read-only preview content, but it is not a valid production certification source.
 
-## Critical repo findings
+CRM unlock for reps requires all of the following:
 
-### App architecture split
+- all required Academy modules complete,
+- practical exercise complete,
+- director sign-off complete.
 
-The repo currently contains two operating patterns:
+Directors/admins may bypass the rep onboarding gate for appropriate management functions; rep sales access remains gated.
 
-- `apps/frontend` uses Next.js API routes and Prisma.
-- `apps/api` and `apps/web` use a separate API/web structure.
+## Dashboard source of truth
 
-v0.9.0 must define which stack is authoritative for production data.
+Backend reporting service now owns launch-critical metrics for rep, director, admin/owner, school coverage, and commissions:
 
-### Seed risk
+- assigned schools,
+- auditable touched schools,
+- untouched schools,
+- active opportunities,
+- follow-ups due,
+- action-needed items,
+- closed-won count,
+- paid order count,
+- paid revenue,
+- gross profit,
+- rep commission estimate,
+- director override estimate,
+- month-to-date activity.
 
-The seed flow includes a destructive cleanup path behind an environment flag. That must be blocked from production regardless of accidental configuration.
+Touched means an auditable activity exists (`CALL`, `EMAIL`, `TEXT`, `MEETING`, `NOTE`, `OPPORTUNITY_ACTIVITY`, or `LOGGED_CONTACT`). Assignment alone is not touched.
 
-### Dashboard risk
+## Commission/order launch rules
 
-The current dashboard logic is too shallow for production launch. v0.9.0 needs role-scoped source-of-truth metrics for school coverage, touches, opportunities, orders, revenue, gross profit, and commissions.
+- Closed Won order creation is server-side and copies assigned rep/director scope to the order for visibility.
+- Commission metrics are server-side and payment-gated to paid/fulfilled order statuses (`DELIVERED`, `COMPLETED`) for payable estimates.
+- Director override estimates are hidden from reps.
+- Rep commission estimates are hidden from director dashboard metrics to avoid exposing other reps' details.
 
-### Academy risk
+## Remaining manual production steps before Monday
 
-TUF Academy has real backend tables and API routes, but the web frontend can also fall back to local generated training data. That is acceptable for a demo view, but it must not certify a user or unlock CRM access in production.
-
-### Academy phase mismatch
-
-The database uses legacy phases while the Academy UI uses expanded certification levels. These must be aligned before certification is treated as real.
-
-## Implementation sequence
-
-### Phase A — Freeze and protect
-
-- Freeze new feature work except production-readiness and Academy gate work.
-- Confirm production, preview, and development database URLs are separate.
-- Add a hard production guard to destructive seed logic.
-- Create a production-safe seed process for approved users, roles, zones, and real school data only.
-- Disable mock/demo data in production.
-
-### Phase B — Academy gate
-
-- Align Academy phases between database and frontend.
-- Seed real Academy modules using production-safe idempotent inserts.
-- Ensure every rep has an enrollment record.
-- Remove silent local fallback as a production certification path.
-- Add certification gate: modules complete, practical exercise complete, director sign-off complete, CRM unlocked.
-
-### Phase C — Metrics source of truth
-
-Create backend services for:
-
-- rep dashboard metrics
-- director dashboard metrics
-- admin dashboard metrics
-- school coverage metrics
-- commission metrics
-
-All dashboards should consume these services rather than calculating independently in frontend components.
-
-### Phase D — CRM correctness
-
-- Define official school status lifecycle.
-- Define what counts as a touch.
-- Ensure a school is not counted as touched merely because it is assigned.
-- Ensure Closed Won creates a visible order for the correct role scope.
-- Ensure unpaid/draft invoices do not create payable commission.
-- Ensure director/admin views are scoped correctly.
-
-### Phase E — Launch verification
-
-Run launch checks with three test users:
-
-- owner/admin
-- director
-- TAE/rep
-
-Each user must pass login, Academy access, Academy progress save, certification status, dashboard visibility, school visibility, opportunity visibility, order visibility, and commission visibility checks.
-
-## Definition of done
-
-v0.9.0 is done when:
-
-- no destructive seed can run in production
-- no mock business data appears in production
-- Academy certification is database-backed
-- CRM access is gated until certification/sign-off
-- touched/untouched numbers are correct
-- order visibility works from Closed Won through fulfillment
-- commissions are server-calculated and payment-gated
-- dashboards are role-scoped and source-of-truth backed
-- production backup and rollback plan exists
-- owner, director, and rep smoke tests pass
-
-## Recommended first 48 hours
-
-- Reps use Academy only.
-- Directors review certification/practical exercises.
-- Admin imports and verifies schools.
-- CRM remains locked except owner/director testing.
-- After v0.9.0 smoke test passes, unlock certified reps in waves.
+1. Apply migrations against production after confirming the database backup completed.
+2. Run only production-safe baseline seeds; do not run reset/test-account/mock-data scripts in production.
+3. Confirm environment variables: `NODE_ENV=production`, `VERCEL_ENV=production`, `APP_ENV=production`, API/database URLs, and credential secrets.
+4. Complete the launch smoke checklist in `docs/V0_9_0_LAUNCH_SMOKE_TEST.md` with real admin/director/rep users.
