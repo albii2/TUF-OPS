@@ -4,6 +4,7 @@ import { GlassCard } from '../components/ui';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
 import { useActivities } from '../hooks/useReports';
+import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useOrganizations } from '../hooks/useOrganizations';
@@ -77,6 +78,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
   const ecosystemSummary = getEcosystemReferralSummary();
+  const { metrics: backendMetrics, error: dashboardMetricsError, isApiBacked } = useDashboardMetrics(role, currentUser?.id);
 
   const nearClose = getNearCloseOpportunities(opportunities);
   const stuckDeals = getStuckOpportunities(opportunities);
@@ -105,7 +107,9 @@ export function DashboardPage({ role }: { role: Role }) {
   const projectedPace = (completedOrders.length / dayOfMonth) * daysInMonth;
   const avgDealValue = openOpps.length ? pipelineTotal / openOpps.length : 1500;
   const estimatedEarnings = projectedPace * avgDealValue * 0.1; // 10% commission mock
-  const monthlyOrderPct = Math.min(100, Math.round((completedOrders.length / Math.max(MONTHLY_ORDER_GOAL, 1)) * 100));
+  const apiCompletedOrders = backendMetrics.paid_order_count;
+  const orderPaceCount = isApiBacked ? apiCompletedOrders : completedOrders.length;
+  const monthlyOrderPct = Math.min(100, Math.round((orderPaceCount / Math.max(MONTHLY_ORDER_GOAL, 1)) * 100));
 
   const mission = staleOpps.length
     ? { title: 'Follow up stale opportunity now', reason: `${staleOpps.length} opportunities are stale and need activity today.`, to: '/my-opportunities', cta: 'Open priority queue' }
@@ -152,8 +156,8 @@ export function DashboardPage({ role }: { role: Role }) {
       <div className="space-y-3"> 
         <h1 className="text-2xl font-semibold text-white">Owner Command Center</h1>
         <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"> 
-          <MetricTile value={String(organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Untouched Accounts" tone="border-amber-500/40 bg-amber-500/15" to="/organizations?coverageStatus=UNTOUCHED" />
-          <MetricTile value={formatCurrency(cashBlockedValue)} label="Cash Blocked" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
+          <MetricTile value={String(isApiBacked ? backendMetrics.untouched_schools : organizations.filter((o) => o.coverageStatus === 'UNTOUCHED').length)} label="Untouched Accounts" tone="border-amber-500/40 bg-amber-500/15" to="/organizations?coverageStatus=UNTOUCHED" />
+          <MetricTile value={formatCurrency(isApiBacked ? backendMetrics.paid_revenue : cashBlockedValue)} label="Paid Revenue" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
           <MetricTile value={formatCurrency(closeThisWeekValue)} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
           <MetricTile value={String(zoneRisk)} label="Territory Risk" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory/map" />
           <MetricTile value={String(ecosystemSummary.created)} label="Ecosystem Referrals" tone="border-violet-500/40 bg-violet-500/15" to="/ecosystem-pipeline" />
@@ -189,10 +193,10 @@ export function DashboardPage({ role }: { role: Role }) {
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold text-white">Director Coaching Room</h1>
         <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-          <MetricTile value={String(stuckDeals.length)} label="Stuck Deals" tone="border-sky-500/40 bg-sky-500/15" to="/team-opportunities" />
+          <MetricTile value={String(isApiBacked ? backendMetrics.action_needed_items : stuckDeals.length)} label="Action Needed" tone="border-sky-500/40 bg-sky-500/15" to="/team-opportunities" />
           <MetricTile value={String(new Set(stuckDeals.map((o) => o.assignedRep)).size)} label="Reps Needing Coaching" tone="border-amber-500/40 bg-amber-500/15" to="/team-performance" />
           <MetricTile value={formatCurrency(nearClose.reduce((sum,o)=>sum+o.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
-          <MetricTile value={`${coveragePct}%`} label="Territory Coverage" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory" />
+          <MetricTile value={isApiBacked ? `${backendMetrics.touched_schools}/${backendMetrics.assigned_schools}` : `${coveragePct}%`} label="Territory Coverage" tone="border-cyan-500/40 bg-cyan-500/15" to="/territory" />
         </div>
         <GlassCard title="MISSION PRIORITY"><div className="space-y-2"><p className="text-base font-semibold text-white">{directorMission.title}</p><p className="text-sm text-slate-300">{directorMission.reason}</p><div className="flex flex-wrap gap-2"><Link to={directorMission.to} className="rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{directorMission.cta}</Link><Link to="/my-opportunities" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">My Opportunities</Link><Link to="/territory" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Territory</Link><Link to="/reports" className="rounded-md border border-slate-700 px-3 py-2 text-xs text-slate-200">Reports</Link></div></div></GlassCard>
         
@@ -260,6 +264,7 @@ export function DashboardPage({ role }: { role: Role }) {
   return (
       <div className="space-y-3">
         <h1 className="text-2xl font-semibold text-white">Rep Mission Brief</h1>
+        {isApiBacked && dashboardMetricsError ? <GlassCard title="DASHBOARD API WARNING"><p className="text-sm text-amber-200">{dashboardMetricsError}</p></GlassCard> : null}
         <div className="safe-grid grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           <MetricTile value={String(stuckDeals.length)} label="Today’s Mission" tone="border-sky-500/40 bg-sky-500/15" to="/my-opportunities" />
           <MetricTile value={formatCurrency(nearClose.reduce((sum,opp)=>sum+opp.value,0))} label="Close This Week" tone="border-emerald-500/40 bg-emerald-500/15" to="/my-opportunities" />
@@ -276,20 +281,20 @@ export function DashboardPage({ role }: { role: Role }) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-3xl font-bold leading-none text-white">
-                    {completedOrders.length}
+                    {orderPaceCount}
                     <span className="text-base font-normal text-slate-400"> / {MONTHLY_ORDER_GOAL}</span>
                   </p>
                   <p className="mt-1 truncate text-xs text-slate-400">Completed monthly orders</p>
                 </div>
                 <div className="shrink-0 rounded-lg border border-slate-800 bg-slate-950/60 px-2.5 py-1.5 text-right">
-                  <p className={`text-sm font-bold ${completedOrders.length >= MONTHLY_ORDER_GOAL ? 'text-emerald-400' : completedOrders.length >= 2 ? 'text-amber-400' : 'text-rose-400'}`}>
+                  <p className={`text-sm font-bold ${orderPaceCount >= MONTHLY_ORDER_GOAL ? 'text-emerald-400' : orderPaceCount >= 2 ? 'text-amber-400' : 'text-rose-400'}`}>
                     {monthlyOrderPct}%
                   </p>
                   <p className="text-[10px] uppercase tracking-wide text-slate-500">of floor</p>
                 </div>
               </div>
               <ProgressBar 
-                count={completedOrders.length} 
+                count={orderPaceCount} 
                 total={MONTHLY_ORDER_GOAL} 
                 label="Orders" 
                 projectedPace={projectedPace}
@@ -313,12 +318,12 @@ export function DashboardPage({ role }: { role: Role }) {
           <GlassCard title="ESTIMATED EARNINGS" className="min-w-0 md:col-span-2 lg:col-span-1">
             <div className="space-y-3">
               <div>
-                <p className="text-3xl font-bold leading-none text-emerald-400">{formatCurrency(estimatedEarnings)}</p>
+                <p className="text-3xl font-bold leading-none text-emerald-400">{formatCurrency(isApiBacked ? backendMetrics.rep_commission_estimate : estimatedEarnings)}</p>
                 <p className="mt-1 text-xs text-slate-400">Projected from current monthly pace</p>
               </div>
               <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-2">
                 <p className="text-xs leading-5 text-slate-300">
-                  Based on <span className="font-semibold text-slate-100">{projectedPace.toFixed(1)}</span> projected orders at <span className="font-semibold text-slate-100">{formatCurrency(avgDealValue)}</span> average deal value.
+                  Based on <span className="font-semibold text-slate-100">{isApiBacked ? orderPaceCount.toFixed(1) : projectedPace.toFixed(1)}</span> projected orders at <span className="font-semibold text-slate-100">{formatCurrency(avgDealValue)}</span> average deal value.
                 </p>
               </div>
             </div>
@@ -330,7 +335,7 @@ export function DashboardPage({ role }: { role: Role }) {
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             <div>
               <p className="text-xs text-slate-400">Total Active</p>
-              <p className="text-xl font-bold text-white">{openOpps.length}</p>
+              <p className="text-xl font-bold text-white">{isApiBacked ? backendMetrics.active_opportunities : openOpps.length}</p>
             </div>
             <div>
               <p className="text-xs text-slate-400">Near Close</p>
@@ -338,11 +343,11 @@ export function DashboardPage({ role }: { role: Role }) {
             </div>
             <div>
               <p className="text-xs text-slate-400">Stalled</p>
-              <p className="text-xl font-bold text-amber-400">{stuckDeals.length}</p>
+              <p className="text-xl font-bold text-amber-400">{isApiBacked ? backendMetrics.action_needed_items : stuckDeals.length}</p>
             </div>
             <div>
               <p className="text-xs text-slate-400">Pipeline Value</p>
-              <p className="text-xl font-bold text-cyan-400">{formatCurrency(pipelineTotal)}</p>
+              <p className="text-xl font-bold text-cyan-400">{formatCurrency(isApiBacked ? backendMetrics.total_actual_revenue : pipelineTotal)}</p>
             </div>
           </div>
         </GlassCard>
