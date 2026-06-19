@@ -28,6 +28,7 @@ import {
   ChangeCredentialPage,
 } from './pages/CrudPages';
 import { TrainingPage } from './pages/TrainingPage';
+import LockerRoomSimulatorPage from './pages/LockerRoomSimulatorPage';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
 
@@ -46,7 +47,7 @@ function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null;
 function PageProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
-  if (user.role === 'REP' && !user.isCertified && path !== '/training') {
+  if (user.role === 'REP' && !user.isCertified && !['/training', '/dashboard'].includes(path)) {
     return <Navigate to="/training" replace />;
   }
   if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/training') return <Navigate to="/dashboard" replace />;
@@ -78,8 +79,9 @@ export default function App() {
         }
       >
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
-        <Route path="/dashboard" element={user?.mustChangeCredential ? <Navigate to="/change-credential" replace /> : (user?.role === 'REP' && !user.isCertified ? <Navigate to="/training" replace /> : dashboard)} />
+        <Route path="/dashboard" element={<PageProtected user={user} path="/dashboard">{dashboard}</PageProtected>} />
         <Route path="/training" element={<PageProtected user={user} path="/training"><TrainingPage /></PageProtected>} />
+        <Route path="/training/simulator" element={<PageProtected user={user} path="/training"><LockerRoomSimulatorPage /></PageProtected>} />
         <Route path="/organizations" element={<PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected>} />
         <Route path="/organizations/new" element={<PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected>} />
         <Route path="/organizations/:id" element={<PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected>} />

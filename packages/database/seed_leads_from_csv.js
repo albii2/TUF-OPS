@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client } = require('pg');
+const { assertNonDestructiveSeedAllowed } = require('./seed_safety.js');
 
 const DEFAULT_CHANNELS = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'];
 const DEFAULT_SPORT = 'FOOTBALL';
@@ -189,6 +190,7 @@ async function ensureOpportunities(client, organizationId, organizationName, act
 }
 
 async function main() {
+  assertNonDestructiveSeedAllowed({ destructive: false, label: 'lead baseline seed' });
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error('DATABASE_URL is required to seed bundled TUF leads');
 

@@ -24,5 +24,6 @@ export type AppUser = {
   mustChangeCredential: boolean;
   hrDocsCompleted?: boolean;
   directorSignedOff?: boolean;
+  practicalExerciseCompleted?: boolean;
   isCertified?: boolean;
 };

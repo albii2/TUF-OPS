@@ -8,6 +8,7 @@ import {
   getProgressHandler,
   recordFrictionPointHandler,
   toggleHrDocsHandler,
+  togglePracticalExerciseHandler,
   toggleDirectorSignoffHandler,
   getCertificationStatusHandler,
 } from './training.controller';
@@ -36,6 +37,9 @@ export async function trainingRoutes(server: FastifyInstance) {
 
   // Toggle HR documents completion
   server.post('/reps/:id/hr-docs', toggleHrDocsHandler);
+
+  // Toggle practical exercise completion
+  server.post('/reps/:id/practical-exercise', togglePracticalExerciseHandler);
 
   // Toggle Director sign-off
   server.post('/reps/:id/director-signoff', toggleDirectorSignoffHandler);
