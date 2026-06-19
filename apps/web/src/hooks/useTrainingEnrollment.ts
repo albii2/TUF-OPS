@@ -15,6 +15,8 @@ export interface TrainingModule {
   content_markdown: string;
   estimated_duration_minutes?: number;
   module_type: string;
+  quiz_json?: Array<{ question: string; options: string[]; correctAnswer: string }>;
+  passing_score?: number;
   created_at: string;
   updated_at: string;
 }
@@ -96,6 +98,17 @@ const module = (id: number, phase: string, order_index: number, title: string, d
   content_markdown: content,
   estimated_duration_minutes: 30,
   module_type,
+  passing_score: requiredScore,
+  quiz_json: [{
+    question: `What is the launch-standard behavior for ${title}?`,
+    options: [
+      'Create a real next step, log the work in TUF Ops, and protect the buyer relationship',
+      'Skip notes and rely on memory',
+      'Quote discounts before discovery',
+      'Count assignment as a completed school touch',
+    ],
+    correctAnswer: 'Create a real next step, log the work in TUF Ops, and protect the buyer relationship',
+  }],
 });
 
 const DEFAULT_TRAINING_MODULES: Array<Omit<TrainingModule, 'role' | 'created_at' | 'updated_at'>> = [
@@ -320,7 +333,8 @@ export function useTrainingModule(moduleId: number, enrollmentId: number) {
           if (userObj.role === 'REP') {
             const hrDocsCompleted = userObj.hrDocsCompleted || false;
             const directorSignedOff = userObj.directorSignedOff || false;
-            userObj.isCertified = hrDocsCompleted && directorSignedOff;
+            const practicalExerciseCompleted = userObj.practicalExerciseCompleted || false;
+            userObj.isCertified = hrDocsCompleted && practicalExerciseCompleted && directorSignedOff;
             localStorage.setItem('tuf_ops_user_v3', JSON.stringify(userObj));
             window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: userObj }));
           }
@@ -379,5 +393,29 @@ export function useTrainingModule(moduleId: number, enrollmentId: number) {
     }
   };
 
-  return { moduleData, loading, startModule, completeModule };
+  const submitQuiz = async (answers: string[]) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${TRAINING_API_BASE_URL}/assessments/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enrollmentId, moduleId, answers }),
+      });
+      if (!response.ok) throw new Error('Failed to submit quiz');
+      return await response.json();
+    } catch (err) {
+      if (IS_PRODUCTION) throw err;
+      const raw = localStorage.getItem(`tuf_ops_training_v1_${getUserIdFromLocalStorage()}`);
+      const data = raw ? JSON.parse(raw) as TrainingEnrollmentWithProgress : null;
+      const quizModule = data?.modules.find((module) => module.id === moduleId);
+      const questions = quizModule?.quiz_json || [];
+      const correct = questions.reduce((sum, question, index) => sum + (answers[index] === question.correctAnswer ? 1 : 0), 0);
+      const score = questions.length ? Math.round((correct / questions.length) * 100) : 100;
+      return { score, passed: score >= (quizModule?.passing_score || 85), offline: true };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { moduleData, loading, startModule, completeModule, submitQuiz };
 }

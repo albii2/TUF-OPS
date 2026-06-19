@@ -52,6 +52,8 @@ export interface TrainingModule {
   content_markdown: string;
   estimated_duration_minutes?: number;
   module_type: TrainingModuleType;
+  quiz_json?: Array<{ question: string; options: string[]; correctAnswer: string }>;
+  passing_score?: number;
   created_at: Date;
   updated_at: Date;
 }

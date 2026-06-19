@@ -17,9 +17,13 @@ export default function TrainingModuleDetail({
   onClose,
   onProgressUpdate,
 }: TrainingModuleDetailProps) {
-  const { startModule, completeModule, loading } = useTrainingModule(module.id, enrollment.id);
+  const { startModule, completeModule, submitQuiz, loading } = useTrainingModule(module.id, enrollment.id);
   const [startTime, setStartTime] = useState<number | null>(null);
   const [timeSpent, setTimeSpent] = useState(progress?.time_spent_seconds || 0);
+  const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
+  const [quizResult, setQuizResult] = useState<{ score: number; passed: boolean } | null>(null);
+  const quizQuestions = module.quiz_json || [];
+  const quizPassed = !quizQuestions.length || quizResult?.passed || progress?.status === 'COMPLETED';
 
   useEffect(() => {
     if (progress?.status !== 'COMPLETED' && !startTime && progress?.status !== 'NOT_STARTED') {
@@ -46,6 +50,11 @@ export default function TrainingModuleDetail({
 
   const handleComplete = async () => {
     try {
+      if (quizQuestions.length && !quizPassed) {
+        const result = await submitQuiz(quizAnswers);
+        setQuizResult(result);
+        if (!result.passed) return;
+      }
       await completeModule(timeSpent);
       onProgressUpdate();
     } catch (err) {
@@ -81,6 +90,33 @@ export default function TrainingModuleDetail({
           <div className="prose prose-invert max-w-none">
             <div className="whitespace-pre-wrap text-slate-300 text-sm leading-relaxed">{module.content_markdown}</div>
           </div>
+
+          {quizQuestions.length ? (
+            <div className="mt-6 rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-cyan-200">Certification Quiz • Passing score {module.passing_score || 85}%</p>
+              <div className="mt-3 space-y-4">
+                {quizQuestions.map((question, index) => (
+                  <div key={question.question} className="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
+                    <p className="text-sm font-bold text-white">{index + 1}. {question.question}</p>
+                    <div className="mt-2 grid gap-2">
+                      {question.options.map((option) => (
+                        <label key={option} className="flex items-center gap-2 rounded-md border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm text-slate-300">
+                          <input
+                            type="radio"
+                            name={`quiz-${module.id}-${index}`}
+                            checked={quizAnswers[index] === option}
+                            onChange={() => setQuizAnswers((answers) => { const next = [...answers]; next[index] = option; return next; })}
+                          />
+                          <span>{option}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {quizResult ? <p className={`mt-3 text-sm font-bold ${quizResult.passed ? 'text-emerald-300' : 'text-amber-300'}`}>Quiz score: {quizResult.score}% · {quizResult.passed ? 'Passed' : 'Retake required before completion'}</p> : null}
+            </div>
+          ) : null}
         </div>
 
         {/* Progress Bar and Stats */}
@@ -148,7 +184,7 @@ export default function TrainingModuleDetail({
                 disabled={loading}
                 className="flex-1 px-4 py-2.5 bg-emerald-500 text-slate-950 hover:bg-emerald-400 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors shadow-[0_0_12px_rgba(16,185,129,0.3)]"
               >
-                {loading ? 'Saving...' : 'Mark Complete'}
+                {loading ? 'Saving...' : quizQuestions.length && !quizPassed ? 'Submit Quiz & Complete' : 'Mark Complete'}
               </button>
             )}
           </div>

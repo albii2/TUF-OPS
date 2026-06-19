@@ -26,9 +26,10 @@
     "dev": "pnpm --parallel --filter web --filter @apps/api dev",
     "predev": "echo '\u25b6 Starting TUF Ops local dev...' && pnpm typecheck:v1",
     "db:seed:test-accounts": "dotenv -e .env -- node packages/database/seed_test_training_accounts.js",
-    "validate:v090:production-ready": "node scripts/validate-touched-counts.js && node scripts/validate-seed-safety.js && node scripts/validate-v090-launch-safety.js && node scripts/validate-v090-dashboard-wiring.js && node scripts/validate-v090-academy-launch.js && node scripts/validate-v090-production-ready.js",
+    "validate:v090:production-ready": "node scripts/validate-touched-counts.js && node scripts/validate-seed-safety.js && node scripts/validate-v090-launch-safety.js && node scripts/validate-v090-dashboard-wiring.js && node scripts/validate-v090-academy-launch.js && node scripts/validate-v090-production-ready.js && node scripts/validate-v090-academy-certification.js",
     "validate:v090:dashboard-wiring": "node scripts/validate-v090-dashboard-wiring.js",
-    "validate:v090:academy-launch": "node scripts/validate-v090-academy-launch.js"
+    "validate:v090:academy-launch": "node scripts/validate-v090-academy-launch.js",
+    "validate:v090:academy-certification": "node scripts/validate-v090-academy-certification.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

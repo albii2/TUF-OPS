@@ -20,6 +20,12 @@ export type OrganizationListParams = {
 
 const LOCAL_ORGANIZATIONS_KEY = 'tuf_ops_mock_organizations_v1';
 const VALID_TERRITORIES: TerritoryId[] = ['metro', 'north', 'west', 'south'];
+const PRIMEAU_DIRECTOR_NAME = 'Primeau Hill';
+const PRIMEAU_DIRECTOR_TERRITORIES = new Set<TerritoryId>(['metro', 'north']);
+
+function getLaunchDirectorForTerritory(territory?: TerritoryId | '') {
+  return territory && PRIMEAU_DIRECTOR_TERRITORIES.has(territory) ? PRIMEAU_DIRECTOR_NAME : 'Unassigned';
+}
 let bootstrapInProgress = false;
 let zoneReconciliationComplete = false;
 
@@ -97,9 +103,13 @@ function reconcileStoredLeadData() {
     const territory = lead.territory as TerritoryId;
     const shouldPatchTerritory = territory && !VALID_TERRITORIES.includes(org.territory);
     const withTerritory = shouldPatchTerritory ? { ...patchedOrg, territory } : patchedOrg;
-    if (withTerritory === org || JSON.stringify(withTerritory) === JSON.stringify(org)) return org;
+    const launchDirector = getLaunchDirectorForTerritory(withTerritory.territory);
+    const withDirector = launchDirector !== 'Unassigned' && withTerritory.assignedDirector !== launchDirector
+      ? { ...withTerritory, assignedDirector: launchDirector }
+      : withTerritory;
+    if (withDirector === org || JSON.stringify(withDirector) === JSON.stringify(org)) return org;
     changed = true;
-    return withTerritory;
+    return withDirector;
   });
 
   if (changed) writeLocalOrganizations(patched);
@@ -261,7 +271,7 @@ export function importLeadRows(
       city: lead.city,
       state: lead.state,
       assignedRep: 'Unassigned',
-      assignedDirector: 'Unassigned',
+      assignedDirector: getLaunchDirectorForTerritory(lead.territory as TerritoryId),
       territory: lead.territory as TerritoryId,
       schoolPhone: lead.phone,
       athleticDirectorName: lead.athleticDirectorName || lead.primaryContactName,

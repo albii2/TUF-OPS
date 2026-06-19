@@ -11,6 +11,7 @@ import {
   togglePracticalExerciseHandler,
   toggleDirectorSignoffHandler,
   getCertificationStatusHandler,
+  submitModuleAssessmentHandler,
 } from './training.controller';
 
 export async function trainingRoutes(server: FastifyInstance) {
@@ -28,6 +29,9 @@ export async function trainingRoutes(server: FastifyInstance) {
 
   // Complete a module
   server.post('/progress/complete', completeModuleHandler);
+
+  // Submit module quiz / knowledge check
+  server.post('/assessments/submit', submitModuleAssessmentHandler);
 
   // Get detailed progress for an enrollment
   server.get('/progress/:enrollmentId', getProgressHandler);

@@ -57,12 +57,26 @@ function normalizeAccountName(value) {
 
 function parseAddress(address) {
   const value = String(address || '').replace(/\s+/g, ' ').trim();
-  const stateMatch = value.match(/\b([A-Z]{2})\s+\d{5}(?:-\d{4})?\b/);
+  const stateMatch = value.match(/\b([A-Z]{2})\s+(\d{5}(?:-\d{4})?)\b/);
   const state = stateMatch?.[1] || 'MN';
+  const postalCode = stateMatch?.[2] || null;
   const beforeState = stateMatch ? value.slice(0, stateMatch.index).trim() : value;
   const cityMatch = beforeState.match(/([^,]+)\s*,?$/);
   const city = cityMatch?.[1]?.trim() || 'TBD';
-  return { city, state };
+  const addressLine1 = beforeState.replace(new RegExp(`${city}\\s*,?$`), '').replace(/,\s*$/, '').trim() || null;
+  return { city, state, postalCode, addressLine1 };
+}
+
+function normalizeZone(rawZone, city = '') {
+  const value = String(rawZone || '').toLowerCase();
+  if (value.includes('north')) return 'north';
+  if (value.includes('metro')) return 'metro';
+  if (value.includes('west')) return 'west';
+  if (value.includes('south')) return 'south';
+  const cityKey = String(city || '').toLowerCase();
+  if (/duluth|st\.? cloud|anoka|elk river|andover|blaine|champlin|coon rapids|forest lake/.test(cityKey)) return 'north';
+  if (/minneapolis|st\.? paul|saint paul|bloomington|richfield|woodbury|stillwater|hastings|prior lake|shakopee|burnsville|savage|minnetonka/.test(cityKey)) return 'metro';
+  return null;
 }
 
 function priorityFromLead(rawPriority) {
@@ -79,7 +93,7 @@ function leadRowsFromCsv(csvPath) {
   const keys = header.map((key) => key.trim().toLowerCase());
   return body.map((line) => {
     const raw = Object.fromEntries(keys.map((key, index) => [key, String(line[index] || '').trim()]));
-    const { city, state } = parseAddress(raw.address);
+    const { city, state, postalCode, addressLine1 } = parseAddress(raw.address);
     return {
       name: normalizeAccountName(raw.school_name),
       city,
@@ -89,7 +103,9 @@ function leadRowsFromCsv(csvPath) {
       athleticDirectorEmail: raw.activities_director_email ? raw.activities_director_email.toLowerCase() : null,
       athleticDirectorPhone: raw.activities_director_phone_number || raw.phone_number || null,
       priority: priorityFromLead(raw.tuf_priority),
-      zone: raw.tuf_zone || null,
+      addressLine1,
+      postalCode,
+      zone: normalizeZone(raw.tuf_zone, city),
     };
   }).filter((lead) => lead.name.length > 0);
 }
@@ -103,6 +119,15 @@ async function tableExists(client, tableName) {
     [tableName],
   );
   return Boolean(result.rows[0]?.exists);
+}
+
+async function getPrimeauDirectorId(client) {
+  try {
+    const result = await client.query("SELECT id FROM users WHERE lower(email) = 'primeau.hill@tufsports.us' OR lower(name) = 'primeau hill' ORDER BY id LIMIT 1");
+    return result.rows[0]?.id || null;
+  } catch {
+    return null;
+  }
 }
 
 async function getActorUserId(client) {
@@ -119,7 +144,8 @@ async function getActorUserId(client) {
   }
 }
 
-async function upsertOrganization(client, lead, actorUserId) {
+async function upsertOrganization(client, lead, actorUserId, primeauDirectorId) {
+  const assignedDirectorId = primeauDirectorId && ['metro', 'north'].includes(lead.zone) ? primeauDirectorId : null;
   const existing = await client.query(
     `SELECT id, state
      FROM organizations
@@ -134,19 +160,24 @@ async function upsertOrganization(client, lead, actorUserId) {
     await client.query(
       `UPDATE organizations
        SET state = CASE WHEN coalesce(state, '') = '' THEN $2::varchar ELSE state END,
+           city = COALESCE(NULLIF(city, ''), $4::varchar),
+           address_line1 = COALESCE(NULLIF(address_line1, ''), $5::text),
+           postal_code = COALESCE(NULLIF(postal_code, ''), $6::varchar),
+           tuf_zone = COALESCE(NULLIF(tuf_zone, ''), $7::varchar),
+           assigned_director_id = COALESCE(assigned_director_id, $8::integer),
            updated_by = $3::integer,
            updated_at = current_timestamp
        WHERE id = $1::integer`,
-      [existing.rows[0].id, lead.state, actorUserId],
+      [existing.rows[0].id, lead.state, actorUserId, lead.city, lead.addressLine1, lead.postalCode, lead.zone, assignedDirectorId],
     );
     return { id: existing.rows[0].id, created: false };
   }
 
   const inserted = await client.query(
-    `INSERT INTO organizations (name, state, status, created_by, updated_by)
-     VALUES ($1::varchar, $2::varchar, 'active', $3::integer, $3::integer)
+    `INSERT INTO organizations (name, state, city, address_line1, postal_code, tuf_zone, assigned_director_id, status, created_by, updated_by)
+     VALUES ($1::varchar, $2::varchar, $4::varchar, $5::text, $6::varchar, $7::varchar, $8::integer, 'active', $3::integer, $3::integer)
      RETURNING id`,
-    [lead.name, lead.state, actorUserId],
+    [lead.name, lead.state, actorUserId, lead.city, lead.addressLine1, lead.postalCode, lead.zone, assignedDirectorId],
   );
   return { id: inserted.rows[0].id, created: true };
 }
@@ -206,12 +237,13 @@ async function main() {
     const contactsAvailable = await tableExists(client, 'contacts');
     const opportunitiesAvailable = await tableExists(client, 'opportunities');
     const actorUserId = await getActorUserId(client);
+    const primeauDirectorId = await getPrimeauDirectorId(client);
 
     let created = 0;
     let updated = 0;
     await client.query('BEGIN');
     for (const lead of leads) {
-      const organization = await upsertOrganization(client, lead, actorUserId);
+      const organization = await upsertOrganization(client, lead, actorUserId, primeauDirectorId);
       if (organization.created) created += 1;
       else updated += 1;
       if (contactsAvailable) await ensureContacts(client, organization.id, lead);
