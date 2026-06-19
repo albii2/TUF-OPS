@@ -53,18 +53,20 @@ function numericId(id?: string) {
   return Number(id);
 }
 
-export async function fetchDashboardMetrics(role: Role, userId?: string): Promise<DashboardMetrics> {
+export async function fetchDashboardMetrics(role: Role, userId?: string, userEmail?: string): Promise<DashboardMetrics> {
   if (DATA_MODE !== 'api') return emptyDashboardMetrics();
   if (role === 'OWNER') return apiClient<DashboardMetrics>('/reporting/owner-dashboard');
   if (role === 'DIRECTOR') {
     const id = numericId(userId);
-    if (!id) throw new Error('Director dashboard requires backend numeric user id in API mode');
-    return apiClient<DashboardMetrics>(`/reporting/director-dashboard/${id}`);
+    if (id) return apiClient<DashboardMetrics>(`/reporting/director-dashboard/${id}`);
+    if (userEmail) return apiClient<DashboardMetrics>('/reporting/director-dashboard-by-email', { query: { email: userEmail } });
+    throw new Error('Director dashboard requires backend numeric user id or email in API mode');
   }
   if (role === 'REP') {
     const id = numericId(userId);
-    if (!id) throw new Error('Rep dashboard requires backend numeric user id in API mode');
-    return apiClient<DashboardMetrics>(`/reporting/rep-dashboard/${id}`);
+    if (id) return apiClient<DashboardMetrics>(`/reporting/rep-dashboard/${id}`);
+    if (userEmail) return apiClient<DashboardMetrics>('/reporting/rep-dashboard-by-email', { query: { email: userEmail } });
+    throw new Error('Rep dashboard requires backend numeric user id or email in API mode');
   }
   return emptyDashboardMetrics();
 }

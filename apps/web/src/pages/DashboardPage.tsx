@@ -78,7 +78,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
   const ecosystemSummary = getEcosystemReferralSummary();
-  const { metrics: backendMetrics, error: dashboardMetricsError, isApiBacked } = useDashboardMetrics(role, currentUser?.id);
+  const { metrics: backendMetrics, error: dashboardMetricsError, isApiBacked } = useDashboardMetrics(role, currentUser?.id, currentUser?.email);
 
   const nearClose = getNearCloseOpportunities(opportunities);
   const stuckDeals = getStuckOpportunities(opportunities);
