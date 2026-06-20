@@ -9,6 +9,8 @@ type OpportunityForOrder = {
     organization_id: number;
     deal_type: string;
     stage: OpportunityStage;
+    assigned_rep_id?: number;
+    assigned_director_id?: number;
 };
 
 export async function getOrderById(id: number): Promise<Order | null> {
@@ -34,7 +36,7 @@ export async function getOrders(): Promise<Order[]> {
 
 async function getOpportunityForOrder(opportunityId: number, db: Pool | PoolClient = pool): Promise<OpportunityForOrder | null> {
     const result = await db.query<OpportunityForOrder>(
-        'SELECT id, organization_id, deal_type, stage FROM opportunities WHERE id = $1 FOR UPDATE',
+        'SELECT id, organization_id, deal_type, stage, assigned_rep_id, assigned_director_id FROM opportunities WHERE id = $1 FOR UPDATE',
         [opportunityId]
     );
     return result.rows[0] || null;
@@ -67,8 +69,8 @@ export async function createOrderFromOpportunity(opportunityId: number, options?
         }
 
         const result = await client.query(
-            'INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4) RETURNING *',
-            [opportunity.id, opportunity.organization_id, opportunity.deal_type, OrderStatus.CREATED]
+            'INSERT INTO orders (opportunity_id, organization_id, deal_type, status, assigned_rep_id, assigned_director_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [opportunity.id, opportunity.organization_id, opportunity.deal_type, OrderStatus.CREATED, opportunity.assigned_rep_id ?? null, opportunity.assigned_director_id ?? null]
         );
 
         await client.query('COMMIT');
