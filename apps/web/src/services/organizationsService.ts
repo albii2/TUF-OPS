@@ -3,7 +3,7 @@ import { organizations as seededOrganizations, type CoverageStatus, type Organiz
 import type { NormalizedLead } from '../utils/leadImport';
 import { normalizeAccountName } from '../utils/naming';
 import { getStaleOrganizations } from './kpiUtils';
-import tufLeadsCsvRaw from '../assets/tuf_leads_final_enriched.csv?raw';
+import tufLeadsCsvRaw from '../assets/tuf_mn_leads_final.csv?raw';
 import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
 import { canViewOrganization } from './roleScope';
 

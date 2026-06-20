@@ -70,7 +70,7 @@ DATABASE_URL="postgresql://..." pnpm db:seed:leads
 Notes:
 
 - `db:migrate` and `db:seed:leads` use `DATABASE_URL`.
-- `db:seed:leads` restores committed lead data from `apps/web/src/assets/tuf_leads_final_enriched.csv` and is idempotent.
+- `db:seed:leads` restores committed lead data from `apps/web/src/assets/tuf_mn_leads_final.csv` (falling back to `tuf_leads_final_enriched.csv` if absent) and is idempotent.
 - `TEST_DATABASE_URL` is only for tests/local test overrides and should not be used in production.
 
 ## Preview → production workflow

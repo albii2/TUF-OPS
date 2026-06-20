@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-* Source file: `apps/web/src/assets/tuf_leads_final_enriched.csv`
+* Source file: `apps/web/src/assets/tuf_mn_leads_final.csv` (falling back to `tuf_leads_final_enriched.csv` if absent)
 * Expected row count: 260 school records, excluding the header row.
 * Seed script: `packages/database/seed_leads_from_csv.js`
 * Schema support migration: `packages/database/migrations/1900000012000_v090_lead_csv_full_mapping.js`
@@ -126,7 +126,7 @@ pnpm -w run db:seed:leads
 To seed a different CSV path without changing the repo:
 
 ```bash
-TUF_LEADS_CSV=/secure/path/tuf_leads_final_enriched.csv pnpm -w run db:seed:leads
+TUF_LEADS_CSV=/secure/path/tuf_mn_leads_final.csv pnpm -w run db:seed:leads
 ```
 
 ## Preview seed instructions

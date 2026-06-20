@@ -27,7 +27,7 @@ The root `vercel.json` builds only `web`, outputs `apps/web/dist`, and rewrites 
 
 ## Restore bundled lead data into Postgres
 
-The bundled lead file is committed at `apps/web/src/assets/tuf_leads_final_enriched.csv`.
+The bundled lead file is committed at `apps/web/src/assets/tuf_mn_leads_final.csv`.
 
 After migrations are applied to the target Railway database, run:
 
