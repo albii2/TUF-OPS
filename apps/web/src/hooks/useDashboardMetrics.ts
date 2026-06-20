@@ -3,7 +3,7 @@ import type { Role } from '../types';
 import { emptyDashboardMetrics, fetchDashboardMetrics, type DashboardMetrics } from '../services/dashboardMetricsService';
 import { DATA_MODE } from '../services/dataMode';
 
-export function useDashboardMetrics(role: Role, userId?: string, userEmail?: string) {
+export function useDashboardMetrics(role: Role, userId?: string) {
   const [metrics, setMetrics] = useState<DashboardMetrics>(() => emptyDashboardMetrics());
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(DATA_MODE === 'api');
@@ -17,12 +17,12 @@ export function useDashboardMetrics(role: Role, userId?: string, userEmail?: str
       return;
     }
     setLoading(true);
-    fetchDashboardMetrics(role, userId, userEmail)
+    fetchDashboardMetrics(role, userId)
       .then((next) => { if (!cancelled) { setMetrics(next); setError(null); } })
       .catch((err) => { if (!cancelled) setError(err instanceof Error ? err.message : 'Dashboard metrics unavailable'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [role, userId, userEmail]);
+  }, [role, userId]);
 
   return { metrics, error, loading, isApiBacked: DATA_MODE === 'api' };
 }

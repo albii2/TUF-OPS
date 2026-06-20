@@ -3,10 +3,8 @@ import {
   getAdminDashboardMetrics,
   getCommissionMetrics,
   getDirectorDashboardMetrics,
-  getDirectorDashboardMetricsByEmail,
   getOwnerDashboardMetrics,
   getRepDashboardMetrics,
-  getRepDashboardMetricsByEmail,
   getSchoolCoverageMetrics,
 } from './reporting.service';
 
@@ -43,20 +41,5 @@ export async function getSchoolCoverageMetricsHandler(_request: FastifyRequest, 
 
 export async function getCommissionMetricsHandler(_request: FastifyRequest, reply: FastifyReply) {
   const metrics = await getCommissionMetrics();
-  return reply.send(metrics);
-}
-
-
-export async function getDirectorDashboardMetricsByEmailHandler(request: FastifyRequest, reply: FastifyReply) {
-  const { email } = request.query as any;
-  if (!email) return reply.code(400).send({ message: 'email query parameter is required' });
-  const metrics = await getDirectorDashboardMetricsByEmail(String(email));
-  return reply.send(metrics);
-}
-
-export async function getRepDashboardMetricsByEmailHandler(request: FastifyRequest, reply: FastifyReply) {
-  const { email } = request.query as any;
-  if (!email) return reply.code(400).send({ message: 'email query parameter is required' });
-  const metrics = await getRepDashboardMetricsByEmail(String(email));
   return reply.send(metrics);
 }

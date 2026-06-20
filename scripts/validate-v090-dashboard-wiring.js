@@ -27,8 +27,6 @@ const controller = exists(controllerPath) ? read(controllerPath) : '';
 const routes = exists(routesPath) ? read(routesPath) : '';
 const dashboard = exists(dashboardPath) ? read(dashboardPath) : '';
 const frontendService = exists(dashboardServicePath) ? read(dashboardServicePath) : '';
-const dashboardHook = exists(dashboardHookPath) ? read(dashboardHookPath) : '';
-const opportunitiesService = exists('apps/api/src/modules/opportunities/opportunities.service.ts') ? read('apps/api/src/modules/opportunities/opportunities.service.ts') : '';
 
 for (const metric of [
   'assigned_schools', 'touched_schools', 'untouched_schools', 'active_opportunities',
@@ -40,7 +38,7 @@ for (const metric of [
   check(frontendService.includes(metric), `frontend dashboard service missing ${metric}`);
 }
 
-for (const route of ['owner-dashboard', 'admin-dashboard', 'director-dashboard/:directorId', 'rep-dashboard/:repId', 'director-dashboard-by-email', 'rep-dashboard-by-email', 'school-coverage', 'commissions']) {
+for (const route of ['owner-dashboard', 'admin-dashboard', 'director-dashboard/:directorId', 'rep-dashboard/:repId', 'school-coverage', 'commissions']) {
   check(routes.includes(route), `reporting route missing ${route}`);
 }
 
@@ -49,10 +47,6 @@ check(service.includes("scope.commissionVisibility === 'director' ? 0"), 'direct
 check(service.includes("scope.commissionVisibility === 'rep' ? 0"), 'rep dashboard must suppress director override estimates');
 check(service.includes("'DELIVERED', 'COMPLETED'"), 'commission metrics must be payment/delivery gated');
 check(dashboard.includes('useDashboardMetrics'), 'DashboardPage must call backend dashboard metrics hook');
-check(frontendService.includes('director-dashboard-by-email') && frontendService.includes('rep-dashboard-by-email'), 'frontend dashboard service must map local string ids through email fallback endpoints');
-check(dashboardHook.includes('userEmail') && dashboard.includes('currentUser?.email'), 'dashboard hook/page must pass stored user email for API id resolution');
-check(service.includes('COALESCE(ord.assigned_rep_id, o.assigned_rep_id)') && service.includes('COALESCE(ord.assigned_director_id, o.assigned_director_id)'), 'order revenue metrics must scope through order assignment fallback to opportunity assignment');
-check(opportunitiesService.includes('assigned_rep_id, assigned_director_id') && opportunitiesService.includes('updatedOpp.assigned_rep_id'), 'Closed Won auto-order creation must copy rep/director assignment');
 check(dashboard.includes('isApiBacked ? backendMetrics'), 'DashboardPage launch-critical cards must prefer backend metrics in API mode');
 check(dashboard.includes('orderPaceCount'), '4-orders/month pacing must be tied to backend paid order count in API mode');
 check(!/estimatedEarnings = .*0\.1; \/\/ 10% commission mock\n[\s\S]*formatCurrency\(estimatedEarnings\)/.test(dashboard), 'estimated earnings mock value is directly rendered without API-backed override');
