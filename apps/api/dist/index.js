@@ -107,6 +107,7 @@ server.register(production_requests_routes_1.productionRequestRoutes, { prefix: 
 server.register(orders_routes_1.orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/api/v1' });
 server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
+server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' });
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/opportunities' });
 server.register(activities_routes_1.activityRoutes, { prefix: '/activities' });
@@ -115,9 +116,6 @@ server.register(production_requests_routes_1.productionRequestRoutes, { prefix: 
 server.register(orders_routes_1.orderRoutes, { prefix: '/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes);
 server.register(users_routes_1.userRoutes, { prefix: '/auth' });
-server.register(training_routes_1.trainingRoutes, { prefix: '/training' });
-server.register(training_routes_1.trainingRoutes, { prefix: '/api/training' });
-server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' });
 const healthHandler = async () => ({
     status: 'ok',
     service: 'tuf-ops-api',
