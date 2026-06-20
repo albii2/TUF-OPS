@@ -8,9 +8,27 @@ import {
   TrainingProgressStatus,
   TrainingEnrollmentWithProgress,
   TrainingEnrollmentStatus,
+  LEGACY_PHASE_MAP,
 } from './training.interface';
 
-const PHASE_ORDER = [TrainingPhase.DAY_1, TrainingPhase.DAY_1_2, TrainingPhase.WEEK_1_2, TrainingPhase.MONTH_1];
+const PHASE_ORDER = [
+  TrainingPhase.LEVEL_1_OPERATOR,
+  TrainingPhase.LEVEL_2_PRODUCT,
+  TrainingPhase.LEVEL_3_TERRITORY,
+  TrainingPhase.LEVEL_4_SALES,
+  TrainingPhase.LEVEL_5_EXPANSION,
+  TrainingPhase.SPECIALIZED_TRACKS,
+  TrainingPhase.LEVEL_7_DIRECTOR,
+  TrainingPhase.MARKET_MASTERY,
+];
+
+
+const CANONICAL_PHASES = new Set<string>(PHASE_ORDER);
+
+function normalizeTrainingPhase(phase: string): TrainingPhase | null {
+  if (CANONICAL_PHASES.has(phase)) return phase as TrainingPhase;
+  return LEGACY_PHASE_MAP[phase] ?? null;
+}
 
 function persistedTrainingRole(role: TrainingRole): TrainingRole {
   return role === TrainingRole.REP ? TrainingRole.TAE : role;
@@ -45,7 +63,7 @@ export async function enrollUserInTraining(userId: number, role: TrainingRole): 
     `INSERT INTO training_enrollments (user_id, role, status, current_phase, enrolled_at, created_at, updated_at)
      VALUES ($1, $2, $3, $4, NOW(), NOW(), NOW())
      RETURNING *`,
-    [userId, enrollmentRole, TrainingEnrollmentStatus.ACTIVE, TrainingPhase.DAY_1]
+    [userId, enrollmentRole, TrainingEnrollmentStatus.ACTIVE, TrainingPhase.LEVEL_1_OPERATOR]
   );
 
   return result.rows[0];
@@ -71,6 +89,13 @@ export async function getEnrollmentWithProgress(enrollmentId: number): Promise<T
   );
   const modules = modulesResult.rows as TrainingModule[];
 
+  // Get latest quiz/assessment result for all modules
+  const assessmentResult = await pool.query(
+    'SELECT DISTINCT ON (module_id) * FROM training_assessments WHERE enrollment_id = $1 ORDER BY module_id, taken_at DESC NULLS LAST, created_at DESC',
+    [enrollmentId]
+  );
+  const assessmentByModule = new Map(assessmentResult.rows.map((row) => [row.module_id, row]));
+
   // Get progress for all modules
   const progressResult = await pool.query(
     'SELECT * FROM training_progress WHERE enrollment_id = $1',
@@ -80,22 +105,39 @@ export async function getEnrollmentWithProgress(enrollmentId: number): Promise<T
 
   // Calculate completion metrics
   const totalModules = modules.length;
-  const completedModules = progress.filter((p) => p.status === TrainingProgressStatus.COMPLETED).length;
+  const completedModules = modules.filter((module) => {
+    const moduleProgress = progress.find((p) => p.module_id === module.id);
+    const moduleAssessment = assessmentByModule.get(module.id);
+    const hasQuiz = Array.isArray((module as any).quiz_json) && (module as any).quiz_json.length > 0;
+    return moduleProgress?.status === TrainingProgressStatus.COMPLETED && (!hasQuiz || moduleAssessment?.passed === true);
+  }).length;
   const percentComplete = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
 
   // Calculate phase completion status
   const phaseCompletionStatus: Record<TrainingPhase, { completed: number; total: number; percentComplete: number }> = {
-    [TrainingPhase.DAY_1]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.DAY_1_2]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.WEEK_1_2]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.MONTH_1]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.LEVEL_1_OPERATOR]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.LEVEL_2_PRODUCT]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.LEVEL_3_TERRITORY]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.LEVEL_4_SALES]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.LEVEL_5_EXPANSION]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.SPECIALIZED_TRACKS]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.LEVEL_7_DIRECTOR]: { completed: 0, total: 0, percentComplete: 0 },
+    [TrainingPhase.MARKET_MASTERY]: { completed: 0, total: 0, percentComplete: 0 },
   };
 
   modules.forEach((module) => {
-    phaseCompletionStatus[module.phase].total += 1;
+    const normalizedPhase = normalizeTrainingPhase(module.phase);
+    if (!normalizedPhase) {
+      console.warn(`Skipping training module ${module.id} with unknown phase ${module.phase}`);
+      return;
+    }
+
+    phaseCompletionStatus[normalizedPhase].total += 1;
     const moduleProgress = progress.find((p) => p.module_id === module.id);
-    if (moduleProgress && moduleProgress.status === TrainingProgressStatus.COMPLETED) {
-      phaseCompletionStatus[module.phase].completed += 1;
+    const moduleAssessment = assessmentByModule.get(module.id);
+    const hasQuiz = Array.isArray((module as any).quiz_json) && (module as any).quiz_json.length > 0;
+    if (moduleProgress && moduleProgress.status === TrainingProgressStatus.COMPLETED && (!hasQuiz || moduleAssessment?.passed === true)) {
+      phaseCompletionStatus[normalizedPhase].completed += 1;
     }
   });
 
@@ -186,7 +228,7 @@ export async function markModuleCompleted(
   const enrollment = await getEnrollmentById(enrollmentId);
   const phaseModulesResult = await pool.query(
     'SELECT id FROM training_modules WHERE role = $1 AND phase = $2',
-    [enrollment.role, enrollment.current_phase]
+    [enrollment.role, normalizeTrainingPhase(enrollment.current_phase) ?? TrainingPhase.LEVEL_1_OPERATOR]
   );
   const phaseModuleIds = phaseModulesResult.rows.map((r) => r.id);
 
@@ -201,7 +243,7 @@ export async function markModuleCompleted(
   // If all modules in phase completed, advance to next phase
   let updatedEnrollment = enrollment;
   if (completedInPhase === phaseModuleIds.length && phaseModuleIds.length > 0) {
-    const currentPhaseIndex = PHASE_ORDER.indexOf(enrollment.current_phase);
+    const currentPhaseIndex = PHASE_ORDER.indexOf(normalizeTrainingPhase(enrollment.current_phase) ?? TrainingPhase.LEVEL_1_OPERATOR);
     const nextPhaseIndex = currentPhaseIndex + 1;
 
     if (nextPhaseIndex < PHASE_ORDER.length) {
@@ -232,7 +274,7 @@ export async function markModuleCompleted(
 }
 
 export async function checkAndUpdateCertification(userId: number): Promise<boolean> {
-  const userRes = await pool.query('SELECT role, hr_docs_completed, director_signed_off FROM users WHERE id = $1', [userId]);
+  const userRes = await pool.query('SELECT role, hr_docs_completed, practical_exercise_completed, director_signed_off FROM users WHERE id = $1', [userId]);
   if (userRes.rows.length === 0) return false;
   const user = userRes.rows[0];
 
@@ -251,19 +293,28 @@ export async function checkAndUpdateCertification(userId: number): Promise<boole
   const enrollment = enrollmentRes.rows[0];
 
   // Count modules vs completed modules
-  const modulesRes = await pool.query('SELECT COUNT(*) as count FROM training_modules WHERE role = $1', [enrollment.role]);
+  const modulesRes = await pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
   const progressRes = await pool.query(
-    'SELECT COUNT(*) as count FROM training_progress WHERE enrollment_id = $1 AND status = $2',
+    'SELECT module_id FROM training_progress WHERE enrollment_id = $1 AND status = $2',
     [enrollment.id, 'COMPLETED']
   );
+  const assessmentRes = await pool.query(
+    'SELECT DISTINCT ON (module_id) module_id, passed FROM training_assessments WHERE enrollment_id = $1 ORDER BY module_id, taken_at DESC NULLS LAST, created_at DESC',
+    [enrollment.id]
+  );
 
-  const totalModules = parseInt(modulesRes.rows[0].count, 10);
-  const completedModules = parseInt(progressRes.rows[0].count, 10);
+  const completedProgress = new Set(progressRes.rows.map((row) => row.module_id));
+  const passedAssessments = new Set(assessmentRes.rows.filter((row) => row.passed).map((row) => row.module_id));
+  const totalModules = modulesRes.rows.length;
+  const completedModules = modulesRes.rows.filter((module) => {
+    const hasQuiz = Array.isArray(module.quiz_json) && module.quiz_json.length > 0;
+    return completedProgress.has(module.id) && (!hasQuiz || passedAssessments.has(module.id));
+  }).length;
 
   const modulesCompleted = totalModules > 0 && completedModules >= totalModules;
-  const isCertified = modulesCompleted && user.hr_docs_completed && user.director_signed_off;
+  const isCertified = modulesCompleted && user.hr_docs_completed && user.practical_exercise_completed && user.director_signed_off;
 
-  await pool.query('UPDATE users SET is_certified = $1 WHERE id = $2', [isCertified, userId]);
+  await pool.query("UPDATE users SET is_certified = $1, certification_source = 'DATABASE' WHERE id = $2", [isCertified, userId]);
   return isCertified;
 }
 
@@ -271,6 +322,15 @@ export async function toggleHrDocs(userId: number, hrDocsCompleted: boolean): Pr
   const result = await pool.query(
     'UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, director_signed_off, is_certified',
     [hrDocsCompleted, userId]
+  );
+  await checkAndUpdateCertification(userId);
+  return result.rows[0];
+}
+
+export async function togglePracticalExercise(userId: number, practicalExerciseCompleted: boolean): Promise<any> {
+  const result = await pool.query(
+    'UPDATE users SET practical_exercise_completed = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified',
+    [practicalExerciseCompleted, userId]
   );
   await checkAndUpdateCertification(userId);
   return result.rows[0];
@@ -285,9 +345,30 @@ export async function toggleDirectorSignoff(userId: number, directorSignedOff: b
   return result.rows[0];
 }
 
+export async function submitModuleAssessment(enrollmentId: number, moduleId: number, answers: string[]): Promise<any> {
+  const moduleResult = await pool.query('SELECT id, quiz_json, passing_score FROM training_modules WHERE id = $1', [moduleId]);
+  if (moduleResult.rows.length === 0) throw new Error('Module not found');
+  const module = moduleResult.rows[0];
+  const questions = Array.isArray(module.quiz_json) ? module.quiz_json : [];
+  if (!questions.length) throw new Error('Module has no quiz');
+
+  const correct = questions.reduce((count: number, question: any, index: number) => count + (answers[index] === question.correctAnswer ? 1 : 0), 0);
+  const score = Math.round((correct / questions.length) * 100);
+  const passed = score >= (module.passing_score ?? 85);
+  const result = await pool.query(
+    `INSERT INTO training_assessments (module_id, enrollment_id, score, passed, taken_at, created_at)
+     VALUES ($1, $2, $3, $4, NOW(), NOW())
+     RETURNING *`,
+    [moduleId, enrollmentId, score, passed]
+  );
+  const enrollment = await getEnrollmentById(enrollmentId);
+  await checkAndUpdateCertification(enrollment.user_id);
+  return result.rows[0];
+}
+
 export async function getCertificationStatus(userId: number): Promise<any> {
   const userRes = await pool.query(
-    'SELECT id, name, role, hr_docs_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    'SELECT id, name, role, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
     [userId]
   );
   if (userRes.rows.length === 0) {
@@ -302,13 +383,22 @@ export async function getCertificationStatus(userId: number): Promise<any> {
   const enrollmentRes = await pool.query('SELECT id, role FROM training_enrollments WHERE user_id = $1', [userId]);
   if (enrollmentRes.rows.length > 0) {
     const enrollment = enrollmentRes.rows[0];
-    const modulesRes = await pool.query('SELECT COUNT(*) as count FROM training_modules WHERE role = $1', [enrollment.role]);
+    const modulesRes = await pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
     const progressRes = await pool.query(
-      'SELECT COUNT(*) as count FROM training_progress WHERE enrollment_id = $1 AND status = $2',
+      'SELECT module_id FROM training_progress WHERE enrollment_id = $1 AND status = $2',
       [enrollment.id, 'COMPLETED']
     );
-    totalModules = parseInt(modulesRes.rows[0].count, 10);
-    completedModules = parseInt(progressRes.rows[0].count, 10);
+    const assessmentRes = await pool.query(
+      'SELECT DISTINCT ON (module_id) module_id, passed FROM training_assessments WHERE enrollment_id = $1 ORDER BY module_id, taken_at DESC NULLS LAST, created_at DESC',
+      [enrollment.id]
+    );
+    const completedProgress = new Set(progressRes.rows.map((row) => row.module_id));
+    const passedAssessments = new Set(assessmentRes.rows.filter((row) => row.passed).map((row) => row.module_id));
+    totalModules = modulesRes.rows.length;
+    completedModules = modulesRes.rows.filter((module) => {
+      const hasQuiz = Array.isArray(module.quiz_json) && module.quiz_json.length > 0;
+      return completedProgress.has(module.id) && (!hasQuiz || passedAssessments.has(module.id));
+    }).length;
     modulesPercent = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
   }
 
@@ -317,6 +407,7 @@ export async function getCertificationStatus(userId: number): Promise<any> {
     name: user.name,
     role: user.role,
     hrDocsCompleted: user.hr_docs_completed,
+    practicalExerciseCompleted: user.practical_exercise_completed,
     directorSignedOff: user.director_signed_off,
     isCertified: user.is_certified,
     modulesPercent,
