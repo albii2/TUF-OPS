@@ -3,9 +3,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
-const mnPath = path.join(root, 'apps/web/src/assets/tuf_mn_leads_final.csv');
-const enrichedPath = path.join(root, 'apps/web/src/assets/tuf_leads_final_enriched.csv');
-const csvPath = fs.existsSync(mnPath) ? mnPath : enrichedPath;
+const assetsDir = path.join(root, 'apps/web/src/assets');
+const csvPath = fs.existsSync(path.join(assetsDir, 'tuf_mn_leads_final.csv'))
+  ? path.join(assetsDir, 'tuf_mn_leads_final.csv')
+  : path.join(assetsDir, 'tuf_leads_final_enriched.csv');
 const seedPath = path.join(root, 'packages/database/seed_leads_from_csv.js');
 const migrationPath = path.join(root, 'packages/database/migrations/1900000012000_v090_lead_csv_full_mapping.js');
 const docPath = path.join(root, 'docs/V0_9_0_LEAD_CSV_MAPPING.md');
@@ -95,6 +96,7 @@ const requiredSeedTerms = [
   'tuf_zone', 'tuf_priority', 'lead_metadata', 'Athletic Director / Activities Director', 'organization_sports',
   'ON CONFLICT (organization_id, sport)', 'WHERE NOT EXISTS', 'TUF Metro', 'TUF North', 'getPrimeauDirectorId', 'assigned_director_id',
   'LEAD_ASSIGNED', 'UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN',
+  'assigned_director_name', 'assigned_rep_name', 'assignment_batch', 'assignment_rationale', 'loadAssignableUsers', 'matchUser',
 ];
 for (const term of requiredSeedTerms) {
   requireText(seed, term, `Seed script is missing required mapping/safety term: ${term}.`);
@@ -114,7 +116,7 @@ forbidPattern(seed, /\bDROP\s+TABLE\b/i, 'Lead seed must not drop tables.');
 forbidPattern(seed, /INSERT\s+INTO\s+(orders|invoices|commissions)\b/i, 'Lead seed must not create fake orders, invoices, or commissions.');
 
 const requiredDocTerms = [
-  'tuf_leads_final_enriched.csv', '260', 'school_name', 'activities_director_email', 'organization_sports', 'TUF Metro', 'TUF North', 'Primeau', 'Safe seed',
+  'tuf_mn_leads_final.csv', '260', 'school_name', 'activities_director_email', 'organization_sports', 'TUF Metro', 'TUF North', 'Primeau', 'Safe seed',
 ];
 for (const term of requiredDocTerms) {
   requireText(doc, term, `Lead CSV mapping doc is missing required content: ${term}.`);

@@ -14,36 +14,11 @@ exports.up = async (pgm) => {
 
       ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'));
 
-      -- 2. Add columns to users table
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS rank varchar(100);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS tier varchar(100);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS region varchar(100);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS state_market varchar(50);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS division varchar(100);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS subterritory varchar(255);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS sport_focus varchar(100);
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS reports_to_user_id integer REFERENCES users(id);
+      -- Note: Columns like rank, tier, region, state_market, division, subterritory, sport_focus, and reports_to_user_id
+      -- are already added to the users table by the migration 1900000013000_v090_user_role_scope_columns.js.
+      -- So we skip adding them here to avoid conflicts.
 
-      -- Backfill new user columns with default values based on role/metadata
-      UPDATE users
-      SET rank = 'Admin',
-          region = 'National',
-          division = 'All',
-          subterritory = 'All',
-          sport_focus = 'All'
-      WHERE role = 'ADMIN';
-
-      UPDATE users
-      SET rank = 'Director',
-          region = 'Midwest',
-          state_market = 'MN',
-          division = 'General',
-          territory = 'Minnesota',
-          subterritory = 'Metro + North',
-          sport_focus = 'All'
-      WHERE role = 'DIRECTOR' AND (lower(name) LIKE '%primeau%' OR lower(email) LIKE '%primeau%');
-
-      -- 3. Add columns to organizations table
+      -- 2. Add columns to organizations table
       ALTER TABLE organizations ADD COLUMN IF NOT EXISTS region varchar(100);
       ALTER TABLE organizations ADD COLUMN IF NOT EXISTS state_market varchar(50);
       ALTER TABLE organizations ADD COLUMN IF NOT EXISTS division varchar(100);
@@ -73,15 +48,6 @@ exports.down = async (pgm) => {
       END IF;
       
       ALTER TABLE users ADD CONSTRAINT users_role_check CHECK (role IN ('OWNER', 'ADMIN', 'DIRECTOR', 'REP', 'OPS'));
-
-      ALTER TABLE users DROP COLUMN IF EXISTS rank;
-      ALTER TABLE users DROP COLUMN IF EXISTS tier;
-      ALTER TABLE users DROP COLUMN IF EXISTS region;
-      ALTER TABLE users DROP COLUMN IF EXISTS state_market;
-      ALTER TABLE users DROP COLUMN IF EXISTS division;
-      ALTER TABLE users DROP COLUMN IF EXISTS subterritory;
-      ALTER TABLE users DROP COLUMN IF EXISTS sport_focus;
-      ALTER TABLE users DROP COLUMN IF EXISTS reports_to_user_id;
 
       ALTER TABLE organizations DROP COLUMN IF EXISTS region;
       ALTER TABLE organizations DROP COLUMN IF EXISTS state_market;

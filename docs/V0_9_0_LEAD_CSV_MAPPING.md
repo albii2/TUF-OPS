@@ -2,7 +2,7 @@
 
 ## Source of truth
 
-* Source file: `apps/web/src/assets/tuf_mn_leads_final.csv` (falling back to `tuf_leads_final_enriched.csv` if absent)
+* Source file: `apps/web/src/assets/tuf_mn_leads_final.csv` (correct launch assignments CSV).
 * Expected row count: 260 school records, excluding the header row.
 * Seed script: `packages/database/seed_leads_from_csv.js`
 * Schema support migration: `packages/database/migrations/1900000012000_v090_lead_csv_full_mapping.js`
@@ -156,3 +156,46 @@ TUF_LEADS_CSV=/secure/path/tuf_mn_leads_final.csv pnpm -w run db:seed:leads
 * Confirm West/South/East/Unassigned schools remain visible to owner/admin.
 * Confirm opportunities are `LEAD_ASSIGNED` and not duplicated after rerunning the seed.
 * Confirm no orders, invoices, commissions, or fake activities were created by this seed.
+
+## Corrected launch assignment import
+
+The lead seed now supports these optional owner-provided assignment columns when they are present in the CSV:
+
+* `assigned_director_name`
+* `assigned_director_email`
+* `assigned_rep_name`
+* `assigned_rep_email`
+* `assignment_batch`
+* `assignment_rationale`
+
+User matching is intentionally conservative:
+
+1. Match by assignment email first when `assigned_rep_email` or `assigned_director_email` is present.
+2. Fall back to normalized user name matching.
+3. If a rep name is present but no matching user exists, preserve the assignment text in `organizations.lead_metadata` and leave `assigned_rep_id` null.
+4. `Primeau Director Pool` rows assign Primeau Hill as director and clear rep assignment.
+5. `Future Zone Pool` rows remain unassigned so owner/admin users can manage them.
+
+For the corrected David/Cody launch files, expected rep counts are:
+
+| Rep | Expected schools | Assignment intent |
+|---|---:|---|
+| Jason Mulder | 30 | South / Southwest Metro schools |
+| Josh Hoffman | 30 | West Metro / Minneapolis inner-ring schools |
+| Shayla Hilliard | 30 | Northwest / North Metro schools |
+| David Lundberg | 30 | North/outstate/remote-prospecting schools |
+| Primeau Hill | Director pool / overflow | East Metro hold and overflow, no rep assignment |
+
+David Lundberg is Cody / remote. His assignment rationale must reference remote, outstate, north-corridor, phone, or email-first work and must not assign the St. Paul/Woodbury/East Metro cluster to him.
+
+Before preview or production seeding with corrected assignments, place the owner-provided file where the seed can read it, for example:
+
+```bash
+TUF_LEADS_CSV=/secure/path/tuf_mn_leads_final.csv pnpm -w run db:seed:leads
+```
+
+Run the assignment validator before seeding:
+
+```bash
+TUF_LEADS_CSV=/secure/path/tuf_mn_leads_final.csv node scripts/validate-v090-launch-assignments.js
+```

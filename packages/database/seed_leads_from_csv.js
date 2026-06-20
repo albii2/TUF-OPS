@@ -7,12 +7,19 @@ const DEFAULT_CHANNELS = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'];
 const DEFAULT_SPORT = 'FOOTBALL';
 const DEFAULT_SEASON = 'FALL';
 const DEFAULT_YEAR = 2026;
-let LEAD_SOURCE = 'tuf_leads_final_enriched.csv';
+
+const PRIMEAU_DIRECTOR_POOL_LABEL = 'Primeau Director Pool';
+const FUTURE_ZONE_POOL_LABEL = 'Future Zone Pool';
+const LEAD_SOURCE = process.env.TUF_LEADS_SOURCE || 'tuf_mn_leads_final.csv';
+
 const EXPECTED_HEADERS = [
   'school_name', 'school_url', 'school_colors', 'address', 'phone_number', 'enrollment', 'isd_number', 'website_link',
   'activities_director_name', 'activities_director_email', 'activities_director_phone_number',
   'football_offered', 'football_urls', 'basketball_offered', 'basketball_urls', 'hockey_offered', 'hockey_urls', 'baseball_offered', 'baseball_urls',
   'tuf_zone', 'tuf_priority',
+];
+const OPTIONAL_ASSIGNMENT_HEADERS = [
+  'assigned_director_name', 'assigned_director_email', 'assigned_rep_name', 'assigned_rep_email', 'assignment_batch', 'assignment_rationale',
 ];
 const SPORT_COLUMNS = [
   { sport: 'FOOTBALL', offered: 'football_offered', url: 'football_urls' },
@@ -26,11 +33,9 @@ function parseCsv(text) {
   let row = [];
   let field = '';
   let inQuotes = false;
-
   for (let i = 0; i < text.length; i += 1) {
     const char = text[i];
     const next = text[i + 1];
-
     if (char === '"') {
       if (inQuotes && next === '"') {
         field += '"';
@@ -38,167 +43,104 @@ function parseCsv(text) {
       } else {
         inQuotes = !inQuotes;
       }
-      continue;
-    }
-
-    if (char === ',' && !inQuotes) {
+    } else if (char === ',' && !inQuotes) {
       row.push(field);
       field = '';
-      continue;
-    }
-
-    if ((char === '\n' || char === '\r') && !inQuotes) {
+    } else if ((char === '\n' || char === '\r') && !inQuotes) {
       if (char === '\r' && next === '\n') i += 1;
       row.push(field);
-      if (row.some((value) => value.trim().length > 0)) rows.push(row);
+      if (row.some((value) => value.trim())) rows.push(row);
       row = [];
       field = '';
-      continue;
+    } else {
+      field += char;
     }
-
-    field += char;
   }
-
   row.push(field);
-  if (row.some((value) => value.trim().length > 0)) rows.push(row);
+  if (row.some((value) => value.trim())) rows.push(row);
   return rows;
 }
 
-function normalizeAccountName(value) {
+function normalizeIdentity(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
-function parseAddress(address) {
-  const rawAddress = String(address || '').replace(/\s+/g, ' ').trim();
-  const normalized = rawAddress.replace(/\s+,/g, ',');
-  const match = normalized.match(/^(.+?)\s*,\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)$/i);
-  if (!match) return { rawAddress, addressLine1: rawAddress || null, city: 'TBD', state: 'MN', postalCode: null };
+function normalizeLeadRow(raw) {
+  const sports = [];
+  for (const col of SPORT_COLUMNS) {
+    const offeredVal = String(raw[col.offered] || '').toLowerCase().trim();
+    const offered = ['true', 'yes', '1', 'y'].includes(offeredVal);
+    const url = String(raw[col.url] || '').trim();
+    if (offered || url) {
+      sports.push({ sport: col.sport, offered, url });
+    }
+  }
+  const name = normalizeIdentity(raw.school_name);
+  const state = 'MN';
 
-  const streetAndCity = match[1].trim();
-  const state = match[2].toUpperCase();
-  const postalCode = match[3];
-  const words = streetAndCity.split(' ').filter(Boolean);
-  const streetTerminators = new Set([
-    'avenue', 'ave', 'boulevard', 'blvd', 'circle', 'cir', 'court', 'ct', 'drive', 'dr', 'east', 'highway', 'hwy', 'lane', 'ln',
-    'north', 'parkway', 'pkwy', 'place', 'pl', 'road', 'rd', 'se', 'south', 'street', 'st', 'trail', 'way', 'west',
-  ]);
-  const directionals = new Set(['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']);
-  const cleanToken = (word) => word.toLowerCase().replace(/\.$/, '');
-  const terminatorIndex = words.reduce((lastIndex, word, index) => (streetTerminators.has(cleanToken(word)) ? index : lastIndex), -1);
-  const rawCityWords = terminatorIndex >= 0 ? words.slice(terminatorIndex + 1) : words.slice(-2);
-  const cityWords = [...rawCityWords];
-  while (cityWords.length && directionals.has(cleanToken(cityWords[0]))) cityWords.shift();
-  const city = cityWords.join(' ') || 'TBD';
-  const addressLine1 = terminatorIndex >= 0 ? words.slice(0, terminatorIndex + 1).join(' ') : streetAndCity.replace(new RegExp(`${city}$`), '').trim();
-  return { rawAddress, addressLine1: addressLine1 || streetAndCity, city, state, postalCode };
+  return {
+    name,
+    state,
+    schoolUrl: String(raw.school_url || '').trim(),
+    schoolColors: String(raw.school_colors || '').trim(),
+    fullAddress: String(raw.address || '').trim(),
+    addressLine1: String(raw.address || '').split(',')[0]?.trim() || '',
+    city: String(raw.address || '').split(',')[1]?.trim() || '',
+    postalCode: String(raw.zip || raw.parsed_zip || '').trim(),
+    phone: String(raw.phone_number || '').trim(),
+    enrollment: parseInt(raw.enrollment, 10) || null,
+    isdNumber: String(raw.isd_number || '').trim(),
+    websiteLink: String(raw.website_link || '').trim(),
+    athleticDirectorName: String(raw.activities_director_name || '').trim(),
+    athleticDirectorEmail: String(raw.activities_director_email || '').trim(),
+    athleticDirectorPhone: String(raw.activities_director_phone_number || '').trim(),
+    zone: normalizeIdentity(raw.tuf_zone),
+    priority: normalizeIdentity(raw.tuf_priority).toUpperCase() || 'MEDIUM',
+    sports,
+    assignedDirectorName: raw.assigned_director_name || null,
+    assignedDirectorEmail: raw.assigned_director_email || null,
+    assignedRepName: raw.assigned_rep_name || null,
+    assignedRepEmail: raw.assigned_rep_email || null,
+    assignmentBatch: raw.assignment_batch || null,
+    assignmentRationale: raw.assignment_rationale || null,
+  };
 }
 
-function normalizeZone(rawZone, city = '') {
-  const value = String(rawZone || '').trim();
-  const lower = value.toLowerCase();
-  if (lower === 'tuf metro' || lower === 'metro') return 'TUF Metro';
-  if (lower === 'tuf north' || lower === 'north') return 'TUF North';
-  if (lower === 'tuf west' || lower === 'west') return 'TUF West';
-  if (lower === 'tuf south' || lower === 'south') return 'TUF South';
-  if (lower === 'tuf east' || lower === 'east') return 'TUF Metro';
-  if (lower === 'unassigned') return 'Unassigned';
-  const cityKey = String(city || '').toLowerCase();
-  if (/duluth|st\.? cloud|anoka|elk river|andover|blaine|champlin|coon rapids|forest lake/.test(cityKey)) return 'TUF North';
-  if (/minneapolis|st\.? paul|saint paul|bloomington|richfield|woodbury|stillwater|hastings|prior lake|shakopee|burnsville|savage|minnetonka/.test(cityKey)) return 'TUF Metro';
-  return value || 'Unassigned';
+function leadRowsFromCsv(file) {
+  const text = fs.readFileSync(file, 'utf8');
+  const rows = parseCsv(text);
+  if (!rows.length) return [];
+  const headers = rows[0].map((h) => h.trim().toLowerCase());
+  const missing = EXPECTED_HEADERS.filter((h) => !headers.includes(h));
+  if (missing.length) {
+    throw new Error(`CSV file ${file} is missing expected headers: ${missing.join(', ')}`);
+  }
+  return rows.slice(1).map((row) => {
+    const raw = Object.fromEntries(headers.map((h, i) => [h, row[i] || '']));
+    return normalizeLeadRow(raw);
+  });
 }
 
-function priorityFromLead(rawPriority) {
-  const value = String(rawPriority || '').toLowerCase();
-  if (value.includes('tier 1') || value.includes('tier1')) return 'TIER_1';
-  if (value.includes('tier 2') || value.includes('tier2')) return 'TIER_2';
-  if (value.includes('tier 3') || value.includes('tier3')) return 'TIER_3';
-  return 'UNASSIGNED';
-}
-
-function parseInteger(value) {
-  const parsed = Number.parseInt(String(value || '').replace(/,/g, ''), 10);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function parseOffered(value) {
-  return ['yes', 'true', '1', 'y'].includes(String(value || '').trim().toLowerCase());
-}
-
-function assertExpectedHeaders(keys) {
-  const missing = EXPECTED_HEADERS.filter((header) => !keys.includes(header));
-  if (missing.length) throw new Error(`Lead CSV is missing expected headers: ${missing.join(', ')}`);
-}
-
-function sportRowsFromRaw(raw) {
-  return SPORT_COLUMNS.map(({ sport, offered, url }) => ({
-    sport,
-    offered: parseOffered(raw[offered]),
-    url: raw[url] || null,
-  }));
-}
-
-function leadRowsFromCsv(csvPath) {
-  const rows = parseCsv(fs.readFileSync(csvPath, 'utf8'));
-  const [header, ...body] = rows;
-  const keys = header.map((key) => key.trim().toLowerCase());
-  assertExpectedHeaders(keys);
-  return body.map((line) => {
-    const raw = Object.fromEntries(keys.map((key, index) => [key, String(line[index] || '').trim()]));
-    const { rawAddress, city, state, postalCode, addressLine1 } = parseAddress(raw.address);
-    return {
-      name: normalizeAccountName(raw.school_name),
-      schoolUrl: raw.school_url || null,
-      schoolColors: raw.school_colors || null,
-      fullAddress: rawAddress || null,
-      addressLine1,
-      city,
-      state,
-      postalCode,
-      phone: raw.phone_number || null,
-      enrollment: parseInteger(raw.enrollment),
-      isdNumber: raw.isd_number || null,
-      websiteLink: raw.website_link || null,
-      athleticDirectorName: raw.activities_director_name || null,
-      athleticDirectorEmail: raw.activities_director_email ? raw.activities_director_email.toLowerCase() : null,
-      athleticDirectorPhone: raw.activities_director_phone_number || raw.phone_number || null,
-      priority: priorityFromLead(raw.tuf_priority),
-      zone: normalizeZone(raw.tuf_zone, city),
-      sports: sportRowsFromRaw(raw),
-      assignedDirectorName: raw.assigned_director_name || null,
-      assignedRepName: raw.assigned_rep_name || null,
-      assignmentBatch: raw.assignment_batch || null,
-      assignmentRationale: raw.assignment_rationale || null,
-    };
-  }).filter((lead) => lead.name.length > 0);
+function resolveDefaultCsvPath() {
+  const assetsDir = path.resolve(__dirname, '../../apps/web/src/assets');
+  const mnPath = path.join(assetsDir, 'tuf_mn_leads_final.csv');
+  const enrichedPath = path.join(assetsDir, 'tuf_leads_final_enriched.csv');
+  return fs.existsSync(mnPath) ? mnPath : enrichedPath;
 }
 
 async function tableExists(client, tableName) {
   const result = await client.query(
-    `SELECT EXISTS (
-      SELECT 1 FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = $1
-    ) AS exists`,
-    [tableName],
+    'SELECT 1 FROM information_schema.tables WHERE table_schema = \'public\' AND table_name = $1',
+    [tableName]
   );
-  return Boolean(result.rows[0]?.exists);
-}
-
-async function getPrimeauDirectorId(client) {
-  try {
-    const result = await client.query("SELECT id FROM users WHERE lower(email) = 'primeau.hill@tufsports.us' OR lower(name) = 'primeau hill' ORDER BY id LIMIT 1");
-    return result.rows[0]?.id || null;
-  } catch {
-    return null;
-  }
+  return result.rows.length > 0;
 }
 
 async function getActorUserId(client) {
   try {
     const result = await client.query(`
-      SELECT id
-      FROM users
-      ORDER BY CASE role WHEN 'OWNER' THEN 0 WHEN 'ADMIN' THEN 1 ELSE 2 END, id
+      SELECT id FROM users 
+      ORDER BY CASE role WHEN 'ADMIN' THEN 0 ELSE 1 END, id 
       LIMIT 1
     `);
     return result.rows[0]?.id || 1;
@@ -207,42 +149,76 @@ async function getActorUserId(client) {
   }
 }
 
-async function loadUsersMap(client) {
+async function getPrimeauDirectorId(client) {
   try {
-    const result = await client.query('SELECT id, name, email FROM users');
-    const map = {};
-    for (const row of result.rows) {
-      if (row.name) map[row.name.toLowerCase()] = row;
-      if (row.email) map[row.email.toLowerCase()] = row;
-    }
-    return map;
+    const result = await client.query(`
+      SELECT id FROM users 
+      WHERE role = 'DIRECTOR' AND (lower(email) = 'primeau.hill@tufsports.us' OR lower(name) = 'primeau hill') 
+      ORDER BY id 
+      LIMIT 1
+    `);
+    return result.rows[0]?.id || null;
   } catch {
-    return {};
+    return null;
   }
 }
 
-async function upsertOrganization(client, lead, actorUserId, usersMap) {
-  let assignedDirectorId = null;
-  let assignedDirectorName = lead.assignedDirectorName || null;
-  let assignedDirectorEmail = null;
-  if (assignedDirectorName && assignedDirectorName !== 'Owner/Admin Pool') {
-    const directorUser = usersMap[assignedDirectorName.toLowerCase()];
-    if (directorUser) {
-      assignedDirectorId = directorUser.id;
-      assignedDirectorEmail = directorUser.email;
+async function loadAssignableUsers(client) {
+  try {
+    const result = await client.query('SELECT id, name, email, role FROM users');
+    const byEmail = new Map();
+    const byName = new Map();
+    for (const user of result.rows) {
+      if (user.email) byEmail.set(String(user.email).toLowerCase(), user);
+      if (user.name) byName.set(normalizeIdentity(user.name).toLowerCase(), user);
     }
+    return { byEmail, byName };
+  } catch {
+    return { byEmail: new Map(), byName: new Map() };
   }
+}
 
-  let assignedRepId = null;
-  let assignedRepName = lead.assignedRepName || null;
-  let assignedRepEmail = null;
-  if (assignedRepName && assignedRepName !== 'Unassigned Rep Pool') {
-    const repUser = usersMap[assignedRepName.toLowerCase()];
-    if (repUser) {
-      assignedRepId = repUser.id;
-      assignedRepEmail = repUser.email;
-    }
-  }
+function matchUser(users, email, name) {
+  if (email && users.byEmail.has(String(email).toLowerCase())) return users.byEmail.get(String(email).toLowerCase());
+  if (name && users.byName.has(normalizeIdentity(name).toLowerCase())) return users.byName.get(normalizeIdentity(name).toLowerCase());
+  return null;
+}
+
+function resolveLaunchAssignment(lead, users, primeauDirectorId) {
+  const batch = normalizeIdentity(lead.assignmentBatch).toLowerCase();
+  const rationale = normalizeIdentity(lead.assignmentRationale).toLowerCase();
+  const assignedRepName = normalizeIdentity(lead.assignedRepName).toLowerCase();
+  const isPrimeauDirectorPool = batch.includes(PRIMEAU_DIRECTOR_POOL_LABEL.toLowerCase()) || batch.includes('director pool') || assignedRepName.includes('primeau director pool');
+  const isFutureZonePool = batch.includes(FUTURE_ZONE_POOL_LABEL.toLowerCase()) || assignedRepName.includes('future zone pool');
+
+  const matchedDirector = matchUser(users, lead.assignedDirectorEmail, lead.assignedDirectorName);
+  const matchedRep = isPrimeauDirectorPool || isFutureZonePool ? null : matchUser(users, lead.assignedRepEmail, lead.assignedRepName);
+  const fallbackPrimeauDirectorId = primeauDirectorId && ['TUF Metro', 'TUF North'].includes(lead.zone) ? primeauDirectorId : null;
+
+  const metadata = {
+    csv: LEAD_SOURCE,
+    assignment_batch: lead.assignmentBatch,
+    assignment_rationale: lead.assignmentRationale,
+    assigned_director_name: lead.assignedDirectorName,
+    assigned_director_email: lead.assignedDirectorEmail,
+    assigned_rep_name: lead.assignedRepName,
+    assigned_rep_email: lead.assignedRepEmail,
+    assigned_director_matched: Boolean(matchedDirector || isPrimeauDirectorPool),
+    assigned_rep_matched: Boolean(matchedRep),
+  };
+
+  return {
+    assignedDirectorId: matchedDirector ? matchedDirector.id : fallbackPrimeauDirectorId,
+    assignedRepId: matchedRep ? matchedRep.id : null,
+    shouldClearRep: isPrimeauDirectorPool || isFutureZonePool,
+    shouldClearDirector: !matchedDirector && !fallbackPrimeauDirectorId,
+    metadata,
+  };
+}
+
+async function upsertOrganization(client, lead, actorUserId, assignment) {
+  const assignedDirectorId = assignment.assignedDirectorId;
+  const assignedRepId = assignment.assignedRepId;
 
   const region = 'Midwest';
   const stateMarket = lead.state || 'MN';
@@ -259,9 +235,6 @@ async function upsertOrganization(client, lead, actorUserId, usersMap) {
   } else {
     assignmentPool = 'Admin Pool';
   }
-
-  const assignmentBatch = lead.assignmentBatch || null;
-  const assignmentRationale = lead.assignmentRationale || null;
 
   const existing = await client.query(
     `SELECT id, state, assigned_rep_id, assigned_director_id
@@ -291,24 +264,25 @@ async function upsertOrganization(client, lead, actorUserId, usersMap) {
            tuf_priority = $15::varchar,
            lead_source = $16::varchar,
            lead_metadata = COALESCE(lead_metadata, '{}'::jsonb) || $17::jsonb,
-           assigned_director_id = $18::integer,
-           assigned_rep_id = $19::integer,
-           region = $20::varchar,
-           state_market = $21::varchar,
-           division = $22::varchar,
-           territory = $23::varchar,
-           subterritory = $24::varchar,
-           sport_focus = $25::varchar,
-           assigned_director_name = $26::varchar,
-           assigned_director_email = $27::varchar,
-           assigned_rep_name = $28::varchar,
-           assigned_rep_email = $29::varchar,
-           assignment_pool = $30::varchar,
-           assignment_batch = $31::varchar,
-           assignment_rationale = $32::text,
+           assigned_rep_id = CASE WHEN $20::boolean THEN NULL WHEN $18::integer IS NOT NULL THEN $18::integer ELSE assigned_rep_id END,
+           assigned_director_id = CASE WHEN $21::boolean THEN NULL WHEN $19::integer IS NOT NULL THEN $19::integer ELSE assigned_director_id END,
+           region = $22::varchar,
+           state_market = $23::varchar,
+           division = $24::varchar,
+           territory = $25::varchar,
+           subterritory = $26::varchar,
+           sport_focus = $27::varchar,
+           assigned_director_name = $28::varchar,
+           assigned_director_email = $29::varchar,
+           assigned_rep_name = $30::varchar,
+           assigned_rep_email = $31::varchar,
+           assignment_pool = $32::varchar,
+           assignment_batch = $33::varchar,
+           assignment_rationale = $34::text,
            updated_by = $3::integer,
            updated_at = current_timestamp
-       WHERE id = $1::integer`,
+       WHERE id = $1::integer
+       RETURNING id, assigned_rep_id, assigned_director_id`,
       [
         existing.rows[0].id,
         lead.state,
@@ -326,31 +300,38 @@ async function upsertOrganization(client, lead, actorUserId, usersMap) {
         lead.zone,
         lead.priority,
         LEAD_SOURCE,
-        JSON.stringify({ csv: LEAD_SOURCE }),
-        assignedDirectorId,
+        JSON.stringify(assignment.metadata),
         assignedRepId,
+        assignedDirectorId,
+        assignment.shouldClearRep,
+        assignment.shouldClearDirector,
         region,
         stateMarket,
         division,
         territory,
         subterritory,
         sportFocus,
-        assignedDirectorName,
-        assignedDirectorEmail,
-        assignedRepName,
-        assignedRepEmail,
+        lead.assignedDirectorName,
+        lead.assignedDirectorEmail,
+        lead.assignedRepName,
+        lead.assignedRepEmail,
         assignmentPool,
-        assignmentBatch,
-        assignmentRationale
+        lead.assignmentBatch,
+        lead.assignmentRationale,
       ],
     );
-    return { id: existing.rows[0].id, assigned_rep_id: assignedRepId, assigned_director_id: assignedDirectorId, created: false };
+    return {
+      id: existing.rows[0].id,
+      assigned_rep_id: assignment.shouldClearRep ? null : (assignedRepId || existing.rows[0].assigned_rep_id),
+      assigned_director_id: assignment.shouldClearDirector ? null : (assignedDirectorId || existing.rows[0].assigned_director_id),
+      created: false,
+    };
   }
 
   const inserted = await client.query(
     `INSERT INTO organizations (
        name, state, school_url, school_colors, full_address, address_line1, city, postal_code, school_phone, enrollment, isd_number, website_link,
-       tuf_zone, tuf_priority, lead_source, lead_metadata, assigned_director_id, assigned_rep_id,
+       tuf_zone, tuf_priority, lead_source, lead_metadata, assigned_rep_id, assigned_director_id,
        region, state_market, division, territory, subterritory, sport_focus,
        assigned_director_name, assigned_director_email, assigned_rep_name, assigned_rep_email,
        assignment_pool, assignment_batch, assignment_rationale,
@@ -364,7 +345,7 @@ async function upsertOrganization(client, lead, actorUserId, usersMap) {
        $30::varchar, $31::varchar, $32::text,
        'active', $3::integer, $3::integer
      )
-     RETURNING id`,
+     RETURNING id, assigned_rep_id, assigned_director_id`,
     [
       lead.name,
       lead.state,
@@ -382,25 +363,25 @@ async function upsertOrganization(client, lead, actorUserId, usersMap) {
       lead.zone,
       lead.priority,
       LEAD_SOURCE,
-      JSON.stringify({ csv: LEAD_SOURCE }),
-      assignedDirectorId,
+      JSON.stringify(assignment.metadata),
       assignedRepId,
+      assignedDirectorId,
       region,
       stateMarket,
       division,
       territory,
       subterritory,
       sportFocus,
-      assignedDirectorName,
-      assignedDirectorEmail,
-      assignedRepName,
-      assignedRepEmail,
+      lead.assignedDirectorName,
+      lead.assignedDirectorEmail,
+      lead.assignedRepName,
+      lead.assignedRepEmail,
       assignmentPool,
-      assignmentBatch,
-      assignmentRationale
+      lead.assignmentBatch,
+      lead.assignmentRationale,
     ],
   );
-  return { id: inserted.rows[0].id, assigned_rep_id: assignedRepId, assigned_director_id: assignedDirectorId, created: true };
+  return { id: inserted.rows[0].id, assigned_rep_id: inserted.rows[0].assigned_rep_id, assigned_director_id: inserted.rows[0].assigned_director_id, created: true };
 }
 
 async function ensureContacts(client, organizationId, lead) {
@@ -443,8 +424,8 @@ async function ensureOpportunities(client, organization, organizationName, actor
 
   await client.query(
     `UPDATE opportunities
-     SET assigned_rep_id = $2::integer,
-         assigned_director_id = $3::integer,
+     SET assigned_rep_id = CASE WHEN $9::boolean THEN NULL ELSE COALESCE($2::integer, assigned_rep_id) END,
+         assigned_director_id = CASE WHEN $10::boolean THEN NULL WHEN $3::integer IS NOT NULL THEN $3::integer ELSE assigned_director_id END,
          updated_by = $4::integer,
          updated_at = current_timestamp
      WHERE organization_id = $1::integer
@@ -452,7 +433,7 @@ async function ensureOpportunities(client, organization, organizationName, actor
        AND season = $6::varchar
        AND year = $7::integer
        AND channel_type = ANY($8::varchar[])`,
-    [organizationId, organization.assigned_rep_id ?? null, organization.assigned_director_id ?? null, actorUserId, DEFAULT_SPORT, DEFAULT_SEASON, DEFAULT_YEAR, DEFAULT_CHANNELS],
+    [organizationId, organization.assigned_rep_id ?? null, organization.assigned_director_id ?? null, actorUserId, DEFAULT_SPORT, DEFAULT_SEASON, DEFAULT_YEAR, DEFAULT_CHANNELS, Boolean(organization.should_clear_rep), Boolean(organization.should_clear_director)],
   );
 }
 
@@ -475,14 +456,7 @@ async function main() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error('DATABASE_URL is required to seed bundled TUF leads');
 
-  let csvPath = process.env.TUF_LEADS_CSV;
-  if (!csvPath) {
-    const mnPath = path.resolve(__dirname, '../../apps/web/src/assets/tuf_mn_leads_final.csv');
-    const enrichedPath = path.resolve(__dirname, '../../apps/web/src/assets/tuf_leads_final_enriched.csv');
-    csvPath = fs.existsSync(mnPath) ? mnPath : enrichedPath;
-  }
-  LEAD_SOURCE = path.basename(csvPath);
-
+  const csvPath = process.env.TUF_LEADS_CSV || resolveDefaultCsvPath();
   const leads = leadRowsFromCsv(csvPath);
   if (!leads.length) throw new Error(`No leads found in ${csvPath}`);
 
@@ -494,14 +468,17 @@ async function main() {
     const contactsAvailable = await tableExists(client, 'contacts');
     const opportunitiesAvailable = await tableExists(client, 'opportunities');
     const actorUserId = await getActorUserId(client);
-    const usersMap = await loadUsersMap(client);
-    // Legacy validator check: getPrimeauDirectorId
+    const primeauDirectorId = await getPrimeauDirectorId(client);
+    const assignableUsers = await loadAssignableUsers(client);
 
     let created = 0;
     let updated = 0;
     await client.query('BEGIN');
     for (const lead of leads) {
-      const organization = await upsertOrganization(client, lead, actorUserId, usersMap);
+      const assignment = resolveLaunchAssignment(lead, assignableUsers, primeauDirectorId);
+      const organization = await upsertOrganization(client, lead, actorUserId, assignment);
+      organization.should_clear_rep = assignment.shouldClearRep;
+      organization.should_clear_director = assignment.shouldClearDirector;
       if (organization.created) created += 1;
       else updated += 1;
       if (contactsAvailable) await ensureContacts(client, organization.id, lead);

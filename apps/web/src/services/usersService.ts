@@ -446,6 +446,30 @@ export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
   }
 }
 
+
+export function toggleUserPracticalExercise(id: string, practicalExerciseCompleted: boolean) {
+  const users = readStoredUsers();
+  const rows = users.map((u) => {
+    if (u.id === id) {
+      const isCertified = u.role !== 'REP' || ((u.hrDocsCompleted || false) && practicalExerciseCompleted && (u.directorSignedOff || false));
+      return { ...u, practicalExerciseCompleted, isCertified };
+    }
+    return u;
+  });
+  saveStoredUsers(rows);
+
+  const rawUser = localStorage.getItem('tuf_ops_user_v3');
+  if (rawUser) {
+    const current = JSON.parse(rawUser);
+    if (current.id === id) {
+      current.practicalExerciseCompleted = practicalExerciseCompleted;
+      current.isCertified = (current.hrDocsCompleted || false) && practicalExerciseCompleted && (current.directorSignedOff || false);
+      localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
+    }
+  }
+}
+
 export function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean) {
   const users = readStoredUsers();
   const rows = users.map((u) => {

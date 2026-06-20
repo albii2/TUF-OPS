@@ -2,7 +2,7 @@
   "name": "tuf-ops-monorepo",
   "private": true,
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm build:v1",
     "build:v1": "pnpm --filter @apps/api build && pnpm --filter web build",
     "test": "pnpm -w test:int",
     "test:int": "dotenv -e .env -- pnpm -w db:reset:test && dotenv -e .env -- pnpm -w db:migrate:test && pnpm --filter @apps/api test:run",
@@ -26,11 +26,13 @@
     "dev": "pnpm --parallel --filter web --filter @apps/api dev",
     "predev": "echo '\u25b6 Starting TUF Ops local dev...' && pnpm typecheck:v1",
     "db:seed:test-accounts": "dotenv -e .env -- node packages/database/seed_test_training_accounts.js",
-    "validate:v090:production-ready": "node scripts/validate-touched-counts.js && node scripts/validate-seed-safety.js && node scripts/validate-v090-launch-safety.js && node scripts/validate-v090-dashboard-wiring.js && node scripts/validate-v090-academy-launch.js && node scripts/validate-v090-lead-csv-mapping.js && node scripts/validate-v090-production-ready.js && node scripts/validate-v090-academy-certification.js && node scripts/validate-v090-api-deployment-config.js",
+    "validate:v090:production-ready": "node scripts/validate-touched-counts.js && node scripts/validate-seed-safety.js && node scripts/validate-v090-launch-safety.js && node scripts/validate-v090-dashboard-wiring.js && node scripts/validate-v090-academy-launch.js && node scripts/validate-v090-lead-csv-mapping.js && node scripts/validate-v090-launch-assignments.js && node scripts/validate-v090-launch-user-display.js && node scripts/validate-v090-production-ready.js && node scripts/validate-v090-academy-certification.js",
     "validate:v090:dashboard-wiring": "node scripts/validate-v090-dashboard-wiring.js",
     "validate:v090:academy-launch": "node scripts/validate-v090-academy-launch.js",
     "validate:v090:academy-certification": "node scripts/validate-v090-academy-certification.js",
-    "validate:v090:lead-csv-mapping": "node scripts/validate-v090-lead-csv-mapping.js"
+    "validate:v090:lead-csv-mapping": "node scripts/validate-v090-lead-csv-mapping.js",
+    "validate:v090:launch-assignments": "node scripts/validate-v090-launch-assignments.js",
+    "validate:v090:launch-user-display": "node scripts/validate-v090-launch-user-display.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

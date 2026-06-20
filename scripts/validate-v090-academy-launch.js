@@ -6,6 +6,9 @@ const exists = (file) => fs.existsSync(path.join(root, file));
 const errors = [];
 const check = (condition, message) => { if (!condition) errors.push(message); };
 const includes = (file, needle, message) => check(read(file).includes(needle), `${file}: ${message}`);
+const apiIndex = read('apps/api/src/index.ts');
+check(apiIndex.includes("server.register(trainingRoutes, { prefix: '/api/v1/training' })"), 'API must register training routes at /api/v1/training for production web default');
+check(apiIndex.includes("server.register(trainingRoutes, { prefix: '/training' })"), 'API must keep legacy /training route during transition');
 
 for (const file of [
   'apps/web/src/components/TrainingPortalPage.tsx',
@@ -15,6 +18,7 @@ for (const file of [
   'apps/web/src/components/academy/LockerRoomSimulator.tsx',
   'apps/web/src/pages/LockerRoomSimulatorPage.tsx',
   'packages/database/migrations/1900000005000_seed_training_modules.js',
+  'packages/database/migrations/1900000014000_v090_academy_content_refresh.js',
   'docs/V0_9_0_ACADEMY_LAUNCH_CHECKLIST.md',
 ]) check(exists(file), `${file} is missing`);
 
@@ -56,6 +60,7 @@ includes('apps/web/src/components/TrainingPortalPage.tsx', 'Practical Exercise',
 includes('apps/web/src/components/TrainingPortalPage.tsx', 'CRM Unlock', 'certification checklist CRM unlock copy missing');
 includes('apps/web/src/components/TrainingPortalPage.tsx', 'Locker Room Simulator', 'Academy simulator section missing');
 includes('packages/database/migrations/1900000005000_seed_training_modules.js', 'WITH incoming', 'training content seed must be idempotent update/insert');
+includes('packages/database/migrations/1900000014000_v090_academy_content_refresh.js', "require('./1900000005000_seed_training_modules')", 'Academy content refresh migration must reuse the idempotent content seed');
 check(!migration.includes('DELETE FROM training_modules'), 'training seed migration must not delete Academy content');
 
 for (const scenario of [
