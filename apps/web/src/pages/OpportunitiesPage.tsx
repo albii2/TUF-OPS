@@ -7,7 +7,7 @@ import { getNearCloseOpportunities } from '../services/businessSelectors';
 import { canCreateOpportunity } from '../services/roleScope';
 import type { OpportunityStage } from '../data/mockSalesData';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 100;
 
 export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }: { forceRep?: string; title?: string } = {}) {
   const navigate = useNavigate();

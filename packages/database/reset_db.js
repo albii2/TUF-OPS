@@ -1,4 +1,7 @@
 import { Client } from 'pg';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { assertNonDestructiveSeedAllowed } = require('./seed_safety.js');
 
 function parseDbUrl(rawUrl) {
   const url = new URL(rawUrl);
@@ -18,6 +21,7 @@ function parseDbUrl(rawUrl) {
 }
 
 async function resetDatabase() {
+  assertNonDestructiveSeedAllowed({ destructive: true, label: 'database reset' });
   const testDatabaseUrl = process.env.TEST_DATABASE_URL;
 
   if (!testDatabaseUrl) {

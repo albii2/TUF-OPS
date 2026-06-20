@@ -239,8 +239,8 @@ export async function updateOpportunityStage(
 
       if (existingOrderResult.rows.length === 0) {
         await client.query(
-          'INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4)',
-          [updatedOpp.id, updatedOpp.organization_id, updatedOpp.deal_type, 'CREATED']
+          'INSERT INTO orders (opportunity_id, organization_id, deal_type, status, assigned_rep_id, assigned_director_id) VALUES ($1, $2, $3, $4, $5, $6)',
+          [updatedOpp.id, updatedOpp.organization_id, updatedOpp.deal_type, 'CREATED', updatedOpp.assigned_rep_id ?? null, updatedOpp.assigned_director_id ?? null]
         );
       }
     }
