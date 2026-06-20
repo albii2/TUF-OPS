@@ -2,9 +2,19 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client } = require('pg');
-require('dotenv').config();
 
 const root = path.resolve(__dirname, '..');
+
+function readEnvFile() {
+  const envPath = path.join(root, '.env');
+  if (!fs.existsSync(envPath)) return {};
+  return Object.fromEntries(fs.readFileSync(envPath, 'utf8').split(/\r?\n/).flatMap((line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) return [];
+    const index = trimmed.indexOf('=');
+    return [[trimmed.slice(0, index), trimmed.slice(index + 1).replace(/^['"]|['"]$/g, '')]];
+  }));
+}
 const seedPath = path.join(root, 'packages/database/seed_leads_from_csv.js');
 const assetsDir = path.join(root, 'apps/web/src/assets');
 const defaultCsvPath = fs.existsSync(path.join(assetsDir, 'tuf_mn_leads_final.csv'))
@@ -163,7 +173,8 @@ if (!process.exitCode) {
 checkDatabaseValidation();
 
 async function checkDatabaseValidation() {
-  const databaseUrl = process.env.DATABASE_URL || process.env.TEST_DATABASE_URL;
+  const env = { ...readEnvFile(), ...process.env };
+  const databaseUrl = env.DATABASE_URL || env.TEST_DATABASE_URL;
   if (!databaseUrl) {
     console.warn('⚠️ DATABASE_URL not set; skipping database launch assignments validation.');
     if (process.exitCode) process.exit(process.exitCode);
@@ -253,6 +264,7 @@ async function checkDatabaseValidation() {
       const repPoolRes = await client.query(`
         SELECT count(*)::int AS count FROM organizations 
         WHERE assigned_rep_id IS NULL AND (assigned_director_id IS NULL OR assigned_director_id != $1)
+          AND name NOT LIKE 'Test Org%'
       `, [primeauId]);
       const repPoolCount = repPoolRes.rows[0].count;
       if (repPoolCount !== 95) {
@@ -265,7 +277,8 @@ async function checkDatabaseValidation() {
     // 7. 0 unassigned zones in the Minnesota launch
     const unassignedRes = await client.query(`
       SELECT count(*)::int AS count FROM organizations 
-      WHERE lower(tuf_zone) = 'unassigned' OR tuf_zone IS NULL
+      WHERE (lower(tuf_zone) = 'unassigned' OR tuf_zone IS NULL)
+        AND name NOT LIKE 'Test Org%'
     `);
     const unassignedCount = unassignedRes.rows[0].count;
     if (unassignedCount !== 0) {

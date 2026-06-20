@@ -61,71 +61,135 @@ function parseCsv(text) {
   return rows;
 }
 
-function normalizeIdentity(value) {
+function normalizeAccountName(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
-function normalizeLeadRow(raw) {
-  const sports = [];
-  for (const col of SPORT_COLUMNS) {
-    const offeredVal = String(raw[col.offered] || '').toLowerCase().trim();
-    const offered = ['true', 'yes', '1', 'y'].includes(offeredVal);
-    const url = String(raw[col.url] || '').trim();
-    if (offered || url) {
-      sports.push({ sport: col.sport, offered, url });
-    }
-  }
-  const name = normalizeIdentity(raw.school_name);
-  const state = 'MN';
-
-  return {
-    name,
-    state,
-    schoolUrl: String(raw.school_url || '').trim(),
-    schoolColors: String(raw.school_colors || '').trim(),
-    fullAddress: String(raw.address || '').trim(),
-    addressLine1: String(raw.address || '').split(',')[0]?.trim() || '',
-    city: String(raw.address || '').split(',')[1]?.trim() || '',
-    postalCode: String(raw.zip || raw.parsed_zip || '').trim(),
-    phone: String(raw.phone_number || '').trim(),
-    enrollment: parseInt(raw.enrollment, 10) || null,
-    isdNumber: String(raw.isd_number || '').trim(),
-    websiteLink: String(raw.website_link || '').trim(),
-    athleticDirectorName: String(raw.activities_director_name || '').trim(),
-    athleticDirectorEmail: String(raw.activities_director_email || '').trim(),
-    athleticDirectorPhone: String(raw.activities_director_phone_number || '').trim(),
-    zone: normalizeIdentity(raw.tuf_zone),
-    priority: normalizeIdentity(raw.tuf_priority).toUpperCase() || 'MEDIUM',
-    sports,
-    assignedDirectorName: raw.assigned_director_name || null,
-    assignedDirectorEmail: raw.assigned_director_email || null,
-    assignedRepName: raw.assigned_rep_name || null,
-    assignedRepEmail: raw.assigned_rep_email || null,
-    assignmentBatch: raw.assignment_batch || null,
-    assignmentRationale: raw.assignment_rationale || null,
-  };
+function normalizeIdentity(value) {
+  return normalizeAccountName(value).toLowerCase();
 }
 
-function leadRowsFromCsv(file) {
-  const text = fs.readFileSync(file, 'utf8');
-  const rows = parseCsv(text);
-  if (!rows.length) return [];
-  const headers = rows[0].map((h) => h.trim().toLowerCase());
-  const missing = EXPECTED_HEADERS.filter((h) => !headers.includes(h));
-  if (missing.length) {
-    throw new Error(`CSV file ${file} is missing expected headers: ${missing.join(', ')}`);
-  }
-  return rows.slice(1).map((row) => {
-    const raw = Object.fromEntries(headers.map((h, i) => [h, row[i] || '']));
-    return normalizeLeadRow(raw);
-  });
+function blankToNull(value) {
+  const normalized = normalizeAccountName(value);
+  return normalized || null;
+}
+
+function parseAddress(address) {
+  const rawAddress = String(address || '').replace(/\s+/g, ' ').trim();
+  const normalized = rawAddress.replace(/\s+,/g, ',');
+  const match = normalized.match(/^(.+?)\s*,\s*([A-Z]{2})\s+(\d{5}(?:-\d{4})?)$/i);
+  if (!match) return { rawAddress, addressLine1: rawAddress || null, city: 'TBD', state: 'MN', postalCode: null };
+
+  const streetAndCity = match[1].trim();
+  const state = match[2].toUpperCase();
+  const postalCode = match[3];
+  const words = streetAndCity.split(' ').filter(Boolean);
+  const streetTerminators = new Set([
+    'avenue', 'ave', 'boulevard', 'blvd', 'circle', 'cir', 'court', 'ct', 'drive', 'dr', 'east', 'highway', 'hwy', 'lane', 'ln',
+    'north', 'parkway', 'pkwy', 'place', 'pl', 'road', 'rd', 'se', 'south', 'street', 'st', 'trail', 'way', 'west',
+  ]);
+  const directionals = new Set(['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']);
+  const cleanToken = (word) => word.toLowerCase().replace(/\.$/, '');
+  const terminatorIndex = words.reduce((lastIndex, word, index) => (streetTerminators.has(cleanToken(word)) ? index : lastIndex), -1);
+  const rawCityWords = terminatorIndex >= 0 ? words.slice(terminatorIndex + 1) : words.slice(-2);
+  const cityWords = [...rawCityWords];
+  while (cityWords.length && directionals.has(cleanToken(cityWords[0]))) cityWords.shift();
+  const city = cityWords.join(' ') || 'TBD';
+  const addressLine1 = terminatorIndex >= 0 ? words.slice(0, terminatorIndex + 1).join(' ') : streetAndCity.replace(new RegExp(`${city}$`), '').trim();
+  return { rawAddress, addressLine1: addressLine1 || streetAndCity, city, state, postalCode };
+}
+
+function normalizeZone(rawZone, city = '') {
+  const value = String(rawZone || '').trim();
+  const lower = value.toLowerCase();
+  if (lower === 'tuf metro' || lower === 'metro') return 'TUF Metro';
+  if (lower === 'tuf north' || lower === 'north') return 'TUF North';
+  if (lower === 'tuf west' || lower === 'west') return 'TUF West';
+  if (lower === 'tuf south' || lower === 'south') return 'TUF South';
+  if (lower === 'tuf east' || lower === 'east') return 'TUF East';
+  if (lower === 'unassigned') return 'Unassigned';
+  const cityKey = String(city || '').toLowerCase();
+  if (/duluth|st\.? cloud|anoka|elk river|andover|blaine|champlin|coon rapids|forest lake/.test(cityKey)) return 'TUF North';
+  if (/minneapolis|st\.? paul|saint paul|bloomington|richfield|woodbury|stillwater|hastings|prior lake|shakopee|burnsville|savage|minnetonka/.test(cityKey)) return 'TUF Metro';
+  return value || 'Unassigned';
+}
+
+function priorityFromLead(rawPriority) {
+  const value = String(rawPriority || '').toLowerCase();
+  if (value.includes('tier 1') || value.includes('tier1')) return 'TIER_1';
+  if (value.includes('tier 2') || value.includes('tier2')) return 'TIER_2';
+  if (value.includes('tier 3') || value.includes('tier3')) return 'TIER_3';
+  return 'UNASSIGNED';
+}
+
+function parseInteger(value) {
+  const parsed = Number.parseInt(String(value || '').replace(/,/g, ''), 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseOffered(value) {
+  return ['yes', 'true', '1', 'y'].includes(String(value || '').trim().toLowerCase());
+}
+
+function assertExpectedHeaders(keys) {
+  const missing = EXPECTED_HEADERS.filter((header) => !keys.includes(header));
+  if (missing.length) throw new Error(`Lead CSV is missing expected headers: ${missing.join(', ')}`);
+}
+
+function optionalValue(raw, key) {
+  return Object.prototype.hasOwnProperty.call(raw, key) ? blankToNull(raw[key]) : null;
+}
+
+function sportRowsFromRaw(raw) {
+  return SPORT_COLUMNS.map(({ sport, offered, url }) => ({
+    sport,
+    offered: parseOffered(raw[offered]),
+    url: raw[url] || null,
+  }));
 }
 
 function resolveDefaultCsvPath() {
   const assetsDir = path.resolve(__dirname, '../../apps/web/src/assets');
-  const mnPath = path.join(assetsDir, 'tuf_mn_leads_final.csv');
-  const enrichedPath = path.join(assetsDir, 'tuf_leads_final_enriched.csv');
-  return fs.existsSync(mnPath) ? mnPath : enrichedPath;
+  const preferred = path.join(assetsDir, 'tuf_mn_leads_final.csv');
+  if (fs.existsSync(preferred)) return preferred;
+  return path.join(assetsDir, 'tuf_leads_final_enriched.csv');
+}
+
+function leadRowsFromCsv(csvPath) {
+  const rows = parseCsv(fs.readFileSync(csvPath, 'utf8'));
+  const [header, ...body] = rows;
+  const keys = header.map((key) => key.trim().toLowerCase());
+  assertExpectedHeaders(keys);
+  return body.map((line) => {
+    const raw = Object.fromEntries(keys.map((key, index) => [key, String(line[index] || '').trim()]));
+    const { rawAddress, city, state, postalCode, addressLine1 } = parseAddress(raw.address);
+    return {
+      name: normalizeAccountName(raw.school_name),
+      schoolUrl: raw.school_url || null,
+      schoolColors: raw.school_colors || null,
+      fullAddress: rawAddress || null,
+      addressLine1,
+      city,
+      state,
+      postalCode,
+      phone: raw.phone_number || null,
+      enrollment: parseInteger(raw.enrollment),
+      isdNumber: raw.isd_number || null,
+      websiteLink: raw.website_link || null,
+      athleticDirectorName: raw.activities_director_name || null,
+      athleticDirectorEmail: raw.activities_director_email ? raw.activities_director_email.toLowerCase() : null,
+      athleticDirectorPhone: raw.activities_director_phone_number || raw.phone_number || null,
+      priority: priorityFromLead(raw.tuf_priority),
+      zone: normalizeZone(raw.tuf_zone, city),
+      assignedDirectorName: optionalValue(raw, 'assigned_director_name'),
+      assignedDirectorEmail: optionalValue(raw, 'assigned_director_email'),
+      assignedRepName: optionalValue(raw, 'assigned_rep_name'),
+      assignedRepEmail: optionalValue(raw, 'assigned_rep_email'),
+      assignmentBatch: optionalValue(raw, 'assignment_batch'),
+      assignmentRationale: optionalValue(raw, 'assignment_rationale'),
+      sports: sportRowsFromRaw(raw),
+    };
+  }).filter((lead) => lead.name.length > 0);
 }
 
 async function tableExists(client, tableName) {
