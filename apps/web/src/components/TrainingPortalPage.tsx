@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ACADEMY_PHASE_LABELS, ACADEMY_PHASES, useTrainingEnrollment } from '../hooks/useTrainingEnrollment';
 import TrainingPhaseView from './TrainingPhaseView';
 import ProgressRing from './ProgressRing';
@@ -34,6 +35,7 @@ export default function TrainingPortalPage() {
           setCertStatus({
             hrDocsCompleted: user.hrDocsCompleted || false,
             directorSignedOff: user.directorSignedOff || false,
+            practicalExerciseCompleted: user.practicalExerciseCompleted || false,
             isCertified: user.isCertified || false,
             modulesPercent: completionMetrics?.percentComplete || 0,
             completedModules: completionMetrics?.completedModules || 0,
@@ -110,7 +112,7 @@ export default function TrainingPortalPage() {
                 </p>
               </div>
             </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3 border-t border-slate-800/40 pt-4">
+            <div className="mt-4 grid gap-3 sm:grid-cols-5 border-t border-slate-800/40 pt-4">
               <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Lessons & Quizzes</span>
@@ -122,25 +124,53 @@ export default function TrainingPortalPage() {
               </div>
               <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. Practical Exercise</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">2. HR Docs</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded ${certStatus.hrDocsCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
                     {certStatus.hrDocsCompleted ? 'Filed' : 'Pending'}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-2">Complete the assigned practical exercise before director review.</p>
+                <p className="text-xs text-slate-500 mt-2">Required paperwork must be complete before live CRM access.</p>
               </div>
               <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">3. Director Sign-Off</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">3. Practical Exercise</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${certStatus.practicalExerciseCompleted ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                    {certStatus.practicalExerciseCompleted ? 'Reviewed' : 'Pending'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">Complete one Locker Room Simulator scenario and director review.</p>
+              </div>
+              <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">4. Director Sign-Off</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded ${certStatus.directorSignedOff ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
                     {certStatus.directorSignedOff ? 'Signed' : 'Pending'}
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 mt-2">Complete mock pitch and secure activation authorization from your State Director.</p>
+                <p className="text-xs text-slate-500 mt-2">State Director authorizes activation after review.</p>
+              </div>
+              <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">5. CRM Unlock</span>
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${certStatus.isCertified ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
+                    {certStatus.isCertified ? 'Unlocked' : 'Locked'}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-2">CRM remains gated until all requirements are complete.</p>
               </div>
             </div>
           </div>
         )}
+
+
+        {/* Locker Room Simulator */}
+        <div className="rounded-xl border border-cyan-400/25 bg-cyan-500/10 p-5">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">72-hour Practical Certification</p>
+          <h2 className="mt-1 text-lg font-black text-white">Locker Room Simulator</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-300">Practice real TUF sales conversations anytime: AD intro, vendor objection, budget objection, team stores, player packs, letterman campaigns, feeder referrals, follow-up, and closing for mockup/sample.</p>
+          <p className="mt-2 text-sm text-amber-100">Certification path: complete at least one simulator scenario, review it with your director, then director/admin marks the Practical Exercise complete before final sign-off and CRM Unlock.</p>
+          <Link to="/training/simulator" className="mt-3 inline-flex rounded-md border border-cyan-300/50 bg-cyan-400/15 px-4 py-2 text-sm font-bold text-cyan-50 hover:bg-cyan-400/25">Open Locker Room Simulator</Link>
+        </div>
 
         {/* Phase Tabs */}
         <div className="flex gap-2 border-b border-slate-800">
@@ -210,7 +240,7 @@ export default function TrainingPortalPage() {
           <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
             <h3 className="text-base font-bold text-emerald-200">🎉 Certification Modules Completed!</h3>
             <p className="text-sm text-slate-300 mt-1.5">
-              You have completed all curriculum modules. Once your HR paperwork is filed and your State Director signs off, your sales permissions will unlock automatically.
+              You have completed all curriculum modules. Once your HR paperwork is filed, your Locker Room Simulator/practical exercise is reviewed, and your State Director signs off, your sales permissions will unlock automatically.
             </p>
           </div>
         )}
