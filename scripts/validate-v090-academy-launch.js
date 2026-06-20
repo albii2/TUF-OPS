@@ -8,7 +8,8 @@ const check = (condition, message) => { if (!condition) errors.push(message); };
 const includes = (file, needle, message) => check(read(file).includes(needle), `${file}: ${message}`);
 const apiIndex = read('apps/api/src/index.ts');
 check(apiIndex.includes("server.register(trainingRoutes, { prefix: '/api/v1/training' })"), 'API must register training routes at /api/v1/training for production web default');
-check(apiIndex.includes("server.register(trainingRoutes, { prefix: '/training' })"), 'API must keep legacy /training route during transition');
+check(!apiIndex.includes("server.register(trainingRoutes, { prefix: '/training' })"), 'API must not duplicate training routes at legacy /training prefix');
+check(!apiIndex.includes("server.register(trainingRoutes, { prefix: '/api/training' })"), 'API must not duplicate training routes at legacy /api/training prefix');
 
 for (const file of [
   'apps/web/src/components/TrainingPortalPage.tsx',
