@@ -1,5 +1,5 @@
 exports.up = (pgm) => {
-  // TAE (Sales Rep) Curriculum
+  // Production-safe, idempotent Academy content seed. No progress/completion data is created.
   pgm.sql(`
     INSERT INTO training_modules (title, description, role, phase, order_index, content_markdown, estimated_duration_minutes, module_type, created_at, updated_at)
     VALUES
@@ -56,6 +56,6 @@ exports.up = (pgm) => {
   `);
 };
 
-exports.down = (pgm) => {
-  pgm.sql(`DELETE FROM training_modules`);
+exports.down = () => {
+  // Intentionally no-op: do not delete Academy content or disrupt learner progress.
 };

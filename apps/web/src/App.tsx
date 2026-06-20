@@ -23,11 +23,11 @@ import {
   TeamPerformancePage,
   EarningsPage,
   UsersPage,
-  DataHealthPage,
   EcosystemPipelinePage,
   ChangeCredentialPage,
 } from './pages/CrudPages';
 import { TrainingPage } from './pages/TrainingPage';
+import LockerRoomSimulatorPage from './pages/LockerRoomSimulatorPage';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
 
@@ -80,6 +80,7 @@ export default function App() {
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
         <Route path="/dashboard" element={<PageProtected user={user} path="/dashboard">{dashboard}</PageProtected>} />
         <Route path="/training" element={<PageProtected user={user} path="/training"><TrainingPage /></PageProtected>} />
+        <Route path="/training/simulator" element={<PageProtected user={user} path="/training"><LockerRoomSimulatorPage /></PageProtected>} />
         <Route path="/organizations" element={<PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected>} />
         <Route path="/organizations/new" element={<PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected>} />
         <Route path="/organizations/:id" element={<PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected>} />
@@ -106,7 +107,6 @@ export default function App() {
         <Route path="/territory/map" element={<PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected>} />
         <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
         <Route path="/users" element={<PageProtected user={user} path="/users"><UsersPage /></PageProtected>} />
-        <Route path="/data-health" element={<PageProtected user={user} path="/data-health"><DataHealthPage /></PageProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

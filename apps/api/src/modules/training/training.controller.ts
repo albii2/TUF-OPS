@@ -11,6 +11,7 @@ import {
   togglePracticalExercise,
   toggleDirectorSignoff,
   getCertificationStatus,
+  submitModuleAssessment,
 } from './training.service';
 import { TrainingRole } from './training.interface';
 
@@ -104,6 +105,23 @@ export async function completeModuleHandler(request: FastifyRequest, reply: Fast
     return reply.send(result);
   } catch (error: any) {
     if (error.message.includes('not found')) {
+      return reply.code(404).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+
+export async function submitModuleAssessmentHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { enrollmentId, moduleId, answers } = request.body as any;
+    if (!enrollmentId || !moduleId || !Array.isArray(answers)) {
+      return reply.code(400).send({ message: 'enrollmentId, moduleId, and answers are required' });
+    }
+    const result = await submitModuleAssessment(Number(enrollmentId), Number(moduleId), answers);
+    return reply.send(result);
+  } catch (error: any) {
+    if (error.message.includes('not found') || error.message.includes('no quiz')) {
       return reply.code(404).send({ message: error.message });
     }
     return reply.code(500).send({ message: 'Internal Server Error' });

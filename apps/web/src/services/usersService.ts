@@ -71,7 +71,7 @@ const seedRows: StoredManagedUser[] = [
     displayName: 'Primeau Hill',
     email: 'primeau.hill@tufsports.us',
     role: 'DIRECTOR',
-    territory: 'west',
+    territory: 'metro,north',
     status: 'ACTIVE',
     avatarColor: COLORS[1],
     mustChangeCredential: false,
@@ -200,12 +200,15 @@ function readStoredUsers(): StoredManagedUser[] {
     const seedIds = new Set(seedRows.map((row) => row.id));
     const seedNames = new Set(seedRows.map((row) => row.displayName));
     const migrated = rows.filter((row) => seedIds.has(row.id) || seedNames.has(row.displayName) || row.id.startsWith('u-local-'));
-    const safeRows = migrated.map(({ pin: _pin, ...row }: any) => row) as StoredManagedUser[];
+    const safeRows = migrated.map(({ pin: _pin, ...row }: any) => {
+      if (row.id === 'u-director-primeau-hill') return { ...row, territory: 'metro,north' };
+      return row;
+    }) as StoredManagedUser[];
     const mergedRows = [
       ...safeRows,
       ...seedRows.filter((seed) => !safeRows.some((row) => row.id === seed.id || row.displayName === seed.displayName)),
     ];
-    if (migrated.some((row: any) => row.pin) || migrated.length !== rows.length || mergedRows.length !== rows.length) {
+    if (migrated.some((row: any) => row.pin) || migrated.length !== rows.length || mergedRows.length !== rows.length || JSON.stringify(mergedRows) !== JSON.stringify(rows)) {
       saveStoredUsers(mergedRows);
       return mergedRows;
     }
@@ -342,7 +345,11 @@ export function getManagedRepNamesForDirector(directorName: string): string[] {
 export function getManagedTerritoriesForDirector(directorName: string): TerritoryId[] {
   const users = listUsers();
   const director = users.find((u) => u.displayName === directorName && u.role === 'DIRECTOR');
-  return director?.territory ? [director.territory as TerritoryId] : [];
+  if (!director?.territory) return [];
+  return director.territory
+    .split(/[\/,]/)
+    .map((territory) => territory.trim().toLowerCase())
+    .filter((territory): territory is TerritoryId => ['metro', 'north', 'west', 'south'].includes(territory));
 }
 
 function toAppUser(user: StoredManagedUser): AppUser {
