@@ -123,12 +123,18 @@ server.register(orderRoutes, { prefix: '/orders' });
 server.register(creativeRequestRoutes);
 server.register(userRoutes, { prefix: '/auth' });
 server.register(trainingRoutes, { prefix: '/training' });
+server.register(trainingRoutes, { prefix: '/api/training' });
+server.register(trainingRoutes, { prefix: '/api/v1/training' });
 
-server.get('/health', async () => ({
+const healthHandler = async () => ({
   status: 'ok',
   service: 'tuf-ops-api',
   timestamp: new Date().toISOString(),
-}));
+});
+
+server.get('/health', healthHandler);
+server.get('/api/health', healthHandler);
+server.get('/api/v1/health', healthHandler);
 
 server.get('/health/data', async (request) => {
   if (!hasDatabaseConfig()) {
