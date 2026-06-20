@@ -2,7 +2,7 @@
   "name": "tuf-ops-monorepo",
   "private": true,
   "scripts": {
-    "build": "pnpm -r build",
+    "build": "pnpm build:v1",
     "build:v1": "pnpm --filter @apps/api build && pnpm --filter web build",
     "test": "pnpm -w test:int",
     "test:int": "dotenv -e .env -- pnpm -w db:reset:test && dotenv -e .env -- pnpm -w db:migrate:test && pnpm --filter @apps/api test:run",
