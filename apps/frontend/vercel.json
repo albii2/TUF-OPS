@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm --filter frontend build",
-  "outputDirectory": ".next"
+  "framework": "vite",
+  "installCommand": "cd ../.. && corepack enable && pnpm install --frozen-lockfile",
+  "buildCommand": "cd ../.. && VITE_ENABLE_LEAD_BOOTSTRAP=true pnpm --filter web build && rm -rf apps/frontend/dist && cp -R apps/web/dist apps/frontend/dist",
+  "outputDirectory": "dist"
 }
