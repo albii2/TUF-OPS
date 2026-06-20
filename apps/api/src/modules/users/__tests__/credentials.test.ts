@@ -7,7 +7,7 @@ jest.mock('@packages/database', () => ({
   pool: { query: jest.fn(async () => ({ rows: [] })) },
 }));
 
-const owner: SafeUser = { id: 7, name: 'Owner', email: 'owner@tuf.local', role: 'OWNER', territory: null, assigned_director_id: null, status: 'ACTIVE', must_change_credential: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+const owner: SafeUser = { id: 7, name: 'Owner', email: 'owner@tuf.local', role: 'ADMIN', rank: null, tier: null, region: null, state_market: null, division: null, territory: null, subterritory: null, sport_focus: null, assigned_director_id: null, reports_to_user_id: null, status: 'ACTIVE', must_change_credential: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
 const rep: SafeUser = { ...owner, id: 8, role: 'REP', email: 'rep@tuf.local' };
 
 describe('secure user credentials', () => {
@@ -40,7 +40,7 @@ describe('secure user credentials', () => {
   });
 
   it('sanitizes user records before API responses', () => {
-    const safe = __test.sanitizeUser({ id: 1, name: 'Owner', email: 'owner@tuf.local', role: 'OWNER', credential_hash: 'secret', password: 'secret', password_hash: 'secret' });
+    const safe = __test.sanitizeUser({ id: 1, name: 'Owner', email: 'owner@tuf.local', role: 'ADMIN', credential_hash: 'secret', password: 'secret', password_hash: 'secret' });
     expect((safe as any).credential_hash).toBeUndefined();
     expect((safe as any).password).toBeUndefined();
     expect((safe as any).password_hash).toBeUndefined();
@@ -50,7 +50,7 @@ describe('secure user credentials', () => {
     (pool.query as jest.Mock).mockResolvedValue({ rows: [owner] } as any);
 
     const token = __test.createAuthToken(owner as any);
-    await expect(__test.verifyAuthToken(token)).resolves.toMatchObject({ id: 7, role: 'OWNER' });
+    await expect(__test.verifyAuthToken(token)).resolves.toMatchObject({ id: 7, role: 'ADMIN' });
 
     const [payload, signature] = token.split('.');
     const forgedPayload = Buffer.from(JSON.stringify({ userId: 1, expiresAt: Date.now() + 60_000 })).toString('base64url');

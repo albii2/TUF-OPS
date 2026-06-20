@@ -278,8 +278,8 @@ export async function checkAndUpdateCertification(userId: number): Promise<boole
   if (userRes.rows.length === 0) return false;
   const user = userRes.rows[0];
 
-  // Owner, Director, Ops are exempt
-  if (user.role === 'OWNER' || user.role === 'DIRECTOR' || user.role === 'OPS') {
+  // Admin, Regional Director, Director are exempt
+  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR') {
     await pool.query('UPDATE users SET is_certified = true WHERE id = $1', [userId]);
     return true;
   }

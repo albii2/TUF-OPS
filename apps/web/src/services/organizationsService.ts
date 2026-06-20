@@ -302,7 +302,7 @@ export function bulkUpdateOrganizations(
   patch: Partial<Pick<Organization, 'assignedRep' | 'assignedDirector' | 'territory' | 'coverageStatus'>>,
 ) {
   const user = getStoredUser();
-  if (user?.role !== 'OWNER') throw new Error('Only Owner/Admin users can bulk update organizations.');
+  if (user?.role !== 'ADMIN') throw new Error('Only Owner/Admin users can bulk update organizations.');
   const idSet = new Set(ids);
   const patchedRows = getAllOrganizations()
     .filter((org) => idSet.has(org.id))

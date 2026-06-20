@@ -5,13 +5,18 @@ exports.enrollUserHandler = enrollUserHandler;
 exports.getEnrollmentHandler = getEnrollmentHandler;
 exports.startModuleHandler = startModuleHandler;
 exports.completeModuleHandler = completeModuleHandler;
+exports.submitModuleAssessmentHandler = submitModuleAssessmentHandler;
 exports.getProgressHandler = getProgressHandler;
 exports.recordFrictionPointHandler = recordFrictionPointHandler;
 exports.toggleHrDocsHandler = toggleHrDocsHandler;
+exports.togglePracticalExerciseHandler = togglePracticalExerciseHandler;
 exports.toggleDirectorSignoffHandler = toggleDirectorSignoffHandler;
 exports.getCertificationStatusHandler = getCertificationStatusHandler;
 const training_service_1 = require("./training.service");
 const training_interface_1 = require("./training.interface");
+function canManageRepCertification(actorRole) {
+    return ['DIRECTOR', 'ADMIN', 'REGIONAL_DIRECTOR'].includes(String(actorRole || '').toUpperCase());
+}
 async function getModulesByRoleHandler(request, reply) {
     try {
         const { role, phase } = request.query;
@@ -90,6 +95,22 @@ async function completeModuleHandler(request, reply) {
         return reply.code(500).send({ message: 'Internal Server Error' });
     }
 }
+async function submitModuleAssessmentHandler(request, reply) {
+    try {
+        const { enrollmentId, moduleId, answers } = request.body;
+        if (!enrollmentId || !moduleId || !Array.isArray(answers)) {
+            return reply.code(400).send({ message: 'enrollmentId, moduleId, and answers are required' });
+        }
+        const result = await (0, training_service_1.submitModuleAssessment)(Number(enrollmentId), Number(moduleId), answers);
+        return reply.send(result);
+    }
+    catch (error) {
+        if (error.message.includes('not found') || error.message.includes('no quiz')) {
+            return reply.code(404).send({ message: error.message });
+        }
+        return reply.code(500).send({ message: 'Internal Server Error' });
+    }
+}
 async function getProgressHandler(request, reply) {
     try {
         const { enrollmentId } = request.params;
@@ -127,6 +148,23 @@ async function toggleHrDocsHandler(request, reply) {
             return reply.code(400).send({ message: 'User id and hrDocsCompleted are required' });
         }
         const result = await (0, training_service_1.toggleHrDocs)(parseInt(id, 10), !!hrDocsCompleted);
+        return reply.send(result);
+    }
+    catch (error) {
+        return reply.code(500).send({ message: 'Internal Server Error' });
+    }
+}
+async function togglePracticalExerciseHandler(request, reply) {
+    try {
+        const { id } = request.params;
+        const { practicalExerciseCompleted, actorRole } = request.body;
+        if (!canManageRepCertification(actorRole)) {
+            return reply.code(403).send({ message: 'Only director, admin, owner, or ops roles can mark practical exercises complete' });
+        }
+        if (id === undefined || practicalExerciseCompleted === undefined) {
+            return reply.code(400).send({ message: 'User id and practicalExerciseCompleted are required' });
+        }
+        const result = await (0, training_service_1.togglePracticalExercise)(parseInt(id, 10), !!practicalExerciseCompleted);
         return reply.send(result);
     }
     catch (error) {

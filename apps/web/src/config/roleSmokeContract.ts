@@ -3,11 +3,17 @@ import type { Role } from '../types';
 export type RoleCta = { label: string; to: string };
 
 export const dashboardCtaContract: Record<Role, RoleCta[]> = {
-  OWNER: [
+  ADMIN: [
     { label: 'Deals Need Action', to: '/team-opportunities' },
     { label: 'Close This Week', to: '/team-opportunities' },
     { label: 'Payments Pending', to: '/orders' },
     { label: 'Territory Exposure', to: '/territory' },
+  ],
+  REGIONAL_DIRECTOR: [
+    { label: 'New Orders', to: '/ops-workspace' },
+    { label: 'Needs Review', to: '/ops-workspace' },
+    { label: 'Blocked Orders', to: '/orders' },
+    { label: 'Ready for Vendor', to: '/ops-workspace' },
   ],
   DIRECTOR: [
     { label: 'Stuck Deals', to: '/team-opportunities' },
@@ -20,11 +26,5 @@ export const dashboardCtaContract: Record<Role, RoleCta[]> = {
     { label: 'Close This Week', to: '/my-opportunities' },
     { label: 'Cash to Collect', to: '/orders' },
     { label: 'Momentum', to: '/my-opportunities' },
-  ],
-  OPS: [
-    { label: 'New Orders', to: '/ops-workspace' },
-    { label: 'Needs Review', to: '/ops-workspace' },
-    { label: 'Blocked Orders', to: '/orders' },
-    { label: 'Ready for Vendor', to: '/ops-workspace' },
   ],
 };

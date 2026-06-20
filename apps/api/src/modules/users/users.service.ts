@@ -79,7 +79,7 @@ function sanitizeUser(row: any): SafeUser {
 }
 
 function assertAdmin(actor?: SafeUser | null) {
-  if (!actor || !['OWNER', 'ADMIN'].includes(actor.role)) throw new Error('Only Owner/Admin users can manage credentials');
+  if (!actor || actor.role !== 'ADMIN') throw new Error('Only Owner/Admin users can manage credentials');
 }
 
 async function audit(action: CredentialAuditAction, targetUserId: number | null, actorUserId?: number | null, metadata: Record<string, unknown> = {}) {
@@ -91,7 +91,7 @@ async function audit(action: CredentialAuditAction, targetUserId: number | null,
 }
 
 export async function getSafeUserById(id: number): Promise<SafeUser | null> {
-  const result = await pool.query('SELECT id, name, email, role, territory, assigned_director_id, status, must_change_credential, created_at, updated_at FROM users WHERE id = $1', [id]);
+  const result = await pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at FROM users WHERE id = $1', [id]);
   return result.rows[0] ? sanitizeUser(result.rows[0]) : null;
 }
 
@@ -107,7 +107,7 @@ async function getUserWithCredentialByEmail(email: string) {
 
 export async function listUsers(actor?: SafeUser | null): Promise<SafeUser[]> {
   assertAdmin(actor);
-  const result = await pool.query('SELECT id, name, email, role, territory, assigned_director_id, status, must_change_credential, created_at, updated_at FROM users ORDER BY name');
+  const result = await pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at FROM users ORDER BY name');
   return result.rows.map(sanitizeUser);
 }
 
@@ -119,10 +119,25 @@ export async function createUserWithTemporaryCredential(payload: CreateUserPaylo
   if (!payload.email?.trim()) throw new Error('Email is required');
   const credentialHash = await hashCredential(temporaryCredential);
   const result = await pool.query(
-    `INSERT INTO users (name, email, role, territory, assigned_director_id, credential_hash, must_change_credential, status)
-     VALUES ($1, lower($2), $3, $4, $5, $6, true, 'ACTIVE')
-     RETURNING id, name, email, role, territory, assigned_director_id, status, must_change_credential, created_at, updated_at`,
-    [payload.name.trim(), payload.email.trim(), payload.role, payload.territory ?? null, payload.assigned_director_id ?? null, credentialHash],
+    `INSERT INTO users (name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, credential_hash, must_change_credential, status)
+     VALUES ($1, lower($2), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, true, 'ACTIVE')
+     RETURNING id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at`,
+    [
+      payload.name.trim(),
+      payload.email.trim(),
+      payload.role,
+      payload.rank ?? null,
+      payload.tier ?? null,
+      payload.region ?? null,
+      payload.state_market ?? null,
+      payload.division ?? null,
+      payload.territory ?? null,
+      payload.subterritory ?? null,
+      payload.sport_focus ?? null,
+      payload.assigned_director_id ?? null,
+      payload.reports_to_user_id ?? null,
+      credentialHash
+    ],
   );
   const user = sanitizeUser(result.rows[0]);
   await audit('USER_CREATED', user.id, actor.id, { role: user.role });
@@ -136,7 +151,7 @@ export async function resetUserCredential(targetUserId: number, actor: SafeUser,
   const credentialHash = await hashCredential(temporaryCredential);
   const result = await pool.query(
     `UPDATE users SET credential_hash = $1, must_change_credential = true, failed_credential_attempts = 0, locked_until = NULL, updated_at = NOW()
-     WHERE id = $2 RETURNING id, name, email, role, territory, assigned_director_id, status, must_change_credential, created_at, updated_at`,
+     WHERE id = $2 RETURNING id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at`,
     [credentialHash, targetUserId],
   );
   if (!result.rows[0]) throw new Error('User not found');
@@ -184,7 +199,7 @@ export async function changeOwnCredential(userId: number, payload: ChangeCredent
   const nextHash = await hashCredential(payload.new_credential);
   const result = await pool.query(
     `UPDATE users SET credential_hash = $1, must_change_credential = false, failed_credential_attempts = 0, locked_until = NULL, updated_at = NOW()
-     WHERE id = $2 RETURNING id, name, email, role, territory, assigned_director_id, status, must_change_credential, created_at, updated_at`,
+     WHERE id = $2 RETURNING id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at`,
     [nextHash, userId],
   );
   await audit('CREDENTIAL_CHANGED', userId, userId, {});
@@ -192,7 +207,7 @@ export async function changeOwnCredential(userId: number, payload: ChangeCredent
 }
 
 export async function seedInitialOwnerIfEmpty(initialCredential?: string) {
-  const ownerCount = await pool.query("SELECT COUNT(*)::int AS count FROM users WHERE role IN ('OWNER', 'ADMIN') AND status = 'ACTIVE'");
+  const ownerCount = await pool.query("SELECT COUNT(*)::int AS count FROM users WHERE role = 'ADMIN' AND status = 'ACTIVE'");
   if (ownerCount.rows[0]?.count > 0) return;
 
   const count = await pool.query('SELECT COUNT(*)::int AS count FROM users');
@@ -201,7 +216,7 @@ export async function seedInitialOwnerIfEmpty(initialCredential?: string) {
   if (count.rows[0]?.count > 0) {
     await pool.query(
       `UPDATE users
-       SET role = 'OWNER', credential_hash = $1, must_change_credential = true, status = 'ACTIVE', failed_credential_attempts = 0, locked_until = NULL, updated_at = NOW()
+       SET role = 'ADMIN', rank = 'Admin', region = 'National', division = 'All', territory = 'National', subterritory = 'All', sport_focus = 'All', credential_hash = $1, must_change_credential = true, status = 'ACTIVE', failed_credential_attempts = 0, locked_until = NULL, updated_at = NOW()
        WHERE id = (SELECT id FROM users ORDER BY CASE WHEN lower(email) IN ('owner@tuf.local', 'coach@tuf.local') OR lower(name) LIKE '%bradshaw%' THEN 0 ELSE 1 END, id LIMIT 1)`,
       [credentialHash],
     );
@@ -209,9 +224,9 @@ export async function seedInitialOwnerIfEmpty(initialCredential?: string) {
   }
 
   await pool.query(
-    `INSERT INTO users (name, email, role, credential_hash, must_change_credential, status)
-     VALUES ($1, $2, $3, $4, true, 'ACTIVE')`,
-    ['Coach Bradshaw', 'owner@tuf.local', 'OWNER' satisfies UserRole, credentialHash],
+    `INSERT INTO users (name, email, role, rank, region, division, territory, subterritory, sport_focus, credential_hash, must_change_credential, status)
+     VALUES ($1, $2, 'ADMIN', 'Admin', 'National', 'All', 'National', 'All', 'All', $3, true, 'ACTIVE')`,
+    ['Coach Bradshaw', 'owner@tuf.local', credentialHash],
   );
 }
 

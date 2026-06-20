@@ -30,7 +30,7 @@ async function getOrders() {
     return result.rows;
 }
 async function getOpportunityForOrder(opportunityId, db = database_1.pool) {
-    const result = await db.query('SELECT id, organization_id, deal_type, stage FROM opportunities WHERE id = $1 FOR UPDATE', [opportunityId]);
+    const result = await db.query('SELECT id, organization_id, deal_type, stage, assigned_rep_id, assigned_director_id FROM opportunities WHERE id = $1 FOR UPDATE', [opportunityId]);
     return result.rows[0] || null;
 }
 function isUniqueViolation(error) {
@@ -55,7 +55,7 @@ async function createOrderFromOpportunity(opportunityId, options) {
             }
             throw new Error('Order already exists for this opportunity');
         }
-        const result = await client.query('INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4) RETURNING *', [opportunity.id, opportunity.organization_id, opportunity.deal_type, orders_interface_1.OrderStatus.CREATED]);
+        const result = await client.query('INSERT INTO orders (opportunity_id, organization_id, deal_type, status, assigned_rep_id, assigned_director_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *', [opportunity.id, opportunity.organization_id, opportunity.deal_type, orders_interface_1.OrderStatus.CREATED, opportunity.assigned_rep_id ?? null, opportunity.assigned_director_id ?? null]);
         await client.query('COMMIT');
         return result.rows[0];
     }

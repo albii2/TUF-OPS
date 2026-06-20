@@ -3,7 +3,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const root = path.resolve(__dirname, '..');
-const csvPath = path.join(root, 'apps/web/src/assets/tuf_leads_final_enriched.csv');
+const mnPath = path.join(root, 'apps/web/src/assets/tuf_mn_leads_final.csv');
+const enrichedPath = path.join(root, 'apps/web/src/assets/tuf_leads_final_enriched.csv');
+const csvPath = fs.existsSync(mnPath) ? mnPath : enrichedPath;
 const seedPath = path.join(root, 'packages/database/seed_leads_from_csv.js');
 const migrationPath = path.join(root, 'packages/database/migrations/1900000012000_v090_lead_csv_full_mapping.js');
 const docPath = path.join(root, 'docs/V0_9_0_LEAD_CSV_MAPPING.md');

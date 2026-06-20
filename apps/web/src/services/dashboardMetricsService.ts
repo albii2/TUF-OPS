@@ -55,7 +55,7 @@ function numericId(id?: string) {
 
 export async function fetchDashboardMetrics(role: Role, userId?: string, userEmail?: string): Promise<DashboardMetrics> {
   if (DATA_MODE !== 'api') return emptyDashboardMetrics();
-  if (role === 'OWNER') return apiClient<DashboardMetrics>('/reporting/owner-dashboard');
+  if (role === 'ADMIN') return apiClient<DashboardMetrics>('/reporting/owner-dashboard');
   if (role === 'DIRECTOR') {
     const id = numericId(userId);
     if (id) return apiClient<DashboardMetrics>(`/reporting/director-dashboard/${id}`);

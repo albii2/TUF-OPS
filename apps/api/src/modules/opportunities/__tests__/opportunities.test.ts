@@ -26,7 +26,10 @@ describe('Opportunities Service - Integration Test', () => {
       value: 1000.00, 
       created_by: 1, 
       updated_by: 1,
-      deal_type: 'UNIFORM'
+      deal_type: 'UNIFORM',
+      sport: 'BASEBALL',
+      season: 'SPRING',
+      year: 2027
     };
 
     const createdOpp = await createOpportunity(newOppData);

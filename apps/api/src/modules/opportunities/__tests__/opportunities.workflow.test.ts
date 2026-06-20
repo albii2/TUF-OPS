@@ -1,7 +1,7 @@
 import { createOpportunity, updateOpportunityStage, getOpportunitiesByOrganization } from '../opportunities.service';
 import { createOrganization } from '../../organizations/organizations.service';
 import { pool } from '@packages/database';
-import { OpportunityStage } from '../opportunities.interface';
+import { OpportunityStage, OpportunityChannelType } from '../opportunities.interface';
 
 describe('Opportunities Workflow - Integration Test', () => {
   let orgId: number;
@@ -28,7 +28,11 @@ describe('Opportunities Workflow - Integration Test', () => {
       estimated_revenue: 5000.00,
       assigned_rep_id: 1,
       assigned_director_id: 2,
-      deal_type: 'UNIFORM',
+      deal_type: 'TRAVEL_GEAR',
+      channel_type: OpportunityChannelType.TRAVEL_GEAR,
+      sport: 'BASEBALL',
+      season: 'SPRING',
+      year: 2027,
     };
     const createdOpp = await createOpportunity(newOppData);
     opportunityId = createdOpp.id;
@@ -45,7 +49,7 @@ describe('Opportunities Workflow - Integration Test', () => {
       expect(createdOpp).toBeDefined();
       if (createdOpp) {
         expect(createdOpp.stage).toBe(OpportunityStage.LEAD_ASSIGNED);
-        expect(createdOpp.estimated_revenue).toBe('5000.00');
+        expect(Number(createdOpp.estimated_revenue)).toBe(5000.00);
       }
     });
 

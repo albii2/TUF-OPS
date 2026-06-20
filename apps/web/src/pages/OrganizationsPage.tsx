@@ -16,7 +16,7 @@ export function OrganizationsPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = getStoredUser();
-  const canBulkAssign = user?.role === 'OWNER';
+  const canBulkAssign = user?.role === 'ADMIN';
   const isPrimeauDirector = user?.role === 'DIRECTOR' && user.name === 'Primeau Hill';
 
   const [search, setSearch] = useState('');

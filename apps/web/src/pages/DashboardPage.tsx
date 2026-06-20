@@ -117,7 +117,7 @@ export function DashboardPage({ role }: { role: Role }) {
       ? { title: 'Push near-close invoice follow-up', reason: `${pendingPayments.length} deals are waiting on invoice/payment pressure.`, to: '/orders', cta: 'Open priority queue' }
       : { title: 'Contact untouched assigned account', reason: 'Activate account coverage and lane expansion from your assigned book.', to: '/organizations', cta: 'Open priority queue' };
 
-  if (role === 'OPS') {
+  if (role === 'REGIONAL_DIRECTOR') {
     const newOrders = orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW').length;
     const needsReview = orders.filter((o) => o.productionStatus === 'NEEDS_REVIEW');
     const readyForVendor = orders.filter((o) => o.productionStatus === 'READY_FOR_VENDOR');
@@ -151,7 +151,7 @@ export function DashboardPage({ role }: { role: Role }) {
   }
 
 
-  if (role === 'OWNER') {
+  if (role === 'ADMIN') {
     return (
       <div className="space-y-3"> 
         <h1 className="text-2xl font-semibold text-white">Owner Command Center</h1>

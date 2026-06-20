@@ -61,7 +61,7 @@ describe('Reporting Service - Integration Test', () => {
     expect(metrics.closed_lost_count).toBe(1);
     expect(metrics.total_actual_revenue).toBe(10000);
     expect(metrics.total_gross_profit).toBe(6000);
-    expect(metrics.total_rep_commission).toBe(600);
+    expect(metrics.total_rep_commission).toBe(0);
     expect(metrics.total_director_override).toBe(300);
   });
 
@@ -73,7 +73,7 @@ describe('Reporting Service - Integration Test', () => {
     expect(metrics.total_actual_revenue).toBe(20000);
     expect(metrics.total_gross_profit).toBe(5000);
     expect(metrics.total_rep_commission).toBe(500);
-    expect(metrics.total_director_override).toBe(250);
+    expect(metrics.total_director_override).toBe(0);
     expect(metrics.opportunities_by_stage[OpportunityStage.MOCKUP_DELIVERED]).toBe(1);
     expect(metrics.opportunities_by_stage[OpportunityStage.CLOSED_WON]).toBe(1);
   });

@@ -37,6 +37,11 @@ function emptyStageCounts(): Record<OpportunityStage, number> {
     [OpportunityStage.INVOICE_SENT]: 0,
     [OpportunityStage.CLOSED_WON]: 0,
     [OpportunityStage.CLOSED_LOST]: 0,
+    [OpportunityStage.LEAD_ASSIGNED]: 0,
+    [OpportunityStage.CONTACTED]: 0,
+    [OpportunityStage.MOCKUP_REQUESTED]: 0,
+    [OpportunityStage.MOCKUP_DELIVERED]: 0,
+    [OpportunityStage.DECISION_PENDING]: 0,
   } as unknown as Record<OpportunityStage, number>;
 }
 
@@ -85,8 +90,11 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
         COUNT(*) FILTER (WHERE o.stage = '${OpportunityStage.CLOSED_LOST}')::int AS closed_lost_count,
         COUNT(*) FILTER (WHERE o.next_action IS NOT NULL OR (o.expected_close_date IS NOT NULL AND o.expected_close_date <= NOW()))::int AS action_needed_items,
         COALESCE(SUM(o.actual_revenue), 0)::float8 AS total_actual_revenue,
-        COALESCE(SUM(o.gross_profit), 0)::float8 AS total_gross_profit
+        COALESCE(SUM(o.gross_profit), 0)::float8 AS total_gross_profit,
+        COALESCE(SUM(c.rep_commission), 0)::float8 AS total_rep_commission,
+        COALESCE(SUM(c.director_override), 0)::float8 AS total_director_override
       FROM opportunities o
+      LEFT JOIN commissions c ON c.opportunity_id = o.id
       ${opportunityScope}
     `, params),
     pool.query(`SELECT o.stage, COUNT(*)::int AS count FROM opportunities o ${opportunityScope} GROUP BY o.stage`, params),
@@ -144,8 +152,8 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
     closed_lost_count: Number(opps.closed_lost_count ?? 0),
     total_actual_revenue: Number(opps.total_actual_revenue ?? 0),
     total_gross_profit: Number(opps.total_gross_profit ?? 0),
-    total_rep_commission: repCommission,
-    total_director_override: directorOverride,
+    total_rep_commission: scope.commissionVisibility === 'director' ? 0 : Number(opps.total_rep_commission ?? 0),
+    total_director_override: scope.commissionVisibility === 'rep' ? 0 : Number(opps.total_director_override ?? 0),
   };
 }
 

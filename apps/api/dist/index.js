@@ -116,11 +116,16 @@ server.register(orders_routes_1.orderRoutes, { prefix: '/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes);
 server.register(users_routes_1.userRoutes, { prefix: '/auth' });
 server.register(training_routes_1.trainingRoutes, { prefix: '/training' });
-server.get('/health', async () => ({
+server.register(training_routes_1.trainingRoutes, { prefix: '/api/training' });
+server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' });
+const healthHandler = async () => ({
     status: 'ok',
     service: 'tuf-ops-api',
     timestamp: new Date().toISOString(),
-}));
+});
+server.get('/health', healthHandler);
+server.get('/api/health', healthHandler);
+server.get('/api/v1/health', healthHandler);
 server.get('/health/data', async (request) => {
     if (!hasDatabaseConfig()) {
         return emptyDataHealthPayload('degraded', 'database configuration is missing');

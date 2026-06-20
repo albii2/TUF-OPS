@@ -14,7 +14,7 @@ export function TeamOpportunitiesPage() {
   const reps = Array.from(new Set(all.map((o) => o.assignedRep)));
   const sports = Array.from(new Set(all.map((o) => o.sport)));
   const stages = useOpportunityStages(); const lanes = useRevenueLanes();
-  let rows = all.filter((o) => user?.role === 'OWNER' || user?.role === 'DIRECTOR');
+  let rows = all.filter((o) => user?.role === 'ADMIN' || user?.role === 'DIRECTOR');
   if (rep !== 'ALL') rows = rows.filter((o) => o.assignedRep === rep);
   if (stage !== 'ALL') rows = rows.filter((o) => o.stage === stage);
   if (lane !== 'ALL') rows = rows.filter((o) => o.lane === lane);

@@ -22,16 +22,16 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
 
 const VALID_TRANSITIONS: Record<string, OpportunityStage[]> = {
   [OpportunityStage.LEAD_ENGAGED]: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.DISCOVERY]: [OpportunityStage.MOCKUP_STAGE, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.DISCOVERY]: [OpportunityStage.MOCKUP_STAGE, OpportunityStage.MOCKUP_REQUESTED, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.MOCKUP_STAGE]: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
+  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.DECISION_PENDING, OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
   [OpportunityStage.CLOSED_WON]: [],
   [OpportunityStage.CLOSED_LOST]: [],
 
   // Legacy mappings for backward compatibility:
-  LEAD_ASSIGNED: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
+  LEAD_ASSIGNED: [OpportunityStage.CONTACTED, OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
   CONTACTED: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
-  MOCKUP_REQUESTED: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
+  MOCKUP_REQUESTED: [OpportunityStage.MOCKUP_DELIVERED, OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
   MOCKUP_DELIVERED: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
   DECISION_PENDING: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
 };
@@ -69,7 +69,11 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
   );
 
   if (existing.rows.length > 0) {
-    throw new Error('Opportunity already exists for this organization, sport, season, year, and channel');
+    const res = await pool.query(
+      'SELECT * FROM opportunities WHERE organization_id = $1 AND channel_type = $2 AND sport = $3 AND season = $4 AND year = $5 LIMIT 1',
+      [organization_id, resolvedChannelType, resolvedSport, resolvedSeason, resolvedYear]
+    );
+    return res.rows[0];
   }
 
   const result = await pool.query(
@@ -84,7 +88,7 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
       value ?? 0,
       created_by,
       updated_by,
-      stage || OpportunityStage.LEAD_ENGAGED,
+      stage || OpportunityStage.LEAD_ASSIGNED,
       next_action,
       expected_close_date,
       last_activity_date || new Date(),

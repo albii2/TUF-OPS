@@ -17,7 +17,7 @@ import { TrainingRole } from './training.interface';
 
 
 function canManageRepCertification(actorRole?: string) {
-  return ['DIRECTOR', 'ADMIN', 'OWNER', 'OPS'].includes(String(actorRole || '').toUpperCase());
+  return ['DIRECTOR', 'ADMIN', 'REGIONAL_DIRECTOR'].includes(String(actorRole || '').toUpperCase());
 }
 
 export async function getModulesByRoleHandler(request: FastifyRequest, reply: FastifyReply) {

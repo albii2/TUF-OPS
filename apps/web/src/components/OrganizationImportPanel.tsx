@@ -16,7 +16,7 @@ export function OrganizationImportPanel({ existingKeys, onImported }: { existing
     return { rows: rows.length, valid: normalized.length - invalid - duplicates, invalid, duplicates, ready: Math.max(0, normalized.length - invalid - duplicates) };
   }, [rows.length, normalized, existingKeys]);
 
-  if (!user || user.role !== 'OWNER') return null;
+  if (!user || user.role !== 'ADMIN') return null;
 
   return (
     <Card title="Lead Import">

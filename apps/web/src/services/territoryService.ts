@@ -6,7 +6,7 @@ import { getManagedTerritoriesForDirector } from './usersService';
 
 function allowedTerritoryIds() {
   const user = getStoredUser();
-  if (!user || user.role === 'OWNER' || user.role === 'OPS') return null;
+  if (!user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR') return null;
   if (user.role === 'DIRECTOR') {
     const explicitTerritories = getManagedTerritoriesForDirector(user.name);
     const organizationTerritories = listOrganizations({})

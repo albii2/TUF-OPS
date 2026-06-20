@@ -9,8 +9,16 @@ export type ManagedUser = {
   displayName: string;
   email: string;
   role: Role;
+  rank?: string | null;
+  tier?: string | null;
+  region?: string | null;
+  state_market?: string | null;
+  division?: string | null;
   territory: string;
+  subterritory?: string | null;
+  sport_focus?: string | null;
   assignedDirectorId?: string;
+  reports_to_user_id?: string | null;
   status: UserStatus;
   avatarColor: string;
   mustChangeCredential: boolean;
@@ -50,8 +58,13 @@ const seedRows: StoredManagedUser[] = [
     lastName: 'VP',
     displayName: 'A Bradshaw VP',
     email: 'abradshaw@tufsports.us',
-    role: 'OWNER',
-    territory: 'metro',
+    role: 'ADMIN',
+    rank: 'Admin',
+    region: 'National',
+    division: 'All',
+    territory: 'National',
+    subterritory: 'All',
+    sport_focus: 'All',
     status: 'ACTIVE',
     avatarColor: COLORS[0],
     mustChangeCredential: false,
@@ -71,7 +84,13 @@ const seedRows: StoredManagedUser[] = [
     displayName: 'Primeau Hill',
     email: 'primeau.hill@tufsports.us',
     role: 'DIRECTOR',
-    territory: 'metro,north',
+    rank: 'Director',
+    region: 'Midwest',
+    state_market: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    subterritory: 'Metro + North',
+    sport_focus: 'All',
     status: 'ACTIVE',
     avatarColor: COLORS[1],
     mustChangeCredential: false,
@@ -91,7 +110,14 @@ const seedRows: StoredManagedUser[] = [
     displayName: 'Jason Mulder',
     email: 'jvmulder@gmail.com',
     role: 'REP',
-    territory: 'Prior Lake / Shakopee / Burnsville / Savage',
+    rank: 'TAE',
+    tier: 'TAE',
+    region: 'Midwest',
+    state_market: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    subterritory: 'Prior Lake / Shakopee / Burnsville / Savage',
+    sport_focus: 'All',
     assignedDirectorId: 'u-director-primeau-hill',
     status: 'ACTIVE',
     avatarColor: COLORS[2],
@@ -112,7 +138,14 @@ const seedRows: StoredManagedUser[] = [
     displayName: 'David Lundberg',
     email: 'lundbergdave18@gmail.com',
     role: 'REP',
-    territory: 'Bloomington / Richfield / Minnetonka',
+    rank: 'TAE',
+    tier: 'TAE',
+    region: 'Midwest',
+    state_market: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    subterritory: 'Bloomington / Richfield / Minnetonka',
+    sport_focus: 'All',
     assignedDirectorId: 'u-director-primeau-hill',
     status: 'ACTIVE',
     avatarColor: COLORS[3],
@@ -133,7 +166,14 @@ const seedRows: StoredManagedUser[] = [
     displayName: 'Shayla Hilliard',
     email: 'shaylahilliard17@gmail.com',
     role: 'REP',
-    territory: 'Elk River / Anoka / Champlin',
+    rank: 'TAE',
+    tier: 'TAE',
+    region: 'Midwest',
+    state_market: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    subterritory: 'Elk River / Anoka / Champlin',
+    sport_focus: 'All',
     assignedDirectorId: 'u-director-primeau-hill',
     status: 'ACTIVE',
     avatarColor: COLORS[4],
@@ -154,7 +194,14 @@ const seedRows: StoredManagedUser[] = [
     displayName: 'Josh Hoffman',
     email: 'jhoffman@kipsu.com',
     role: 'REP',
-    territory: 'Minneapolis / St. Paul Metro',
+    rank: 'TAE',
+    tier: 'TAE',
+    region: 'Midwest',
+    state_market: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    subterritory: 'Minneapolis / St. Paul Metro',
+    sport_focus: 'All',
     assignedDirectorId: 'u-director-primeau-hill',
     status: 'ACTIVE',
     avatarColor: COLORS[5],
@@ -263,7 +310,7 @@ export function seedBaselineUsers(): ManagedUser[] {
 }
 
 export async function createUser(input: Omit<ManagedUser, 'id' | 'displayName' | 'avatarColor' | 'mustChangeCredential'> & { temporaryCredential?: string }, actor?: AppUser | null) {
-  if (actor?.role !== 'OWNER') throw new Error('Only Owner/Admin users can create users');
+  if (actor?.role !== 'ADMIN') throw new Error('Only Owner/Admin users can create users');
   const rows = readStoredUsers();
   const displayName = `${input.firstName} ${input.lastName}`.trim();
   if (!displayName) throw new Error('Display name required');
@@ -291,17 +338,17 @@ export async function createUser(input: Omit<ManagedUser, 'id' | 'displayName' |
 }
 
 export function updateUser(id: string, patch: Partial<ManagedUser>, actor?: AppUser | null) {
-  if (actor?.role !== 'OWNER') throw new Error('Only Owner/Admin users can update users');
+  if (actor?.role !== 'ADMIN') throw new Error('Only Owner/Admin users can update users');
   const users = readStoredUsers();
   const target = users.find((u) => u.id === id);
   if (!target) return;
-  if (target.role === 'OWNER' && patch.status === 'INACTIVE') throw new Error('Cannot archive the owner');
+  if (target.role === 'ADMIN' && patch.status === 'INACTIVE') throw new Error('Cannot archive the owner');
   const rows = users.map((u) => (u.id === id ? { ...u, ...patch, displayName: `${patch.firstName ?? u.firstName} ${patch.lastName ?? u.lastName}`.trim() } : u));
   saveStoredUsers(rows);
 }
 
 export async function resetUserCredential(id: string, actor?: AppUser | null) {
-  if (actor?.role !== 'OWNER') throw new Error('Only Owner/Admin users can reset credentials');
+  if (actor?.role !== 'ADMIN') throw new Error('Only Owner/Admin users can reset credentials');
   const users = readStoredUsers();
   const target = users.find((u) => u.id === id);
   if (!target) throw new Error('User not found');
@@ -358,6 +405,16 @@ function toAppUser(user: StoredManagedUser): AppUser {
     name: user.displayName,
     email: user.email,
     role: user.role,
+    rank: user.rank || null,
+    tier: user.tier || null,
+    region: user.region || null,
+    state_market: user.state_market || null,
+    division: user.division || null,
+    territory: user.territory || null,
+    subterritory: user.subterritory || null,
+    sport_focus: user.sport_focus || null,
+    assigned_director_id: user.assignedDirectorId ? Number(user.assignedDirectorId.replace(/\D/g, '')) || null : null,
+    reports_to_user_id: user.reports_to_user_id ? Number(user.reports_to_user_id.replace(/\D/g, '')) || null : null,
     mustChangeCredential: user.mustChangeCredential,
     hrDocsCompleted: user.hrDocsCompleted,
     directorSignedOff: user.directorSignedOff,
@@ -471,3 +528,36 @@ export async function authenticateWithCredential(emailOrName: string, credential
 }
 
 export function avatarInitials(displayName: string) { return initials(displayName); }
+
+export function formatUserDisplay(user: ManagedUser | AppUser): string {
+  if (user.role === 'ADMIN') {
+    return `Admin · ${user.region || 'National'}`;
+  }
+  if (user.role === 'REGIONAL_DIRECTOR') {
+    return `Regional Director · ${user.region || 'Midwest'}`;
+  }
+  if (user.role === 'DIRECTOR') {
+    const parts = ['Director'];
+    if (user.state_market) {
+      if (user.division) {
+        parts.push(`${user.state_market} ${user.division}`);
+      } else {
+        parts.push(user.state_market);
+      }
+    }
+    if (user.subterritory) parts.push(user.subterritory);
+    return parts.join(' · ');
+  }
+  // REP:
+  const parts = ['Rep'];
+  if (user.state_market) {
+    if (user.division) {
+      parts.push(`${user.state_market} ${user.division}`);
+    } else {
+      parts.push(user.state_market);
+    }
+  }
+  const territoryPart = user.subterritory || user.territory;
+  if (territoryPart) parts.push(territoryPart);
+  return parts.join(' · ');
+}

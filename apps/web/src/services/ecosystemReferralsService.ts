@@ -93,7 +93,7 @@ export function listEcosystemReferrals(params: ReferralPipelineParams = {}): Eco
       referral.contactEmail,
       referral.assignedRep,
     ].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase());
-    const roleScoped = !user || user.role === 'OWNER' || user.role === 'OPS'
+    const roleScoped = !user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR'
       ? true
       : user.role === 'DIRECTOR'
         ? getManagedRepNamesForDirector(user.name).includes(referral.assignedRep)

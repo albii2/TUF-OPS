@@ -18,7 +18,7 @@ describe('Orders Service - Integration Test', () => {
     });
 
     const createTestOrgAndOpps = async () => {
-        const org = await createOrganization({ name: 'Test Org', created_by: 1, updated_by: 1 });
+        const org = await createOrganization({ name: 'Test Org', assigned_rep_id: 1, assigned_director_id: 2, created_by: 1, updated_by: 1 });
 
         const openOpp = await createOpportunity({
             organization_id: org.id,

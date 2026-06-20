@@ -24,11 +24,17 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
-  OWNER: {
+  ADMIN: {
     sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/training'],
+  },
+  REGIONAL_DIRECTOR: {
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy'],
+    dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
+    primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/training'],
   },
   DIRECTOR: {
     sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy'],
@@ -41,11 +47,5 @@ export const roleConfig: Record<Role, RoleConfig> = {
     dashboardWidgets: ['Deals Need Action', 'Near Close', 'Payments Pending', 'This Month Progress'],
     primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/training'],
-  },
-  OPS: {
-    sidebarItems: ['dashboard', 'ops_workspace', 'invoices', 'programs', 'academy', 'settings'],
-    dashboardWidgets: ['New Orders', 'Missing Info', 'Blocked Orders', 'Ready for Vendor'],
-    primaryActions: ['Resolve Missing Info', 'Route Vendor', 'Clear Blockers'],
-    visiblePages: ['/dashboard', '/organizations', '/ecosystem-pipeline', '/orders', '/ops-workspace', '/settings', '/reports', '/training'],
   },
 };

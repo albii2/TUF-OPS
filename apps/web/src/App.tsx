@@ -55,7 +55,7 @@ function PageProtected({ user, path, children }: { user: AppUser | null; path: s
 
 export default function App() {
   const [user, setUser] = useState<AppUser | null>(() => getStoredUser());
-  const dashboard = useMemo(() => <DashboardPage role={user?.role ?? 'OWNER'} />, [user?.role]);
+  const dashboard = useMemo(() => <DashboardPage role={user?.role ?? 'ADMIN'} />, [user?.role]);
 
   useEffect(() => {
     const syncUser = () => setUser(getStoredUser());
@@ -96,7 +96,7 @@ export default function App() {
         <Route
           path="/ops-workspace"
           element={
-            <RoleProtected user={user} allowedRoles={['OWNER', 'OPS']}>
+            <RoleProtected user={user} allowedRoles={['ADMIN', 'REGIONAL_DIRECTOR']}>
               <OpsWorkspacePage />
             </RoleProtected>
           }

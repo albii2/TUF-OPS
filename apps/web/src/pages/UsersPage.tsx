@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Button, Input, Select } from '../components/primitives';
-import { createUser, listUsers, resetUserCredential, updateUser, type ManagedUser } from '../services/usersService';
+import { createUser, listUsers, resetUserCredential, updateUser, formatUserDisplay, type ManagedUser } from '../services/usersService';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
@@ -36,13 +36,13 @@ export function UsersPage() {
 
   const users = listUsers();
   const directors = users.filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE');
-  const canManage = viewer?.role === 'OWNER';
+  const canManage = viewer?.role === 'ADMIN';
   const visible = canManage ? users : [];
   const recentlyActive = visible.filter((u) => u.lastLoginAt && (Date.now() - new Date(u.lastLoginAt).getTime()) <= 7 * 24 * 60 * 60 * 1000).length;
   const neverLoggedIn = visible.filter((u) => !u.lastLoginAt).length;
   const needsCheckIn = visible.filter((u) => getActivityStatus(u).label === 'Needs check-in' || getActivityStatus(u).label === 'Not logged in').length;
 
-  if (!canManage) return <Card title="User Management"><p className="text-sm text-slate-400">Only Owner/Admin users can manage users.</p></Card>;
+  if (!canManage) return <Card title="User Management"><p className="text-sm text-slate-400">Only Admin users can manage users.</p></Card>;
 
   const createSecureUser = async () => {
     try {
@@ -86,7 +86,12 @@ export function UsersPage() {
       <Input placeholder="First name" value={firstName} onChange={(e)=>setFirstName(e.target.value)} />
       <Input placeholder="Last name" value={lastName} onChange={(e)=>setLastName(e.target.value)} />
       <Input placeholder="Email" value={email} onChange={(e)=>setEmail(e.target.value)} />
-      <Select value={role} onChange={(e)=>setRole(e.target.value as Role)}><option value="DIRECTOR">DIRECTOR</option><option value="REP">REP</option><option value="OPS">OPS</option><option value="OWNER">OWNER</option></Select>
+      <Select value={role} onChange={(e)=>setRole(e.target.value as Role)}>
+        <option value="ADMIN">ADMIN</option>
+        <option value="REGIONAL_DIRECTOR">REGIONAL_DIRECTOR</option>
+        <option value="DIRECTOR">DIRECTOR</option>
+        <option value="REP">REP</option>
+      </Select>
       <Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId)}><option value="metro">metro</option><option value="north">north</option><option value="west">west</option><option value="south">south</option></Select>
       <Select value={assignedDirectorId} onChange={(e)=>setAssignedDirectorId(e.target.value)}><option value="">Assign director</option>{directors.map((d)=><option key={d.id} value={d.id}>{d.displayName}</option>)}</Select>
       <Button onClick={createSecureUser}>Create User</Button>
@@ -119,7 +124,7 @@ export function UsersPage() {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold text-slate-100">{u.displayName}</p>
-                <p className="text-xs text-slate-400">{u.role} · {u.territory || 'unassigned'} · {u.status}{u.mustChangeCredential ? ' · must change PIN' : ''}</p>
+                <p className="text-xs text-slate-400">{formatUserDisplay(u)} · {u.status}{u.mustChangeCredential ? ' · must change PIN' : ''}</p>
               </div>
               <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${status.className}`}>{status.label}</span>
             </div>
@@ -136,7 +141,7 @@ export function UsersPage() {
 
     <div key={`rows-${refresh}`} className="space-y-2">
       {visible.map((u)=><div key={u.id} className="rounded border border-slate-700 p-2 text-sm flex items-center justify-between">
-        <div><p className="font-semibold">{u.displayName}</p><p className="text-slate-400">{u.role} · {u.territory || 'unassigned'} · {u.status}{u.mustChangeCredential ? ' · must change PIN' : ''}</p></div>
+        <div><p className="font-semibold">{u.displayName}</p><p className="text-slate-400">{formatUserDisplay(u)} · {u.status}{u.mustChangeCredential ? ' · must change PIN' : ''}</p></div>
         {canManage ? <div className="flex gap-2 items-center">
           {canManage && u.role === 'REP' ? <Select value={u.assignedDirectorId || ''} onChange={(e)=>{try {updateUser(u.id,{assignedDirectorId:e.target.value||undefined}, viewer); success('Settings saved ✓'); setRefresh((x)=>x+1);} catch { error('Failed to save. Please try again.'); }}}><option value="">unassigned director</option>{directors.map((d)=><option key={d.id} value={d.id}>{d.displayName}</option>)}</Select> : null}
           {canManage ? <Button className="px-2 py-1 text-xs" onClick={()=>resetCredential(u.id)}>Reset PIN</Button> : null}

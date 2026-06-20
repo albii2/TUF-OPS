@@ -5,11 +5,16 @@ export declare enum TrainingRole {
     ADMIN = "ADMIN"
 }
 export declare enum TrainingPhase {
-    DAY_1 = "DAY_1",
-    DAY_1_2 = "DAY_1_2",
-    WEEK_1_2 = "WEEK_1_2",
-    MONTH_1 = "MONTH_1"
+    LEVEL_1_OPERATOR = "LEVEL_1_OPERATOR",
+    LEVEL_2_PRODUCT = "LEVEL_2_PRODUCT",
+    LEVEL_3_TERRITORY = "LEVEL_3_TERRITORY",
+    LEVEL_4_SALES = "LEVEL_4_SALES",
+    LEVEL_5_EXPANSION = "LEVEL_5_EXPANSION",
+    SPECIALIZED_TRACKS = "SPECIALIZED_TRACKS",
+    LEVEL_7_DIRECTOR = "LEVEL_7_DIRECTOR",
+    MARKET_MASTERY = "MARKET_MASTERY"
 }
+export declare const LEGACY_PHASE_MAP: Record<string, TrainingPhase>;
 export declare enum TrainingModuleType {
     VIDEO = "VIDEO",
     INTERACTIVE = "INTERACTIVE",
@@ -36,6 +41,12 @@ export interface TrainingModule {
     content_markdown: string;
     estimated_duration_minutes?: number;
     module_type: TrainingModuleType;
+    quiz_json?: Array<{
+        question: string;
+        options: string[];
+        correctAnswer: string;
+    }>;
+    passing_score?: number;
     created_at: Date;
     updated_at: Date;
 }

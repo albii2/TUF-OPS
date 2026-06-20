@@ -10,20 +10,20 @@ var OpportunityStage;
     OpportunityStage["CLOSED_WON"] = "CLOSED_WON";
     OpportunityStage["CLOSED_LOST"] = "CLOSED_LOST";
     // Legacy aliases mapped for backward compatibility in database/existing queries.
-    OpportunityStage["LEAD_ASSIGNED"] = "LEAD_ENGAGED";
-    OpportunityStage["CONTACTED"] = "LEAD_ENGAGED";
-    OpportunityStage["MOCKUP_REQUESTED"] = "MOCKUP_STAGE";
-    OpportunityStage["MOCKUP_DELIVERED"] = "MOCKUP_STAGE";
-    OpportunityStage["DECISION_PENDING"] = "INVOICE_SENT";
+    OpportunityStage["LEAD_ASSIGNED"] = "LEAD_ASSIGNED";
+    OpportunityStage["CONTACTED"] = "CONTACTED";
+    OpportunityStage["MOCKUP_REQUESTED"] = "MOCKUP_REQUESTED";
+    OpportunityStage["MOCKUP_DELIVERED"] = "MOCKUP_DELIVERED";
+    OpportunityStage["DECISION_PENDING"] = "DECISION_PENDING";
     // Legacy aliases retained for backward compatibility in tests/older callers.
-    OpportunityStage["NOT_STARTED"] = "LEAD_ENGAGED";
-    OpportunityStage["CONTACT_INITIATED"] = "LEAD_ENGAGED";
-    OpportunityStage["MOCKUP_IN_PROGRESS"] = "MOCKUP_STAGE";
-    OpportunityStage["MOCKUP_APPROVED"] = "MOCKUP_STAGE";
+    OpportunityStage["NOT_STARTED"] = "LEAD_ASSIGNED";
+    OpportunityStage["CONTACT_INITIATED"] = "CONTACTED";
+    OpportunityStage["MOCKUP_IN_PROGRESS"] = "MOCKUP_REQUESTED";
+    OpportunityStage["MOCKUP_APPROVED"] = "MOCKUP_DELIVERED";
     OpportunityStage["SAMPLE_REQUESTED"] = "INVOICE_SENT";
-    OpportunityStage["SAMPLE_IN_PRODUCTION"] = "INVOICE_SENT";
-    OpportunityStage["SAMPLE_APPROVED"] = "INVOICE_SENT";
-    OpportunityStage["PAYMENT_RECEIVED"] = "INVOICE_SENT";
+    OpportunityStage["SAMPLE_IN_PRODUCTION"] = "DECISION_PENDING";
+    OpportunityStage["SAMPLE_APPROVED"] = "DECISION_PENDING";
+    OpportunityStage["PAYMENT_RECEIVED"] = "DECISION_PENDING";
 })(OpportunityStage || (exports.OpportunityStage = OpportunityStage = {}));
 var OpportunityChannelType;
 (function (OpportunityChannelType) {

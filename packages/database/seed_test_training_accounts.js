@@ -3,9 +3,48 @@ const { Client } = require('pg');
 const { isProductionEnvironment } = require('./seed_safety.js');
 
 const TEST_USERS = [
-  { name: 'TUF Test Director', email: 'test.director@tufsports.us', role: 'DIRECTOR', territory: 'National', assignedDirectorEmail: null },
-  { name: 'TUF Test Director West', email: 'test.director.west@tufsports.us', role: 'DIRECTOR', territory: 'West', assignedDirectorEmail: null },
-  { name: 'TUF Test Rep', email: 'test.rep@tufsports.us', role: 'REP', territory: 'National', assignedDirectorEmail: 'test.director@tufsports.us' },
+  {
+    name: 'TUF Test Director',
+    email: 'test.director@tufsports.us',
+    role: 'DIRECTOR',
+    rank: 'Director',
+    tier: 'T1',
+    region: 'Midwest',
+    state_market: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    subterritory: 'Metro + North',
+    sport_focus: 'All',
+    assignedDirectorEmail: null
+  },
+  {
+    name: 'TUF Test Director West',
+    email: 'test.director.west@tufsports.us',
+    role: 'DIRECTOR',
+    rank: 'Director',
+    tier: 'T1',
+    region: 'West',
+    state_market: 'CA',
+    division: 'General',
+    territory: 'West',
+    subterritory: 'West Coast',
+    sport_focus: 'All',
+    assignedDirectorEmail: null
+  },
+  {
+    name: 'TUF Test Rep',
+    email: 'test.rep@tufsports.us',
+    role: 'REP',
+    rank: 'Rep',
+    tier: 'T1',
+    region: 'Midwest',
+    state_market: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    subterritory: 'Metro',
+    sport_focus: 'All',
+    assignedDirectorEmail: 'test.director@tufsports.us'
+  },
 ];
 
 function isProductionRuntime() {
@@ -41,12 +80,19 @@ async function upsertUser(client, user, credential) {
   const hash = credentialHash(credential);
 
   const result = await client.query(
-    `INSERT INTO users (name, email, role, territory, assigned_director_id, credential_hash, must_change_credential, status, failed_credential_attempts, locked_until, created_at, updated_at)
-     VALUES ($1, lower($2), $3, $4, $5, $6, false, 'ACTIVE', 0, NULL, NOW(), NOW())
+    `INSERT INTO users (name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, credential_hash, must_change_credential, status, failed_credential_attempts, locked_until, created_at, updated_at)
+     VALUES ($1, lower($2), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, false, 'ACTIVE', 0, NULL, NOW(), NOW())
      ON CONFLICT (email) DO UPDATE SET
        name = EXCLUDED.name,
        role = EXCLUDED.role,
+       rank = EXCLUDED.rank,
+       tier = EXCLUDED.tier,
+       region = EXCLUDED.region,
+       state_market = EXCLUDED.state_market,
+       division = EXCLUDED.division,
        territory = EXCLUDED.territory,
+       subterritory = EXCLUDED.subterritory,
+       sport_focus = EXCLUDED.sport_focus,
        assigned_director_id = EXCLUDED.assigned_director_id,
        credential_hash = EXCLUDED.credential_hash,
        must_change_credential = false,
@@ -55,7 +101,21 @@ async function upsertUser(client, user, credential) {
        locked_until = NULL,
        updated_at = NOW()
      RETURNING id, role`,
-    [user.name, user.email, user.role, user.territory, assignedDirectorId, hash],
+    [
+      user.name,
+      user.email,
+      user.role,
+      user.rank,
+      user.tier,
+      user.region,
+      user.state_market,
+      user.division,
+      user.territory,
+      user.subterritory,
+      user.sport_focus,
+      assignedDirectorId,
+      hash
+    ],
   );
 
   return result.rows[0];

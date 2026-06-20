@@ -244,7 +244,7 @@ export function sortOrdersForExecution(a: Order, b: Order) {
 export function canAdvanceOrder(order: Order, opportunity?: Opportunity) {
   const user = getViewer();
   if (!user) return false;
-  if (user.role === 'OWNER' || user.role === 'OPS') return true;
+  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR') return true;
   if (user.role === 'REP') return (order.assignedRep ?? opportunity?.assignedRep) === user.name;
   if (user.role === 'DIRECTOR') return true;
   return false;
@@ -260,5 +260,5 @@ export function getOrderAdvanceWarning(order: Order, opportunity?: Opportunity) 
 
 export function canSeeOrderValue() {
   const user = getViewer();
-  return !user || user.role === 'OWNER' || user.role === 'DIRECTOR' || user.role === 'OPS' || user.role === 'REP';
+  return !user || user.role === 'ADMIN' || user.role === 'DIRECTOR' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'REP';
 }

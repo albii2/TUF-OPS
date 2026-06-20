@@ -2,7 +2,7 @@ import type { AppUser, Role } from './types';
 import { authenticateWithCredential, authenticateWithPin, getActiveUserByRole } from './services/usersService';
 
 const USER_KEY = 'tuf_ops_user_v3';
-const ALLOWED_ROLES: Role[] = ['OWNER', 'DIRECTOR', 'REP', 'OPS'];
+const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'];
 
 function persistUser(user: AppUser): AppUser {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -59,7 +59,21 @@ export function updateRole(role: Role): AppUser | null {
     name: active.displayName,
     email: active.email,
     role,
+    rank: active.rank ?? null,
+    tier: active.tier ?? null,
+    region: active.region ?? null,
+    state_market: active.state_market ?? null,
+    division: active.division ?? null,
+    territory: active.territory ?? null,
+    subterritory: active.subterritory ?? null,
+    sport_focus: active.sport_focus ?? null,
+    assigned_director_id: active.assignedDirectorId ? Number(active.assignedDirectorId.replace(/\D/g, '')) : null,
+    reports_to_user_id: active.reports_to_user_id ? Number(active.reports_to_user_id.replace(/\D/g, '')) : null,
     mustChangeCredential: active.mustChangeCredential,
+    hrDocsCompleted: active.hrDocsCompleted,
+    directorSignedOff: active.directorSignedOff,
+    practicalExerciseCompleted: active.practicalExerciseCompleted,
+    isCertified: active.isCertified,
   };
   return persistUser(updated);
 }

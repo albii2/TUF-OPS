@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TrainingEnrollmentStatus = exports.TrainingProgressStatus = exports.TrainingModuleType = exports.TrainingPhase = exports.TrainingRole = void 0;
+exports.TrainingEnrollmentStatus = exports.TrainingProgressStatus = exports.TrainingModuleType = exports.LEGACY_PHASE_MAP = exports.TrainingPhase = exports.TrainingRole = void 0;
 var TrainingRole;
 (function (TrainingRole) {
     TrainingRole["TAE"] = "TAE";
@@ -10,11 +10,21 @@ var TrainingRole;
 })(TrainingRole || (exports.TrainingRole = TrainingRole = {}));
 var TrainingPhase;
 (function (TrainingPhase) {
-    TrainingPhase["DAY_1"] = "DAY_1";
-    TrainingPhase["DAY_1_2"] = "DAY_1_2";
-    TrainingPhase["WEEK_1_2"] = "WEEK_1_2";
-    TrainingPhase["MONTH_1"] = "MONTH_1";
+    TrainingPhase["LEVEL_1_OPERATOR"] = "LEVEL_1_OPERATOR";
+    TrainingPhase["LEVEL_2_PRODUCT"] = "LEVEL_2_PRODUCT";
+    TrainingPhase["LEVEL_3_TERRITORY"] = "LEVEL_3_TERRITORY";
+    TrainingPhase["LEVEL_4_SALES"] = "LEVEL_4_SALES";
+    TrainingPhase["LEVEL_5_EXPANSION"] = "LEVEL_5_EXPANSION";
+    TrainingPhase["SPECIALIZED_TRACKS"] = "SPECIALIZED_TRACKS";
+    TrainingPhase["LEVEL_7_DIRECTOR"] = "LEVEL_7_DIRECTOR";
+    TrainingPhase["MARKET_MASTERY"] = "MARKET_MASTERY";
 })(TrainingPhase || (exports.TrainingPhase = TrainingPhase = {}));
+exports.LEGACY_PHASE_MAP = {
+    DAY_1: TrainingPhase.LEVEL_1_OPERATOR,
+    DAY_1_2: TrainingPhase.LEVEL_2_PRODUCT,
+    WEEK_1_2: TrainingPhase.LEVEL_4_SALES,
+    MONTH_1: TrainingPhase.LEVEL_5_EXPANSION,
+};
 var TrainingModuleType;
 (function (TrainingModuleType) {
     TrainingModuleType["VIDEO"] = "VIDEO";

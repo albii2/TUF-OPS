@@ -120,7 +120,7 @@ describe('Vendors Module', () => {
       testAgreementId = agreement.id;
 
       expect(agreement).toBeDefined();
-      expect(agreement.price_per_unit).toBe(3.5);
+      expect(Number(agreement.price_per_unit)).toBe(3.5);
       expect(agreement.payment_terms).toBe(PaymentTerms.NET_30);
     });
 
@@ -153,7 +153,7 @@ describe('Vendors Module', () => {
 
       expect(metric).toBeDefined();
       expect(metric.total_orders).toBe(10);
-      expect(metric.on_time_delivery_percentage).toBe(100);
+      expect(Number(metric.on_time_delivery_percentage)).toBe(100);
     });
 
     it('should retrieve vendor performance history', async () => {
@@ -179,7 +179,7 @@ describe('Vendors Module', () => {
       testPaymentId = payment.id;
 
       expect(payment).toBeDefined();
-      expect(payment.amount).toBe(500.0);
+      expect(Number(payment.amount)).toBe(500.0);
       expect(payment.status).toBe('PENDING');
     });
 

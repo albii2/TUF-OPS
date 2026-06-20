@@ -28,15 +28,15 @@ async function getOpportunityById(id) {
 }
 const VALID_TRANSITIONS = {
     [opportunities_interface_1.OpportunityStage.LEAD_ENGAGED]: [opportunities_interface_1.OpportunityStage.DISCOVERY, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    [opportunities_interface_1.OpportunityStage.DISCOVERY]: [opportunities_interface_1.OpportunityStage.MOCKUP_STAGE, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
+    [opportunities_interface_1.OpportunityStage.DISCOVERY]: [opportunities_interface_1.OpportunityStage.MOCKUP_STAGE, opportunities_interface_1.OpportunityStage.MOCKUP_REQUESTED, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
     [opportunities_interface_1.OpportunityStage.MOCKUP_STAGE]: [opportunities_interface_1.OpportunityStage.INVOICE_SENT, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    [opportunities_interface_1.OpportunityStage.INVOICE_SENT]: [opportunities_interface_1.OpportunityStage.CLOSED_WON, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
+    [opportunities_interface_1.OpportunityStage.INVOICE_SENT]: [opportunities_interface_1.OpportunityStage.DECISION_PENDING, opportunities_interface_1.OpportunityStage.CLOSED_WON, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
     [opportunities_interface_1.OpportunityStage.CLOSED_WON]: [],
     [opportunities_interface_1.OpportunityStage.CLOSED_LOST]: [],
     // Legacy mappings for backward compatibility:
-    LEAD_ASSIGNED: [opportunities_interface_1.OpportunityStage.DISCOVERY, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
+    LEAD_ASSIGNED: [opportunities_interface_1.OpportunityStage.CONTACTED, opportunities_interface_1.OpportunityStage.DISCOVERY, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
     CONTACTED: [opportunities_interface_1.OpportunityStage.DISCOVERY, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    MOCKUP_REQUESTED: [opportunities_interface_1.OpportunityStage.INVOICE_SENT, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
+    MOCKUP_REQUESTED: [opportunities_interface_1.OpportunityStage.MOCKUP_DELIVERED, opportunities_interface_1.OpportunityStage.INVOICE_SENT, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
     MOCKUP_DELIVERED: [opportunities_interface_1.OpportunityStage.INVOICE_SENT, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
     DECISION_PENDING: [opportunities_interface_1.OpportunityStage.CLOSED_WON, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
 };
@@ -65,7 +65,8 @@ async function createOpportunity(opportunity) {
        AND year = $5
      LIMIT 1`, [organization_id, resolvedChannelType, resolvedSport, resolvedSeason, resolvedYear]);
     if (existing.rows.length > 0) {
-        throw new Error('Opportunity already exists for this organization, sport, season, year, and channel');
+        const res = await database_1.pool.query('SELECT * FROM opportunities WHERE organization_id = $1 AND channel_type = $2 AND sport = $3 AND season = $4 AND year = $5 LIMIT 1', [organization_id, resolvedChannelType, resolvedSport, resolvedSeason, resolvedYear]);
+        return res.rows[0];
     }
     const result = await database_1.pool.query('INSERT INTO opportunities (name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18) RETURNING *', [
         name,
@@ -77,7 +78,7 @@ async function createOpportunity(opportunity) {
         value ?? 0,
         created_by,
         updated_by,
-        stage || opportunities_interface_1.OpportunityStage.LEAD_ENGAGED,
+        stage || opportunities_interface_1.OpportunityStage.LEAD_ASSIGNED,
         next_action,
         expected_close_date,
         last_activity_date || new Date(),
@@ -196,7 +197,7 @@ async function updateOpportunityStage(opportunityId, toStage, changedBy, note, f
             await (0, commissions_service_1.createCommission)(updatedOpp, client);
             const existingOrderResult = await client.query('SELECT id FROM orders WHERE opportunity_id = $1 LIMIT 1', [opportunityId]);
             if (existingOrderResult.rows.length === 0) {
-                await client.query('INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4)', [updatedOpp.id, updatedOpp.organization_id, updatedOpp.deal_type, 'CREATED']);
+                await client.query('INSERT INTO orders (opportunity_id, organization_id, deal_type, status, assigned_rep_id, assigned_director_id) VALUES ($1, $2, $3, $4, $5, $6)', [updatedOpp.id, updatedOpp.organization_id, updatedOpp.deal_type, 'CREATED', updatedOpp.assigned_rep_id ?? null, updatedOpp.assigned_director_id ?? null]);
             }
         }
         await client.query('COMMIT');

@@ -22,7 +22,7 @@ const defaultPrefs: UserPrefs = {
 
 export function SettingsPage() {
   const user = getStoredUser();
-  const [role, setRole] = useState<Role>(user?.role ?? 'OWNER');
+  const [role, setRole] = useState<Role>(user?.role ?? 'ADMIN');
   const [prefs, setPrefs] = useState<UserPrefs>(defaultPrefs);
   const [saved, setSaved] = useState('');
   const { success, error } = useToast();
@@ -53,15 +53,15 @@ export function SettingsPage() {
         </div>
       </Card>
 
-      {user?.role === 'OWNER' || user?.role === 'OPS' ? (
+      {user?.role === 'ADMIN' || user?.role === 'REGIONAL_DIRECTOR' ? (
         <Card title="Workspace">
           <div className="space-y-2 text-sm">
             <label className="block text-[var(--text-secondary)]">Role</label>
             <Select value={role} onChange={(e) => setRole(e.target.value as Role)}>
-              <option value="OWNER">OWNER</option>
+              <option value="ADMIN">ADMIN</option>
+              <option value="REGIONAL_DIRECTOR">REGIONAL_DIRECTOR</option>
               <option value="DIRECTOR">DIRECTOR</option>
               <option value="REP">REP</option>
-              <option value="OPS">OPS</option>
             </Select>
           </div>
         </Card>
