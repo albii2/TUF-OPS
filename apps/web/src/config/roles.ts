@@ -20,22 +20,21 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   ops_workspace: { label: 'Ops Workspace', route: '/ops-workspace' },
   settings: { label: 'Settings', route: '/settings' },
   users: { label: 'Users', route: '/users' },
-  data_health: { label: 'Data Health', route: '/data-health' },
   academy: { label: 'TUF Academy', route: '/training' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   OWNER: {
-    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'data_health', 'academy', 'settings'],
+    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/data-health', '/training'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/training'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'territory', 'messages', 'programs', 'academy'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/training'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/training'],
   },
   REP: {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy'],

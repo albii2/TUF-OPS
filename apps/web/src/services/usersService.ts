@@ -22,6 +22,7 @@ export type ManagedUser = {
   lockedUntil?: string | null;
   hrDocsCompleted?: boolean;
   directorSignedOff?: boolean;
+  practicalExerciseCompleted?: boolean;
   isCertified?: boolean;
 };
 
@@ -70,7 +71,7 @@ const seedRows: StoredManagedUser[] = [
     displayName: 'Primeau Hill',
     email: 'primeau.hill@tufsports.us',
     role: 'DIRECTOR',
-    territory: 'west',
+    territory: 'metro,north',
     status: 'ACTIVE',
     avatarColor: COLORS[1],
     mustChangeCredential: false,
@@ -199,12 +200,15 @@ function readStoredUsers(): StoredManagedUser[] {
     const seedIds = new Set(seedRows.map((row) => row.id));
     const seedNames = new Set(seedRows.map((row) => row.displayName));
     const migrated = rows.filter((row) => seedIds.has(row.id) || seedNames.has(row.displayName) || row.id.startsWith('u-local-'));
-    const safeRows = migrated.map(({ pin: _pin, ...row }: any) => row) as StoredManagedUser[];
+    const safeRows = migrated.map(({ pin: _pin, ...row }: any) => {
+      if (row.id === 'u-director-primeau-hill') return { ...row, territory: 'metro,north' };
+      return row;
+    }) as StoredManagedUser[];
     const mergedRows = [
       ...safeRows,
       ...seedRows.filter((seed) => !safeRows.some((row) => row.id === seed.id || row.displayName === seed.displayName)),
     ];
-    if (migrated.some((row: any) => row.pin) || migrated.length !== rows.length || mergedRows.length !== rows.length) {
+    if (migrated.some((row: any) => row.pin) || migrated.length !== rows.length || mergedRows.length !== rows.length || JSON.stringify(mergedRows) !== JSON.stringify(rows)) {
       saveStoredUsers(mergedRows);
       return mergedRows;
     }
@@ -341,7 +345,11 @@ export function getManagedRepNamesForDirector(directorName: string): string[] {
 export function getManagedTerritoriesForDirector(directorName: string): TerritoryId[] {
   const users = listUsers();
   const director = users.find((u) => u.displayName === directorName && u.role === 'DIRECTOR');
-  return director?.territory ? [director.territory as TerritoryId] : [];
+  if (!director?.territory) return [];
+  return director.territory
+    .split(/[\/,]/)
+    .map((territory) => territory.trim().toLowerCase())
+    .filter((territory): territory is TerritoryId => ['metro', 'north', 'west', 'south'].includes(territory));
 }
 
 function toAppUser(user: StoredManagedUser): AppUser {
@@ -353,6 +361,7 @@ function toAppUser(user: StoredManagedUser): AppUser {
     mustChangeCredential: user.mustChangeCredential,
     hrDocsCompleted: user.hrDocsCompleted,
     directorSignedOff: user.directorSignedOff,
+    practicalExerciseCompleted: user.practicalExerciseCompleted,
     isCertified: user.isCertified
   };
 }
@@ -361,7 +370,7 @@ export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
   const users = readStoredUsers();
   const rows = users.map((u) => {
     if (u.id === id) {
-      const isCertified = u.role !== 'REP' || (hrDocsCompleted && (u.directorSignedOff || false));
+      const isCertified = u.role !== 'REP' || (hrDocsCompleted && (u.practicalExerciseCompleted || false) && (u.directorSignedOff || false));
       return { ...u, hrDocsCompleted, isCertified };
     }
     return u;
@@ -373,7 +382,31 @@ export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
     const current = JSON.parse(rawUser);
     if (current.id === id) {
       current.hrDocsCompleted = hrDocsCompleted;
-      current.isCertified = hrDocsCompleted && (current.directorSignedOff || false);
+      current.isCertified = hrDocsCompleted && (current.practicalExerciseCompleted || false) && (current.directorSignedOff || false);
+      localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
+      window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
+    }
+  }
+}
+
+
+export function toggleUserPracticalExercise(id: string, practicalExerciseCompleted: boolean) {
+  const users = readStoredUsers();
+  const rows = users.map((u) => {
+    if (u.id === id) {
+      const isCertified = u.role !== 'REP' || ((u.hrDocsCompleted || false) && practicalExerciseCompleted && (u.directorSignedOff || false));
+      return { ...u, practicalExerciseCompleted, isCertified };
+    }
+    return u;
+  });
+  saveStoredUsers(rows);
+
+  const rawUser = localStorage.getItem('tuf_ops_user_v3');
+  if (rawUser) {
+    const current = JSON.parse(rawUser);
+    if (current.id === id) {
+      current.practicalExerciseCompleted = practicalExerciseCompleted;
+      current.isCertified = (current.hrDocsCompleted || false) && practicalExerciseCompleted && (current.directorSignedOff || false);
       localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
       window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
     }
@@ -384,7 +417,7 @@ export function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean
   const users = readStoredUsers();
   const rows = users.map((u) => {
     if (u.id === id) {
-      const isCertified = u.role !== 'REP' || ((u.hrDocsCompleted || false) && directorSignedOff);
+      const isCertified = u.role !== 'REP' || ((u.hrDocsCompleted || false) && (u.practicalExerciseCompleted || false) && directorSignedOff);
       return { ...u, directorSignedOff, isCertified };
     }
     return u;
@@ -396,7 +429,7 @@ export function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean
     const current = JSON.parse(rawUser);
     if (current.id === id) {
       current.directorSignedOff = directorSignedOff;
-      current.isCertified = (current.hrDocsCompleted || false) && directorSignedOff;
+      current.isCertified = (current.hrDocsCompleted || false) && (current.practicalExerciseCompleted || false) && directorSignedOff;
       localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
       window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
     }

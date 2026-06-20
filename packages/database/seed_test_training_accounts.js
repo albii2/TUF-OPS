@@ -1,5 +1,6 @@
 const crypto = require('crypto');
 const { Client } = require('pg');
+const { isProductionEnvironment } = require('./seed_safety.js');
 
 const TEST_USERS = [
   { name: 'TUF Test Director', email: 'test.director@tufsports.us', role: 'DIRECTOR', territory: 'National', assignedDirectorEmail: null },
@@ -8,20 +9,16 @@ const TEST_USERS = [
 ];
 
 function isProductionRuntime() {
-  return (
-    process.env.NODE_ENV === 'production' ||
-    process.env.VERCEL_ENV === 'production' ||
-    process.env.RAILWAY_ENVIRONMENT === 'production' ||
-    process.env.RAILWAY_ENVIRONMENT_NAME === 'production'
-  );
+  return isProductionEnvironment();
 }
+
 
 function getCredential() {
   if (process.env.TEST_ACCOUNT_CREDENTIAL) return process.env.TEST_ACCOUNT_CREDENTIAL;
   if (isProductionRuntime()) {
     throw new Error('TEST_ACCOUNT_CREDENTIAL is required when seeding test accounts in production-like environments');
   }
-  return '9999';
+  throw new Error('TEST_ACCOUNT_CREDENTIAL is required; default training credentials are not embedded in seeds');
 }
 
 function assertSafeToSeed() {
@@ -80,7 +77,7 @@ async function ensureTrainingEnrollment(client, userId, userRole) {
 
   await client.query(
     `INSERT INTO training_enrollments (user_id, role, status, current_phase, enrolled_at, created_at, updated_at)
-     VALUES ($1, $2, 'ACTIVE', 'DAY_1', NOW(), NOW(), NOW())`,
+     VALUES ($1, $2, 'ACTIVE', 'LEVEL_1_OPERATOR', NOW(), NOW(), NOW())`,
     [userId, trainingRole],
   );
   return true;

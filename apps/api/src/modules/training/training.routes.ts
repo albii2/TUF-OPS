@@ -8,8 +8,10 @@ import {
   getProgressHandler,
   recordFrictionPointHandler,
   toggleHrDocsHandler,
+  togglePracticalExerciseHandler,
   toggleDirectorSignoffHandler,
   getCertificationStatusHandler,
+  submitModuleAssessmentHandler,
 } from './training.controller';
 
 export async function trainingRoutes(server: FastifyInstance) {
@@ -28,6 +30,9 @@ export async function trainingRoutes(server: FastifyInstance) {
   // Complete a module
   server.post('/progress/complete', completeModuleHandler);
 
+  // Submit module quiz / knowledge check
+  server.post('/assessments/submit', submitModuleAssessmentHandler);
+
   // Get detailed progress for an enrollment
   server.get('/progress/:enrollmentId', getProgressHandler);
 
@@ -36,6 +41,9 @@ export async function trainingRoutes(server: FastifyInstance) {
 
   // Toggle HR documents completion
   server.post('/reps/:id/hr-docs', toggleHrDocsHandler);
+
+  // Toggle practical exercise completion
+  server.post('/reps/:id/practical-exercise', togglePracticalExerciseHandler);
 
   // Toggle Director sign-off
   server.post('/reps/:id/director-signoff', toggleDirectorSignoffHandler);

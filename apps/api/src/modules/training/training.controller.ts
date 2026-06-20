@@ -8,10 +8,17 @@ import {
   getUserEnrollment,
   recordFrictionPoint,
   toggleHrDocs,
+  togglePracticalExercise,
   toggleDirectorSignoff,
   getCertificationStatus,
+  submitModuleAssessment,
 } from './training.service';
 import { TrainingRole } from './training.interface';
+
+
+function canManageRepCertification(actorRole?: string) {
+  return ['DIRECTOR', 'ADMIN', 'OWNER', 'OPS'].includes(String(actorRole || '').toUpperCase());
+}
 
 export async function getModulesByRoleHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
@@ -104,6 +111,23 @@ export async function completeModuleHandler(request: FastifyRequest, reply: Fast
   }
 }
 
+
+export async function submitModuleAssessmentHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { enrollmentId, moduleId, answers } = request.body as any;
+    if (!enrollmentId || !moduleId || !Array.isArray(answers)) {
+      return reply.code(400).send({ message: 'enrollmentId, moduleId, and answers are required' });
+    }
+    const result = await submitModuleAssessment(Number(enrollmentId), Number(moduleId), answers);
+    return reply.send(result);
+  } catch (error: any) {
+    if (error.message.includes('not found') || error.message.includes('no quiz')) {
+      return reply.code(404).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
 export async function getProgressHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
     const { enrollmentId } = request.params as any;
@@ -147,6 +171,26 @@ export async function toggleHrDocsHandler(request: FastifyRequest, reply: Fastif
     }
 
     const result = await toggleHrDocs(parseInt(id, 10), !!hrDocsCompleted);
+    return reply.send(result);
+  } catch (error: any) {
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export async function togglePracticalExerciseHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { id } = request.params as any;
+    const { practicalExerciseCompleted, actorRole } = request.body as any;
+
+    if (!canManageRepCertification(actorRole)) {
+      return reply.code(403).send({ message: 'Only director, admin, owner, or ops roles can mark practical exercises complete' });
+    }
+
+    if (id === undefined || practicalExerciseCompleted === undefined) {
+      return reply.code(400).send({ message: 'User id and practicalExerciseCompleted are required' });
+    }
+
+    const result = await togglePracticalExercise(parseInt(id, 10), !!practicalExerciseCompleted);
     return reply.send(result);
   } catch (error: any) {
     return reply.code(500).send({ message: 'Internal Server Error' });
