@@ -43,6 +43,9 @@ const app = read('apps/web/src/App.tsx');
 assert(app.includes("!['/training', '/dashboard'].includes(path)"), 'Uncertified rep routing gate does not allow only Academy/dashboard');
 assert(app.includes('PageProtected user={user} path="/dashboard"'), 'Dashboard is not routed through PageProtected');
 
+const apiIndex = read('apps/api/src/index.ts');
+assert(apiIndex.includes("server.register(trainingRoutes, { prefix: '/api/v1/training' })"), 'Training routes are not registered at /api/v1/training');
+
 const enrollmentHook = read('apps/web/src/hooks/useTrainingEnrollment.ts');
 assert(enrollmentHook.includes('if (IS_PRODUCTION)'), 'Production Academy fallback guard is missing');
 assert(enrollmentHook.includes('Local fallback is disabled'), 'Production fallback error is not explicit');
