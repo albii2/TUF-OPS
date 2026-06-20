@@ -43,7 +43,7 @@ async function seed() {
   const jasonRes = await pool.query(
     `INSERT INTO users (name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, reports_to_user_id, assigned_director_id, credential_hash, must_change_credential, status, hr_docs_completed, director_signed_off, is_certified)
      VALUES ($1, lower($2), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false, 'ACTIVE', false, false, false) RETURNING id`,
-    ['Jason Mulder', 'jvmulder@gmail.com', 'REP', 'Senior TAE', 'Senior TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'South / Southwest Metro', 'All', primeauId, primeauId, jasonHash]
+    ['Jason Mulder', 'jvmulder@gmail.com', 'REP', 'Senior TAE', 'Senior TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'South-Southwest Metro', 'All', primeauId, primeauId, jasonHash]
   );
   console.log('Seeded Senior TAE (Jason Mulder):', jasonRes.rows[0].id);
 
@@ -52,7 +52,7 @@ async function seed() {
   const lundbergRes = await pool.query(
     `INSERT INTO users (name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, reports_to_user_id, assigned_director_id, credential_hash, must_change_credential, status, hr_docs_completed, director_signed_off, is_certified)
      VALUES ($1, lower($2), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false, 'ACTIVE', false, false, false) RETURNING id`,
-    ['David Lundberg', 'lundbergdave18@gmail.com', 'REP', 'Senior TAE', 'Senior TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'North / Outstate / Remote', 'All', primeauId, primeauId, lundbergHash]
+    ['David Lundberg', 'lundbergdave18@gmail.com', 'REP', 'Senior TAE', 'Senior TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'North-Outstate-Remote', 'All', primeauId, primeauId, lundbergHash]
   );
   console.log('Seeded Senior TAE (David Lundberg):', lundbergRes.rows[0].id);
 
@@ -61,7 +61,7 @@ async function seed() {
   const shaylaRes = await pool.query(
     `INSERT INTO users (name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, reports_to_user_id, assigned_director_id, credential_hash, must_change_credential, status, hr_docs_completed, director_signed_off, is_certified)
      VALUES ($1, lower($2), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false, 'ACTIVE', false, false, false) RETURNING id`,
-    ['Shayla Hilliard', 'shaylahilliard17@gmail.com', 'REP', 'TAE', 'TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'Northwest / North Metro', 'All', primeauId, primeauId, shaylaHash]
+    ['Shayla Hilliard', 'shaylahilliard17@gmail.com', 'REP', 'TAE', 'TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'Northwest-North Metro', 'All', primeauId, primeauId, shaylaHash]
   );
   console.log('Seeded TAE (Shayla Hilliard):', shaylaRes.rows[0].id);
 
@@ -70,7 +70,7 @@ async function seed() {
   const hoffmanRes = await pool.query(
     `INSERT INTO users (name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, reports_to_user_id, assigned_director_id, credential_hash, must_change_credential, status, hr_docs_completed, director_signed_off, is_certified)
      VALUES ($1, lower($2), $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, false, 'ACTIVE', false, false, false) RETURNING id`,
-    ['Josh Hoffman', 'jhoffman@kipsu.com', 'REP', 'TAE', 'TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'West Metro / Minneapolis Inner Ring', 'All', primeauId, primeauId, hoffmanHash]
+    ['Josh Hoffman', 'jhoffman@kipsu.com', 'REP', 'TAE', 'TAE', 'Midwest', 'MN', 'General', 'Minnesota', 'West Metro-Minneapolis Inner Ring', 'All', primeauId, primeauId, hoffmanHash]
   );
   console.log('Seeded TAE (Josh Hoffman):', hoffmanRes.rows[0].id);
 
