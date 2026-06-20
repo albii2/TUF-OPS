@@ -166,18 +166,6 @@ server.setNotFoundHandler((request, reply) => {
     }
     return reply.code(404).send({ error: 'Not found' });
 });
-server.setNotFoundHandler((request, reply) => {
-    if (request.method !== 'GET')
-        return reply.code(404).send({ error: 'Not found' });
-    const requestPath = request.url.split('?')[0];
-    const staticPath = getSafeStaticPath(requestPath);
-    if (staticPath)
-        return sendStaticFile(reply, staticPath);
-    if (!requestPath.startsWith('/api') && acceptsHtml(request.headers.accept) && (0, node_fs_1.existsSync)(indexHtmlPath)) {
-        return sendStaticFile(reply, indexHtmlPath);
-    }
-    return reply.code(404).send({ error: 'Not found' });
-});
 const start = async () => {
     try {
         (0, users_service_1.assertAuthTokenSecretConfigured)();
