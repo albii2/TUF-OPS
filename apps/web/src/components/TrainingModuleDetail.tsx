@@ -21,9 +21,18 @@ export default function TrainingModuleDetail({
   const [startTime, setStartTime] = useState<number | null>(null);
   const [timeSpent, setTimeSpent] = useState(progress?.time_spent_seconds || 0);
   const [quizAnswers, setQuizAnswers] = useState<string[]>([]);
-  const [quizResult, setQuizResult] = useState<{ score: number; passed: boolean } | null>(null);
   const quizQuestions = module.quiz_json || [];
-  const quizPassed = !quizQuestions.length || quizResult?.passed || progress?.status === 'COMPLETED';
+  const quizPassKey = `tuf_ops_training_quiz_passed_${enrollment.id}_${module.id}`;
+  const [quizResult, setQuizResult] = useState<{ score: number; passed: boolean } | null>(() => {
+    if (!quizQuestions.length) return null;
+    try {
+      return localStorage.getItem(quizPassKey) === 'true' ? { score: module.passing_score || 85, passed: true } : null;
+    } catch {
+      return null;
+    }
+  });
+  const quizPassed = !quizQuestions.length || quizResult?.passed === true;
+  const completedWithoutRequiredQuiz = progress?.status === 'COMPLETED' && quizQuestions.length > 0 && !quizPassed;
 
   useEffect(() => {
     if (progress?.status !== 'COMPLETED' && !startTime && progress?.status !== 'NOT_STARTED') {
@@ -53,6 +62,9 @@ export default function TrainingModuleDetail({
       if (quizQuestions.length && !quizPassed) {
         const result = await submitQuiz(quizAnswers);
         setQuizResult(result);
+        if (result.passed) {
+          try { localStorage.setItem(quizPassKey, 'true'); } catch {}
+        }
         if (!result.passed) return;
       }
       await completeModule(timeSpent);
@@ -163,7 +175,7 @@ export default function TrainingModuleDetail({
             >
               Close
             </button>
-            {progress?.status === 'COMPLETED' ? (
+            {progress?.status === 'COMPLETED' && !completedWithoutRequiredQuiz ? (
               <button
                 disabled
                 className="flex-1 px-4 py-2.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg font-bold text-sm cursor-default"
@@ -184,7 +196,7 @@ export default function TrainingModuleDetail({
                 disabled={loading}
                 className="flex-1 px-4 py-2.5 bg-emerald-500 text-slate-950 hover:bg-emerald-400 rounded-lg font-bold text-sm disabled:opacity-50 transition-colors shadow-[0_0_12px_rgba(16,185,129,0.3)]"
               >
-                {loading ? 'Saving...' : quizQuestions.length && !quizPassed ? 'Submit Quiz & Complete' : 'Mark Complete'}
+                {loading ? 'Saving...' : completedWithoutRequiredQuiz ? 'Submit Required Quiz' : quizQuestions.length && !quizPassed ? 'Submit Quiz & Complete' : 'Mark Complete'}
               </button>
             )}
           </div>

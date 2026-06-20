@@ -134,7 +134,9 @@ export async function getEnrollmentWithProgress(enrollmentId: number): Promise<T
 
     phaseCompletionStatus[normalizedPhase].total += 1;
     const moduleProgress = progress.find((p) => p.module_id === module.id);
-    if (moduleProgress && moduleProgress.status === TrainingProgressStatus.COMPLETED) {
+    const moduleAssessment = assessmentByModule.get(module.id);
+    const hasQuiz = Array.isArray((module as any).quiz_json) && (module as any).quiz_json.length > 0;
+    if (moduleProgress && moduleProgress.status === TrainingProgressStatus.COMPLETED && (!hasQuiz || moduleAssessment?.passed === true)) {
       phaseCompletionStatus[normalizedPhase].completed += 1;
     }
   });

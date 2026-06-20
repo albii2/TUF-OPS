@@ -56,7 +56,10 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
   const params = scope.params;
   const orgScope = scope.where;
   const opportunityScope = orgScope.replace(/org\./g, 'o.');
-  const orderScope = orgScope.replace(/org\./g, 'ord.');
+  const orderScope = orgScope
+    .replace(/org\.assigned_rep_id/g, 'COALESCE(ord.assigned_rep_id, o.assigned_rep_id)')
+    .replace(/org\.assigned_director_id/g, 'COALESCE(ord.assigned_director_id, o.assigned_director_id)')
+    .replace(/org\./g, 'ord.');
 
   const [schoolResult, opportunityResult, stageResult, orderResult, activityResult] = await Promise.all([
     pool.query(`
@@ -180,4 +183,22 @@ export async function getDirectorDashboardMetrics(directorId: number): Promise<D
 
 export async function getRepDashboardMetrics(repId: number): Promise<DashboardMetrics> {
   return getDashboardMetrics(repScope(repId));
+}
+
+async function getUserIdByEmail(email: string, expectedRole: 'DIRECTOR' | 'REP'): Promise<number> {
+  const result = await pool.query(
+    "SELECT id FROM users WHERE lower(email) = lower($1) AND role = $2 AND status = 'ACTIVE' ORDER BY id LIMIT 1",
+    [email, expectedRole]
+  );
+  const id = result.rows[0]?.id;
+  if (!id) throw new Error(`${expectedRole} user not found for dashboard email`);
+  return Number(id);
+}
+
+export async function getDirectorDashboardMetricsByEmail(email: string): Promise<DashboardMetrics> {
+  return getDirectorDashboardMetrics(await getUserIdByEmail(email, 'DIRECTOR'));
+}
+
+export async function getRepDashboardMetricsByEmail(email: string): Promise<DashboardMetrics> {
+  return getRepDashboardMetrics(await getUserIdByEmail(email, 'REP'));
 }

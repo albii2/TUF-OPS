@@ -11,7 +11,7 @@ import { useOrganizations } from '../hooks/useOrganizations';
 import { getLanePenetration, getMomentumState, getNearCloseOpportunities, getStaleAccounts, getStaleOpportunities, getStuckOpportunities, getTerritoryHealthLabel } from '../services/businessSelectors';
 import { getEcosystemReferralSummary } from '../services/ecosystemReferralsService';
 import { formatCurrency } from '../utils/format';
-import { listUsers, toggleUserHrDocs, toggleUserDirectorSignoff } from '../services/usersService';
+import { listUsers, toggleUserHrDocs, toggleUserDirectorSignoff, toggleUserPracticalExercise } from '../services/usersService';
 
 const MONTHLY_ORDER_GOAL = 4;
 const openStages = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT'];
@@ -78,7 +78,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
   const ecosystemSummary = getEcosystemReferralSummary();
-  const { metrics: backendMetrics, error: dashboardMetricsError, isApiBacked } = useDashboardMetrics(role, currentUser?.id);
+  const { metrics: backendMetrics, error: dashboardMetricsError, isApiBacked } = useDashboardMetrics(role, currentUser?.id, currentUser?.email);
 
   const nearClose = getNearCloseOpportunities(opportunities);
   const stuckDeals = getStuckOpportunities(opportunities);
@@ -216,13 +216,13 @@ export function DashboardPage({ role }: { role: Role }) {
                     </div>
                     <p className="text-xs text-slate-400 mt-1 truncate">Territory: {rep.territory}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="grid gap-2 sm:grid-cols-3">
                     <button
                       onClick={() => {
                         toggleUserHrDocs(rep.id, !rep.hrDocsCompleted);
                         setRefreshKey((k) => k + 1);
                       }}
-                      className={`flex-1 rounded py-1.5 text-xs font-bold transition border ${
+                      className={`rounded py-1.5 text-xs font-bold transition border ${
                         rep.hrDocsCompleted 
                           ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25' 
                           : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
@@ -232,10 +232,23 @@ export function DashboardPage({ role }: { role: Role }) {
                     </button>
                     <button
                       onClick={() => {
+                        toggleUserPracticalExercise(rep.id, !rep.practicalExerciseCompleted);
+                        setRefreshKey((k) => k + 1);
+                      }}
+                      className={`rounded py-1.5 text-xs font-bold transition border ${
+                        rep.practicalExerciseCompleted
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'
+                      }`}
+                    >
+                      {rep.practicalExerciseCompleted ? 'Practical ✓' : 'Mark Practical'}
+                    </button>
+                    <button
+                      onClick={() => {
                         toggleUserDirectorSignoff(rep.id, !rep.directorSignedOff);
                         setRefreshKey((k) => k + 1);
                       }}
-                      className={`flex-1 rounded py-1.5 text-xs font-bold transition border ${
+                      className={`rounded py-1.5 text-xs font-bold transition border ${
                         rep.directorSignedOff 
                           ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/35 hover:bg-emerald-500/25' 
                           : 'bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-700'

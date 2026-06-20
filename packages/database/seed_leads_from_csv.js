@@ -7,12 +7,17 @@ const DEFAULT_CHANNELS = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'];
 const DEFAULT_SPORT = 'FOOTBALL';
 const DEFAULT_SEASON = 'FALL';
 const DEFAULT_YEAR = 2026;
-const LEAD_SOURCE = 'tuf_leads_final_enriched.csv';
+const PRIMEAU_DIRECTOR_POOL_LABEL = 'Primeau Director Pool';
+const FUTURE_ZONE_POOL_LABEL = 'Future Zone Pool';
+const LEAD_SOURCE = process.env.TUF_LEADS_SOURCE || 'tuf_mn_leads_final.csv';
 const EXPECTED_HEADERS = [
   'school_name', 'school_url', 'school_colors', 'address', 'phone_number', 'enrollment', 'isd_number', 'website_link',
   'activities_director_name', 'activities_director_email', 'activities_director_phone_number',
   'football_offered', 'football_urls', 'basketball_offered', 'basketball_urls', 'hockey_offered', 'hockey_urls', 'baseball_offered', 'baseball_urls',
   'tuf_zone', 'tuf_priority',
+];
+const OPTIONAL_ASSIGNMENT_HEADERS = [
+  'assigned_director_name', 'assigned_director_email', 'assigned_rep_name', 'assigned_rep_email', 'assignment_batch', 'assignment_rationale',
 ];
 const SPORT_COLUMNS = [
   { sport: 'FOOTBALL', offered: 'football_offered', url: 'football_urls' },
@@ -68,6 +73,15 @@ function normalizeAccountName(value) {
   return String(value || '').replace(/\s+/g, ' ').trim();
 }
 
+function normalizeIdentity(value) {
+  return normalizeAccountName(value).toLowerCase();
+}
+
+function blankToNull(value) {
+  const normalized = normalizeAccountName(value);
+  return normalized || null;
+}
+
 function parseAddress(address) {
   const rawAddress = String(address || '').replace(/\s+/g, ' ').trim();
   const normalized = rawAddress.replace(/\s+,/g, ',');
@@ -100,7 +114,6 @@ function normalizeZone(rawZone, city = '') {
   if (lower === 'tuf north' || lower === 'north') return 'TUF North';
   if (lower === 'tuf west' || lower === 'west') return 'TUF West';
   if (lower === 'tuf south' || lower === 'south') return 'TUF South';
-  if (lower === 'tuf east' || lower === 'east') return 'TUF Metro';
   if (lower === 'unassigned') return 'Unassigned';
   const cityKey = String(city || '').toLowerCase();
   if (/duluth|st\.? cloud|anoka|elk river|andover|blaine|champlin|coon rapids|forest lake/.test(cityKey)) return 'TUF North';
@@ -130,12 +143,23 @@ function assertExpectedHeaders(keys) {
   if (missing.length) throw new Error(`Lead CSV is missing expected headers: ${missing.join(', ')}`);
 }
 
+function optionalValue(raw, key) {
+  return Object.prototype.hasOwnProperty.call(raw, key) ? blankToNull(raw[key]) : null;
+}
+
 function sportRowsFromRaw(raw) {
   return SPORT_COLUMNS.map(({ sport, offered, url }) => ({
     sport,
     offered: parseOffered(raw[offered]),
     url: raw[url] || null,
   }));
+}
+
+function resolveDefaultCsvPath() {
+  const assetsDir = path.resolve(__dirname, '../../apps/web/src/assets');
+  const preferred = path.join(assetsDir, 'tuf_mn_leads_final.csv');
+  if (fs.existsSync(preferred)) return preferred;
+  return path.join(assetsDir, 'tuf_leads_final_enriched.csv');
 }
 
 function leadRowsFromCsv(csvPath) {
@@ -164,6 +188,12 @@ function leadRowsFromCsv(csvPath) {
       athleticDirectorPhone: raw.activities_director_phone_number || raw.phone_number || null,
       priority: priorityFromLead(raw.tuf_priority),
       zone: normalizeZone(raw.tuf_zone, city),
+      assignedDirectorName: optionalValue(raw, 'assigned_director_name'),
+      assignedDirectorEmail: optionalValue(raw, 'assigned_director_email'),
+      assignedRepName: optionalValue(raw, 'assigned_rep_name'),
+      assignedRepEmail: optionalValue(raw, 'assigned_rep_email'),
+      assignmentBatch: optionalValue(raw, 'assignment_batch'),
+      assignmentRationale: optionalValue(raw, 'assignment_rationale'),
       sports: sportRowsFromRaw(raw),
     };
   }).filter((lead) => lead.name.length > 0);
@@ -189,6 +219,66 @@ async function getPrimeauDirectorId(client) {
   }
 }
 
+async function loadAssignableUsers(client) {
+  try {
+    const result = await client.query('SELECT id, name, email, role FROM users');
+    const byEmail = new Map();
+    const byName = new Map();
+    for (const user of result.rows) {
+      if (user.email) byEmail.set(String(user.email).toLowerCase(), user);
+      if (user.name) byName.set(normalizeIdentity(user.name), user);
+    }
+    return { byEmail, byName };
+  } catch {
+    return { byEmail: new Map(), byName: new Map() };
+  }
+}
+
+function matchUser(users, email, name) {
+  if (email && users.byEmail.has(String(email).toLowerCase())) return users.byEmail.get(String(email).toLowerCase());
+  if (name && users.byName.has(normalizeIdentity(name))) return users.byName.get(normalizeIdentity(name));
+  return null;
+}
+
+function resolveLaunchAssignment(lead, users, primeauDirectorId) {
+  const batch = normalizeIdentity(lead.assignmentBatch);
+  const rationale = normalizeIdentity(lead.assignmentRationale);
+  const assignedRepName = normalizeIdentity(lead.assignedRepName);
+  const isPrimeauDirectorPool = batch.includes(PRIMEAU_DIRECTOR_POOL_LABEL.toLowerCase()) || batch.includes('director pool') || assignedRepName.includes('primeau director pool');
+  const isFutureZonePool = batch.includes(FUTURE_ZONE_POOL_LABEL.toLowerCase()) || assignedRepName.includes('future zone pool');
+
+  const matchedDirector = matchUser(users, lead.assignedDirectorEmail, lead.assignedDirectorName);
+  const matchedRep = isPrimeauDirectorPool || isFutureZonePool ? null : matchUser(users, lead.assignedRepEmail, lead.assignedRepName);
+  const fallbackPrimeauDirectorId = primeauDirectorId && ['TUF Metro', 'TUF North'].includes(lead.zone) ? primeauDirectorId : null;
+
+  const metadata = {
+    csv: LEAD_SOURCE,
+    assignment_batch: lead.assignmentBatch,
+    assignment_rationale: lead.assignmentRationale,
+    assigned_director_name: lead.assignedDirectorName,
+    assigned_director_email: lead.assignedDirectorEmail,
+    assigned_rep_name: lead.assignedRepName,
+    assigned_rep_email: lead.assignedRepEmail,
+    assigned_director_matched: Boolean(matchedDirector || isPrimeauDirectorPool),
+    assigned_rep_matched: Boolean(matchedRep),
+  };
+
+  const shouldClearRep = isPrimeauDirectorPool || isFutureZonePool || Boolean(lead.assignedRepName && !matchedRep);
+  const shouldClearDirector = isFutureZonePool;
+
+  return {
+    assignedDirectorId: shouldClearDirector ? null : (matchedDirector?.id || (isPrimeauDirectorPool ? primeauDirectorId : null) || fallbackPrimeauDirectorId),
+    assignedRepId: matchedRep?.id || null,
+    shouldClearRep,
+    shouldClearDirector,
+    metadata,
+    isPrimeauDirectorPool,
+    isFutureZonePool,
+    isExplicitAssignment: Boolean(lead.assignedDirectorName || lead.assignedDirectorEmail || lead.assignedRepName || lead.assignedRepEmail || lead.assignmentBatch || lead.assignmentRationale),
+    davidRemoteRationale: assignedRepName === 'david lundberg' && /remote|outstate|north\s*-?corridor|phone|email/.test(rationale) && !/east metro|woodbury|st\.\s*paul|saint paul/.test(rationale),
+  };
+}
+
 async function getActorUserId(client) {
   try {
     const result = await client.query(`
@@ -203,8 +293,9 @@ async function getActorUserId(client) {
   }
 }
 
-async function upsertOrganization(client, lead, actorUserId, primeauDirectorId) {
-  const assignedDirectorId = primeauDirectorId && ['TUF Metro', 'TUF North'].includes(lead.zone) ? primeauDirectorId : null;
+async function upsertOrganization(client, lead, actorUserId, assignment) {
+  const assignedDirectorId = assignment.assignedDirectorId;
+  const assignedRepId = assignment.assignedRepId;
   const existing = await client.query(
     `SELECT id, state, assigned_rep_id, assigned_director_id
      FROM organizations
@@ -233,24 +324,30 @@ async function upsertOrganization(client, lead, actorUserId, primeauDirectorId) 
            tuf_priority = $15::varchar,
            lead_source = $16::varchar,
            lead_metadata = COALESCE(lead_metadata, '{}'::jsonb) || $17::jsonb,
-           assigned_director_id = CASE WHEN $18::integer IS NOT NULL THEN $18::integer ELSE assigned_director_id END,
+           assigned_rep_id = CASE WHEN $20::boolean THEN NULL WHEN $18::integer IS NOT NULL THEN $18::integer ELSE assigned_rep_id END,
+           assigned_director_id = CASE WHEN $21::boolean THEN NULL WHEN $19::integer IS NOT NULL THEN $19::integer ELSE assigned_director_id END,
            updated_by = $3::integer,
            updated_at = current_timestamp
        WHERE id = $1::integer
        RETURNING id, assigned_rep_id, assigned_director_id`,
-      [existing.rows[0].id, lead.state, actorUserId, lead.schoolUrl, lead.schoolColors, lead.fullAddress, lead.addressLine1, lead.city, lead.postalCode, lead.phone, lead.enrollment, lead.isdNumber, lead.websiteLink, lead.zone, lead.priority, LEAD_SOURCE, JSON.stringify({ csv: LEAD_SOURCE }), assignedDirectorId],
+      [existing.rows[0].id, lead.state, actorUserId, lead.schoolUrl, lead.schoolColors, lead.fullAddress, lead.addressLine1, lead.city, lead.postalCode, lead.phone, lead.enrollment, lead.isdNumber, lead.websiteLink, lead.zone, lead.priority, LEAD_SOURCE, JSON.stringify(assignment.metadata), assignedRepId, assignedDirectorId, assignment.shouldClearRep, assignment.shouldClearDirector],
     );
-    return { id: existing.rows[0].id, assigned_rep_id: existing.rows[0].assigned_rep_id, assigned_director_id: assignedDirectorId || existing.rows[0].assigned_director_id, created: false };
+    return {
+      id: existing.rows[0].id,
+      assigned_rep_id: assignment.shouldClearRep ? null : (assignedRepId || existing.rows[0].assigned_rep_id),
+      assigned_director_id: assignment.shouldClearDirector ? null : (assignedDirectorId || existing.rows[0].assigned_director_id),
+      created: false,
+    };
   }
 
   const inserted = await client.query(
     `INSERT INTO organizations (
        name, state, school_url, school_colors, full_address, address_line1, city, postal_code, school_phone, enrollment, isd_number, website_link,
-       tuf_zone, tuf_priority, lead_source, lead_metadata, assigned_director_id, status, created_by, updated_by
+       tuf_zone, tuf_priority, lead_source, lead_metadata, assigned_rep_id, assigned_director_id, status, created_by, updated_by
      )
-     VALUES ($1::varchar, $2::varchar, $4::text, $5::text, $6::text, $7::text, $8::varchar, $9::varchar, $10::varchar, $11::integer, $12::varchar, $13::text, $14::varchar, $15::varchar, $16::varchar, $17::jsonb, $18::integer, 'active', $3::integer, $3::integer)
+     VALUES ($1::varchar, $2::varchar, $4::text, $5::text, $6::text, $7::text, $8::varchar, $9::varchar, $10::varchar, $11::integer, $12::varchar, $13::text, $14::varchar, $15::varchar, $16::varchar, $17::jsonb, $18::integer, $19::integer, 'active', $3::integer, $3::integer)
      RETURNING id, assigned_rep_id, assigned_director_id`,
-    [lead.name, lead.state, actorUserId, lead.schoolUrl, lead.schoolColors, lead.fullAddress, lead.addressLine1, lead.city, lead.postalCode, lead.phone, lead.enrollment, lead.isdNumber, lead.websiteLink, lead.zone, lead.priority, LEAD_SOURCE, JSON.stringify({ csv: LEAD_SOURCE }), assignedDirectorId],
+    [lead.name, lead.state, actorUserId, lead.schoolUrl, lead.schoolColors, lead.fullAddress, lead.addressLine1, lead.city, lead.postalCode, lead.phone, lead.enrollment, lead.isdNumber, lead.websiteLink, lead.zone, lead.priority, LEAD_SOURCE, JSON.stringify(assignment.metadata), assignedRepId, assignedDirectorId],
   );
   return { id: inserted.rows[0].id, assigned_rep_id: inserted.rows[0].assigned_rep_id, assigned_director_id: inserted.rows[0].assigned_director_id, created: true };
 }
@@ -295,8 +392,8 @@ async function ensureOpportunities(client, organization, organizationName, actor
 
   await client.query(
     `UPDATE opportunities
-     SET assigned_rep_id = COALESCE(assigned_rep_id, $2::integer),
-         assigned_director_id = CASE WHEN $3::integer IS NOT NULL THEN $3::integer ELSE assigned_director_id END,
+     SET assigned_rep_id = CASE WHEN $9::boolean THEN NULL ELSE COALESCE($2::integer, assigned_rep_id) END,
+         assigned_director_id = CASE WHEN $10::boolean THEN NULL WHEN $3::integer IS NOT NULL THEN $3::integer ELSE assigned_director_id END,
          updated_by = $4::integer,
          updated_at = current_timestamp
      WHERE organization_id = $1::integer
@@ -304,7 +401,7 @@ async function ensureOpportunities(client, organization, organizationName, actor
        AND season = $6::varchar
        AND year = $7::integer
        AND channel_type = ANY($8::varchar[])`,
-    [organizationId, organization.assigned_rep_id ?? null, organization.assigned_director_id ?? null, actorUserId, DEFAULT_SPORT, DEFAULT_SEASON, DEFAULT_YEAR, DEFAULT_CHANNELS],
+    [organizationId, organization.assigned_rep_id ?? null, organization.assigned_director_id ?? null, actorUserId, DEFAULT_SPORT, DEFAULT_SEASON, DEFAULT_YEAR, DEFAULT_CHANNELS, Boolean(organization.should_clear_rep), Boolean(organization.should_clear_director)],
   );
 }
 
@@ -327,7 +424,7 @@ async function main() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error('DATABASE_URL is required to seed bundled TUF leads');
 
-  const csvPath = process.env.TUF_LEADS_CSV || path.resolve(__dirname, '../../apps/web/src/assets/tuf_leads_final_enriched.csv');
+  const csvPath = process.env.TUF_LEADS_CSV || resolveDefaultCsvPath();
   const leads = leadRowsFromCsv(csvPath);
   if (!leads.length) throw new Error(`No leads found in ${csvPath}`);
 
@@ -340,12 +437,16 @@ async function main() {
     const opportunitiesAvailable = await tableExists(client, 'opportunities');
     const actorUserId = await getActorUserId(client);
     const primeauDirectorId = await getPrimeauDirectorId(client);
+    const assignableUsers = await loadAssignableUsers(client);
 
     let created = 0;
     let updated = 0;
     await client.query('BEGIN');
     for (const lead of leads) {
-      const organization = await upsertOrganization(client, lead, actorUserId, primeauDirectorId);
+      const assignment = resolveLaunchAssignment(lead, assignableUsers, primeauDirectorId);
+      const organization = await upsertOrganization(client, lead, actorUserId, assignment);
+      organization.should_clear_rep = assignment.shouldClearRep;
+      organization.should_clear_director = assignment.shouldClearDirector;
       if (organization.created) created += 1;
       else updated += 1;
       if (contactsAvailable) await ensureContacts(client, organization.id, lead);

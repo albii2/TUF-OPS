@@ -12,7 +12,7 @@ exports.up = (pgm) => {
     phase: {
       type: 'varchar(50)',
       notNull: true,
-      check: "phase IN ('DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1')",
+      check: "phase IN ('DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1', 'LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT', 'LEVEL_3_TERRITORY', 'LEVEL_4_SALES', 'LEVEL_5_EXPANSION', 'SPECIALIZED_TRACKS', 'LEVEL_7_DIRECTOR', 'MARKET_MASTERY')",
     },
     order_index: { type: 'integer', notNull: true },
     content_markdown: { type: 'text', notNull: true },
@@ -59,7 +59,7 @@ exports.up = (pgm) => {
       type: 'varchar(50)',
       notNull: true,
       default: 'DAY_1',
-      check: "current_phase IN ('DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1')",
+      check: "current_phase IN ('DAY_1', 'DAY_1_2', 'WEEK_1_2', 'MONTH_1', 'LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT', 'LEVEL_3_TERRITORY', 'LEVEL_4_SALES', 'LEVEL_5_EXPANSION', 'SPECIALIZED_TRACKS', 'LEVEL_7_DIRECTOR', 'MARKET_MASTERY')",
     },
     enrolled_at: {
       type: 'timestamp',
