@@ -252,21 +252,23 @@ function resolveLaunchAssignment(lead, users, primeauDirectorId) {
   const batch = normalizeIdentity(lead.assignmentBatch).toLowerCase();
   const rationale = normalizeIdentity(lead.assignmentRationale).toLowerCase();
   const assignedRepName = normalizeIdentity(lead.assignedRepName).toLowerCase();
-  const isPrimeauDirectorPool = batch.includes(PRIMEAU_DIRECTOR_POOL_LABEL.toLowerCase()) || batch.includes('director pool') || assignedRepName.includes('primeau director pool');
+  const isPrimeauDirectorPool = batch.includes(PRIMEAU_DIRECTOR_POOL_LABEL.toLowerCase()) || batch === 'director pool' || assignedRepName.includes('primeau director pool');
   const isFutureZonePool = batch.includes(FUTURE_ZONE_POOL_LABEL.toLowerCase()) || assignedRepName.includes('future zone pool');
 
   const matchedDirector = matchUser(users, lead.assignedDirectorEmail, lead.assignedDirectorName);
   const matchedRep = isPrimeauDirectorPool || isFutureZonePool ? null : matchUser(users, lead.assignedRepEmail, lead.assignedRepName);
   const fallbackPrimeauDirectorId = primeauDirectorId && ['TUF Metro', 'TUF North'].includes(lead.zone) ? primeauDirectorId : null;
 
+  const metadataAssignedRepName = isPrimeauDirectorPool ? null : (lead.assignedRepName || null);
   const metadata = {
     csv: LEAD_SOURCE,
-    assignment_batch: lead.assignmentBatch,
+    assignment_batch: isPrimeauDirectorPool ? 'Director Pool' : lead.assignmentBatch,
+    assignment_pool: isPrimeauDirectorPool ? 'Director Pool' : null,
     assignment_rationale: lead.assignmentRationale,
     assigned_director_name: lead.assignedDirectorName,
     assigned_director_email: lead.assignedDirectorEmail,
-    assigned_rep_name: lead.assignedRepName,
-    assigned_rep_email: lead.assignedRepEmail,
+    assigned_rep_name: metadataAssignedRepName,
+    assigned_rep_email: isPrimeauDirectorPool ? null : lead.assignedRepEmail,
     assigned_director_matched: Boolean(matchedDirector || isPrimeauDirectorPool),
     assigned_rep_matched: Boolean(matchedRep),
   };
@@ -338,7 +340,7 @@ async function upsertOrganization(client, lead, actorUserId, assignment) {
            sport_focus = $27::varchar,
            assigned_director_name = $28::varchar,
            assigned_director_email = $29::varchar,
-           assigned_rep_name = $30::varchar,
+           assigned_rep_name = CASE WHEN $20::boolean THEN NULL ELSE $30::varchar END,
            assigned_rep_email = $31::varchar,
            assignment_pool = $32::varchar,
            assignment_batch = $33::varchar,
@@ -377,10 +379,10 @@ async function upsertOrganization(client, lead, actorUserId, assignment) {
         sportFocus,
         lead.assignedDirectorName,
         lead.assignedDirectorEmail,
-        lead.assignedRepName,
-        lead.assignedRepEmail,
+        assignment.shouldClearRep ? null : lead.assignedRepName,
+        assignment.shouldClearRep ? null : lead.assignedRepEmail,
         assignmentPool,
-        lead.assignmentBatch,
+        assignment.shouldClearRep ? 'Director Pool' : lead.assignmentBatch,
         lead.assignmentRationale,
       ],
     );
@@ -438,10 +440,10 @@ async function upsertOrganization(client, lead, actorUserId, assignment) {
       sportFocus,
       lead.assignedDirectorName,
       lead.assignedDirectorEmail,
-      lead.assignedRepName,
-      lead.assignedRepEmail,
+      assignment.shouldClearRep ? null : lead.assignedRepName,
+      assignment.shouldClearRep ? null : lead.assignedRepEmail,
       assignmentPool,
-      lead.assignmentBatch,
+      assignment.shouldClearRep ? 'Director Pool' : lead.assignmentBatch,
       lead.assignmentRationale,
     ],
   );
