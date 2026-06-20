@@ -6,6 +6,12 @@ const must = (file, needle, message) => {
   if (!read(file).includes(needle)) errors.push(`${file}: ${message}`);
 };
 
+
+must('packages/database/migrations/1900000004000_training_portal_schema.js', 'LEVEL_1_OPERATOR', 'fresh training schema must allow canonical LEVEL_* phases before seed migration runs');
+must('apps/web/src/pages/DashboardPage.tsx', 'toggleUserPracticalExercise', 'director onboarding controls must include practical exercise toggle');
+must('apps/web/src/components/TrainingModuleDetail.tsx', 'completedWithoutRequiredQuiz', 'completed quiz-backed modules must still allow required quiz submission');
+must('apps/web/src/components/TrainingModuleDetail.tsx', 'Submit Required Quiz', 'completed quiz-backed modules need a visible required quiz submit action');
+
 must('packages/database/migrations/1900000010000_v090_training_quizzes.js', 'quiz_json', 'quiz seed must add module quiz_json');
 must('packages/database/migrations/1900000010000_v090_training_quizzes.js', 'passing_score', 'quiz seed must set passing_score');
 must('apps/api/src/modules/training/training.routes.ts', '/assessments/submit', 'quiz assessment route missing');
