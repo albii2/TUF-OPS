@@ -366,7 +366,7 @@ export async function submitModuleAssessment(enrollmentId: number, moduleId: num
   return result.rows[0];
 }
 
-async function resolveUserId(id: string | number): Promise<number> {
+export async function resolveUserId(id: string | number): Promise<number> {
   const numericId = Number(id);
   if (!isNaN(numericId)) {
     return numericId;
