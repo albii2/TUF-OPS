@@ -12,6 +12,7 @@ import {
   toggleDirectorSignoff,
   getCertificationStatus,
   submitModuleAssessment,
+  resolveUserId,
 } from './training.service';
 import { TrainingRole } from './training.interface';
 
@@ -36,9 +37,8 @@ export async function getModulesByRoleHandler(request: FastifyRequest, reply: Fa
 }
 
 export async function enrollUserHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { userId, role } = request.body as any;
   try {
-    const { userId, role } = request.body as any;
-
     if (!userId || !role) {
       return reply.code(400).send({ message: 'userId and role are required' });
     }
@@ -47,22 +47,34 @@ export async function enrollUserHandler(request: FastifyRequest, reply: FastifyR
       return reply.code(400).send({ message: 'Valid role (TAE, REP, DIRECTOR, ADMIN) is required' });
     }
 
-    const enrollment = await enrollUserInTraining(userId, role);
+    const dbUserId = await resolveUserId(userId);
+    const enrollment = await enrollUserInTraining(dbUserId, role);
     return reply.code(201).send(enrollment);
   } catch (error: any) {
+    console.error(`[enrollUserHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
+    const numericId = Number(userId);
+    if (isNaN(numericId)) {
+      return reply.code(400).send({
+        error: "Unable to resolve user id",
+        receivedId: userId
+      });
+    }
+    if (error.message.includes('not found') || error.message.includes('User not found')) {
+      return reply.code(404).send({ message: error.message });
+    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
 
 export async function getEnrollmentHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { userId } = request.query as any;
   try {
-    const { userId } = request.query as any;
-
     if (!userId) {
       return reply.code(400).send({ message: 'userId query parameter is required' });
     }
 
-    const enrollment = await getUserEnrollment(parseInt(userId, 10));
+    const dbUserId = await resolveUserId(userId);
+    const enrollment = await getUserEnrollment(dbUserId);
 
     if (!enrollment) {
       return reply.code(404).send({ message: 'Enrollment not found' });
@@ -71,6 +83,17 @@ export async function getEnrollmentHandler(request: FastifyRequest, reply: Fasti
     const enrollmentWithProgress = await getEnrollmentWithProgress(enrollment.id);
     return reply.send(enrollmentWithProgress);
   } catch (error: any) {
+    console.error(`[getEnrollmentHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
+    const numericId = Number(userId);
+    if (isNaN(numericId)) {
+      return reply.code(400).send({
+        error: "Unable to resolve user id",
+        receivedId: userId
+      });
+    }
+    if (error.message.includes('not found') || error.message.includes('User not found')) {
+      return reply.code(404).send({ message: error.message });
+    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
@@ -162,26 +185,36 @@ export async function recordFrictionPointHandler(request: FastifyRequest, reply:
 }
 
 export async function toggleHrDocsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as any;
+  const { hrDocsCompleted } = request.body as any;
   try {
-    const { id } = request.params as any;
-    const { hrDocsCompleted } = request.body as any;
-
     if (id === undefined || hrDocsCompleted === undefined) {
       return reply.code(400).send({ message: 'User id and hrDocsCompleted are required' });
     }
 
-    const result = await toggleHrDocs(parseInt(id, 10), !!hrDocsCompleted);
+    const dbUserId = await resolveUserId(id);
+    const result = await toggleHrDocs(dbUserId, !!hrDocsCompleted);
     return reply.send(result);
   } catch (error: any) {
+    console.error(`[toggleHrDocsHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
+    const numericId = Number(id);
+    if (isNaN(numericId)) {
+      return reply.code(400).send({
+        error: "Unable to resolve user id",
+        receivedId: id
+      });
+    }
+    if (error.message.includes('not found') || error.message.includes('User not found')) {
+      return reply.code(404).send({ message: error.message });
+    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
 
 export async function togglePracticalExerciseHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as any;
+  const { practicalExerciseCompleted, actorRole } = request.body as any;
   try {
-    const { id } = request.params as any;
-    const { practicalExerciseCompleted, actorRole } = request.body as any;
-
     if (!canManageRepCertification(actorRole)) {
       return reply.code(403).send({ message: 'Only director, admin, owner, or ops roles can mark practical exercises complete' });
     }
@@ -190,25 +223,48 @@ export async function togglePracticalExerciseHandler(request: FastifyRequest, re
       return reply.code(400).send({ message: 'User id and practicalExerciseCompleted are required' });
     }
 
-    const result = await togglePracticalExercise(parseInt(id, 10), !!practicalExerciseCompleted);
+    const dbUserId = await resolveUserId(id);
+    const result = await togglePracticalExercise(dbUserId, !!practicalExerciseCompleted);
     return reply.send(result);
   } catch (error: any) {
+    console.error(`[togglePracticalExerciseHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
+    const numericId = Number(id);
+    if (isNaN(numericId)) {
+      return reply.code(400).send({
+        error: "Unable to resolve user id",
+        receivedId: id
+      });
+    }
+    if (error.message.includes('not found') || error.message.includes('User not found')) {
+      return reply.code(404).send({ message: error.message });
+    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
 
 export async function toggleDirectorSignoffHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as any;
+  const { directorSignedOff } = request.body as any;
   try {
-    const { id } = request.params as any;
-    const { directorSignedOff } = request.body as any;
-
     if (id === undefined || directorSignedOff === undefined) {
       return reply.code(400).send({ message: 'User id and directorSignedOff are required' });
     }
 
-    const result = await toggleDirectorSignoff(parseInt(id, 10), !!directorSignedOff);
+    const dbUserId = await resolveUserId(id);
+    const result = await toggleDirectorSignoff(dbUserId, !!directorSignedOff);
     return reply.send(result);
   } catch (error: any) {
+    console.error(`[toggleDirectorSignoffHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
+    const numericId = Number(id);
+    if (isNaN(numericId)) {
+      return reply.code(400).send({
+        error: "Unable to resolve user id",
+        receivedId: id
+      });
+    }
+    if (error.message.includes('not found') || error.message.includes('User not found')) {
+      return reply.code(404).send({ message: error.message });
+    }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
