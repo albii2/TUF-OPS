@@ -9,6 +9,8 @@ const must = (file, needle, message) => {
 
 must('packages/database/migrations/1900000004000_training_portal_schema.js', 'LEVEL_1_OPERATOR', 'fresh training schema must allow canonical LEVEL_* phases before seed migration runs');
 must('apps/web/src/pages/DashboardPage.tsx', 'toggleUserPracticalExercise', 'director onboarding controls must include practical exercise toggle');
+must('apps/web/src/pages/DashboardPage.tsx', 'Mark Practical', 'director onboarding controls must expose a practical exercise button');
+must('apps/web/src/services/usersService.ts', 'export function toggleUserPracticalExercise', 'local users service must persist practical exercise completion');
 must('apps/web/src/components/TrainingModuleDetail.tsx', 'completedWithoutRequiredQuiz', 'completed quiz-backed modules must still allow required quiz submission');
 must('apps/web/src/components/TrainingModuleDetail.tsx', 'Submit Required Quiz', 'completed quiz-backed modules need a visible required quiz submit action');
 

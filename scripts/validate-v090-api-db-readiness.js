@@ -34,6 +34,19 @@ async function validateDbReadiness() {
     }
 
     // 2. Verify Academy modules exist
+    const taeModulesRes = await client.query("SELECT COUNT(*)::int AS count FROM training_modules WHERE role = 'TAE'");
+    if (taeModulesRes.rows[0].count > 0) {
+      console.error(`❌ Error: Found ${taeModulesRes.rows[0].count} legacy TAE training modules; expected REP role modules.`);
+      process.exit(1);
+    }
+
+    const repModulesRes = await client.query("SELECT COUNT(*)::int AS count FROM training_modules WHERE role = 'REP'");
+    if (repModulesRes.rows[0].count <= 0) {
+      console.error('❌ Error: No REP training modules found.');
+      process.exit(1);
+    }
+    console.log(`✅ REP Academy modules found in database (Count: ${repModulesRes.rows[0].count}).`);
+
     const modulesRes = await client.query('SELECT COUNT(*)::int AS count FROM training_modules');
     const moduleCount = modulesRes.rows[0].count;
     if (moduleCount > 0) {

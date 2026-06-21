@@ -122,9 +122,6 @@ server.register(productionRequestRoutes, { prefix: '/production-requests' });
 server.register(orderRoutes, { prefix: '/orders' });
 server.register(creativeRequestRoutes);
 server.register(userRoutes, { prefix: '/auth' });
-server.register(trainingRoutes, { prefix: '/training' });
-server.register(trainingRoutes, { prefix: '/api/training' });
-server.register(trainingRoutes, { prefix: '/api/v1/training' });
 
 const healthHandler = async () => ({
   status: 'ok',
