@@ -1,5 +1,9 @@
 import type { AppUser, Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
+import { DATA_MODE } from './dataMode';
+
+const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training`;
+
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type ManagedUser = {
@@ -423,7 +427,18 @@ function toAppUser(user: StoredManagedUser): AppUser {
   };
 }
 
-export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
+export async function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
+  if (DATA_MODE === 'api') {
+    const response = await fetch(`${TRAINING_API_BASE_URL}/reps/${id}/hr-docs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hrDocsCompleted }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to toggle HR docs: ${response.status}`);
+    }
+  }
+
   const users = readStoredUsers();
   const rows = users.map((u) => {
     if (u.id === id) {
@@ -447,7 +462,20 @@ export function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
 }
 
 
-export function toggleUserPracticalExercise(id: string, practicalExerciseCompleted: boolean) {
+export async function toggleUserPracticalExercise(id: string, practicalExerciseCompleted: boolean) {
+  if (DATA_MODE === 'api') {
+    const rawUser = localStorage.getItem('tuf_ops_user_v3');
+    const actorRole = rawUser ? JSON.parse(rawUser).role : undefined;
+    const response = await fetch(`${TRAINING_API_BASE_URL}/reps/${id}/practical-exercise`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ practicalExerciseCompleted, actorRole }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to toggle practical exercise: ${response.status}`);
+    }
+  }
+
   const users = readStoredUsers();
   const rows = users.map((u) => {
     if (u.id === id) {
@@ -470,7 +498,18 @@ export function toggleUserPracticalExercise(id: string, practicalExerciseComplet
   }
 }
 
-export function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean) {
+export async function toggleUserDirectorSignoff(id: string, directorSignedOff: boolean) {
+  if (DATA_MODE === 'api') {
+    const response = await fetch(`${TRAINING_API_BASE_URL}/reps/${id}/director-signoff`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ directorSignedOff }),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to toggle director signoff: ${response.status}`);
+    }
+  }
+
   const users = readStoredUsers();
   const rows = users.map((u) => {
     if (u.id === id) {

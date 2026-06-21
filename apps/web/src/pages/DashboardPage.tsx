@@ -218,8 +218,8 @@ export function DashboardPage({ role }: { role: Role }) {
                   </div>
                   <div className="grid gap-2 sm:grid-cols-3">
                     <button
-                      onClick={() => {
-                        toggleUserHrDocs(rep.id, !rep.hrDocsCompleted);
+                      onClick={async () => {
+                        await toggleUserHrDocs(rep.id, !rep.hrDocsCompleted);
                         setRefreshKey((k) => k + 1);
                       }}
                       className={`rounded py-1.5 text-xs font-bold transition border ${
@@ -231,8 +231,8 @@ export function DashboardPage({ role }: { role: Role }) {
                       {rep.hrDocsCompleted ? 'HR Approved ✓' : 'Verify HR docs'}
                     </button>
                     <button
-                      onClick={() => {
-                        toggleUserPracticalExercise(rep.id, !rep.practicalExerciseCompleted);
+                      onClick={async () => {
+                        await toggleUserPracticalExercise(rep.id, !rep.practicalExerciseCompleted);
                         setRefreshKey((k) => k + 1);
                       }}
                       className={`rounded py-1.5 text-xs font-bold transition border ${
@@ -244,8 +244,8 @@ export function DashboardPage({ role }: { role: Role }) {
                       {rep.practicalExerciseCompleted ? 'Practical ✓' : 'Mark Practical'}
                     </button>
                     <button
-                      onClick={() => {
-                        toggleUserDirectorSignoff(rep.id, !rep.directorSignedOff);
+                      onClick={async () => {
+                        await toggleUserDirectorSignoff(rep.id, !rep.directorSignedOff);
                         setRefreshKey((k) => k + 1);
                       }}
                       className={`rounded py-1.5 text-xs font-bold transition border ${

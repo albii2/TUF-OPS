@@ -319,30 +319,45 @@ export async function checkAndUpdateCertification(userId: number): Promise<boole
 }
 
 export async function toggleHrDocs(userId: number, hrDocsCompleted: boolean): Promise<any> {
-  const result = await pool.query(
-    'UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, director_signed_off, is_certified',
+  await pool.query(
+    'UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2',
     [hrDocsCompleted, userId]
   );
   await checkAndUpdateCertification(userId);
-  return result.rows[0];
+  // Re-fetch to return fresh data (including updated is_certified)
+  const fresh = await pool.query(
+    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    [userId]
+  );
+  return fresh.rows[0];
 }
 
 export async function togglePracticalExercise(userId: number, practicalExerciseCompleted: boolean): Promise<any> {
-  const result = await pool.query(
-    'UPDATE users SET practical_exercise_completed = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified',
+  await pool.query(
+    'UPDATE users SET practical_exercise_completed = $1, updated_at = NOW() WHERE id = $2',
     [practicalExerciseCompleted, userId]
   );
   await checkAndUpdateCertification(userId);
-  return result.rows[0];
+  // Re-fetch to return fresh data (including updated is_certified)
+  const fresh = await pool.query(
+    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    [userId]
+  );
+  return fresh.rows[0];
 }
 
 export async function toggleDirectorSignoff(userId: number, directorSignedOff: boolean): Promise<any> {
-  const result = await pool.query(
-    'UPDATE users SET director_signed_off = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, director_signed_off, is_certified',
+  await pool.query(
+    'UPDATE users SET director_signed_off = $1, updated_at = NOW() WHERE id = $2',
     [directorSignedOff, userId]
   );
   await checkAndUpdateCertification(userId);
-  return result.rows[0];
+  // Re-fetch to return fresh data (including updated is_certified)
+  const fresh = await pool.query(
+    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    [userId]
+  );
+  return fresh.rows[0];
 }
 
 export async function submitModuleAssessment(enrollmentId: number, moduleId: number, answers: string[]): Promise<any> {
@@ -367,9 +382,14 @@ export async function submitModuleAssessment(enrollmentId: number, moduleId: num
 }
 
 export async function resolveUserId(id: string | number): Promise<number> {
-  const numericId = Number(id);
-  if (!isNaN(numericId)) {
-    return numericId;
+  // Only treat as a numeric DB id if it's a safe positive integer within PostgreSQL SERIAL range
+  const strId = String(id).trim();
+  if (/^\d+$/.test(strId)) {
+    const numericId = parseInt(strId, 10);
+    if (numericId >= 1 && numericId <= 2147483647) {
+      return numericId;
+    }
+    throw new Error(`Numeric ID out of valid range: ${id}`);
   }
 
   const emailMap: Record<string, string> = {
@@ -488,7 +508,26 @@ export async function getEnrollmentById(enrollmentId: number): Promise<TrainingE
 
 export async function getUserEnrollment(userId: number): Promise<TrainingEnrollment | null> {
   const result = await pool.query('SELECT * FROM training_enrollments WHERE user_id = $1', [userId]);
-  return result.rows.length > 0 ? result.rows[0] : null;
+  if (result.rows.length > 0) {
+    return result.rows[0];
+  }
+
+  // Try to find the user in users table to get their role and auto-enroll them
+  const userRes = await pool.query('SELECT role FROM users WHERE id = $1', [userId]);
+  if (userRes.rows[0]) {
+    let role = String(userRes.rows[0].role || 'REP').toUpperCase();
+    // Normalize roles to valid training enrollment roles
+    if (role === 'SALES_REP') {
+      role = 'REP';
+    } else if (role === 'ADMIN' || role === 'OWNER') {
+      role = 'ADMIN';
+    } else if (role === 'REGIONAL_DIRECTOR') {
+      role = 'DIRECTOR';
+    }
+    return await enrollUserInTraining(userId, role as any);
+  }
+
+  return null;
 }
 
 export async function getProgressByEnrollment(enrollmentId: number): Promise<TrainingProgress[]> {

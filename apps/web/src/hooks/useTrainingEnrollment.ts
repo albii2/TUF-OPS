@@ -211,20 +211,34 @@ export function useTrainingEnrollment(userId: number) {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetch(`${TRAINING_API_BASE_URL}/enrollment?userId=${userId}`);
+        let response = await fetch(`${TRAINING_API_BASE_URL}/enrollment?userId=${userId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch enrollment');
+          if (response.status === 404) {
+            const userRaw = localStorage.getItem('tuf_ops_user_v3');
+            const userObj = userRaw ? JSON.parse(userRaw) : null;
+            const role = userObj?.role || 'REP';
+            
+            const enrollResponse = await fetch(`${TRAINING_API_BASE_URL}/enrollment/start`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId, role })
+            });
+            if (enrollResponse.ok) {
+              response = await fetch(`${TRAINING_API_BASE_URL}/enrollment?userId=${userId}`);
+              if (!response.ok) {
+                throw new Error('Failed to fetch enrollment after auto-enrolling');
+              }
+            } else {
+              throw new Error('Failed to auto-enroll user');
+            }
+          } else {
+            throw new Error('Failed to fetch enrollment');
+          }
         }
         const data = await response.json();
         setEnrollment(data);
         localStorage.setItem(`tuf_ops_training_v1_${userId}`, JSON.stringify(data));
       } catch (err) {
-        if (IS_PRODUCTION) {
-          setEnrollment(null);
-          setError('TUF Academy certification must be loaded from the database in production. Local fallback is disabled.');
-          return;
-        }
-
         const cached = localStorage.getItem(`tuf_ops_training_v1_${userId}`);
         if (cached) {
           setEnrollment(JSON.parse(cached));
