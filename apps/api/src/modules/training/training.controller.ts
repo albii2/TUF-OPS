@@ -214,17 +214,27 @@ export async function toggleDirectorSignoffHandler(request: FastifyRequest, repl
 }
 
 export async function getCertificationStatusHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as any;
   try {
-    const { id } = request.params as any;
-
     if (!id) {
       return reply.code(400).send({ message: 'User id is required' });
     }
 
-    const result = await getCertificationStatus(parseInt(id, 10));
+    const result = await getCertificationStatus(id);
     return reply.send(result);
   } catch (error: any) {
-    if (error.message.includes('not found')) {
+    console.error(`[getCertificationStatusHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
+
+    const numericId = Number(id);
+    if (isNaN(numericId)) {
+      // For non-numeric IDs, any resolution failure should be returned as a 400 Bad Request
+      return reply.code(400).send({
+        error: "Unable to resolve user id",
+        receivedId: id
+      });
+    }
+
+    if (error.message.includes('not found') || error.message.includes('User not found')) {
       return reply.code(404).send({ message: error.message });
     }
     return reply.code(500).send({ message: 'Internal Server Error' });

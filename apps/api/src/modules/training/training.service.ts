@@ -366,32 +366,93 @@ export async function submitModuleAssessment(enrollmentId: number, moduleId: num
   return result.rows[0];
 }
 
-export async function getCertificationStatus(userId: number): Promise<any> {
+async function resolveUserId(id: string | number): Promise<number> {
+  const numericId = Number(id);
+  if (!isNaN(numericId)) {
+    return numericId;
+  }
+
+  const emailMap: Record<string, string> = {
+    'u-owner-coach-bradshaw': 'abradshaw@tufsports.us',
+    'u-director-primeau-hill': 'primeau.hill@tufsports.us',
+    'u-rep-jason-mulder': 'jason@tufsports.us', // Production database mapping
+    'u-rep-david-lundberg': 'lundbergdave18@gmail.com',
+    'u-rep-shayla-hilliard': 'shaylahilliard17@gmail.com',
+    'u-rep-josh-hoffman': 'jhoffman@kipsu.com',
+  };
+
+  const email = emailMap[String(id)];
+  if (email) {
+    const result = await pool.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [email]);
+    if (result.rows[0]) {
+      return result.rows[0].id;
+    }
+  }
+
+  const namePart = String(id).replace(/^u-(rep|director|owner)-/, '').replace(/-/g, ' ');
+  const result = await pool.query('SELECT id FROM users WHERE LOWER(name) = LOWER($1)', [namePart]);
+  if (result.rows[0]) {
+    return result.rows[0].id;
+  }
+
+  // Fallback email lookup for Jason Mulder
+  if (namePart.includes('jason mulder')) {
+    const resFallback = await pool.query("SELECT id FROM users WHERE LOWER(email) = 'jason@tufsports.us'");
+    if (resFallback.rows[0]) {
+      return resFallback.rows[0].id;
+    }
+  }
+
+  throw new Error('User not found');
+}
+
+export async function getCertificationStatus(userId: number | string): Promise<any> {
+  console.log(`[certification-status] RAW ID PARAM RECEIVED: ${userId}`);
+  let dbUserId: number;
+  try {
+    dbUserId = await resolveUserId(userId);
+    console.log(`[certification-status] RESOLVED USER ID: ${dbUserId}`);
+  } catch (err: any) {
+    console.error(`[certification-status] FAILED TO RESOLVE USER ID: ${userId}. Error: ${err.message}`, err.stack);
+    throw err;
+  }
+
   const userRes = await pool.query(
     'SELECT id, name, role, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
-    [userId]
+    [dbUserId]
   );
   if (userRes.rows.length === 0) {
+    console.warn(`[certification-status] USER LOOKUP RESULT: NOT FOUND in database for resolved ID ${dbUserId}`);
     throw new Error('User not found');
   }
   const user = userRes.rows[0];
+  console.log(`[certification-status] USER LOOKUP RESULT: FOUND user_id=${user.id}, name="${user.name}", role="${user.role}"`);
 
   let modulesPercent = 0;
   let totalModules = 0;
   let completedModules = 0;
 
-  const enrollmentRes = await pool.query('SELECT id, role FROM training_enrollments WHERE user_id = $1', [userId]);
+  const enrollmentRes = await pool.query('SELECT id, role FROM training_enrollments WHERE user_id = $1', [dbUserId]);
+  console.log(`[certification-status] ENROLLMENT LOOKUP RESULT: Found ${enrollmentRes.rows.length} enrollment(s) for user_id=${dbUserId}`);
+
   if (enrollmentRes.rows.length > 0) {
     const enrollment = enrollmentRes.rows[0];
+    console.log(`[certification-status] ENROLLMENT DETAIL: enrollment_id=${enrollment.id}, role="${enrollment.role}"`);
+
     const modulesRes = await pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
+    console.log(`[certification-status] MODULE COUNT: Found ${modulesRes.rows.length} modules for role="${enrollment.role}"`);
+
     const progressRes = await pool.query(
       'SELECT module_id FROM training_progress WHERE enrollment_id = $1 AND status = $2',
       [enrollment.id, 'COMPLETED']
     );
+    console.log(`[certification-status] PROGRESS COUNT: Found ${progressRes.rows.length} completed progress rows for enrollment_id=${enrollment.id}`);
+
     const assessmentRes = await pool.query(
       'SELECT DISTINCT ON (module_id) module_id, passed FROM training_assessments WHERE enrollment_id = $1 ORDER BY module_id, taken_at DESC NULLS LAST, created_at DESC',
       [enrollment.id]
     );
+
     const completedProgress = new Set(progressRes.rows.map((row) => row.module_id));
     const passedAssessments = new Set(assessmentRes.rows.filter((row) => row.passed).map((row) => row.module_id));
     totalModules = modulesRes.rows.length;
@@ -403,7 +464,7 @@ export async function getCertificationStatus(userId: number): Promise<any> {
   }
 
   return {
-    userId: user.id,
+    userId: typeof userId === 'string' && isNaN(Number(userId)) ? userId : user.id,
     name: user.name,
     role: user.role,
     hrDocsCompleted: user.hr_docs_completed,
