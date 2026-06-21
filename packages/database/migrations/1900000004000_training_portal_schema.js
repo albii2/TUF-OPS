@@ -7,7 +7,7 @@ exports.up = (pgm) => {
     role: {
       type: 'varchar(50)',
       notNull: true,
-      check: "role IN ('TAE', 'DIRECTOR', 'ADMIN')",
+      check: "role IN ('REP', 'TAE', 'DIRECTOR', 'ADMIN')",
     },
     phase: {
       type: 'varchar(50)',
@@ -47,7 +47,7 @@ exports.up = (pgm) => {
     role: {
       type: 'varchar(50)',
       notNull: true,
-      check: "role IN ('TAE', 'DIRECTOR', 'ADMIN')",
+      check: "role IN ('REP', 'TAE', 'DIRECTOR', 'ADMIN')",
     },
     status: {
       type: 'varchar(50)',

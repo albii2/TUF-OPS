@@ -61,6 +61,9 @@ includes('apps/web/src/components/TrainingPortalPage.tsx', 'Practical Exercise',
 includes('apps/web/src/components/TrainingPortalPage.tsx', 'CRM Unlock', 'certification checklist CRM unlock copy missing');
 includes('apps/web/src/components/TrainingPortalPage.tsx', 'Locker Room Simulator', 'Academy simulator section missing');
 includes('packages/database/migrations/1900000005000_seed_training_modules.js', 'WITH incoming', 'training content seed must be idempotent update/insert');
+includes('packages/database/migrations/1900000005000_seed_training_modules.js', "'REP'", 'training content seed must use REP role modules');
+check(!migration.includes("'TAE'"), 'training content seed must not create TAE role modules');
+includes('packages/database/migrations/1900000015000_v090_training_rep_role_normalization.js', "UPDATE training_modules", 'training role normalization migration must update existing TAE modules to REP');
 includes('packages/database/migrations/1900000014000_v090_academy_content_refresh.js', "require('./1900000005000_seed_training_modules')", 'Academy content refresh migration must reuse the idempotent content seed');
 check(!migration.includes('DELETE FROM training_modules'), 'training seed migration must not delete Academy content');
 

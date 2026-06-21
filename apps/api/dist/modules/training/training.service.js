@@ -33,12 +33,12 @@ function normalizeTrainingPhase(phase) {
         return phase;
     return training_interface_1.LEGACY_PHASE_MAP[phase] ?? null;
 }
-function persistedTrainingRole(role) {
-    return role === training_interface_1.TrainingRole.REP ? training_interface_1.TrainingRole.TAE : role;
+function canonicalTrainingRole(role) {
+    return role === training_interface_1.TrainingRole.TAE ? training_interface_1.TrainingRole.REP : role;
 }
 async function getModulesByRole(role, phase) {
     let query = 'SELECT * FROM training_modules WHERE role = $1';
-    const params = [persistedTrainingRole(role)];
+    const params = [canonicalTrainingRole(role)];
     if (phase) {
         query += ' AND phase = $2';
         params.push(phase);
@@ -48,7 +48,7 @@ async function getModulesByRole(role, phase) {
     return result.rows;
 }
 async function enrollUserInTraining(userId, role) {
-    const enrollmentRole = persistedTrainingRole(role);
+    const enrollmentRole = canonicalTrainingRole(role);
     // Check if user already enrolled
     const existing = await database_1.pool.query('SELECT * FROM training_enrollments WHERE user_id = $1', [userId]);
     if (existing.rows.length > 0) {
