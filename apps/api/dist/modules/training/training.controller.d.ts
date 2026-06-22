@@ -11,4 +11,6 @@ export declare function toggleHrDocsHandler(request: FastifyRequest, reply: Fast
 export declare function togglePracticalExerciseHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
 export declare function toggleDirectorSignoffHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
 export declare function getCertificationStatusHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function evaluateScriptHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getFrictionPointsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
 //# sourceMappingURL=training.controller.d.ts.map

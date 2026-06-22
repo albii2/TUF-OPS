@@ -548,7 +548,20 @@ export function useTrainingEnrollment(userId: number | string) {
         }
         const cached = localStorage.getItem(`tuf_ops_training_v1_${userId}`);
         if (cached) {
-          setEnrollment(JSON.parse(cached));
+          try {
+            const parsed = JSON.parse(cached);
+            const hasOldModules = parsed.modules?.some((m: any) => m.title === 'Welcome to TUF Sports Apparel' || !m.title.startsWith('Playbook'));
+            if (hasOldModules) {
+              localStorage.removeItem(`tuf_ops_training_v1_${userId}`);
+              const fallbackEnrollment = buildDefaultEnrollment(userId);
+              setEnrollment(fallbackEnrollment);
+              localStorage.setItem(`tuf_ops_training_v1_${userId}`, JSON.stringify(fallbackEnrollment));
+            } else {
+              setEnrollment(parsed);
+            }
+          } catch {
+            setEnrollment(JSON.parse(cached));
+          }
         } else {
           const fallbackEnrollment = buildDefaultEnrollment(userId);
           setEnrollment(fallbackEnrollment);

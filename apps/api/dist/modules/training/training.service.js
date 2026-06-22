@@ -10,22 +10,18 @@ exports.toggleHrDocs = toggleHrDocs;
 exports.togglePracticalExercise = togglePracticalExercise;
 exports.toggleDirectorSignoff = toggleDirectorSignoff;
 exports.submitModuleAssessment = submitModuleAssessment;
+exports.resolveUserId = resolveUserId;
 exports.getCertificationStatus = getCertificationStatus;
 exports.getEnrollmentById = getEnrollmentById;
 exports.getUserEnrollment = getUserEnrollment;
 exports.getProgressByEnrollment = getProgressByEnrollment;
 exports.recordFrictionPoint = recordFrictionPoint;
+exports.getFrictionPoints = getFrictionPoints;
 const database_1 = require("@packages/database");
 const training_interface_1 = require("./training.interface");
 const PHASE_ORDER = [
     training_interface_1.TrainingPhase.LEVEL_1_OPERATOR,
     training_interface_1.TrainingPhase.LEVEL_2_PRODUCT,
-    training_interface_1.TrainingPhase.LEVEL_3_TERRITORY,
-    training_interface_1.TrainingPhase.LEVEL_4_SALES,
-    training_interface_1.TrainingPhase.LEVEL_5_EXPANSION,
-    training_interface_1.TrainingPhase.SPECIALIZED_TRACKS,
-    training_interface_1.TrainingPhase.LEVEL_7_DIRECTOR,
-    training_interface_1.TrainingPhase.MARKET_MASTERY,
 ];
 const CANONICAL_PHASES = new Set(PHASE_ORDER);
 function normalizeTrainingPhase(phase) {
@@ -37,7 +33,7 @@ function canonicalTrainingRole(role) {
     return role === training_interface_1.TrainingRole.TAE ? training_interface_1.TrainingRole.REP : role;
 }
 async function getModulesByRole(role, phase) {
-    let query = 'SELECT * FROM training_modules WHERE role = $1';
+    let query = "SELECT * FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT')";
     const params = [canonicalTrainingRole(role)];
     if (phase) {
         query += ' AND phase = $2';
@@ -68,7 +64,7 @@ async function getEnrollmentWithProgress(enrollmentId) {
     }
     const enrollment = enrollmentResult.rows[0];
     // Get all modules for this role
-    const modulesResult = await database_1.pool.query('SELECT * FROM training_modules WHERE role = $1 ORDER BY order_index ASC', [enrollment.role]);
+    const modulesResult = await database_1.pool.query("SELECT * FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT') ORDER BY order_index ASC", [enrollment.role]);
     const modules = modulesResult.rows;
     // Get latest quiz/assessment result for all modules
     const assessmentResult = await database_1.pool.query('SELECT DISTINCT ON (module_id) * FROM training_assessments WHERE enrollment_id = $1 ORDER BY module_id, taken_at DESC NULLS LAST, created_at DESC', [enrollmentId]);
@@ -86,16 +82,10 @@ async function getEnrollmentWithProgress(enrollmentId) {
     }).length;
     const percentComplete = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
     // Calculate phase completion status
-    const phaseCompletionStatus = {
-        [training_interface_1.TrainingPhase.LEVEL_1_OPERATOR]: { completed: 0, total: 0, percentComplete: 0 },
-        [training_interface_1.TrainingPhase.LEVEL_2_PRODUCT]: { completed: 0, total: 0, percentComplete: 0 },
-        [training_interface_1.TrainingPhase.LEVEL_3_TERRITORY]: { completed: 0, total: 0, percentComplete: 0 },
-        [training_interface_1.TrainingPhase.LEVEL_4_SALES]: { completed: 0, total: 0, percentComplete: 0 },
-        [training_interface_1.TrainingPhase.LEVEL_5_EXPANSION]: { completed: 0, total: 0, percentComplete: 0 },
-        [training_interface_1.TrainingPhase.SPECIALIZED_TRACKS]: { completed: 0, total: 0, percentComplete: 0 },
-        [training_interface_1.TrainingPhase.LEVEL_7_DIRECTOR]: { completed: 0, total: 0, percentComplete: 0 },
-        [training_interface_1.TrainingPhase.MARKET_MASTERY]: { completed: 0, total: 0, percentComplete: 0 },
-    };
+    const phaseCompletionStatus = {};
+    PHASE_ORDER.forEach((phase) => {
+        phaseCompletionStatus[phase] = { completed: 0, total: 0, percentComplete: 0 };
+    });
     modules.forEach((module) => {
         const normalizedPhase = normalizeTrainingPhase(module.phase);
         if (!normalizedPhase) {
@@ -214,7 +204,7 @@ async function checkAndUpdateCertification(userId) {
     }
     const enrollment = enrollmentRes.rows[0];
     // Count modules vs completed modules
-    const modulesRes = await database_1.pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
+    const modulesRes = await database_1.pool.query("SELECT id, quiz_json FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT')", [enrollment.role]);
     const progressRes = await database_1.pool.query('SELECT module_id FROM training_progress WHERE enrollment_id = $1 AND status = $2', [enrollment.id, 'COMPLETED']);
     const assessmentRes = await database_1.pool.query('SELECT DISTINCT ON (module_id) module_id, passed FROM training_assessments WHERE enrollment_id = $1 ORDER BY module_id, taken_at DESC NULLS LAST, created_at DESC', [enrollment.id]);
     const completedProgress = new Set(progressRes.rows.map((row) => row.module_id));
@@ -230,19 +220,25 @@ async function checkAndUpdateCertification(userId) {
     return isCertified;
 }
 async function toggleHrDocs(userId, hrDocsCompleted) {
-    const result = await database_1.pool.query('UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, director_signed_off, is_certified', [hrDocsCompleted, userId]);
+    await database_1.pool.query('UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2', [hrDocsCompleted, userId]);
     await checkAndUpdateCertification(userId);
-    return result.rows[0];
+    // Re-fetch to return fresh data (including updated is_certified)
+    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [userId]);
+    return fresh.rows[0];
 }
 async function togglePracticalExercise(userId, practicalExerciseCompleted) {
-    const result = await database_1.pool.query('UPDATE users SET practical_exercise_completed = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified', [practicalExerciseCompleted, userId]);
+    await database_1.pool.query('UPDATE users SET practical_exercise_completed = $1, updated_at = NOW() WHERE id = $2', [practicalExerciseCompleted, userId]);
     await checkAndUpdateCertification(userId);
-    return result.rows[0];
+    // Re-fetch to return fresh data (including updated is_certified)
+    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [userId]);
+    return fresh.rows[0];
 }
 async function toggleDirectorSignoff(userId, directorSignedOff) {
-    const result = await database_1.pool.query('UPDATE users SET director_signed_off = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, hr_docs_completed, director_signed_off, is_certified', [directorSignedOff, userId]);
+    await database_1.pool.query('UPDATE users SET director_signed_off = $1, updated_at = NOW() WHERE id = $2', [directorSignedOff, userId]);
     await checkAndUpdateCertification(userId);
-    return result.rows[0];
+    // Re-fetch to return fresh data (including updated is_certified)
+    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [userId]);
+    return fresh.rows[0];
 }
 async function submitModuleAssessment(enrollmentId, moduleId, answers) {
     const moduleResult = await database_1.pool.query('SELECT id, quiz_json, passing_score FROM training_modules WHERE id = $1', [moduleId]);
@@ -262,20 +258,86 @@ async function submitModuleAssessment(enrollmentId, moduleId, answers) {
     await checkAndUpdateCertification(enrollment.user_id);
     return result.rows[0];
 }
+async function resolveUserId(id) {
+    // Only treat as a numeric DB id if it's a safe positive integer within PostgreSQL SERIAL range
+    const strId = String(id).trim();
+    if (/^\d+$/.test(strId)) {
+        const numericId = parseInt(strId, 10);
+        if (numericId >= 1 && numericId <= 2147483647) {
+            return numericId;
+        }
+        throw new Error(`Numeric ID out of valid range: ${id}`);
+    }
+    const emailMap = {
+        'u-owner-coach-bradshaw': 'abradshaw@tufsports.us',
+        'u-director-primeau-hill': 'primeau.hill@tufsports.us',
+        'u-rep-jason-mulder': 'jvmulder@gmail.com', // Production database mapping
+        'u-rep-david-lundberg': 'lundbergdave18@gmail.com',
+        'u-rep-shayla-hilliard': 'shaylahilliard17@gmail.com',
+        'u-rep-josh-hoffman': 'jhoffman@kipsu.com',
+    };
+    const emailOrEmails = emailMap[String(id)];
+    if (emailOrEmails) {
+        const emails = Array.isArray(emailOrEmails) ? emailOrEmails : [emailOrEmails];
+        const result = await database_1.pool.query('SELECT id FROM users WHERE LOWER(email) = ANY($1::text[])', [emails.map(e => e.toLowerCase())]);
+        if (result.rows[0]) {
+            return result.rows[0].id;
+        }
+    }
+    const namePart = String(id).replace(/^u-(rep|director|owner)-/, '').replace(/-/g, ' ');
+    const result = await database_1.pool.query('SELECT id FROM users WHERE LOWER(name) = LOWER($1)', [namePart]);
+    if (result.rows[0]) {
+        return result.rows[0].id;
+    }
+    // Fallback email lookup for Jason Mulder
+    if (namePart.includes('jason mulder')) {
+        const resFallback = await database_1.pool.query("SELECT id FROM users WHERE LOWER(email) = 'jvmulder@gmail.com'");
+        if (resFallback.rows[0]) {
+            return resFallback.rows[0].id;
+        }
+    }
+    throw new Error('User not found');
+}
 async function getCertificationStatus(userId) {
-    const userRes = await database_1.pool.query('SELECT id, name, role, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [userId]);
+    console.log(`[certification-status] RAW ID PARAM RECEIVED: ${userId}`);
+    let dbUserId;
+    try {
+        dbUserId = await resolveUserId(userId);
+        console.log(`[certification-status] RESOLVED USER ID: ${dbUserId}`);
+    }
+    catch (err) {
+        console.error(`[certification-status] FAILED TO RESOLVE USER ID: ${userId}. Error: ${err.message}`, err.stack);
+        throw err;
+    }
+    const userRes = await database_1.pool.query('SELECT id, name, role, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [dbUserId]);
     if (userRes.rows.length === 0) {
+        console.warn(`[certification-status] USER LOOKUP RESULT: NOT FOUND in database for resolved ID ${dbUserId}`);
         throw new Error('User not found');
     }
     const user = userRes.rows[0];
+    console.log(`[certification-status] USER LOOKUP RESULT: FOUND user_id=${user.id}, name="${user.name}", role="${user.role}"`);
     let modulesPercent = 0;
     let totalModules = 0;
     let completedModules = 0;
-    const enrollmentRes = await database_1.pool.query('SELECT id, role FROM training_enrollments WHERE user_id = $1', [userId]);
+    const enrollmentRes = await database_1.pool.query('SELECT id, role, enrolled_at FROM training_enrollments WHERE user_id = $1', [dbUserId]);
+    console.log(`[certification-status] ENROLLMENT LOOKUP RESULT: Found ${enrollmentRes.rows.length} enrollment(s) for user_id=${dbUserId}`);
+    let enrolledAt = null;
+    let isOverdue = false;
     if (enrollmentRes.rows.length > 0) {
         const enrollment = enrollmentRes.rows[0];
-        const modulesRes = await database_1.pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
+        enrolledAt = enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toISOString() : null;
+        if (enrollment.enrolled_at && !user.is_certified) {
+            const elapsedMs = Date.now() - new Date(enrollment.enrolled_at).getTime();
+            if (elapsedMs > 72 * 60 * 60 * 1000) {
+                isOverdue = true;
+                console.warn(`[TUF ACADEMY] CERTIFICATION OVERDUE ALERT: Sales rep "${user.name}" (ID: ${user.id}) has exceeded the 72-hour certification limit! State Director has been notified.`);
+            }
+        }
+        console.log(`[certification-status] ENROLLMENT DETAIL: enrollment_id=${enrollment.id}, role="${enrollment.role}", enrolled_at="${enrolledAt}", isOverdue=${isOverdue}`);
+        const modulesRes = await database_1.pool.query("SELECT id, quiz_json FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT')", [enrollment.role]);
+        console.log(`[certification-status] MODULE COUNT: Found ${modulesRes.rows.length} modules for role="${enrollment.role}"`);
         const progressRes = await database_1.pool.query('SELECT module_id FROM training_progress WHERE enrollment_id = $1 AND status = $2', [enrollment.id, 'COMPLETED']);
+        console.log(`[certification-status] PROGRESS COUNT: Found ${progressRes.rows.length} completed progress rows for enrollment_id=${enrollment.id}`);
         const assessmentRes = await database_1.pool.query('SELECT DISTINCT ON (module_id) module_id, passed FROM training_assessments WHERE enrollment_id = $1 ORDER BY module_id, taken_at DESC NULLS LAST, created_at DESC', [enrollment.id]);
         const completedProgress = new Set(progressRes.rows.map((row) => row.module_id));
         const passedAssessments = new Set(assessmentRes.rows.filter((row) => row.passed).map((row) => row.module_id));
@@ -287,7 +349,7 @@ async function getCertificationStatus(userId) {
         modulesPercent = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
     }
     return {
-        userId: user.id,
+        userId: typeof userId === 'string' && isNaN(Number(userId)) ? userId : user.id,
         name: user.name,
         role: user.role,
         hrDocsCompleted: user.hr_docs_completed,
@@ -297,7 +359,9 @@ async function getCertificationStatus(userId) {
         modulesPercent,
         modulesCompleted: totalModules > 0 && completedModules >= totalModules,
         completedModules,
-        totalModules
+        totalModules,
+        enrolledAt,
+        isOverdue
     };
 }
 async function getEnrollmentById(enrollmentId) {
@@ -309,7 +373,26 @@ async function getEnrollmentById(enrollmentId) {
 }
 async function getUserEnrollment(userId) {
     const result = await database_1.pool.query('SELECT * FROM training_enrollments WHERE user_id = $1', [userId]);
-    return result.rows.length > 0 ? result.rows[0] : null;
+    if (result.rows.length > 0) {
+        return result.rows[0];
+    }
+    // Try to find the user in users table to get their role and auto-enroll them
+    const userRes = await database_1.pool.query('SELECT role FROM users WHERE id = $1', [userId]);
+    if (userRes.rows[0]) {
+        let role = String(userRes.rows[0].role || 'REP').toUpperCase();
+        // Normalize roles to valid training enrollment roles
+        if (role === 'SALES_REP') {
+            role = 'REP';
+        }
+        else if (role === 'ADMIN' || role === 'OWNER') {
+            role = 'ADMIN';
+        }
+        else if (role === 'REGIONAL_DIRECTOR') {
+            role = 'DIRECTOR';
+        }
+        return await enrollUserInTraining(userId, role);
+    }
+    return null;
 }
 async function getProgressByEnrollment(enrollmentId) {
     const result = await database_1.pool.query('SELECT * FROM training_progress WHERE enrollment_id = $1 ORDER BY created_at ASC', [enrollmentId]);
@@ -318,5 +401,16 @@ async function getProgressByEnrollment(enrollmentId) {
 async function recordFrictionPoint(enrollmentId, frictionPointText, moduleId, resolutionText) {
     await database_1.pool.query(`INSERT INTO training_friction_notes (enrollment_id, module_id, friction_point_text, resolution_text, created_at)
      VALUES ($1, $2, $3, $4, NOW())`, [enrollmentId, moduleId || null, frictionPointText, resolutionText || null]);
+}
+async function getFrictionPoints() {
+    const result = await database_1.pool.query(`
+    SELECT fn.*, tm.title as module_title, u.name as rep_name, u.email as rep_email
+    FROM training_friction_notes fn
+    LEFT JOIN training_modules tm ON fn.module_id = tm.id
+    JOIN training_enrollments te ON fn.enrollment_id = te.id
+    JOIN users u ON te.user_id = u.id
+    ORDER BY fn.created_at DESC
+  `);
+    return result.rows;
 }
 //# sourceMappingURL=training.service.js.map

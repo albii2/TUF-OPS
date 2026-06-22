@@ -22,6 +22,30 @@ const ACTIVE_DATA_KEYS = [
 
 export function runV085DataCleanup() {
   if (typeof window === 'undefined') return;
+
+  // Clean up any training cache that has the old structure
+  try {
+    const keysToRemove: string[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('tuf_ops_training_v1_')) {
+        const cached = localStorage.getItem(key);
+        if (cached) {
+          try {
+            const parsed = JSON.parse(cached);
+            const hasOldModules = parsed.modules?.some((m: any) => m.title === 'Welcome to TUF Sports Apparel' || !m.title.startsWith('Playbook'));
+            if (hasOldModules) {
+              keysToRemove.push(key);
+            }
+          } catch {}
+        }
+      }
+    }
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+  } catch (err) {
+    console.error('Failed to cleanup old training cache:', err);
+  }
+
   if (localStorage.getItem(CLEANUP_FLAG) === 'true') return;
 
   const archive: Record<string, string> = {};
