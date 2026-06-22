@@ -252,6 +252,25 @@ function readStoredUsers(): StoredManagedUser[] {
     const seedNames = new Set(seedRows.map((row) => row.displayName));
     const migrated = rows.filter((row) => seedIds.has(row.id) || seedNames.has(row.displayName) || row.id.startsWith('u-local-'));
     const safeRows = migrated.map(({ pin: _pin, ...row }: any) => {
+      const seedUser = seedRows.find((s) => s.id === row.id);
+      if (seedUser) {
+        return {
+          ...row,
+          ...seedUser, // Sync all latest seed details (including credentials, salt, hash, email, status)
+          territory: seedUser.id === 'u-director-primeau-hill' ? 'metro,north' : seedUser.territory,
+          // Preserve local progress/state fields
+          hrDocsCompleted: row.hrDocsCompleted ?? seedUser.hrDocsCompleted,
+          directorSignedOff: row.directorSignedOff ?? seedUser.directorSignedOff,
+          practicalExerciseCompleted: row.practicalExerciseCompleted ?? seedUser.practicalExerciseCompleted,
+          isCertified: row.isCertified ?? seedUser.isCertified,
+          lastLoginAt: row.lastLoginAt,
+          lastActivityAt: row.lastActivityAt,
+          lastCredentialAttemptAt: row.lastCredentialAttemptAt,
+          loginCount: row.loginCount,
+          failedCredentialAttempts: row.failedCredentialAttempts,
+          lockedUntil: row.lockedUntil,
+        };
+      }
       if (row.id === 'u-director-primeau-hill') return { ...row, territory: 'metro,north' };
       return row;
     }) as StoredManagedUser[];
