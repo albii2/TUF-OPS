@@ -315,6 +315,126 @@ export async function evaluateScriptHandler(request: FastifyRequest, reply: Fast
       });
     }
 
+    const criteriaListMap: Record<string, string[]> = {
+      'Athletic Director intro call': ['Respect time', 'Ask one diagnostic question', 'Request a coach intro', 'Log the touch'],
+      'Football coach uniform pitch': ['Roster count captured', 'Deadline captured', 'Mockup assets requested', 'Review date set'],
+      '“We already have a vendor”': ['No vendor attack', 'Gap question asked', 'Future trigger identified', 'Follow-up logged'],
+      'Budget objection': ['No panic discount', 'Budget type diagnosed', 'Alternative path offered', 'Next step preserved'],
+      'Team store pitch': ['Audience identified', 'Launch window set', 'Product mix discussed', 'Promotion owner named'],
+      'Player pack upsell': ['Pack items named', 'Quantity path identified', 'Parent/admin value stated', 'Close for package review'],
+      'Letterman jacket campaign': ['Tradition respected', 'Timeline captured', 'Sizing/order process mapped', 'Campaign follow-up set'],
+      'Feeder/youth referral ask': ['Referral ask made', 'Value to youth program stated', 'Contact captured', 'Next touch planned'],
+      'Follow-up after no response': ['No “just checking in”', 'Context included', 'Clear choice offered', 'Next date logged'],
+      'Closing for mockup/sample': ['Assets requested', 'Roster/quantity captured', 'Review date set', 'Opportunity updated']
+    };
+
+    const criteriaList = criteriaListMap[scenarioTitle] || [];
+
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (apiKey) {
+      try {
+        const scenarioObjectives: Record<string, { objective: string; personality: string }> = {
+          'Athletic Director intro call': {
+            objective: 'Earn permission to discuss one priority sport and ask for the correct coach introduction.',
+            personality: 'Busy, direct, protective of coaches.'
+          },
+          'Football coach uniform pitch': {
+            objective: 'Qualify roster count, season date, design needs, and close for mockup/sample.',
+            personality: 'Practical, deadline-driven.'
+          },
+          '“We already have a vendor”': {
+            objective: 'Avoid attacking the vendor and uncover one service or timing gap.',
+            personality: 'Skeptical but fair.'
+          },
+          'Budget objection': {
+            objective: 'Protect margin while exploring package, timing, store, or booster options.',
+            personality: 'Interested but cautious.'
+          },
+          'Team store pitch': {
+            objective: 'Position a store launch with audience, product mix, and promotion plan.',
+            personality: 'Interested in easy execution.'
+          },
+          'Player pack upsell': {
+            objective: 'Attach pack items to readiness, identity, and parent convenience.',
+            personality: 'Wants simple team standards.'
+          },
+          'Letterman jacket campaign': {
+            objective: 'Find order window, sizing day, patch process, and approval owner.',
+            personality: 'Tradition-focused and detail-oriented.'
+          },
+          'Feeder/youth referral ask': {
+            objective: 'Ask for the feeder or youth contact without sounding transactional.',
+            personality: 'Helpful if trust is earned.'
+          },
+          'Follow-up after no response': {
+            objective: 'Restart with value and a specific question.',
+            personality: 'Distracted, not hostile.'
+          },
+          'Closing for mockup/sample': {
+            objective: 'Secure assets, quantities, and a review date for mockup/sample.',
+            personality: 'Positive but busy.'
+          }
+        };
+
+        const details = scenarioObjectives[scenarioTitle] || {
+          objective: 'Engage the customer and advance the deal.',
+          personality: 'Professional.'
+        };
+
+        const systemPrompt = `You are an expert sales coach for TUF Sports Apparel (a premium custom sportswear and apparel brand).
+Your job is to evaluate a sales representative's pitch submission for a specific scenario in the Locker Room Simulator.
+
+Here is the scenario context:
+- Scenario: ${scenarioTitle}
+- Objective: ${details.objective}
+- Customer Personality: ${details.personality}
+- Success Criteria: ${JSON.stringify(criteriaList)}
+
+Here is the sales representative's pitch submission:
+"""
+${pitchText}
+"""
+
+Please evaluate the pitch. A passing pitch must demonstrate active listening, address the customer's personality, and satisfy most of the success criteria (score >= 75 is passing).
+You must return your evaluation in JSON format with the following keys:
+1. "score": a number from 0 to 100 representing the grade.
+2. "passed": a boolean (true if score >= 75, false otherwise).
+3. "feedback": a string containing direct, encouraging, and highly actionable coaching feedback. Reference specific things the rep said or missed. Start with "✓ [DeepSeek Feedback]:" or "✗ [DeepSeek Feedback]:".
+4. "rubricMatch": a JSON object mapping each success criteria item exactly to a boolean (true if the rep addressed the criteria, false otherwise).
+
+Return ONLY the raw JSON object. Do not include markdown code block formatting (like \`\`\`json).`;
+
+        const response = await globalThis.fetch('https://api.deepseek.com/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: pitchText }
+            ],
+            temperature: 0.1,
+            response_format: { type: 'json_object' }
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json() as any;
+          const content = data.choices?.[0]?.message?.content;
+          if (content) {
+            const parsed = JSON.parse(content.trim());
+            return reply.send(parsed);
+          }
+        }
+      } catch (err) {
+        console.error('DeepSeek API call failed, falling back to keyword matching:', err);
+      }
+    }
+
+    // Keyword matching fallback
     const keywordMap: Record<string, string[]> = {
       'Athletic Director intro call': ['busy', 'time', 'sport', 'coach', 'introduce', 'represent', 'simplify'],
       'Football coach uniform pitch': ['uniform', 'look', 'delivery', 'fit', 'roster', 'mockup', 'artwork', 'date'],
@@ -353,20 +473,6 @@ export async function evaluateScriptHandler(request: FastifyRequest, reply: Fast
       feedback = `✗ [LLM Feedback]: Your response is currently missing some key success criteria. Make sure to clearly state your objective, avoid feature dumping, and ask a diagnostic next step.`;
     }
 
-    const criteriaListMap: Record<string, string[]> = {
-      'Athletic Director intro call': ['Respect time', 'Ask one diagnostic question', 'Request a coach intro', 'Log the touch'],
-      'Football coach uniform pitch': ['Roster count captured', 'Deadline captured', 'Mockup assets requested', 'Review date set'],
-      '“We already have a vendor”': ['No vendor attack', 'Gap question asked', 'Future trigger identified', 'Follow-up logged'],
-      'Budget objection': ['No panic discount', 'Budget type diagnosed', 'Alternative path offered', 'Next step preserved'],
-      'Team store pitch': ['Audience identified', 'Launch window set', 'Product mix discussed', 'Promotion owner named'],
-      'Player pack upsell': ['Pack items named', 'Quantity path identified', 'Parent/admin value stated', 'Close for package review'],
-      'Letterman jacket campaign': ['Tradition respected', 'Timeline captured', 'Sizing/order process mapped', 'Campaign follow-up set'],
-      'Feeder/youth referral ask': ['Referral ask made', 'Value to youth program stated', 'Contact captured', 'Next touch planned'],
-      'Follow-up after no response': ['No “just checking in”', 'Context included', 'Clear choice offered', 'Next date logged'],
-      'Closing for mockup/sample': ['Assets requested', 'Roster/quantity captured', 'Review date set', 'Opportunity updated']
-    };
-
-    const criteriaList = criteriaListMap[scenarioTitle] || [];
     const rubricMatch: Record<string, boolean> = {};
     criteriaList.forEach((item, idx) => {
       rubricMatch[item] = cleanPitch.length > 50 && (idx === 0 || idx <= Math.floor(matchCount / 2) + 1);
@@ -383,6 +489,7 @@ export async function evaluateScriptHandler(request: FastifyRequest, reply: Fast
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
+
 
 export async function getFrictionPointsHandler(request: FastifyRequest, reply: FastifyReply) {
   try {

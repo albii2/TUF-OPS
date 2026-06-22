@@ -61,6 +61,24 @@ export default function LockerRoomSimulator() {
       if (!response.ok) throw new Error('Evaluation request failed');
       const data = await response.json();
       setEvaluation(data);
+
+      if (data.passed) {
+        try {
+          await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training/reps/${userId}/practical-exercise`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ practicalExerciseCompleted: true })
+          });
+        } catch (e) {
+          console.warn('Failed to submit practical exercise on backend:', e);
+        }
+        
+        if (userObj) {
+          userObj.practicalExerciseCompleted = true;
+          localStorage.setItem('tuf_ops_user_v3', JSON.stringify(userObj));
+          window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: userObj }));
+        }
+      }
     } catch (err) {
       console.warn('API error, falling back to client simulation:', err);
       // Fallback evaluation for preview/offline mode
@@ -87,6 +105,16 @@ export default function LockerRoomSimulator() {
           : "Your script didn't cover enough of the success criteria for this objection. Make sure to reference the context and objectives and clear all criteria before submitting again.",
         rubricMatch: matchedCriteria
       });
+
+      if (passed) {
+        const rawUser = localStorage.getItem('tuf_ops_user_v3');
+        const userObj = rawUser ? JSON.parse(rawUser) : null;
+        if (userObj) {
+          userObj.practicalExerciseCompleted = true;
+          localStorage.setItem('tuf_ops_user_v3', JSON.stringify(userObj));
+          window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: userObj }));
+        }
+      }
     } finally {
       setSubmitting(false);
     }

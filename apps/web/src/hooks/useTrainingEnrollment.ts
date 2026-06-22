@@ -60,10 +60,6 @@ export interface TrainingEnrollmentWithProgress {
 export const ACADEMY_PHASES = [
   'LEVEL_1_OPERATOR',
   'LEVEL_2_PRODUCT',
-  'LEVEL_3_TERRITORY',
-  'LEVEL_4_SALES',
-  'LEVEL_5_EXPANSION',
-  'SPECIALIZED_TRACKS',
 ] as const;
 
 export const ACADEMY_PHASE_LABELS: Record<string, string> = {
@@ -95,7 +91,7 @@ const rawModules = [
     desc: 'Welcome to TUF Sports Apparel and the TUF Academy platform.',
     phase: 'LEVEL_1_OPERATOR',
     idx: 101,
-    content: '## Learning Objective\nWelcome to TUF Academy, the long-term certification, leadership development, and organizational operating system for TUF Sports Apparel.\n\n## Core Lesson\nOur mission is to build self-sufficient territory developers capable of identifying, creating, advancing, closing, and expanding athletic program opportunities with minimal leadership intervention. TUF Academy is your leadership development system that powers this growth.',
+    content: '## Learning Objective\nWelcome to TUF Academy, the long-term certification, leadership development, and organizational operating system for TUF Sports Apparel.\n\n## Training Explanation\nWelcome to TUF Academy, the long-term certification, leadership development, and organizational operating system for TUF Sports Apparel. Our mission is to build self-sufficient territory developers capable of identifying, creating, advancing, closing, and expanding athletic program opportunities with minimal leadership intervention. TUF Academy is your leadership development system that powers this growth.\n\n## Rep Actions\n1. Explore the layout of the TUF Academy dashboard.\n2. Verify that your user credentials and profile details are correct.\n3. Review the overall structure of the Combine phases.\n\n## Field Language\nWhen introducing TUF: "We help athletic programs customize, order, and distribute premium custom sportswear and fan gear seamlessly, giving coaches their time back."\n\n## What Done Means\nRead the playbook sections completely and pass the certification check question.\n\n## Practical Checkpoint\nEnsure you can navigate to the Training portal and see the 4-Phase checklist.',
     q: 'What is the core mission of TUF Sports Apparel and TUF Academy?',
     opts: ['To sell cheap generic t-shirts', 'To create self-sufficient territory developers who help athletic programs buy with speed, trust, and expansion', 'To focus solely on professional league contracts', 'To build retail stores in shopping malls'],
     ans: 'To create self-sufficient territory developers who help athletic programs buy with speed, trust, and expansion'
@@ -106,7 +102,7 @@ const rawModules = [
     desc: 'Understand how TUF connects schools, coaches, and communities.',
     phase: 'LEVEL_1_OPERATOR',
     idx: 102,
-    content: '## Learning Objective\nLearn to view your market not as isolated transactional accounts, but as an interconnected ecosystem of athletic programs, schools, youth feeder programs, team stores, booster clubs, and local communities.\n\n## Core Lesson\nThe TUF Ecosystem expands your reach beyond a single sport or buyer, securing long-term customer relationships and multi-lane revenue streams.',
+    content: '## Learning Objective\nLearn to view your market not as isolated transactional accounts, but as an interconnected ecosystem of athletic programs, schools, youth feeder programs, team stores, booster clubs, and local communities.\n\n## Training Explanation\nLearn to view your market not as isolated transactional accounts, but as an interconnected ecosystem of athletic programs, schools, youth feeder programs, team stores, booster clubs, and local communities. The TUF Ecosystem expands your reach beyond a single sport or buyer, securing long-term customer relationships and multi-lane revenue streams.\n\n## Rep Actions\n1. Research your assigned high schools and identify their youth feeder programs.\n2. Map out the local booster clubs and community contacts.\n3. Locate the active team stores currently run by competitors.\n\n## Field Language\nObjection: "We only order for our varsity football team."\nResponse: "We look at the whole school ecosystem. By connecting your youth programs and launching a parent fan store, we can fundraise for your varsity program and build community brand consistency."\n\n## What Done Means\nUnderstand all elements of the local athletic ecosystem and pass the check.\n\n## Practical Checkpoint\nIdentify at least one community sports or youth program affiliated with your main assigned school.',
     q: 'What constitutes the TUF Ecosystem?',
     opts: ['Only the direct sales rep and the buyer', 'The interconnected network of schools, youth feeders, team stores, booster clubs, and local communities', 'A software tool for tracking inventory', 'A delivery service for parcels'],
     ans: 'The interconnected network of schools, youth feeders, team stores, booster clubs, and local communities'
@@ -117,7 +113,7 @@ const rawModules = [
     desc: 'Understand the three divisions: Sales, Operations, and Brand Organizations.',
     phase: 'LEVEL_1_OPERATOR',
     idx: 103,
-    content: '## Learning Objective\nUnderstand the three core organizational layers that power TUF Sports Apparel.\n\n## Sales Organization\n- Composed of Territory Account Executives and Directors.\n- Responsible for territory management, prospecting, discovery, closing, and account expansion.\n\n## Operations Organization\n- Handles custom vendor routing, inventory management, production, fulfillment, and customer service.\n- Ensures design mockups translate to accurate physical products.\n\n## Brand Organization\n- Manages the visual identity of TUF, marketing materials, template design systems, and public positioning.\n- Collaborates with sales to provide presentation templates and assets.',
+    content: '## Learning Objective\nUnderstand the three core organizational layers that power TUF Sports Apparel: Sales, Operations, and Brand.\\n\\n## Training Explanation\nUnderstand the three core organizational layers that power TUF Sports Apparel: Sales, Operations, and Brand. Sales handles territory development, prospecting, and closing. Operations handles vendor routing, inventory, and fulfillment. Brand manages the visual identity, templates, and positionings. Self-sufficiency requires understanding how to interface with Operations and Brand to deliver on customer promises.\\n\\n## Rep Actions\\n1. Review the roles within the Sales, Operations, and Brand departments.\\n2. Understand when to contact Operations (routing/fulfillment queries) vs. Brand (artwork/logos).\\n3. Learn the names of the leads of each department.\\n\\n## Field Language\\nWhen explaining coordination: "Our Sales, Operations, and Brand teams work in absolute coordination so that design mockups are turned around in 24 hours, and custom orders ship on time, every time."\\n\\n## What Done Means\\nPass the structure quiz demonstrating knowledge of department responsibilities.\\n\\n## Practical Checkpoint\\nIdentify which department is responsible for vendor routing and custom packaging configurations.',
     q: 'Which department in TUF is responsible for vendor routing and fulfillment operations?',
     opts: ['Sales Organization', 'Operations Organization', 'Brand Organization', 'Creative Design Desk'],
     ans: 'Operations Organization'
@@ -128,7 +124,7 @@ const rawModules = [
     desc: 'Understand TUF Ops systems, daily touch tracking, and performance standards.',
     phase: 'LEVEL_1_OPERATOR',
     idx: 104,
-    content: '## Learning Objective\nLearn to navigate the TUF Ops portal, track daily prospect touches, maintain clean CRM notes, and follow our strict accountability guidelines.\n\n## Core Lesson\nSelf-sufficiency requires systematic discipline. Every territory developer must log their activities, update opportunity stages, define clear next steps, and maintain the 4-orders-per-month standard.',
+    content: '## Learning Objective\nLearn to navigate the TUF Ops portal, track daily prospect touches, maintain clean CRM notes, and follow our strict accountability guidelines.\\n\\n## Training Explanation\\nLearn to navigate the TUF Ops portal, track daily prospect touches, maintain clean CRM notes, and follow our strict accountability guidelines. Self-sufficiency requires systematic discipline. Every territory developer must log their activities, update opportunity stages, define clear next steps, and maintain the 4-orders-per-month standard.\\n\\n## Rep Actions\\n1. Log in to TUF Ops and navigate the Organizations and Opportunities screens.\\n2. Learn how to log a touch, add notes, and configure a follow-up action date.\\n3. Keep your daily pipeline clean and update deals regularly.\\n\\n## Field Language\\n"Our accountability standards ensure that no prospect is left without a clear next step, and every order is tracked with 100% transparency in TUF Ops."\\n\\n## What Done Means\\nPass the accountability standard quiz and understand the 4-orders-per-month minimum floor.\\n\\n## Practical Checkpoint\\nVerify that you can view your pipeline on the Opportunities page and know where to log a daily touch.',
     q: 'What is the standard monthly order floor for a TUF rep?',
     opts: ['1 order per month', '4 orders per month', '10 orders per month', 'No specific floor'],
     ans: '4 orders per month'
@@ -139,7 +135,7 @@ const rawModules = [
     desc: 'Navigate athletic programs, athletic directors, and sport seasons.',
     phase: 'LEVEL_2_PRODUCT',
     idx: 201,
-    content: '## Learning Objective\nLearn how school athletic departments operate, including purchasing hierarchies, budget cycles, and seasonal timelines.\n\n## Core Lesson\nThe Athletic Director (AD) is the primary gatekeeper, but individual head coaches hold massive design and brand influence. Managing both is crucial for a successful territory relationship.',
+    content: '## Learning Objective\nLearn how school athletic departments operate, including purchasing hierarchies, budget cycles, and seasonal timelines.\\n\\n## Training Explanation\\nLearn how school athletic departments operate, including purchasing hierarchies, budget cycles, and seasonal timelines. The Athletic Director (AD) is the primary gatekeeper, but individual head coaches hold massive design and brand influence. Managing both is crucial for a successful territory relationship.\\n\\n## Rep Actions\\n1. Map out the sports seasons (Fall, Winter, Spring) for your assigned schools.\\n2. Identify the Athletic Directors and their administrative assistants.\\n3. List the head coaches for high-priority sports (Football, Basketball, Baseball).\\n\\n## Field Language\\nPitching the AD: "Mr./Ms. AD, we work with athletic directors to bring brand consistency across all sports, consolidate purchasing, and launch fan stores that generate revenue for the booster club."\\n\\n## What Done Means\\nIdentify the gatekeeper roles and pass the school ecosystem quiz.\\n\\n## Practical Checkpoint\\nLook up the contact details of the AD at your primary assigned school.',
     q: 'Who is the primary gatekeeper for school athletic purchases?',
     opts: ['The school principal', 'The Athletic Director (AD)', 'The student council president', 'The head coach of a single sport'],
     ans: 'The Athletic Director (AD)'
@@ -150,7 +146,7 @@ const rawModules = [
     desc: 'Master custom uniforms, materials, sizes, and player pack structures.',
     phase: 'LEVEL_2_PRODUCT',
     idx: 202,
-    content: '## Learning Objective\nDevelop expertise in TUF product lines: custom uniform fabrics, durability specs, mockups, and player pack setups.\\n\\n## Core Lesson\\nPlayer packs simplify order aggregation by shipping individually to parents, saving head coaches dozens of distribution hours and reducing team logistics friction.',
+    content: '## Learning Objective\nDevelop expertise in TUF product lines: custom uniform fabrics, durability specs, mockups, and player pack setups.\\n\\n## Training Explanation\\nDevelop expertise in TUF product lines: custom uniform fabrics (TUF SHIFT, TUF GRIND, TUF OVERTIME, TUF FLEX), durability specs, mockups, and player pack setups. Player packs simplify order aggregation by shipping individually to parents, saving head coaches dozens of distribution hours and reducing team logistics friction.\\n\\n## Rep Actions\\n1. Memorize the difference between TUF SHIFT (premium lightweight) and TUF GRIND (high durability) fabrics.\\n2. Understand how player packs are bundled and priced.\\n3. Know the sizing charts for all major uniform styles.\\n\\n## Field Language\\nExplaining fabrics: "Our TUF SHIFT fabric is engineered for elite breathability, while TUF GRIND is built to withstand high-contact sports without sacrificing player comfort."\\n\\n## What Done Means\\nDemonstrate clear understanding of custom uniform specifications and player pack delivery logistics.\\n\\n## Practical Checkpoint\\nExplain the difference between TUF SHIFT and TUF GRIND fabrics.',
     q: 'What is a key benefit of TUF player packs?',
     opts: ['They are shipped individually to each parent, saving coaches distribution time', 'They only come in one size', 'They are sold at retail stores', 'They require manual sorting by the athletic department'],
     ans: 'They are shipped individually to each parent, saving coaches distribution time'
@@ -161,7 +157,7 @@ const rawModules = [
     desc: 'Master school research, contact gathering, LinkedIn outreach, social selling, and territory management.',
     phase: 'LEVEL_2_PRODUCT',
     idx: 203,
-    content: '## Learning Objective\nEstablish a structured prospecting workflow to build your pipeline.\\n\\n## Core Lesson\\n- **School Research**: Analyze assigned territory schools, their current brands, and historical purchasing habits.\\n- **Contact Gathering**: Identify Athletic Directors, head coaches, and booster presidents.\\n- **LinkedIn Outreach & Social Selling**: Initiate contact professionally by delivering valuable insights rather than generic sales pitches.\\n- **Territory Management**: Group schools geographically to optimize physical visits and establish regional density.',
+    content: '## Learning Objective\nEstablish a structured prospecting workflow to build your pipeline.\\n\\n## Training Explanation\\nEstablish a structured prospecting workflow to build your pipeline. Prospecting is about intelligence and geography. Analyze assigned territory schools, their current brands, and historical purchasing habits. Identify ADs, head coaches, and booster presidents. Group schools geographically to optimize physical visits and establish regional density.\\n\\n## Rep Actions\\n1. Open the Territory Command Map and view your assigned zone.\\n2. Research competitors currently supplying the teams in your territory.\\n3. Compile a lead list of coaches and ADs with active emails and phone numbers.\\n\\n## Field Language\\nSocial selling outreach: "Coach, saw your team\'s great run last season. I put together a mockup design that matches your school colors and tradition. Love to send it over to get your feedback."\\n\\n## What Done Means\nComplete the prospecting quiz demonstrating structured territory mapping knowledge.\\n\\n## Practical Checkpoint\nLocate three schools in your assigned territory on the Map page.',
     q: 'What is the first step in TUF territory prospecting?',
     opts: ['Pitching a contract cold via phone', 'Researching the school, gathering key contact info, and mapping existing athletic brands', 'Sending free samples to the school main office', 'Showing up unannounced to a team practice'],
     ans: 'Researching the school, gathering key contact info, and mapping existing athletic brands'
@@ -172,7 +168,7 @@ const rawModules = [
     desc: 'Master cold outreach, scripts, emails, and securing the first meeting.',
     phase: 'LEVEL_2_PRODUCT',
     idx: 204,
-    content: '## Learning Objective\nInitiate outreach that breaks through the noise and secures a discovery meeting.\\n\\n## Core Lesson\\nLeverage TUF commercial insights. Introduce the TUF platform by addressing common vendor friction points: late shipments, poor communication, and complex ordering processes.',
+    content: '## Learning Objective\nInitiate outreach that breaks through the noise and secures a discovery meeting.\\n\\n## Training Explanation\\nInitiate outreach that breaks through the noise and secures a discovery meeting. First contact is not about pitching products; it is about establishing trust and identifying pain. Leverage TUF commercial insights. Introduce the TUF platform by addressing common vendor friction points: late shipments, poor communication, and complex ordering processes.\\n\\n## Rep Actions\\n1. Draft your cold outreach email and call script templates.\\n2. Call the AD or Coach using the direct scripts provided.\\n3. Secure a 10-minute discovery call or meeting.\\n\\n## Field Language\\nCold call: "Coach, I know you are busy preparing for the season. I work with TUF helping local programs simplify custom uniform ordering. What was your biggest headache with your last vendor delivery?"\\n\\n## What Done Means\nPass the first contact quiz and practice cold calling scripts.\\n\\n## Practical Checkpoint\nWrite a personalized first contact email template addressing a local head coach.',
     q: 'What is the main goal of your first contact with a coach?',
     opts: ['To close a uniform order immediately', 'To schedule a discovery meeting and establish trust', 'To ask for their personal credit card info', 'To ask for an exclusive multi-year contract'],
     ans: 'To schedule a discovery meeting and establish trust'
@@ -183,7 +179,7 @@ const rawModules = [
     desc: 'Uncover athletic budget constraints, vendor pain points, and sport timelines.',
     phase: 'LEVEL_2_PRODUCT',
     idx: 205,
-    content: '## Learning Objective\nConduct structured discovery to diagnose potential client pain points and buying readiness.\\n\\n## Core Lesson\\nNever lead with products or pricing. Lead with diagnostic questions to uncover current vendor friction: "What was your biggest headache with your last uniform delivery timeline?" Use the gaps discovered to position TUF solutions.',
+    content: '## Learning Objective\nConduct structured discovery to diagnose potential client pain points and buying readiness.\\n\\n## Training Explanation\\nConduct structured discovery to diagnose potential client pain points and buying readiness. Never lead with products or pricing. Lead with diagnostic questions to uncover current vendor friction: "What was your biggest headache with your last uniform delivery timeline?" Use the gaps discovered to position TUF solutions.\\n\\n## Rep Actions\\n1. Prepare diagnostic discovery questions before calling.\\n2. Ask open-ended questions about budget timelines, booster approvals, and custom color rules.\\n3. Listen for timing, quality, and service pain points.\\n\\n## Field Language\\nDiscovery questions: "How did your last vendor handle mid-season replacement orders? Did families face shipping delays with their parent orders?"\\n\\n## What Done Means\nPass the discovery quiz and demonstrate understanding of objectives-based diagnostics.\\n\\n## Practical Checkpoint\nDraft three discovery questions targeting vendor service reliability and order replacement speed.',
     q: 'What diagnostic question best uncovers current vendor service friction?',
     opts: ['Can we beat your current pricing by 10%', 'What was your biggest headache with your last uniform delivery timeline?', 'Will you sign this contract today?', 'Which sport has the largest budget?'],
     ans: 'What was your biggest headache with your last uniform delivery timeline?'
@@ -194,7 +190,7 @@ const rawModules = [
     desc: 'Create high-converting mockup requests and present visual custom designs to coaches.',
     phase: 'LEVEL_2_PRODUCT',
     idx: 206,
-    content: '## Learning Objective\nConvert interest into visual design requests using our design desk.\\n\\n## Core Lesson\\nCustom mockups are our highest-converting sales trigger. Upload correct vector artwork and precise school colors in TUF Ops to enable our design desk to deliver stunning, error-free mockups that coaches can visualize on their team.',
+    content: '## Learning Objective\nConvert interest into visual design requests using our design desk.\\n\\n## Training Explanation\\nConvert interest into visual design requests using our design desk. Custom mockups are our highest-converting sales trigger. Upload correct vector artwork and precise school colors in TUF Ops to enable our design desk to deliver stunning, error-free mockups that coaches can visualize on their team.\\n\\n## Rep Actions\\n1. Collect high-resolution vector logos and Pantone color codes from the school.\\n2. Log in to TUF Ops, create a mockup request, and upload the graphic assets.\\n3. Present the finished mockup to the head coach in a high-impact presentation.\\n\\n## Field Language\\nPresenting the design: "Coach, our design desk put together this custom uniform concept matching your tradition. We have this engineered with TUF GRIND fabric to ensure it looks and performs beautifully all season."\\n\\n## What Done Means\nSubmit a mockup request inside TUF Ops with complete vector assets and get coach sign-off.\\n\\n## Practical Checkpoint\nVerify you know where to upload mockup assets and request a custom design version.',
     q: 'Why is uploading correct vector artwork crucial for mockup requests?',
     opts: ['It ensures high-quality mockups and prevents production delays', 'It is required for tax reporting', 'It is only used for archiving', 'It automatically generates a pricing quote'],
     ans: 'It ensures high-quality mockups and prevents production delays'
@@ -377,22 +373,24 @@ const rawModules = [
   }
 ];
 
-const DEFAULT_TRAINING_MODULES: Array<Omit<TrainingModule, 'role' | 'created_at' | 'updated_at'>> = rawModules.map((m) => ({
-  id: m.id,
-  title: m.title,
-  description: `${m.desc} Required score: 85%.`,
-  phase: m.phase,
-  order_index: m.idx,
-  content_markdown: m.content,
-  estimated_duration_minutes: m.id >= 400 ? 30 : 25,
-  module_type: m.id === 205 ? 'INTERACTIVE' : m.id === 206 ? 'HANDS_ON' : 'MODULE',
-  passing_score: 85,
-  quiz_json: [{
-    question: m.q,
-    options: m.opts,
-    correctAnswer: m.ans
-  }]
-}));
+const DEFAULT_TRAINING_MODULES: Array<Omit<TrainingModule, 'role' | 'created_at' | 'updated_at'>> = rawModules
+  .filter((m) => ['LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT'].includes(m.phase))
+  .map((m) => ({
+    id: m.id,
+    title: m.title,
+    description: `${m.desc} Required score: 85%.`,
+    phase: m.phase,
+    order_index: m.idx,
+    content_markdown: m.content,
+    estimated_duration_minutes: m.id >= 400 ? 30 : 25,
+    module_type: m.id === 205 ? 'INTERACTIVE' : m.id === 206 ? 'HANDS_ON' : 'MODULE',
+    passing_score: 85,
+    quiz_json: [{
+      question: m.q,
+      options: m.opts,
+      correctAnswer: m.ans
+    }]
+  }));
 
 function getCurrentTrainingRole() {
   try {

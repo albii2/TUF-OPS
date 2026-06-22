@@ -11,6 +11,7 @@ import { SportsTicker } from './SportsTicker';
 import { listUsers } from '../services/usersService';
 import TufMarkSvg from '../assets/tuf-mark.svg';
 import TufAcademyLogo from '../assets/tuf-academy.png';
+import CrmWalkthroughTour from './academy/CrmWalkthroughTour';
 
 export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUser | null) => void }) {
   const navigate = useNavigate();
@@ -124,6 +125,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
             {searchMessage ? <p className="mt-2 text-xs text-amber-200">{searchMessage}</p> : null}
           </header>
           <Outlet />
+          <CrmWalkthroughTour />
         </main>
       </div>
       <div className="pointer-events-none fixed inset-x-0 bottom-2 z-0 flex justify-center md:bottom-4">

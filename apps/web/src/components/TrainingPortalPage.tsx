@@ -218,7 +218,7 @@ export default function TrainingPortalPage() {
 
 
         {/* Locker Room Simulator */}
-        <div className="hidden rounded-xl border border-cyan-400/25 bg-cyan-500/10 p-5">
+        <div className="rounded-xl border border-cyan-400/25 bg-cyan-500/10 p-5">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-cyan-200">72-hour Practical Certification</p>
           <h2 className="mt-1 text-lg font-black text-white">Locker Room Simulator</h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">Practice real TUF sales conversations anytime: AD intro, vendor objection, budget objection, team stores, player packs, letterman campaigns, feeder referrals, follow-up, and closing for mockup/sample.</p>

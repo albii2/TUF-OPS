@@ -14,10 +14,6 @@ import {
 const PHASE_ORDER = [
   TrainingPhase.LEVEL_1_OPERATOR,
   TrainingPhase.LEVEL_2_PRODUCT,
-  TrainingPhase.LEVEL_3_TERRITORY,
-  TrainingPhase.LEVEL_4_SALES,
-  TrainingPhase.LEVEL_5_EXPANSION,
-  TrainingPhase.SPECIALIZED_TRACKS,
 ];
 
 
@@ -33,7 +29,7 @@ function canonicalTrainingRole(role: TrainingRole): TrainingRole {
 }
 
 export async function getModulesByRole(role: TrainingRole, phase?: TrainingPhase): Promise<TrainingModule[]> {
-  let query = 'SELECT * FROM training_modules WHERE role = $1';
+  let query = "SELECT * FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT')";
   const params: any[] = [canonicalTrainingRole(role)];
 
   if (phase) {
@@ -82,7 +78,7 @@ export async function getEnrollmentWithProgress(enrollmentId: number): Promise<T
 
   // Get all modules for this role
   const modulesResult = await pool.query(
-    'SELECT * FROM training_modules WHERE role = $1 ORDER BY order_index ASC',
+    "SELECT * FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT') ORDER BY order_index ASC",
     [enrollment.role]
   );
   const modules = modulesResult.rows as TrainingModule[];
@@ -285,7 +281,10 @@ export async function checkAndUpdateCertification(userId: number): Promise<boole
   const enrollment = enrollmentRes.rows[0];
 
   // Count modules vs completed modules
-  const modulesRes = await pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
+  const modulesRes = await pool.query(
+    "SELECT id, quiz_json FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT')",
+    [enrollment.role]
+  );
   const progressRes = await pool.query(
     'SELECT module_id FROM training_progress WHERE enrollment_id = $1 AND status = $2',
     [enrollment.id, 'COMPLETED']
@@ -464,7 +463,10 @@ export async function getCertificationStatus(userId: number | string): Promise<a
 
     console.log(`[certification-status] ENROLLMENT DETAIL: enrollment_id=${enrollment.id}, role="${enrollment.role}", enrolled_at="${enrolledAt}", isOverdue=${isOverdue}`);
 
-    const modulesRes = await pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
+    const modulesRes = await pool.query(
+      "SELECT id, quiz_json FROM training_modules WHERE role = $1 AND phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT')",
+      [enrollment.role]
+    );
     console.log(`[certification-status] MODULE COUNT: Found ${modulesRes.rows.length} modules for role="${enrollment.role}"`);
 
     const progressRes = await pool.query(
