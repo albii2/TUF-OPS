@@ -6,7 +6,7 @@ import TrainingModuleDetail from './TrainingModuleDetail';
 interface TrainingPhaseViewProps {
   phase: string;
   enrollment: TrainingEnrollmentWithProgress;
-  userId: number;
+  userId: number | string;
 }
 
 export default function TrainingPhaseView({ phase, enrollment, userId }: TrainingPhaseViewProps) {

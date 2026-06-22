@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GlassCard } from '../components/ui';
 import { getStoredUser } from '../auth';
@@ -74,6 +74,20 @@ export function DashboardPage({ role }: { role: Role }) {
   const [refreshKey, setRefreshKey] = useState(0);
   const opportunities = useOpportunities({});
   const currentUser = getStoredUser();
+  const [frictionPoints, setFrictionPoints] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (role === 'DIRECTOR') {
+      fetch(`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training/friction-points`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setFrictionPoints(data);
+          }
+        })
+        .catch((err) => console.error('Failed to fetch friction points:', err));
+    }
+  }, [role, refreshKey]);
   const organizations = useOrganizations({});
   const orders = useOrders({});
   const activities = useActivities({ limit: 4 });
@@ -205,17 +219,42 @@ export function DashboardPage({ role }: { role: Role }) {
           <GlassCard title="REPS ONBOARDING & SIGN-OFF">
             <p className="text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">Verify onboarding progress and authorize core systems access</p>
             <div className="grid gap-3 sm:grid-cols-2">
-              {directReps.map((rep) => (
-                <div key={rep.id} className="rounded-lg border border-slate-800 bg-[#070c13]/60 p-3 flex flex-col justify-between gap-3">
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <p className="font-bold text-sm text-slate-100">{rep.displayName}</p>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${rep.isCertified ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
-                        {rep.isCertified ? 'Certified' : 'Blocked'}
-                      </span>
+              {directReps.map((rep) => {
+                const hasNotification = localStorage.getItem(`tuf_ops_notified_director_${rep.id}`) === 'true';
+                const repFriction = frictionPoints.filter(fp => fp.rep_email === rep.email || fp.rep_name === rep.displayName);
+
+                return (
+                  <div key={rep.id} className="rounded-lg border border-slate-800 bg-[#070c13]/60 p-3 flex flex-col justify-between gap-3">
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <p className="font-bold text-sm text-slate-100">{rep.displayName}</p>
+                        <div className="flex gap-1.5 items-center">
+                          {hasNotification && !rep.directorSignedOff && (
+                            <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 animate-pulse">
+                              Review Requested
+                            </span>
+                          )}
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${rep.isCertified ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}>
+                            {rep.isCertified ? 'Certified' : 'Blocked'}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-1 truncate">Territory: {rep.territory}</p>
+
+                      {repFriction.length > 0 && (
+                        <div className="mt-2 border-t border-slate-800/80 pt-2 space-y-1.5">
+                          <p className="text-[10px] font-black uppercase text-orange-400 tracking-wider">Logged Friction Points:</p>
+                          {repFriction.map(fp => (
+                            <div key={fp.id} className="rounded bg-orange-950/10 border border-orange-500/20 p-2 text-xs">
+                              <p className="text-slate-350 italic">"{fp.friction_point_text}"</p>
+                              <p className="text-[9px] text-slate-500 mt-1 font-semibold">
+                                Module: {fp.module_title || 'General'} · {new Date(fp.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 truncate">Territory: {rep.territory}</p>
-                  </div>
                   <div className="grid gap-2 sm:grid-cols-3">
                     <button
                       onClick={async () => {
@@ -258,7 +297,8 @@ export function DashboardPage({ role }: { role: Role }) {
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </GlassCard>
         )}

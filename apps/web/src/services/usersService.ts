@@ -462,6 +462,7 @@ export async function toggleUserHrDocs(id: string, hrDocsCompleted: boolean) {
 }
 
 
+// export function toggleUserPracticalExercise
 export async function toggleUserPracticalExercise(id: string, practicalExerciseCompleted: boolean) {
   if (DATA_MODE === 'api') {
     const rawUser = localStorage.getItem('tuf_ops_user_v3');

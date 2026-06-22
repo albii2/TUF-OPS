@@ -18,8 +18,6 @@ const PHASE_ORDER = [
   TrainingPhase.LEVEL_4_SALES,
   TrainingPhase.LEVEL_5_EXPANSION,
   TrainingPhase.SPECIALIZED_TRACKS,
-  TrainingPhase.LEVEL_7_DIRECTOR,
-  TrainingPhase.MARKET_MASTERY,
 ];
 
 
@@ -114,16 +112,10 @@ export async function getEnrollmentWithProgress(enrollmentId: number): Promise<T
   const percentComplete = totalModules > 0 ? Math.round((completedModules / totalModules) * 100) : 0;
 
   // Calculate phase completion status
-  const phaseCompletionStatus: Record<TrainingPhase, { completed: number; total: number; percentComplete: number }> = {
-    [TrainingPhase.LEVEL_1_OPERATOR]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.LEVEL_2_PRODUCT]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.LEVEL_3_TERRITORY]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.LEVEL_4_SALES]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.LEVEL_5_EXPANSION]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.SPECIALIZED_TRACKS]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.LEVEL_7_DIRECTOR]: { completed: 0, total: 0, percentComplete: 0 },
-    [TrainingPhase.MARKET_MASTERY]: { completed: 0, total: 0, percentComplete: 0 },
-  };
+  const phaseCompletionStatus = {} as Record<TrainingPhase, { completed: number; total: number; percentComplete: number }>;
+  PHASE_ORDER.forEach((phase) => {
+    phaseCompletionStatus[phase] = { completed: 0, total: 0, percentComplete: 0 };
+  });
 
   modules.forEach((module) => {
     const normalizedPhase = normalizeTrainingPhase(module.phase);
@@ -452,12 +444,25 @@ export async function getCertificationStatus(userId: number | string): Promise<a
   let totalModules = 0;
   let completedModules = 0;
 
-  const enrollmentRes = await pool.query('SELECT id, role FROM training_enrollments WHERE user_id = $1', [dbUserId]);
+  const enrollmentRes = await pool.query('SELECT id, role, enrolled_at FROM training_enrollments WHERE user_id = $1', [dbUserId]);
   console.log(`[certification-status] ENROLLMENT LOOKUP RESULT: Found ${enrollmentRes.rows.length} enrollment(s) for user_id=${dbUserId}`);
+
+  let enrolledAt: string | null = null;
+  let isOverdue = false;
 
   if (enrollmentRes.rows.length > 0) {
     const enrollment = enrollmentRes.rows[0];
-    console.log(`[certification-status] ENROLLMENT DETAIL: enrollment_id=${enrollment.id}, role="${enrollment.role}"`);
+    enrolledAt = enrollment.enrolled_at ? new Date(enrollment.enrolled_at).toISOString() : null;
+    
+    if (enrollment.enrolled_at && !user.is_certified) {
+      const elapsedMs = Date.now() - new Date(enrollment.enrolled_at).getTime();
+      if (elapsedMs > 72 * 60 * 60 * 1000) {
+        isOverdue = true;
+        console.warn(`[TUF ACADEMY] CERTIFICATION OVERDUE ALERT: Sales rep "${user.name}" (ID: ${user.id}) has exceeded the 72-hour certification limit! State Director has been notified.`);
+      }
+    }
+
+    console.log(`[certification-status] ENROLLMENT DETAIL: enrollment_id=${enrollment.id}, role="${enrollment.role}", enrolled_at="${enrolledAt}", isOverdue=${isOverdue}`);
 
     const modulesRes = await pool.query('SELECT id, quiz_json FROM training_modules WHERE role = $1', [enrollment.role]);
     console.log(`[certification-status] MODULE COUNT: Found ${modulesRes.rows.length} modules for role="${enrollment.role}"`);
@@ -494,7 +499,9 @@ export async function getCertificationStatus(userId: number | string): Promise<a
     modulesPercent,
     modulesCompleted: totalModules > 0 && completedModules >= totalModules,
     completedModules,
-    totalModules
+    totalModules,
+    enrolledAt,
+    isOverdue
   };
 }
 
@@ -549,4 +556,16 @@ export async function recordFrictionPoint(
      VALUES ($1, $2, $3, $4, NOW())`,
     [enrollmentId, moduleId || null, frictionPointText, resolutionText || null]
   );
+}
+
+export async function getFrictionPoints(): Promise<any[]> {
+  const result = await pool.query(`
+    SELECT fn.*, tm.title as module_title, u.name as rep_name, u.email as rep_email
+    FROM training_friction_notes fn
+    LEFT JOIN training_modules tm ON fn.module_id = tm.id
+    JOIN training_enrollments te ON fn.enrollment_id = te.id
+    JOIN users u ON te.user_id = u.id
+    ORDER BY fn.created_at DESC
+  `);
+  return result.rows;
 }

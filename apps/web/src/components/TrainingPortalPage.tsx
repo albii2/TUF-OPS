@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ACADEMY_PHASE_LABELS, ACADEMY_PHASES, useTrainingEnrollment } from '../hooks/useTrainingEnrollment';
+import { ACADEMY_PHASE_LABELS, ACADEMY_PHASES, ACADEMY_CERTIFICATION_LABELS, useTrainingEnrollment } from '../hooks/useTrainingEnrollment';
 import TrainingPhaseView from './TrainingPhaseView';
 import ProgressRing from './ProgressRing';
 import { getStoredUser } from '../auth';
@@ -18,12 +18,43 @@ function getRenderablePhases(modulePhases: string[], currentPhase?: string) {
 
 export default function TrainingPortalPage() {
   const user = getStoredUser();
-  const userId = user ? parseInt(user.id.replace('u-local-', '').replace('u-rep-', '').replace('u-director-', ''), 10) || 21 : 21; // Jason Mulder fallback
+  const userId = user ? user.id : 'u-rep-jason-mulder';
   const { enrollment, loading, error } = useTrainingEnrollment(userId);
   const [selectedPhase, setSelectedPhase] = useState<string>('LEVEL_1_OPERATOR');
   const [certStatus, setCertStatus] = useState<any>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
+  const [isTimerOverdue, setIsTimerOverdue] = useState<boolean>(false);
+  const [notified, setNotified] = useState<boolean>(false);
+
+  useEffect(() => {
+    setNotified(localStorage.getItem(`tuf_ops_notified_director_${userId}`) === 'true');
+  }, [userId]);
 
   const { enrollment: enrollmentData, completionMetrics } = enrollment || {};
+
+  useEffect(() => {
+    const enrolledDateStr = certStatus?.enrolledAt || enrollmentData?.enrolled_at;
+    if (!enrolledDateStr) return;
+    const calculateTime = () => {
+      const totalLimitMs = 72 * 60 * 60 * 1000;
+      const enrolledTime = new Date(enrolledDateStr).getTime();
+      const elapsedMs = Date.now() - enrolledTime;
+      const remaining = totalLimitMs - elapsedMs;
+      setTimeRemaining(remaining);
+      setIsTimerOverdue(remaining <= 0);
+    };
+
+    calculateTime();
+    const interval = setInterval(calculateTime, 30000); // update every 30s
+    return () => clearInterval(interval);
+  }, [certStatus?.enrolledAt, enrollmentData?.enrolled_at]);
+
+  const formatRemainingTime = (ms: number) => {
+    if (ms <= 0) return 'Overdue';
+    const totalHours = Math.floor(ms / (1000 * 60 * 60));
+    const mins = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+    return `${totalHours}h ${mins}m remaining`;
+  };
 
   useEffect(() => {
     if (user && user.role === 'REP') {
@@ -82,17 +113,40 @@ export default function TrainingPortalPage() {
               <p className="mt-4 text-xs font-black uppercase tracking-[0.24em] text-cyan-200">Sales Certification • Territory Development • Product Mastery</p>
               <h1 className="mt-3 text-2xl font-black leading-tight text-white md:text-4xl">The operating system for self-sufficient TUF territory developers.</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Create reps capable of identifying, creating, advancing, closing, and expanding athletic program opportunities with minimal leadership intervention.</p>
-              <p className="mt-3 text-xs font-bold uppercase tracking-wider text-slate-400">{enrollmentData.role} Curriculum • Current Certification: {PHASE_LABELS[enrollmentData.current_phase] || enrollmentData.current_phase}</p>
+              <p className="mt-3 text-xs font-bold uppercase tracking-wider text-slate-400">{enrollmentData.role} Tracks • Current Certification: {ACADEMY_CERTIFICATION_LABELS[enrollmentData.current_phase] || enrollmentData.current_phase}</p>
             </div>
-            <div className="mx-auto flex items-center gap-4 rounded-2xl border border-cyan-400/20 bg-[#050b12]/90 px-5 py-4 text-left shadow-xl shadow-black/30">
-            <ProgressRing percentage={completionMetrics.percentComplete} size={60} strokeWidth={6} />
-            <div>
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Course Progress</p>
-              <p className="text-lg font-black text-cyan-300">{completionMetrics.percentComplete}% Complete</p>
-            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex items-center gap-4 rounded-2xl border border-cyan-400/20 bg-[#050b12]/90 px-5 py-4 text-left shadow-xl shadow-black/30">
+                <ProgressRing percentage={completionMetrics.percentComplete} size={60} strokeWidth={6} />
+                <div>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">Course Progress</p>
+                  <p className="text-lg font-black text-cyan-300">{completionMetrics.percentComplete}% Complete</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 rounded-2xl border border-cyan-400/20 bg-[#050b12]/90 px-5 py-4 text-left shadow-xl shadow-black/30 min-w-[220px]">
+                <span className="text-2xl">⏱️</span>
+                <div>
+                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">72h Academy Timer</p>
+                  <p className={`text-base font-black uppercase ${isTimerOverdue || certStatus?.isOverdue ? 'text-rose-400 animate-pulse font-extrabold' : 'text-amber-400'}`}>
+                    {formatRemainingTime(timeRemaining)}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Overdue Warning Alert */}
+        {user?.role === 'REP' && certStatus && (certStatus.isOverdue || isTimerOverdue) && !certStatus.isCertified && (
+          <div className="rounded-xl border border-rose-500/30 bg-rose-500/5 p-4 flex items-center gap-3">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-rose-500/20 text-rose-400 text-sm font-bold">⚠️</span>
+            <div>
+              <h4 className="font-black text-slate-100 text-sm">72-Hour Certification Target Exceeded</h4>
+              <p className="text-xs text-slate-400 mt-0.5">You have exceeded the target certification window. Regional Director Primeau Hill has been notified to assist you, but your CRM sandbox access remains open to complete certification.</p>
+            </div>
+          </div>
+        )}
 
         {/* Global Block / Certification Checklist Banner */}
         {user?.role === 'REP' && certStatus && (
@@ -115,7 +169,7 @@ export default function TrainingPortalPage() {
             <div className="mt-4 grid gap-3 sm:grid-cols-5 border-t border-slate-800/40 pt-4">
               <div className="rounded-lg border border-slate-800/60 bg-[#050b12] p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Lessons & Quizzes</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">1. Playbooks & Quizzes</span>
                   <span className={`text-xs font-bold px-2 py-0.5 rounded ${certStatus.modulesPercent === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-800 text-slate-400'}`}>
                     {certStatus.modulesPercent === 100 ? 'Done' : `${certStatus.modulesPercent}%`}
                   </span>
@@ -189,8 +243,8 @@ export default function TrainingPortalPage() {
           ))}
         </div>
 
-        {/* Phase Completion Status Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Track Completion Status Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {PHASES.map((phase) => {
             const status = completionMetrics.phaseCompletionStatus[phase] || { completed: 0, total: enrollment.modules.filter((module) => module.phase === phase).length, percentComplete: 0 };
             const isUnlocked = PHASES.indexOf(phase) <= currentPhaseIndex + 1;
@@ -208,7 +262,7 @@ export default function TrainingPortalPage() {
                 <p className="font-bold text-xs text-slate-300">{PHASE_LABELS[phase]}</p>
                 <div className="flex items-baseline justify-between mt-2">
                   <p className="text-xl font-black text-white">
-                    {status.completed}/{status.total} <span className="text-xs font-normal text-slate-400">modules</span>
+                    {status.completed}/{status.total} <span className="text-xs font-normal text-slate-400">playbooks</span>
                   </p>
                   <p className="text-xs text-slate-400 font-bold">{status.percentComplete}%</p>
                 </div>
@@ -225,9 +279,9 @@ export default function TrainingPortalPage() {
           })}
         </div>
 
-        {/* Modules for Selected Phase */}
+        {/* Playbooks for Selected Track */}
         <div className="rounded-xl border border-slate-800 bg-[#070c13]/40 p-5">
-          <h2 className="text-lg font-black text-white mb-4">{PHASE_LABELS[selectedPhase]} Certification Modules</h2>
+          <h2 className="text-lg font-black text-white mb-4">{PHASE_LABELS[selectedPhase]} Certification Playbooks</h2>
           <TrainingPhaseView
             phase={selectedPhase}
             enrollment={enrollment}
@@ -238,10 +292,45 @@ export default function TrainingPortalPage() {
         {/* Completion Message */}
         {enrollmentData.status === 'COMPLETED' && (
           <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
-            <h3 className="text-base font-bold text-emerald-200">🎉 Certification Modules Completed!</h3>
+            <h3 className="text-base font-bold text-emerald-200">🎉 Certification Playbooks Completed!</h3>
             <p className="text-sm text-slate-300 mt-1.5">
-              You have completed all curriculum modules. Once your HR paperwork is filed, your Locker Room Simulator/practical exercise is reviewed, and your State Director signs off, your sales permissions will unlock automatically.
+              You have completed all track playbooks. Once your HR paperwork is filed, your Locker Room Simulator/practical exercise is reviewed, and your State Director signs off, your sales permissions will unlock automatically.
             </p>
+          </div>
+        )}
+
+        {/* Notify Director Button for 100% Completion */}
+        {completionMetrics.percentComplete === 100 && (
+          <div className="rounded-xl border border-cyan-500/30 bg-[#07111a]/85 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-cyan-200">
+                {notified ? '✓ Review Requested' : 'Ready for Director Review?'}
+              </h3>
+              <p className="text-sm text-slate-300 mt-1">
+                {notified 
+                  ? 'Your regional director has been notified of your 100% track completion. They will review your practical exercises and HR paperwork shortly.'
+                  : 'You have completed all track playbooks. Notify your State Director to review your track progression and complete your CRM certification.'}
+              </p>
+            </div>
+            {!notified ? (
+              <button
+                onClick={() => {
+                  localStorage.setItem(`tuf_ops_notified_director_${userId}`, 'true');
+                  setNotified(true);
+                  alert('State Director has been notified of your completion!');
+                }}
+                className="shrink-0 rounded-md border border-cyan-400 bg-cyan-500/20 px-5 py-2.5 text-sm font-black text-cyan-100 transition hover:bg-cyan-500/30 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Notify Director for Review
+              </button>
+            ) : (
+              <button
+                disabled
+                className="shrink-0 rounded-md border border-slate-700 bg-slate-800/40 px-5 py-2.5 text-sm font-black text-slate-500 cursor-not-allowed"
+              >
+                Director Notified
+              </button>
+            )}
           </div>
         )}
       </div>

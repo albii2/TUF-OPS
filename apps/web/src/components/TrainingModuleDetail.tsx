@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { TrainingModule, TrainingProgress, TrainingEnrollment } from '../hooks/useTrainingEnrollment';
 import { useTrainingModule } from '../hooks/useTrainingEnrollment';
+import { parseMarkdown } from '../utils/markdown';
+import TrainingFrictionPanel from './academy/TrainingFrictionPanel';
 
 interface TrainingModuleDetailProps {
   module: TrainingModule;
@@ -100,7 +102,7 @@ export default function TrainingModuleDetail({
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="prose prose-invert max-w-none">
-            <div className="whitespace-pre-wrap text-slate-300 text-sm leading-relaxed">{module.content_markdown}</div>
+            {parseMarkdown(module.content_markdown)}
           </div>
 
           {quizQuestions.length ? (
@@ -129,6 +131,10 @@ export default function TrainingModuleDetail({
               {quizResult ? <p className={`mt-3 text-sm font-bold ${quizResult.passed ? 'text-emerald-300' : 'text-amber-300'}`}>Quiz score: {quizResult.score}% · {quizResult.passed ? 'Passed' : 'Retake required before completion'}</p> : null}
             </div>
           ) : null}
+
+          <div className="mt-8 pt-6 border-t border-slate-800">
+            <TrainingFrictionPanel enrollmentId={enrollment.id} moduleId={module.id} />
+          </div>
         </div>
 
         {/* Progress Bar and Stats */}

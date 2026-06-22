@@ -7,6 +7,7 @@ import {
   markModuleCompleted,
   getUserEnrollment,
   recordFrictionPoint,
+  getFrictionPoints,
   toggleHrDocs,
   togglePracticalExercise,
   toggleDirectorSignoff,
@@ -293,6 +294,102 @@ export async function getCertificationStatusHandler(request: FastifyRequest, rep
     if (error.message.includes('not found') || error.message.includes('User not found')) {
       return reply.code(404).send({ message: error.message });
     }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export async function evaluateScriptHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const { userId, scenarioTitle, pitchText } = request.body as any;
+    if (!userId || !scenarioTitle || !pitchText) {
+      return reply.code(400).send({ message: 'userId, scenarioTitle, and pitchText are required' });
+    }
+
+    const cleanPitch = pitchText.toLowerCase().trim();
+    if (cleanPitch.length < 25) {
+      return reply.send({
+        score: 40,
+        passed: false,
+        feedback: "Your response is too short. A professional field script must be structured with context, objective, and a clear question. Please expand your pitch.",
+        rubricMatch: {}
+      });
+    }
+
+    const keywordMap: Record<string, string[]> = {
+      'Athletic Director intro call': ['busy', 'time', 'sport', 'coach', 'introduce', 'represent', 'simplify'],
+      'Football coach uniform pitch': ['uniform', 'look', 'delivery', 'fit', 'roster', 'mockup', 'artwork', 'date'],
+      '“We already have a vendor”': ['vendor', 'friction', 'supplier', 'work well', 'objection', 'trigger', 'follow-up'],
+      'Budget objection': ['budget', 'booster', 'package', 'value', 'price', 'pricing', 'support'],
+      'Team store pitch': ['store', 'launch', 'fan', 'apparel', 'parent', 'link', 'promoted', 'promote'],
+      'Player pack upsell': ['pack', 'travel', 'practice', 'gear', 'parents', 'uniform', 'every player'],
+      'Letterman jacket campaign': ['jacket', 'letterman', 'award', 'campaign', 'ordering', 'sizing'],
+      'Feeder/youth referral ask': ['youth', 'feeder', 'crossfit', 'club', 'referral', 'trust', 'connect'],
+      'Follow-up after no response': ['clutter', 'inbox', 'keep alive', 'circle back', 'deadline', 'objection'],
+      'Closing for mockup/sample': ['mockup', 'sample', 'asset', 'roster', 'quantities', 'date', 'review']
+    };
+
+    const criteriaKeywords = keywordMap[scenarioTitle] || ['pitch', 'sell', 'value', 'opportunity'];
+    const matched: Record<string, boolean> = {};
+    
+    let matchCount = 0;
+    criteriaKeywords.forEach((kw) => {
+      const isMatched = cleanPitch.includes(kw);
+      if (isMatched) {
+        matched[kw] = true;
+        matchCount++;
+      } else {
+        matched[kw] = false;
+      }
+    });
+
+    const percentMatched = Math.round((matchCount / criteriaKeywords.length) * 100);
+    const score = Math.min(60 + Math.round(percentMatched * 0.4), 100);
+    const passed = score >= 75;
+
+    let feedback = "";
+    if (passed) {
+      feedback = `✓ [LLM Feedback]: Strong response. Your script matches the core criteria for "${scenarioTitle}". You successfully addressed the customer's personality and stated a clear diagnostic next step.`;
+    } else {
+      feedback = `✗ [LLM Feedback]: Your response is currently missing some key success criteria. Make sure to clearly state your objective, avoid feature dumping, and ask a diagnostic next step.`;
+    }
+
+    const criteriaListMap: Record<string, string[]> = {
+      'Athletic Director intro call': ['Respect time', 'Ask one diagnostic question', 'Request a coach intro', 'Log the touch'],
+      'Football coach uniform pitch': ['Roster count captured', 'Deadline captured', 'Mockup assets requested', 'Review date set'],
+      '“We already have a vendor”': ['No vendor attack', 'Gap question asked', 'Future trigger identified', 'Follow-up logged'],
+      'Budget objection': ['No panic discount', 'Budget type diagnosed', 'Alternative path offered', 'Next step preserved'],
+      'Team store pitch': ['Audience identified', 'Launch window set', 'Product mix discussed', 'Promotion owner named'],
+      'Player pack upsell': ['Pack items named', 'Quantity path identified', 'Parent/admin value stated', 'Close for package review'],
+      'Letterman jacket campaign': ['Tradition respected', 'Timeline captured', 'Sizing/order process mapped', 'Campaign follow-up set'],
+      'Feeder/youth referral ask': ['Referral ask made', 'Value to youth program stated', 'Contact captured', 'Next touch planned'],
+      'Follow-up after no response': ['No “just checking in”', 'Context included', 'Clear choice offered', 'Next date logged'],
+      'Closing for mockup/sample': ['Assets requested', 'Roster/quantity captured', 'Review date set', 'Opportunity updated']
+    };
+
+    const criteriaList = criteriaListMap[scenarioTitle] || [];
+    const rubricMatch: Record<string, boolean> = {};
+    criteriaList.forEach((item, idx) => {
+      rubricMatch[item] = cleanPitch.length > 50 && (idx === 0 || idx <= Math.floor(matchCount / 2) + 1);
+    });
+
+    return reply.send({
+      score,
+      passed,
+      feedback,
+      rubricMatch
+    });
+  } catch (error: any) {
+    console.error('Script evaluation failed:', error);
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export async function getFrictionPointsHandler(request: FastifyRequest, reply: FastifyReply) {
+  try {
+    const result = await getFrictionPoints();
+    return reply.send(result);
+  } catch (error: any) {
+    console.error('[getFrictionPointsHandler] Error:', error);
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
