@@ -383,18 +383,19 @@ export async function resolveUserId(id: string | number): Promise<number> {
     throw new Error(`Numeric ID out of valid range: ${id}`);
   }
 
-  const emailMap: Record<string, string> = {
+  const emailMap: Record<string, string | string[]> = {
     'u-owner-coach-bradshaw': 'abradshaw@tufsports.us',
     'u-director-primeau-hill': 'primeau.hill@tufsports.us',
-    'u-rep-jason-mulder': 'jason@tufsports.us', // Production database mapping
+    'u-rep-jason-mulder': ['jason@tufsports.us', 'jvmulder@gmail.com'], // Production database mapping
     'u-rep-david-lundberg': 'lundbergdave18@gmail.com',
     'u-rep-shayla-hilliard': 'shaylahilliard17@gmail.com',
     'u-rep-josh-hoffman': 'jhoffman@kipsu.com',
   };
 
-  const email = emailMap[String(id)];
-  if (email) {
-    const result = await pool.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1)', [email]);
+  const emailOrEmails = emailMap[String(id)];
+  if (emailOrEmails) {
+    const emails = Array.isArray(emailOrEmails) ? emailOrEmails : [emailOrEmails];
+    const result = await pool.query('SELECT id FROM users WHERE LOWER(email) = ANY($1::text[])', [emails.map(e => e.toLowerCase())]);
     if (result.rows[0]) {
       return result.rows[0].id;
     }
@@ -408,7 +409,7 @@ export async function resolveUserId(id: string | number): Promise<number> {
 
   // Fallback email lookup for Jason Mulder
   if (namePart.includes('jason mulder')) {
-    const resFallback = await pool.query("SELECT id FROM users WHERE LOWER(email) = 'jason@tufsports.us'");
+    const resFallback = await pool.query("SELECT id FROM users WHERE LOWER(email) = ANY($1::text[])", [['jason@tufsports.us', 'jvmulder@gmail.com']]);
     if (resFallback.rows[0]) {
       return resFallback.rows[0].id;
     }
