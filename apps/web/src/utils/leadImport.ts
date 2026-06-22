@@ -6,6 +6,7 @@ export type NormalizedLead = {
   enrollmentOrSize: string; districtOrLeague: string; primaryContactName: string; primaryContactTitle: string; primaryContactEmail: string; primaryContactPhone: string;
   athleticDirectorName: string; athleticDirectorEmail: string; athleticDirectorPhone: string; headCoachName: string; headCoachEmail: string; headCoachPhone: string;
   sportsOffered: string[]; sportUrls: string[]; tufZone: string; territory: 'metro'|'north'|'west'|'south'|''; tufPriority: string; sourceType: string; duplicateKey: string; validationErrors: string[];
+  assignedRepName: string; assignedDirectorName: string;
 };
 
 const TERRITORY_MAP: Record<string, 'metro'|'north'|'west'|'south'> = {
@@ -115,6 +116,8 @@ export function normalizeLeadRow(rawRow: RawRow): NormalizedLead {
   const headCoachName = normalizeAccountName(firstPresent(rawRow, ['head_coach_name', 'head_coach', 'coach_name', 'primary_head_coach_name', 'football_head_coach_name', 'football_coach_name']));
   const headCoachEmail = normalizeEmail(firstPresent(rawRow, ['head_coach_email', 'coach_email', 'primary_head_coach_email', 'football_head_coach_email', 'football_coach_email']));
   const headCoachPhone = normalizePhone(firstPresent(rawRow, ['head_coach_phone_number', 'head_coach_phone', 'coach_phone_number', 'coach_phone', 'primary_head_coach_phone', 'football_head_coach_phone', 'football_coach_phone']));
+  const assignedRepName = (rawRow.assigned_rep_name || '').trim();
+  const assignedDirectorName = (rawRow.assigned_director_name || '').trim();
   const normalized: NormalizedLead = {
     organizationName: normalizeAccountName(rawRow.school_name || rawRow.organization_name || ''),
     accountType: rawRow.account_type || 'High School',
@@ -126,6 +129,7 @@ export function normalizeLeadRow(rawRow: RawRow): NormalizedLead {
     athleticDirectorName, athleticDirectorEmail, athleticDirectorPhone, headCoachName, headCoachEmail, headCoachPhone,
     sportsOffered: sports.sportsOffered, sportUrls: sports.sportUrls, tufZone: rawRow.tuf_zone || '', territory,
     tufPriority: rawRow.tuf_priority || '', sourceType: rawRow.source_type || 'csv', duplicateKey: '', validationErrors: [],
+    assignedRepName, assignedDirectorName,
   };
   normalized.duplicateKey = buildDuplicateKey(normalized);
   normalized.validationErrors = validateLeadRow(normalized);

@@ -85,7 +85,7 @@ function reconcileStoredLeadData() {
     zoneReconciliationComplete = true;
     return;
   }
-  const enrichedLeads = normalizeBundledLeadRows().filter((lead) => lead.territory || lead.phone || lead.athleticDirectorEmail || lead.athleticDirectorPhone || lead.headCoachEmail || lead.headCoachPhone);
+  const enrichedLeads = normalizeBundledLeadRows().filter((lead) => lead.territory || lead.phone || lead.athleticDirectorEmail || lead.athleticDirectorPhone || lead.headCoachEmail || lead.headCoachPhone || lead.assignedRepName);
   const leadsByKey = new Map(enrichedLeads.map((lead) => [lead.duplicateKey, lead]));
   const leadsByName = new Map(enrichedLeads.map((lead) => [normalizeAccountName(lead.organizationName).toLowerCase(), lead]));
   if (!leadsByKey.size && !leadsByName.size) {
@@ -107,9 +107,16 @@ function reconcileStoredLeadData() {
     const withDirector = launchDirector !== 'Unassigned' && withTerritory.assignedDirector !== launchDirector
       ? { ...withTerritory, assignedDirector: launchDirector }
       : withTerritory;
-    if (withDirector === org || JSON.stringify(withDirector) === JSON.stringify(org)) return org;
+
+    // Reconcile rep assignment from CSV — if the org is still 'Unassigned' but the CSV has a real rep name
+    const csvRepName = resolveRepName(lead.assignedRepName || '');
+    const withRep = csvRepName !== 'Unassigned' && (withDirector.assignedRep === 'Unassigned' || !withDirector.assignedRep)
+      ? { ...withDirector, assignedRep: csvRepName }
+      : withDirector;
+
+    if (withRep === org || JSON.stringify(withRep) === JSON.stringify(org)) return org;
     changed = true;
-    return withDirector;
+    return withRep;
   });
 
   if (changed) writeLocalOrganizations(patched);
@@ -133,6 +140,7 @@ function bootstrapOrganizationsFromLeadsCsvIfEmpty() {
 
 function getAllOrganizations() {
   bootstrapOrganizationsFromLeadsCsvIfEmpty();
+  reconcileStoredLeadData();
   const localRows = readLocalOrganizations();
   const localIds = new Set(localRows.map((row) => row.id));
   return [...localRows, ...seededOrganizations.filter((row) => !localIds.has(row.id))];
@@ -241,6 +249,22 @@ export function createMockOrganization(input: { name: string; accountType: strin
   return row;
 }
 
+/** Pool / placeholder names in the CSV that mean "not yet assigned to a real rep" */
+const UNASSIGNED_REP_PATTERNS = new Set([
+  'unassigned', 'unassigned rep pool', 'tbd', '', 'n/a',
+]);
+const UNASSIGNED_DIR_PATTERNS = new Set([
+  'unassigned', 'owner/admin pool', 'tbd', '', 'n/a',
+]);
+
+function resolveRepName(csvValue: string): string {
+  return UNASSIGNED_REP_PATTERNS.has(csvValue.toLowerCase().trim()) ? 'Unassigned' : csvValue.trim();
+}
+function resolveDirectorName(csvValue: string, territory?: TerritoryId | ''): string {
+  if (!UNASSIGNED_DIR_PATTERNS.has(csvValue.toLowerCase().trim())) return csvValue.trim();
+  return getLaunchDirectorForTerritory(territory as TerritoryId);
+}
+
 export function importLeadRows(
   leads: NormalizedLead[],
 ) {
@@ -265,13 +289,17 @@ export function importLeadRows(
 
     existingKeys.add(key);
     existingNames.add(normalizeAccountName(lead.organizationName).toLowerCase());
+
+    const repName = resolveRepName(lead.assignedRepName || '');
+    const directorName = resolveDirectorName(lead.assignedDirectorName || '', lead.territory);
+
     imported.push(buildMockOrganization({
       id: `org-import-${Date.now()}-${index}`,
       name: lead.organizationName,
       city: lead.city,
       state: lead.state,
-      assignedRep: 'Unassigned',
-      assignedDirector: getLaunchDirectorForTerritory(lead.territory as TerritoryId),
+      assignedRep: repName,
+      assignedDirector: directorName,
       territory: lead.territory as TerritoryId,
       schoolPhone: lead.phone,
       athleticDirectorName: lead.athleticDirectorName || lead.primaryContactName,
