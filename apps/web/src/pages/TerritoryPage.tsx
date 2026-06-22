@@ -8,6 +8,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { getManagedRepNamesForDirector, listUsers } from '../services/usersService';
 import { Card, DataTable, type Column, SmallKpi } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
+import { useOrders } from '../hooks/useOrders';
 import type { TerritoryId } from '../data/mockSalesData';
 
 export function TerritoryPage() {
@@ -16,6 +17,12 @@ export function TerritoryPage() {
   const orgs = useOrganizations({});
   const opps = useOpportunities({});
   const staleAccounts = useStaleAccounts();
+  const orders = useOrders({});
+
+  const completedOrders = orders.filter(o => o.productionStatus === 'COMPLETED');
+  const avgOrderSize = completedOrders.length 
+    ? completedOrders.reduce((sum, o) => sum + o.value, 0) / completedOrders.length 
+    : 15000;
 
   const scopedZones = new Set(territories.map((t) => t.id));
   const scopedOrgs = orgs.filter((o) => scopedZones.has(o.territory));
@@ -23,7 +30,9 @@ export function TerritoryPage() {
   const scopedStale = staleAccounts.filter((o) => scopedZones.has(o.territory));
   const nearClose = getNearCloseOpportunities(scopedOpps);
   const untouched = scopedOrgs.filter((o) => o.coverageStatus === 'UNTOUCHED' || !scopedOpps.some((opp) => opp.organizationId === o.id));
-  const pipeline = scopedOpps.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).reduce((sum, o) => sum + o.value, 0);
+  
+  // Pipeline value based on how many schools are assigned in this scoped territory context
+  const pipeline = scopedOrgs.length * avgOrderSize;
 
   const pressure = getTerritoryHealthLabel(scopedOrgs.length ? Math.round(((scopedOrgs.length-untouched.length)/scopedOrgs.length)*100) : 0);
 
@@ -45,7 +54,7 @@ export function TerritoryPage() {
         untouched: repOrgs.filter((o) => o.coverageStatus === 'UNTOUCHED').length,
         nearClose: repOpps.filter((o) => ['MOCKUP_DELIVERED', 'INVOICE_SENT', 'DECISION_PENDING'].includes(o.stage)).length,
         ordersPace: repOpps.filter((o) => o.stage === 'CLOSED_WON').length,
-        pipeline: repOpps.reduce((sum, o) => sum + o.value, 0),
+        pipeline: repOrgs.length * avgOrderSize,
       };
     });
 

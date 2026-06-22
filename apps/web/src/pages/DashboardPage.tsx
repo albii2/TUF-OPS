@@ -101,7 +101,15 @@ export function DashboardPage({ role }: { role: Role }) {
   const paymentReceived = opportunities.filter((opp) => opp.stage === 'INVOICE_SENT');
   const completedOrders = orders.filter((order) => order.productionStatus === 'COMPLETED');
   const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
-  const pipelineTotal = openOpps.reduce((sum, opp) => sum + opp.value, 0);
+
+  // Calculate average deal/order value dynamically from completed orders or fallback to 15000 standard
+  const avgDealValue = completedOrders.length 
+    ? completedOrders.reduce((sum, o) => sum + o.value, 0) / completedOrders.length 
+    : 15000;
+
+  // Pipeline value calculated based on how many schools are assigned to this rep/director context
+  const pipelineTotal = organizations.length * avgDealValue;
+
   const lanePenetration = getLanePenetration(organizations);
   const staleOpps = getStaleOpportunities(opportunities, 14);
   const staleAccounts = getStaleAccounts(organizations, 14);
@@ -119,7 +127,6 @@ export function DashboardPage({ role }: { role: Role }) {
   const dayOfMonth = new Date().getDate();
   const daysInMonth = 30;
   const projectedPace = (completedOrders.length / dayOfMonth) * daysInMonth;
-  const avgDealValue = openOpps.length ? pipelineTotal / openOpps.length : 1500;
   const estimatedEarnings = projectedPace * avgDealValue * 0.1; // 10% commission mock
   const apiCompletedOrders = backendMetrics.paid_order_count;
   const orderPaceCount = isApiBacked ? apiCompletedOrders : completedOrders.length;

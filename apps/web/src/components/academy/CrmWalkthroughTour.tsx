@@ -1,27 +1,54 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function CrmWalkthroughTour() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(() => localStorage.getItem('tuf_combine_sandbox_active') === 'true');
   const [step, setStep] = useState(1);
+
+  // Keep track of the last path to avoid resetting step on manual override/skip/back on the same page
+  const lastPathRef = useRef(location.pathname);
 
   // Automatically determine step based on location path
   useEffect(() => {
     if (!active) return;
     const path = location.pathname;
 
-    if (path === '/training' || path === '/dashboard') {
-      setStep(1);
-    } else if (path === '/organizations') {
-      setStep(2);
-    } else if (path.startsWith('/organizations/')) {
-      setStep(3);
-    } else if (path.startsWith('/opportunities/')) {
-      setStep(5);
-    } else if (path === '/training/simulator') {
-      setStep(6);
+    // Only update step automatically if the pathname actually changed
+    if (path !== lastPathRef.current) {
+      lastPathRef.current = path;
+
+      if (path === '/training' || path === '/dashboard') {
+        setStep(1);
+      } else if (path === '/organizations') {
+        setStep(2);
+      } else if (path.match(/^\/organizations\/[^/]+$/)) {
+        setStep(3);
+      } else if (path === '/opportunities') {
+        setStep(4);
+      } else if (path === '/opportunities/new') {
+        setStep(5);
+      } else if (path.match(/^\/opportunities\/[^/]+$/)) {
+        const id = path.split('/').pop();
+        if (id) {
+          try {
+            const localOpps = JSON.parse(localStorage.getItem('tuf_ops_opportunities_v2') || '[]') as any[];
+            const opp = localOpps.find(o => o.id === id);
+            if (opp && opp.stage === 'DISCOVERY') {
+              setStep(7);
+            } else {
+              setStep(6);
+            }
+          } catch (e) {
+            setStep(6);
+          }
+        } else {
+          setStep(6);
+        }
+      } else if (path === '/training/simulator') {
+        setStep(8);
+      }
     }
   }, [location.pathname, active]);
 
@@ -65,25 +92,35 @@ export default function CrmWalkthroughTour() {
     {
       title: '2. Select a School',
       desc: 'Find one of your assigned schools in the list (e.g. Esko High School) and click its name to open the details.',
-      action: 'Click on a school in the table.'
+      action: 'Click on a school in the table (e.g. Esko High School).'
     },
     {
-      title: '3. Log First Contact',
-      desc: 'Record a touch: click "Log a Touch" in the school detail page, select communication type, enter notes, and save.',
-      action: 'Click "Log a Touch" and submit contact notes.'
+      title: '3. Open Opportunities Page',
+      desc: 'Let\'s look at the active deals. Click "Opportunities" in the sidebar menu to view all opportunities.',
+      action: 'Click "Opportunities" in the sidebar menu.'
     },
     {
       title: '4. Register a Deal',
-      desc: 'Create an opportunity: click "New Opportunity", select the sport (e.g. Football) and target season (e.g. Fall 2026), and save.',
-      action: 'Click "New Opportunity" and save the deal details.'
+      desc: 'Create an opportunity: click "New Opportunity" in the pipeline opportunities view.',
+      action: 'Click "New Opportunity" button.'
     },
     {
-      title: '5. Request a Mockup',
-      desc: 'Mockups are our main sales driver. In the Opportunity Detail page, click "Request New Mockup", upload vector graphics, and specify school colors.',
-      action: 'Request a mockup and set Pantone colors.'
+      title: '5. Create Esko High Opportunity',
+      desc: 'Fill in Esko High School as the organization, select Football as the sport, and enter a value (e.g., 15000), then click "Create Opportunity".',
+      action: 'Create the opportunity and save details.'
     },
     {
-      title: '6. Objection Training',
+      title: '6. Log Outreach/Contact',
+      desc: 'In the Opportunity Detail view under "Next Action Console", click the primary action button ("Contact coach") to log your initial contact with the lead.',
+      action: 'Click the primary action button ("Contact coach") in the console.'
+    },
+    {
+      title: '7. Request Mockup',
+      desc: 'Now that contact has been made, we must request a mockup. Click "Open Stage Advancement Drawer", fill in mockup details (sport, lane, design notes), and submit.',
+      action: 'Click "Open Stage Advancement Drawer" and advance stage.'
+    },
+    {
+      title: '8. Objection Training',
       desc: 'Practice real sales pitches in the Locker Room Simulator. Navigate to TUF Academy and open the Simulator page.',
       action: 'Click "Open Locker Room Simulator" on the academy page.'
     }
@@ -133,7 +170,7 @@ export default function CrmWalkthroughTour() {
               Back
             </button>
           )}
-          {step < 6 ? (
+          {step < 8 ? (
             <button
               onClick={() => setStep(prev => prev + 1)}
               className="rounded bg-cyan-500/20 border border-cyan-400/50 px-2 py-1 text-[10px] font-bold text-cyan-100 hover:bg-cyan-500/30"

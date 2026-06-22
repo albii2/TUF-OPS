@@ -1,6 +1,7 @@
 import { getStoredUser } from '../auth';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
+import { useOrganizations } from '../hooks/useOrganizations';
 import { getManagedRepNamesForDirector, listUsers } from '../services/usersService';
 import { Card } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
@@ -21,10 +22,15 @@ type EarningsRow = {
   activityStatus: string;
 };
 
-function buildRow(rep: string, opportunities: { id: string; assignedRep: string; stage: string; value: number; lastActivity?: string }[], orders: { opportunityId: string }[]): EarningsRow {
+function buildRow(
+  rep: string, 
+  opportunities: { id: string; assignedRep: string; stage: string; value: number; lastActivity?: string }[], 
+  orders: { opportunityId: string }[],
+  organizations: { assignedRep: string }[]
+): EarningsRow {
+  const repOrgs = organizations.filter((o) => o.assignedRep === rep);
   const orderWonIds = new Set(orders.map((o) => o.opportunityId));
   const won = opportunities.filter((o) => o.assignedRep === rep && o.stage === 'CLOSED_WON' && orderWonIds.has(o.id));
-  const repPipeline = opportunities.filter((o) => o.assignedRep === rep && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage));
   const wonValue = won.reduce((sum, o) => sum + o.value, 0);
   const averageOrderValue = won.length ? wonValue / won.length : TARGET_ORDER_VALUE;
   const remainingOrders = Math.max(MONTHLY_ORDER_GOAL - won.length, 0);
@@ -37,7 +43,7 @@ function buildRow(rep: string, opportunities: { id: string; assignedRep: string;
     repCommission: wonValue * REP_COMMISSION_RATE,
     directorOverride: wonValue * DIRECTOR_OVERRIDE_RATE,
     possibleAtGoal: (wonValue + remainingOrders * averageOrderValue) * REP_COMMISSION_RATE,
-    pipelineValue: repPipeline.reduce((sum, o) => sum + o.value, 0),
+    pipelineValue: repOrgs.length * averageOrderValue,
     activityStatus: daysSinceActivity <= 3 ? 'Active' : daysSinceActivity <= 7 ? 'Needs follow-up' : 'Stale',
   };
 }
@@ -65,10 +71,11 @@ export function EarningsPage() {
   const user = getStoredUser();
   const opportunities = useOpportunities({});
   const orders = useOrders({});
+  const organizations = useOrganizations({});
   const activeRepNames = listUsers().filter((member) => member.role === 'REP' && member.status === 'ACTIVE').map((member) => member.displayName);
   const directorRepNames = user?.role === 'DIRECTOR' ? getManagedRepNamesForDirector(user.name) : [];
   const repNames = user?.role === 'DIRECTOR' ? directorRepNames : activeRepNames;
-  const allRows = repNames.map((rep) => buildRow(rep, opportunities, orders));
+  const allRows = repNames.map((rep) => buildRow(rep, opportunities, orders, organizations));
   const visibleRows = user?.role === 'REP' ? allRows.filter((row) => row.rep === user.name) : allRows;
   const focusRows = visibleRows.length ? visibleRows : allRows;
   const totalWon = focusRows.reduce((sum, row) => sum + row.wonValue, 0);
