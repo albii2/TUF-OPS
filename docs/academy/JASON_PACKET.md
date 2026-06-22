@@ -30,7 +30,7 @@ Track your certification requirements and progress using the [Certification Chec
 ## Log In to TUF Ops
 You can log in to your dashboard immediately at `ops.tufsports.us` (or preview at `staging.tufops.com`) using your assigned TAE credentials:
 - **PIN**: `6187`
-- **Username**: `jason@tufsports.us`
+- **Username**: `jvmulder@gmail.com`
 
 Please reach out to your State Director, Primeau Hill, if you have any questions as you get started.
 

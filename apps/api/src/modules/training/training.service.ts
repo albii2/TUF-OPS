@@ -386,7 +386,7 @@ export async function resolveUserId(id: string | number): Promise<number> {
   const emailMap: Record<string, string | string[]> = {
     'u-owner-coach-bradshaw': 'abradshaw@tufsports.us',
     'u-director-primeau-hill': 'primeau.hill@tufsports.us',
-    'u-rep-jason-mulder': ['jason@tufsports.us', 'jvmulder@gmail.com'], // Production database mapping
+    'u-rep-jason-mulder': 'jvmulder@gmail.com', // Production database mapping
     'u-rep-david-lundberg': 'lundbergdave18@gmail.com',
     'u-rep-shayla-hilliard': 'shaylahilliard17@gmail.com',
     'u-rep-josh-hoffman': 'jhoffman@kipsu.com',
@@ -409,7 +409,7 @@ export async function resolveUserId(id: string | number): Promise<number> {
 
   // Fallback email lookup for Jason Mulder
   if (namePart.includes('jason mulder')) {
-    const resFallback = await pool.query("SELECT id FROM users WHERE LOWER(email) = ANY($1::text[])", [['jason@tufsports.us', 'jvmulder@gmail.com']]);
+    const resFallback = await pool.query("SELECT id FROM users WHERE LOWER(email) = 'jvmulder@gmail.com'");
     if (resFallback.rows[0]) {
       return resFallback.rows[0].id;
     }
