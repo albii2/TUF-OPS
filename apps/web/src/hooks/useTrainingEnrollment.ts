@@ -628,7 +628,9 @@ export function useTrainingModule(moduleId: number, enrollmentId: number | strin
         body: JSON.stringify({ enrollmentId, moduleId }),
       });
       if (!response.ok) throw new Error('Failed to start module');
-      return await response.json();
+      const data = await response.json();
+      updateLocalProgress(moduleId, 'IN_PROGRESS');
+      return data;
     } catch (err) {
       console.warn('API connection failed, updating LocalStorage offline:', err);
       updateLocalProgress(moduleId, 'IN_PROGRESS');
@@ -647,7 +649,9 @@ export function useTrainingModule(moduleId: number, enrollmentId: number | strin
         body: JSON.stringify({ enrollmentId, moduleId, timeSpentSeconds }),
       });
       if (!response.ok) throw new Error('Failed to complete module');
-      return await response.json();
+      const data = await response.json();
+      updateLocalProgress(moduleId, 'COMPLETED', timeSpentSeconds);
+      return data;
     } catch (err) {
       console.warn('API connection failed, updating LocalStorage offline:', err);
       updateLocalProgress(moduleId, 'COMPLETED', timeSpentSeconds);

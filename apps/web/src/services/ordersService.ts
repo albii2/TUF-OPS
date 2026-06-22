@@ -97,8 +97,6 @@ function getInitialOrderOwner(opportunity: Opportunity) {
 }
 
 export function listOrders(params: OrderListParams = {}): Order[] {
-  if (DATA_MODE !== 'mock') return [];
-
   const allOpportunities = getAllOpportunities();
   return getAllOrders().filter((order) => {
     const stageLabel = getOrderStage(order);
@@ -113,24 +111,20 @@ export function listOrders(params: OrderListParams = {}): Order[] {
 }
 
 export function getOrderById(id: string): Order | undefined {
-  if (DATA_MODE !== 'mock') return undefined;
   return listOrders({}).find((order) => order.id === id);
 }
 
 export function getOrderByOpportunityId(opportunityId?: string): Order | undefined {
-  if (!opportunityId || DATA_MODE !== 'mock') return undefined;
+  if (!opportunityId) return undefined;
   return listOrders({}).find((order) => order.opportunityId === opportunityId);
 }
 
 export function getAnyOrderByOpportunityId(opportunityId?: string): Order | undefined {
-  if (!opportunityId || DATA_MODE !== 'mock') return undefined;
+  if (!opportunityId) return undefined;
   return findAnyOrderByOpportunityId(opportunityId);
 }
 
 export function getOpsWorkspaceQueues() {
-  if (DATA_MODE !== 'mock') {
-    return { NEEDS_REVIEW: [], READY_FOR_VENDOR: [], IN_PRODUCTION: [], BLOCKED: [], COMPLETED: [] } as Record<Order['productionStatus'], Order[]>;
-  }
   const allOrders = listOrders({});
   return {
     NEEDS_REVIEW: allOrders.filter((order) => order.productionStatus === 'NEEDS_REVIEW'),

@@ -18,8 +18,6 @@ function readLocalActivities(): Activity[] {
 }
 
 export function listActivities(params: ActivityParams = {}): Activity[] {
-  if (DATA_MODE !== 'mock') return [];
-
   const activityRows = [...readLocalActivities(), ...activities];
   const filtered = activityRows.filter((activity) => {
     const matchesType = !params.entityType || activity.entityType === params.entityType;

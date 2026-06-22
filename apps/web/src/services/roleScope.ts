@@ -57,7 +57,7 @@ export function isRepCertified(user: AppUser | null) {
 export function canCreateOpportunity() {
   const user = getViewer();
   if (!user) return false;
-  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR') return true;
+  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR') return true;
   if (user.role === 'REP') return isRepCertified(user);
   return false;
 }
