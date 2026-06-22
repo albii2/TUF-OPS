@@ -3,7 +3,8 @@ import React from 'react';
 export function parseMarkdown(text: string): React.ReactNode {
   if (!text) return null;
 
-  const lines = text.split('\n');
+  const normalizedText = text.replace(/\\n/g, '\n');
+  const lines = normalizedText.split('\n');
   const elements: React.ReactNode[] = [];
   let currentList: React.ReactNode[] = [];
 

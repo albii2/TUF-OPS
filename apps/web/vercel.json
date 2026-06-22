@@ -17,7 +17,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://tuf-ops-api-production.up.railway.app/:path*"
+      "destination": "https://terrific-patience-production-bc32.up.railway.app/:path*"
     },
     {
       "source": "/(.*)",
