@@ -46,10 +46,6 @@ function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null;
 function PageProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
-  const isSandboxMode = localStorage.getItem('tuf_combine_sandbox_active') === 'true';
-  if (user.role === 'REP' && !user.isCertified && !['/training', '/dashboard'].includes(path) && !isSandboxMode) {
-    return <Navigate to="/training" replace />;
-  }
   if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/training') return <Navigate to="/dashboard" replace />;
   return children;
 }

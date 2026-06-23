@@ -49,9 +49,7 @@ export function canViewOrder(order: Order, linkedOpportunity?: Opportunity) {
 }
 
 export function isRepCertified(user: AppUser | null) {
-  if (!user) return false;
-  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR') return true;
-  return user.isCertified === true;
+  return true;
 }
 
 export function canCreateOpportunity() {

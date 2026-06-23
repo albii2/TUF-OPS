@@ -46,8 +46,6 @@ export default function CrmWalkthroughTour() {
         } else {
           setStep(6);
         }
-      } else if (path === '/training/simulator') {
-        setStep(8);
       }
     }
   }, [location.pathname, active]);
@@ -116,13 +114,8 @@ export default function CrmWalkthroughTour() {
     },
     {
       title: '7. Request Mockup',
-      desc: 'Now that contact has been made, we must request a mockup. Click "Open Stage Advancement Drawer", fill in mockup details (sport, lane, design notes), and submit.',
+      desc: 'Now that contact has been made, we must request a mockup. Click "Open Stage Advancement Drawer", fill in mockup details (sport, lane, design notes), and submit to complete your walkthrough.',
       action: 'Click "Open Stage Advancement Drawer" and advance stage.'
-    },
-    {
-      title: '8. Objection Training',
-      desc: 'Practice real sales pitches in the Locker Room Simulator. Navigate to TUF Academy and open the Simulator page.',
-      action: 'Click "Open Locker Room Simulator" on the academy page.'
     }
   ];
 
@@ -170,7 +163,7 @@ export default function CrmWalkthroughTour() {
               Back
             </button>
           )}
-          {step < 8 ? (
+          {step < 7 ? (
             <button
               onClick={() => setStep(prev => prev + 1)}
               className="rounded bg-cyan-500/20 border border-cyan-400/50 px-2 py-1 text-[10px] font-bold text-cyan-100 hover:bg-cyan-500/30"
