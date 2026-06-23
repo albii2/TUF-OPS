@@ -6,9 +6,11 @@ import { useOrganizationById } from '../hooks/useOrganizations';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useActivities } from '../hooks/useReports';
-import { getRevenueLanes } from '../services/opportunitiesService';
+import { createMockOpportunity, getRevenueLanes } from '../services/opportunitiesService';
 import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionStatuses, type ReferredOrganizationType, type WarmIntroductionStatus } from '../services/ecosystemReferralsService';
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
+import { createActivity } from '../services/activitiesService';
+import type { RevenueLane } from '../data/mockSalesData';
 
 export function OrganizationDetailPage() {
   const { id } = useParams();
@@ -58,6 +60,41 @@ export function OrganizationDetailPage() {
   const updateReferralForm = (field: keyof typeof referralForm, value: string) => {
     setReferralForm((current) => ({ ...current, [field]: value }));
     setReferralMessage('');
+  };
+
+  const attackLane = (lane: RevenueLane) => {
+    if (!id || !org) return;
+
+    const existingActiveLaneOpportunity = activeOpportunities.find((opportunity) => opportunity.lane === lane);
+    if (existingActiveLaneOpportunity) {
+      setLaneMessage(`${lane.replace(/_/g, ' ')} already has an active opportunity: ${existingActiveLaneOpportunity.title}. Open it below and advance the next step.`);
+      createActivity({
+        entityType: 'ORGANIZATION',
+        entityId: id,
+        message: `Reviewed ${lane.replace(/_/g, ' ')} lane; active opportunity already exists.`,
+      });
+      return;
+    }
+
+    const laneData = org.laneStatuses[lane];
+    const createdOpportunity = createMockOpportunity({
+      organizationId: id,
+      organizationName: org.name,
+      programLevel: 'Varsity',
+      sport: activeSports[0] ?? 'Football',
+      seasonCode: String(new Date().getFullYear()),
+      lane,
+      assignedRep: org.assignedRep,
+      value: laneData.estimatedValue || 5000,
+      organizationAssignedDirector: org.assignedDirector,
+    });
+
+    createActivity({
+      entityType: 'ORGANIZATION',
+      entityId: id,
+      message: `Created ${lane.replace(/_/g, ' ')} lane opportunity: ${createdOpportunity.title}.`,
+    });
+    setLaneMessage(`${lane.replace(/_/g, ' ')} opportunity created. Open ${createdOpportunity.title} below to contact the coach and start Discovery.`);
   };
 
   const submitReferral = () => {
@@ -147,7 +184,7 @@ export function OrganizationDetailPage() {
                 <p className="text-lg font-semibold text-cyan-300">{formatCurrency(laneData.estimatedValue)}</p>
                 <p className="text-xs text-slate-400">Active Opps: {laneData.activeOpportunityCount}</p>
                 <p className="text-xs text-slate-300">Next: {laneData.nextAction}</p>
-                <Button className="w-full" onClick={() => setLaneMessage(`${lane.replace(/_/g, ' ')} lane action added to this account's mock next-action plan.`)}>Attack This Lane</Button>
+                <Button className="w-full" onClick={() => attackLane(lane)}>Attack This Lane</Button>
               </div>
             </Card>
           );

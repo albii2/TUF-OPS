@@ -9,11 +9,12 @@ import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreative
 import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
 import { SPORT_OPTIONS, REVENUE_LANES } from '../config/business';
 import { getLaneLabel } from '../utils/naming';
-import { updateOpportunityStage } from '../services/opportunitiesService';
+import { logOpportunityActivity, updateOpportunityStage } from '../services/opportunitiesService';
 import type { Opportunity, OpportunityStage } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
 import { notify } from '../services/feedbackService';
+import { createMockOrderFromOpportunity, getAnyOrderByOpportunityId } from '../services/ordersService';
 
 const stageCtas = {
   LEAD_ENGAGED: 'Contact coach',
@@ -74,14 +75,28 @@ export function OpportunityDetailPage() {
     try {
       const updated = updateOpportunityStage(activeOpp.id, stage);
       if (!updated) throw new Error('Opportunity not found.');
+      let finalMessage = message;
+      if (stage === 'CLOSED_WON') {
+        const order = createMockOrderFromOpportunity(updated);
+        finalMessage = `${message} Order handoff ${order.id} is ready for Ops review.`;
+      }
       setLocalOpp(updated);
-      setActionMessage(message);
+      setActionMessage(finalMessage);
       notify('Opportunity stage advanced.', 'success');
+      return updated;
     } catch (error) {
       const detail = error instanceof Error ? error.message : 'You do not have permission to advance this opportunity.';
       setActionMessage(detail);
       notify(`Opportunity stage advance failed: ${detail}`, 'error');
+      return undefined;
     }
+  };
+
+  const logCrmActivity = (message: string) => {
+    const updated = logOpportunityActivity(activeOpp.id, message);
+    if (updated) setLocalOpp(updated);
+    setActionMessage(message);
+    notify('CRM activity logged.', 'success');
   };
 
   return (
@@ -125,11 +140,11 @@ export function OpportunityDetailPage() {
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Mission Priority" className="lg:col-span-2"><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Issue:</span> {staleDays >= 7 ? `No follow-up in ${staleDays} days.` : 'Deal has not reached close path finish.'}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Action:</span> {activeOpp.nextAction}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Impact:</span> Protect {formatCurrency(activeOpp.value)} and keep 4-order pace.</p>{actionMessage ? <p className={`mt-2 text-sm ${actionMessage.includes('permission') || actionMessage.includes('read-only') ? 'text-amber-200' : 'text-cyan-200'}`}>{actionMessage}</p> : null}</Card>
         <Card title="Next Action Console"><div className='space-y-2'><Button className="w-full" onClick={() => {
-          setActionMessage(`${stageCtas[activeOpp.stage]} logged in mock mode.`);
+          logCrmActivity(`${stageCtas[activeOpp.stage]} logged.`);
           if (activeOpp.stage === 'LEAD_ENGAGED') {
             setStage('DISCOVERY', 'Initial contact logged. Opportunity advanced to Discovery.');
           }
-        }}>{stageCtas[activeOpp.stage]}</Button>{nextStage && canAdvance ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setShowAdvanceDrawer(true)}>Open Stage Advancement Drawer</Button> : null}{nextStage && !canAdvance ? <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p> : null}<Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setActionMessage('Follow-up scheduled in mock mode.')}>Schedule / Log Follow-up</Button><Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setActionMessage('Note captured in mock mode.')}>Add Note</Button></div></Card>
+        }}>{stageCtas[activeOpp.stage]}</Button>{nextStage && canAdvance ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setShowAdvanceDrawer(true)}>Open Stage Advancement Drawer</Button> : null}{nextStage && !canAdvance ? <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p> : null}<Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => logCrmActivity('Follow-up scheduled and logged.')}>Schedule / Log Follow-up</Button><Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => logCrmActivity('Rep note captured for next touch.')}>Add Note</Button></div></Card>
       </div>
 
       <Card title="Stage Advancement Drawer (Guided)">
@@ -218,7 +233,7 @@ export function OpportunityDetailPage() {
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING, and closes only after PAYMENT RECEIVED.</p></Card>
-        <Card title="Outcome Zone">{canAdvance ? <div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won in mock mode. Review Orders for handoff coverage.')}>Closed Won (High Consequence)</Button><Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost in mock mode. Capture loss reason during follow-up review.')}>Closed Lost (High Consequence)</Button></div> : <p className="text-sm text-slate-300">Outcome changes are read-only for your current role.</p>}</Card>
+        <Card title="Outcome Zone">{canAdvance ? <div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won. Review Orders for handoff coverage.')}>Closed Won (High Consequence)</Button>{getAnyOrderByOpportunityId(activeOpp.id) ? <Link className="block rounded-md border border-cyan-400/40 px-3 py-2 text-center text-sm font-semibold text-cyan-200" to={`/orders/${getAnyOrderByOpportunityId(activeOpp.id)?.id}`}>Open Order Handoff</Link> : null}<Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost. Capture loss reason during follow-up review.')}>Closed Lost (High Consequence)</Button></div> : <p className="text-sm text-slate-300">Outcome changes are read-only for your current role.</p>}</Card>
       </div>
 
       <Card title="Creative Requests">

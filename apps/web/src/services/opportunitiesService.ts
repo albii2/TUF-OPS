@@ -5,6 +5,7 @@ import { buildOpportunityDisplayName } from '../utils/naming';
 import { DATA_MODE } from './dataMode';
 import { getOrganizationById } from './organizationsService';
 import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
+import { createActivity } from './activitiesService';
 
 export type OpportunityListParams = {
   search?: string;
@@ -157,6 +158,27 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
   };
   writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
   removeLegacyOpportunity(id);
+  createActivity({
+    entityType: 'OPPORTUNITY',
+    entityId: id,
+    message: `Stage advanced from ${existing.stage.replace(/_/g, ' ')} to ${stage.replace(/_/g, ' ')}.`,
+  });
+  window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
+  return updated;
+}
+
+export function logOpportunityActivity(id: string, message: string) {
+  const existing = getAllOpportunities().find((opp) => opp.id === id);
+  if (!existing) return undefined;
+  const updated: Opportunity = {
+    ...existing,
+    lastActivity: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    nextAction: message || existing.nextAction,
+  };
+  writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
+  removeLegacyOpportunity(id);
+  createActivity({ entityType: 'OPPORTUNITY', entityId: id, message });
   window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
   return updated;
 }
