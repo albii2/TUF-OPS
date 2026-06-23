@@ -367,7 +367,7 @@ exports.up = async (pgm) => {
       NOW(),
       NOW()
     );
-  \`);
+  `);
 };
 
 exports.down = async (pgm) => {
