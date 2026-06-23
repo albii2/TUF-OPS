@@ -58,14 +58,16 @@ export function canCreateOpportunity() {
   const user = getViewer();
   if (!user) return false;
   if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR') return true;
-  if (user.role === 'REP') return isRepCertified(user);
+  const isSandboxActive = typeof window !== 'undefined' && localStorage.getItem('tuf_combine_sandbox_active') === 'true';
+  if (user.role === 'REP') return isRepCertified(user) || isSandboxActive;
   return false;
 }
 
 export function canAdvanceOpportunity(opp: Opportunity) {
   const user = getViewer();
   if (!user) return false;
-  if (!isRepCertified(user)) return false;
+  const isSandboxActive = typeof window !== 'undefined' && localStorage.getItem('tuf_combine_sandbox_active') === 'true';
+  if (!isRepCertified(user) && !isSandboxActive) return false;
   if (user.role === 'ADMIN') return true;
   if (user.role === 'REP') return opp.assignedRep === user.name;
   return false;
@@ -74,7 +76,8 @@ export function canAdvanceOpportunity(opp: Opportunity) {
 export function getAdvanceDeniedMessage(opp: Opportunity) {
   const user = getViewer();
   if (!user) return 'Log in before advancing an opportunity.';
-  if (!isRepCertified(user)) return 'Onboarding and certification is required before you can perform sales actions.';
+  const isSandboxActive = typeof window !== 'undefined' && localStorage.getItem('tuf_combine_sandbox_active') === 'true';
+  if (!isRepCertified(user) && !isSandboxActive) return 'Onboarding and certification is required before you can perform sales actions.';
   if (user.role === 'DIRECTOR') return 'Directors have read-only stage visibility for rep-owned opportunities in V0.8.5.';
   if (user.role === 'REP' && opp.assignedRep !== user.name) return 'You can only advance opportunities assigned to you.';
   return 'You do not have permission to advance this opportunity.';
