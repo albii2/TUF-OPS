@@ -86,7 +86,7 @@ export function SportsTicker() {
   return (
     <div className="mb-2 w-full min-w-0 overflow-hidden rounded-md border border-[#12314a] bg-[#07111b] text-xs text-slate-200">
       <div className="flex items-center">
-        <a href="https://tufsports.us" target="_blank" rel="noopener noreferrer" className="shrink-0 border-r border-[#12314a] bg-[#0b1a28] px-3 py-2 font-semibold text-cyan-200 hover:bg-[#0f2a41]">Game Day Wire</a>
+        <a href="https://tufsports.us" target="_blank" rel="noopener noreferrer" className="shrink-0 border-r border-[#12314a] bg-[#0b1a28] px-3 py-2 font-semibold text-cyan-200 hover:bg-[#0f2a41]">TUF Sports Website</a>
         <span className="shrink-0 border-r border-[#12314a] px-3 py-2 text-[10px] text-slate-400">Updated {lastUpdated}</span>
         <div className="min-w-0 flex-1 overflow-hidden">
           <div className="ticker-track flex w-max items-center gap-6 py-2">

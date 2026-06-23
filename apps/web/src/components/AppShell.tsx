@@ -54,7 +54,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
     <div className="relative min-h-screen bg-tuf-texture text-[var(--text-primary)]">
       <div className="mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="hidden border-r border-[var(--border)] bg-[#070c13]/95 p-3.5 md:flex md:flex-col">
-          <div className="flex h-20 items-center justify-start px-1"><TufLogo compact /></div>
+          <div className="flex h-20 items-center justify-center px-1"><TufLogo compact /></div>
           <NavLink to="/training" className={({ isActive }) => `mb-3 block rounded-xl border p-3 text-center transition ${isActive ? 'border-cyan-300/60 bg-cyan-400/10 shadow-lg shadow-cyan-950/30' : 'border-cyan-400/20 bg-[#050b12]/80 hover:border-cyan-300/50 hover:bg-[#0d2234]/70'}`}>
             <img src={TufAcademyLogo} alt="TUF Academy" className="mx-auto h-10 w-auto object-contain" />
             <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200">Certification Hub</p>
@@ -79,7 +79,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
 
         <main className="min-w-0 px-4 pb-24 pt-3 md:px-5 md:pb-20">
           <div className="mb-3 md:hidden">
-            <div className="mb-2 flex h-16 items-center justify-start px-1"><TufLogo compact /></div>
+            <div className="mb-2 flex h-16 items-center justify-center px-1"><TufLogo compact /></div>
             <nav className="flex gap-2 overflow-x-auto pb-1">
               <NavLink to="/training" className={({ isActive }) => `flex shrink-0 items-center justify-center rounded-md border px-3 py-2 ${isActive ? 'border-cyan-300/60 bg-cyan-400/10' : 'border-cyan-400/20 bg-[#0b1118]'}`}>
                 <img src={TufAcademyLogo} alt="TUF Academy" className="h-7 w-auto object-contain" />

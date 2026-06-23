@@ -104,7 +104,7 @@ export default function CrmWalkthroughTour() {
           onClick={startTour}
           className="glow-blue flex items-center gap-2 rounded-full border border-cyan-400/40 bg-slate-950/90 px-4 py-2.5 text-xs font-black uppercase tracking-wider text-cyan-300 shadow-xl backdrop-blur transition hover:scale-105 active:scale-95"
         >
-          <span>🎯</span> Start CRM Sandbox Tour
+          <span>🎯</span> Start CRM Pipeline Action Guide
         </button>
       </div>
     );
@@ -162,7 +162,7 @@ export default function CrmWalkthroughTour() {
     <div className="fixed bottom-6 right-6 z-50 w-80 rounded-2xl border border-cyan-400/45 bg-[#050b12]/95 p-4 shadow-2xl shadow-cyan-950/40 backdrop-blur-md">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent" />
       <div className="flex items-center justify-between border-b border-slate-800/60 pb-2">
-        <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Sandbox Walkthrough Guide</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-cyan-400">CRM Pipeline Action Guide</span>
         <button onClick={endTour} className="text-slate-400 hover:text-slate-200 text-xs">✕ Stop</button>
       </div>
 

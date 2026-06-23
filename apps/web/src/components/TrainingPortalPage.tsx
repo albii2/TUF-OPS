@@ -32,18 +32,18 @@ export default function TrainingPortalPage() {
           </div>
           <div className="max-w-2xl">
             <span className="rounded-full bg-cyan-500/20 border border-cyan-400/30 px-3 py-1 text-xs font-bold text-cyan-300 uppercase tracking-wider">Interactive Onboarding</span>
-            <h2 className="mt-3 text-xl font-black text-white">TUF Ops Interactive CRM Walkthrough</h2>
+            <h2 className="mt-3 text-xl font-black text-white">CRM Pipeline Action Guide</h2>
             <p className="mt-2 text-sm text-slate-300 leading-relaxed">
               We have launched a live, step-by-step CRM Sandbox tour. It is designed to take you through creating accounts, identifying opportunity lanes, navigating the Minnesota territory list, requesting mockup designs, and submitting final orders.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link to="/organizations" className="rounded-lg bg-cyan-500 hover:bg-cyan-400 px-4 py-2.5 text-xs font-bold text-slate-950 transition-colors shadow-[0_0_12px_rgba(6,182,212,0.2)]">
-                Start CRM Walkthrough Tour
+                Start CRM Pipeline Action Guide
               </Link>
               <button 
                 onClick={() => {
                   localStorage.setItem('tuf_combine_sandbox_active', 'true');
-                  alert('CRM Sandbox tour has been reset. Navigate to the Organizations page to begin.');
+                  alert('CRM Pipeline Action Guide has been reset. Navigate to the Organizations page to begin.');
                 }}
                 className="rounded-lg border border-slate-800 hover:border-slate-700 hover:bg-slate-800/40 px-4 py-2.5 text-xs font-bold text-slate-300 transition-all"
               >
