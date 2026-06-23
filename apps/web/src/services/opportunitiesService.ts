@@ -125,6 +125,7 @@ export function createMockOpportunity(input: {
     closeProbability: 20,
   };
   writeLocalOpportunities([row, ...readLocalOpportunities().filter((opp) => opp.id !== row.id)]);
+  window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: row }));
   return row;
 }
 
@@ -156,5 +157,6 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
   };
   writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
   removeLegacyOpportunity(id);
+  window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
   return updated;
 }

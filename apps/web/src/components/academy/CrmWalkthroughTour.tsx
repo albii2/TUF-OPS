@@ -6,49 +6,78 @@ export default function CrmWalkthroughTour() {
   const navigate = useNavigate();
   const [active, setActive] = useState(() => localStorage.getItem('tuf_combine_sandbox_active') === 'true');
   const [step, setStep] = useState(1);
+  const [oppUpdateTick, setOppUpdateTick] = useState(0);
 
-  // Keep track of the last path to avoid resetting step on manual override/skip/back on the same page
-  const lastPathRef = useRef(location.pathname);
+  // Sync state if sandbox active status changes in storage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setActive(localStorage.getItem('tuf_combine_sandbox_active') === 'true');
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
-  // Automatically determine step based on location path
+  // Listen to opportunity updates to dynamically check/advance walkthrough step
+  useEffect(() => {
+    const handleUpdate = () => setOppUpdateTick((prev) => prev + 1);
+    window.addEventListener('tuf:opportunity-updated', handleUpdate);
+    return () => window.removeEventListener('tuf:opportunity-updated', handleUpdate);
+  }, []);
+
+  // Get current opportunity stage if we are on the opportunity detail page
+  const path = location.pathname;
+  let currentOppStage = 'LEAD_ENGAGED';
+  if (path.match(/^\/opportunities\/[^/]+$/)) {
+    const id = path.split('/').pop();
+    if (id) {
+      try {
+        const localOpps = JSON.parse(localStorage.getItem('tuf_ops_opportunities_v2') || '[]') as any[];
+        const opp = localOpps.find((o) => o.id === id);
+        if (opp) {
+          currentOppStage = opp.stage;
+        }
+      } catch (e) {}
+    }
+  }
+
+  // Automatically determine step based on location path and opportunity updates
   useEffect(() => {
     if (!active) return;
-    const path = location.pathname;
+    const currentPath = location.pathname;
 
-    // Only update step automatically if the pathname actually changed
-    if (path !== lastPathRef.current) {
-      lastPathRef.current = path;
-
-      if (path === '/training' || path === '/dashboard') {
-        setStep(1);
-      } else if (path === '/organizations') {
-        setStep(2);
-      } else if (path.match(/^\/organizations\/[^/]+$/)) {
-        setStep(3);
-      } else if (path === '/opportunities') {
-        setStep(4);
-      } else if (path === '/opportunities/new') {
-        setStep(5);
-      } else if (path.match(/^\/opportunities\/[^/]+$/)) {
-        const id = path.split('/').pop();
-        if (id) {
-          try {
-            const localOpps = JSON.parse(localStorage.getItem('tuf_ops_opportunities_v2') || '[]') as any[];
-            const opp = localOpps.find(o => o.id === id);
-            if (opp && opp.stage === 'DISCOVERY') {
-              setStep(7);
-            } else {
+    if (currentPath === '/training' || currentPath === '/dashboard') {
+      setStep(1);
+    } else if (currentPath === '/organizations') {
+      setStep(2);
+    } else if (currentPath.match(/^\/organizations\/[^/]+$/)) {
+      setStep(3);
+    } else if (currentPath === '/opportunities' || currentPath === '/my-opportunities') {
+      setStep(4);
+    } else if (currentPath === '/opportunities/new') {
+      setStep(5);
+    } else if (currentPath.match(/^\/opportunities\/[^/]+$/)) {
+      const id = currentPath.split('/').pop();
+      if (id) {
+        try {
+          const localOpps = JSON.parse(localStorage.getItem('tuf_ops_opportunities_v2') || '[]') as any[];
+          const opp = localOpps.find((o) => o.id === id);
+          if (opp) {
+            if (opp.stage === 'LEAD_ENGAGED') {
               setStep(6);
+            } else {
+              setStep(7);
             }
-          } catch (e) {
+          } else {
             setStep(6);
           }
-        } else {
+        } catch (e) {
           setStep(6);
         }
+      } else {
+        setStep(6);
       }
     }
-  }, [location.pathname, active]);
+  }, [location.pathname, active, oppUpdateTick]);
 
   const startTour = () => {
     localStorage.setItem('tuf_combine_sandbox_active', 'true');
@@ -84,18 +113,18 @@ export default function CrmWalkthroughTour() {
   const steps = [
     {
       title: '1. Navigate to Organizations',
-      desc: 'Let\'s start by opening the Organizations page to find your assigned schools.',
+      desc: "Let's start by opening the Organizations page to find your assigned schools.",
       action: 'Click "Organizations" in the sidebar menu.'
     },
     {
       title: '2. Select a School',
-      desc: 'Find one of your assigned schools in the list (e.g. Esko High School) and click its name to open the details.',
-      action: 'Click on a school in the table (e.g. Esko High School).'
+      desc: 'Find one of your assigned schools in the list and click its name to open the details.',
+      action: 'Click on any school in the table.'
     },
     {
       title: '3. Open Opportunities Page',
-      desc: 'Let\'s look at the active deals. Click "Opportunities" in the sidebar menu to view all opportunities.',
-      action: 'Click "Opportunities" in the sidebar menu.'
+      desc: 'Let\'s look at the active deals. Click "My Opportunities" in the sidebar menu to view all opportunities.',
+      action: 'Click "My Opportunities" in the sidebar menu.'
     },
     {
       title: '4. Register a Deal',
@@ -103,19 +132,27 @@ export default function CrmWalkthroughTour() {
       action: 'Click "New Opportunity" button.'
     },
     {
-      title: '5. Create Esko High Opportunity',
-      desc: 'Fill in Esko High School as the organization, select Football as the sport, and enter a value (e.g., 15000), then click "Create Opportunity".',
+      title: '5. Create Opportunity',
+      desc: 'Fill in one of your assigned schools as the organization, select Football as the sport, and enter a value (e.g., 15000), then click "Create Opportunity".',
       action: 'Create the opportunity and save details.'
     },
     {
       title: '6. Log Outreach/Contact',
-      desc: 'In the Opportunity Detail view under "Next Action Console", click the primary action button ("Contact coach") to log your initial contact with the lead.',
-      action: 'Click the primary action button ("Contact coach") in the console.'
+      desc: currentOppStage !== 'LEAD_ENGAGED'
+        ? 'Initial contact successfully logged! The opportunity stage has advanced to Discovery.'
+        : 'In the Opportunity Detail view under "Next Action Console", click the primary action button to log your initial contact with the lead.',
+      action: currentOppStage !== 'LEAD_ENGAGED'
+        ? 'Proceed to step 7.'
+        : 'Click the primary action button (e.g. "Contact coach") in the console.'
     },
     {
       title: '7. Request Mockup',
-      desc: 'Now that contact has been made, we must request a mockup. Click "Open Stage Advancement Drawer", fill in mockup details (sport, lane, design notes), and submit to complete your walkthrough.',
-      action: 'Click "Open Stage Advancement Drawer" and advance stage.'
+      desc: ['MOCKUP_STAGE', 'INVOICE_SENT', 'CLOSED_WON'].includes(currentOppStage)
+        ? 'Outstanding job! You have successfully requested a mockup and advanced the opportunity stage. Your walkthrough is now complete!'
+        : 'Now that contact has been made, we must request a mockup. Click "Open Stage Advancement Drawer", fill in mockup details (sport, lane, design notes), and submit to complete your walkthrough.',
+      action: ['MOCKUP_STAGE', 'INVOICE_SENT', 'CLOSED_WON'].includes(currentOppStage)
+        ? 'Click "Finish Tour" below to exit the walkthrough.'
+        : 'Click "Open Stage Advancement Drawer" and advance stage.'
     }
   ];
 
@@ -157,7 +194,7 @@ export default function CrmWalkthroughTour() {
         <div className="flex gap-2">
           {step > 1 && (
             <button
-              onClick={() => setStep(prev => prev - 1)}
+              onClick={() => setStep((prev) => prev - 1)}
               className="rounded bg-slate-800 px-2 py-1 text-[10px] font-bold text-slate-300 hover:bg-slate-700"
             >
               Back
@@ -165,7 +202,7 @@ export default function CrmWalkthroughTour() {
           )}
           {step < 7 ? (
             <button
-              onClick={() => setStep(prev => prev + 1)}
+              onClick={() => setStep((prev) => prev + 1)}
               className="rounded bg-cyan-500/20 border border-cyan-400/50 px-2 py-1 text-[10px] font-bold text-cyan-100 hover:bg-cyan-500/30"
             >
               Skip
