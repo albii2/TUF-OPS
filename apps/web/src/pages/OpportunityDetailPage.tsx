@@ -7,6 +7,8 @@ import { useOrganizationById } from '../hooks/useOrganizations';
 import { useActivities } from '../hooks/useReports';
 import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreativeRequests';
 import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
+import { SPORT_OPTIONS, REVENUE_LANES } from '../config/business';
+import { getLaneLabel } from '../utils/naming';
 import { updateOpportunityStage } from '../services/opportunitiesService';
 import type { Opportunity, OpportunityStage } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
@@ -149,11 +151,40 @@ export function OpportunityDetailPage() {
               <Button className="border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setShowAdvanceDrawer(false)}>Close</Button>
             </div>
             <p className="mb-3 text-xs text-slate-400">Required fields only. Target completion: under 60 seconds.</p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {requiredAdvanceFields.map((field) => (
                 <label key={field.key} className="block text-xs text-slate-300">
-                  {field.label}
-                  <input type={field.type ?? 'text'} value={advanceForm[field.key] ?? ''} onChange={(e) => setAdvanceForm((prev) => ({ ...prev, [field.key]: e.target.value }))} className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-1 text-sm" />
+                  <span className="mb-1 block font-semibold text-slate-200">{field.label}</span>
+                  {field.key === 'sport' ? (
+                    <select
+                      value={advanceForm[field.key] ?? ''}
+                      onChange={(e) => setAdvanceForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                      className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-2 text-sm text-slate-100"
+                    >
+                      <option value="">Select sport…</option>
+                      {SPORT_OPTIONS.map((sport) => (
+                        <option key={sport} value={sport}>{sport}</option>
+                      ))}
+                    </select>
+                  ) : field.key === 'lane' ? (
+                    <select
+                      value={advanceForm[field.key] ?? ''}
+                      onChange={(e) => setAdvanceForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                      className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-2 text-sm text-slate-100"
+                    >
+                      <option value="">Select lane…</option>
+                      {REVENUE_LANES.map((lane) => (
+                        <option key={lane} value={lane}>{getLaneLabel(lane)}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.type ?? 'text'}
+                      value={advanceForm[field.key] ?? ''}
+                      onChange={(e) => setAdvanceForm((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                      className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-2 text-sm text-slate-100"
+                    />
+                  )}
                 </label>
               ))}
             </div>

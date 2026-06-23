@@ -28,7 +28,7 @@ export function getSeasonLabel(code: string): string {
 }
 
 export function getLaneLabel(lane: RevenueLane): string {
-  return lane === 'TRAVEL_GEAR' ? 'Travel Gear' : toTitleCase(lane.replace('_', ' '));
+  return lane === 'TRAVEL_GEAR' ? 'Team Gear' : toTitleCase(lane.replace('_', ' '));
 }
 
 export function buildOpportunityDisplayName(input: { programLevel: string; sport: string; seasonCode: string; lane: RevenueLane }): string {

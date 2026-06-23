@@ -215,7 +215,7 @@ export function OrganizationDetailPage() {
         </Card>
       </div>
 
-      <Card title="Lane Coverage by Sport"><div className='space-y-1 text-sm'>{laneCoverageBySport.map((x) => <p key={x.sport}>{x.sport}: Uniform {x.UNIFORM ? 'Yes' : 'No'} · Team Store {x.TEAM_STORE ? 'Yes' : 'No'} · Travel Gear {x.TRAVEL_GEAR ? 'Yes' : 'No'} · Letterman {x.LETTERMAN ? 'Yes' : 'No'}</p>)}</div></Card>
+      <Card title="Lane Coverage by Sport"><div className='space-y-1 text-sm'>{laneCoverageBySport.map((x) => <p key={x.sport}>{x.sport}: Uniform {x.UNIFORM ? 'Yes' : 'No'} · Team Store {x.TEAM_STORE ? 'Yes' : 'No'} · Team Gear {x.TRAVEL_GEAR ? 'Yes' : 'No'} · Letterman {x.LETTERMAN ? 'Yes' : 'No'}</p>)}</div></Card>
 
       <Card title="Lane Penetration Grid & Next Move">
         <div className="space-y-1 text-sm text-slate-300">

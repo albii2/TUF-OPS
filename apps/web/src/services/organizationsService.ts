@@ -221,10 +221,10 @@ function buildMockOrganization(input: {
     nextAction: input.nextAction ?? 'Call primary contact and confirm sports coverage',
     lastActivity: new Date().toISOString().slice(0, 10),
     leadTier: input.leadTier ?? 'UNASSIGNED',
-    expansionRecommendation: 'Start with Uniform discovery, then map Travel Gear and Team Store potential by sport.',
+    expansionRecommendation: 'Start with Uniform discovery, then map Team Gear and Team Store potential by sport.',
     laneStatuses: {
       UNIFORM: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Confirm program needs' },
-      TRAVEL_GEAR: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Identify travel season' },
+      TRAVEL_GEAR: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Identify team gear needs' },
       TEAM_STORE: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Confirm store owner' },
       LETTERMAN: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Review senior interest' },
     },
