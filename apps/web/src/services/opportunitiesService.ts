@@ -18,6 +18,7 @@ export type OpportunityListParams = {
 
 const LOCAL_OPPORTUNITIES_KEY = 'tuf_ops_opportunities_v2';
 const LEGACY_OPPORTUNITIES_KEY = 'tuf_ops_mock_opportunities_v1';
+const DELETED_OPPORTUNITIES_KEY = 'tuf_ops_deleted_opportunity_ids_v1';
 
 const nextActionByStage: Record<OpportunityStage, string> = {
   LEAD_ENGAGED: 'Contact coach and confirm decision owner',
@@ -60,15 +61,29 @@ function writeLegacyOpportunities(rows: Opportunity[]) {
   localStorage.setItem(LEGACY_OPPORTUNITIES_KEY, JSON.stringify(rows));
 }
 
+function readDeletedOpportunityIds(): string[] {
+  try {
+    return JSON.parse(localStorage.getItem(DELETED_OPPORTUNITIES_KEY) || '[]') as string[];
+  } catch {
+    return [];
+  }
+}
+
+function writeDeletedOpportunityIds(ids: string[]) {
+  localStorage.setItem(DELETED_OPPORTUNITIES_KEY, JSON.stringify(Array.from(new Set(ids))));
+}
+
 function removeLegacyOpportunity(id: string) {
   const remainingLegacyRows = readLegacyOpportunities().filter((row) => row.id !== id);
   writeLegacyOpportunities(remainingLegacyRows);
 }
 
 function getAllOpportunities() {
+  const deletedIds = new Set(readDeletedOpportunityIds());
   const localRows = readLocalOpportunities();
   const localIds = new Set(localRows.map((row) => row.id));
-  return [...localRows, ...opportunities.filter((row) => !localIds.has(row.id))];
+  return [...localRows, ...opportunities.filter((row) => !localIds.has(row.id))]
+    .filter((row) => !deletedIds.has(row.id));
 }
 
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
@@ -181,4 +196,20 @@ export function logOpportunityActivity(id: string, message: string) {
   createActivity({ entityType: 'OPPORTUNITY', entityId: id, message });
   window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
   return updated;
+}
+
+export function deleteOpportunity(id: string) {
+  const existing = getAllOpportunities().find((opp) => opp.id === id);
+  if (!existing) return false;
+
+  writeLocalOpportunities(readLocalOpportunities().filter((opp) => opp.id !== id));
+  removeLegacyOpportunity(id);
+  writeDeletedOpportunityIds([...readDeletedOpportunityIds(), id]);
+  createActivity({
+    entityType: 'ORGANIZATION',
+    entityId: existing.organizationId,
+    message: `Removed opportunity: ${existing.title}.`,
+  });
+  window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: { id, deleted: true } }));
+  return true;
 }

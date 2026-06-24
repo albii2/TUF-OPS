@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { useOpportunities, useOpportunityStages, useRevenueLanes } from '../hooks/useOpportunities';
 import { getNearCloseOpportunities } from '../services/businessSelectors';
 import { canCreateOpportunity } from '../services/roleScope';
+import { deleteOpportunity } from '../services/opportunitiesService';
 import type { OpportunityStage } from '../data/mockSalesData';
 
 const PAGE_SIZE = 100;
@@ -39,6 +40,11 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const prioritized = [...nearCloseSorted, ...remainder];
   const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
+  const removeOpportunity = (id: string, title: string) => {
+    if (!window.confirm(`Remove opportunity "${title}" from the pipeline?`)) return;
+    deleteOpportunity(id);
+  };
+
   const columns: Column<(typeof filtered)[number]>[] = [
     { key: 'opp', header: 'Deal', cell: (r) => <div><p className='font-semibold text-slate-100'>{r.title}</p><p className='text-xs text-slate-400'>{r.organizationName}</p></div> },
     { key: 'org', header: 'Account', cell: (r) => r.organizationName },
@@ -53,7 +59,12 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
     {
       key: 'actions',
       header: 'Actions',
-      cell: (r) => <button className="text-xs text-cyan-300" onClick={(e) => { e.stopPropagation(); navigate(`/opportunities/${r.id}`); }}>Open</button>,
+      cell: (r) => (
+        <div className="flex gap-2">
+          <button className="text-xs text-cyan-300" onClick={(e) => { e.stopPropagation(); navigate(`/opportunities/${r.id}`); }}>Open</button>
+          <button className="text-xs text-rose-300" onClick={(e) => { e.stopPropagation(); removeOpportunity(r.id, r.title); }}>Remove</button>
+        </div>
+      ),
     },
   ];
 
