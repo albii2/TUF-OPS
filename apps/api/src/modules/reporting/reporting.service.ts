@@ -22,12 +22,32 @@ export interface DashboardMetrics {
   total_gross_profit: number;
   total_rep_commission: number;
   total_director_override: number;
+  // total qualified opportunities vs. goal
+  pipeline_coverage_needed: number;
+  pipeline_coverage_current: number;
+  pipeline_coverage_ratio: number;
+  // next-action discipline
+  next_actions_overdue: number;
+  open_opps_without_next_action: number;
+  // staleness by age
+  stale_7_day_count: number;
+  stale_14_day_count: number;
+  stale_21_day_count: number;
+  // relationship depth
+  relationship_contacts_active: number;
+  relationship_contacts_total: number;
+  // territory coverage
+  territory_penetration_pct: number;
+  // composite health scores
+  pipeline_health_score: number;
+  territory_health_score: number;
 }
 
 type Scope = { where: string; params: number[]; commissionVisibility: 'admin' | 'director' | 'rep' };
 
 const AUDITABLE_TOUCH_TYPES = ['CALL', 'EMAIL', 'TEXT', 'MEETING', 'NOTE', 'OPPORTUNITY_ACTIVITY', 'LOGGED_CONTACT'];
 const PAYABLE_ORDER_STATUSES = ['DELIVERED', 'COMPLETED'];
+const PIPELINE_COVERAGE_GOAL_PER_ASSIGNED_SCHOOL = 1;
 
 function emptyStageCounts(): Record<OpportunityStage, number> {
   return {
@@ -66,7 +86,7 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
     .replace(/org\.assigned_director_id/g, 'COALESCE(ord.assigned_director_id, o.assigned_director_id)')
     .replace(/org\./g, 'ord.');
 
-  const [schoolResult, opportunityResult, stageResult, orderResult, activityResult] = await Promise.all([
+  const [schoolResult, opportunityResult, stageResult, orderResult, activityResult, relationshipResult] = await Promise.all([
     pool.query(`
       WITH scoped AS (SELECT org.id FROM organizations org ${orgScope}),
       touched AS (
@@ -89,6 +109,11 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
         COUNT(*) FILTER (WHERE o.stage = '${OpportunityStage.CLOSED_WON}')::int AS closed_won_count,
         COUNT(*) FILTER (WHERE o.stage = '${OpportunityStage.CLOSED_LOST}')::int AS closed_lost_count,
         COUNT(*) FILTER (WHERE o.next_action IS NOT NULL OR (o.expected_close_date IS NOT NULL AND o.expected_close_date <= NOW()))::int AS action_needed_items,
+        COUNT(*) FILTER (WHERE o.stage NOT IN ('${OpportunityStage.CLOSED_WON}', '${OpportunityStage.CLOSED_LOST}') AND o.expected_close_date IS NOT NULL AND o.expected_close_date <= NOW())::int AS next_actions_overdue,
+        COUNT(*) FILTER (WHERE o.stage NOT IN ('${OpportunityStage.CLOSED_WON}', '${OpportunityStage.CLOSED_LOST}') AND NULLIF(btrim(o.next_action), '') IS NULL)::int AS open_opps_without_next_action,
+        COUNT(*) FILTER (WHERE o.stage NOT IN ('${OpportunityStage.CLOSED_WON}', '${OpportunityStage.CLOSED_LOST}') AND COALESCE(o.last_activity_date, o.updated_at, o.created_at) < NOW() - INTERVAL '7 days')::int AS stale_7_day_count,
+        COUNT(*) FILTER (WHERE o.stage NOT IN ('${OpportunityStage.CLOSED_WON}', '${OpportunityStage.CLOSED_LOST}') AND COALESCE(o.last_activity_date, o.updated_at, o.created_at) < NOW() - INTERVAL '14 days')::int AS stale_14_day_count,
+        COUNT(*) FILTER (WHERE o.stage NOT IN ('${OpportunityStage.CLOSED_WON}', '${OpportunityStage.CLOSED_LOST}') AND COALESCE(o.last_activity_date, o.updated_at, o.created_at) < NOW() - INTERVAL '21 days')::int AS stale_21_day_count,
         COALESCE(SUM(o.actual_revenue), 0)::float8 AS total_actual_revenue,
         COALESCE(SUM(o.gross_profit), 0)::float8 AS total_gross_profit,
         COALESCE(SUM(c.rep_commission), 0)::float8 AS total_rep_commission,
@@ -118,6 +143,14 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
       JOIN organizations org ON org.id = a.organization_id
       ${orgScope}
     `, params),
+    pool.query(`
+      SELECT
+        COUNT(c.id)::int AS relationship_contacts_total,
+        COUNT(c.id) FILTER (WHERE NULLIF(btrim(c.email), '') IS NOT NULL OR NULLIF(btrim(c.phone), '') IS NOT NULL)::int AS relationship_contacts_active
+      FROM contacts c
+      JOIN organizations org ON org.id = c.organization_id
+      ${orgScope}
+    `, params),
   ]);
 
   const opportunities_by_stage = emptyStageCounts();
@@ -130,6 +163,13 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
   const opps = opportunityResult.rows[0] ?? {};
   const orders = orderResult.rows[0] ?? {};
   const activity = activityResult.rows[0] ?? {};
+  const relationships = relationshipResult.rows[0] ?? {};
+  const pipelineCoverageNeeded = Number(schools.assigned_schools ?? 0) * PIPELINE_COVERAGE_GOAL_PER_ASSIGNED_SCHOOL;
+  const pipelineCoverageCurrent = Number(opps.active_opportunities ?? 0);
+  const pipelineCoverageRatio = pipelineCoverageNeeded > 0 ? pipelineCoverageCurrent / pipelineCoverageNeeded : 0;
+  const territoryPenetrationPct = Number(schools.assigned_schools ?? 0) > 0 ? (Number(schools.touched_schools ?? 0) / Number(schools.assigned_schools ?? 0)) * 100 : 0;
+  const pipelineHealthScore = Math.max(0, Math.min(100, (pipelineCoverageRatio * 60) + ((pipelineCoverageCurrent - Number(opps.open_opps_without_next_action ?? 0)) / Math.max(pipelineCoverageCurrent, 1)) * 40 - Number(opps.stale_21_day_count ?? 0) * 5));
+  const territoryHealthScore = Math.max(0, Math.min(100, territoryPenetrationPct * 0.7 + (Number(relationships.relationship_contacts_active ?? 0) / Math.max(Number(schools.assigned_schools ?? 0), 1)) * 30));
   const repCommission = scope.commissionVisibility === 'director' ? 0 : Number(orders.rep_commission_estimate ?? 0);
   const directorOverride = scope.commissionVisibility === 'rep' ? 0 : Number(orders.director_override_estimate ?? 0);
 
@@ -154,6 +194,19 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
     total_gross_profit: Number(opps.total_gross_profit ?? 0),
     total_rep_commission: scope.commissionVisibility === 'director' ? 0 : Number(opps.total_rep_commission ?? 0),
     total_director_override: scope.commissionVisibility === 'rep' ? 0 : Number(opps.total_director_override ?? 0),
+    pipeline_coverage_needed: pipelineCoverageNeeded,
+    pipeline_coverage_current: pipelineCoverageCurrent,
+    pipeline_coverage_ratio: pipelineCoverageRatio,
+    next_actions_overdue: Number(opps.next_actions_overdue ?? 0),
+    open_opps_without_next_action: Number(opps.open_opps_without_next_action ?? 0),
+    stale_7_day_count: Number(opps.stale_7_day_count ?? 0),
+    stale_14_day_count: Number(opps.stale_14_day_count ?? 0),
+    stale_21_day_count: Number(opps.stale_21_day_count ?? 0),
+    relationship_contacts_active: Number(relationships.relationship_contacts_active ?? 0),
+    relationship_contacts_total: Number(relationships.relationship_contacts_total ?? 0),
+    territory_penetration_pct: territoryPenetrationPct,
+    pipeline_health_score: pipelineHealthScore,
+    territory_health_score: territoryHealthScore,
   };
 }
 
