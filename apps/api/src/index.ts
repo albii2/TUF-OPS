@@ -15,6 +15,7 @@ import { announcementRoutes } from './modules/announcements/announcements.routes
 import { userRoutes } from './modules/users/users.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
+import { authMiddleware, permissionErrorHandler } from './auth';
 
 const server = fastify();
 const port = Number(process.env.PORT || 4000);
@@ -81,6 +82,17 @@ function emptyDataHealthPayload(status: 'ok' | 'degraded', reason?: string) {
 server.register(cors, {
   origin: corsOrigins,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+});
+
+server.addHook('onRequest', authMiddleware);
+
+server.setErrorHandler((error, request, reply) => {
+  try {
+    return permissionErrorHandler(error, reply);
+  } catch (unhandled) {
+    request.log.error(unhandled);
+    return reply.code(500).send({ error: 'Internal server error' });
+  }
 });
 
 server.addHook('onRequest', async (request, reply) => {

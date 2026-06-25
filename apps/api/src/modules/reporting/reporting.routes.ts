@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { permissions, requirePermission } from '../../auth';
 import {
   getAdminDashboardMetricsHandler,
   getCommissionMetricsHandler,
@@ -11,12 +12,12 @@ import {
 } from './reporting.controller';
 
 export async function reportingRoutes(server: FastifyInstance) {
-  server.get('/owner-dashboard', getOwnerDashboardMetricsHandler);
-  server.get('/admin-dashboard', getAdminDashboardMetricsHandler);
-  server.get('/director-dashboard-by-email', getDirectorDashboardMetricsByEmailHandler);
-  server.get('/rep-dashboard-by-email', getRepDashboardMetricsByEmailHandler);
-  server.get('/director-dashboard/:directorId', getDirectorDashboardMetricsHandler);
-  server.get('/rep-dashboard/:repId', getRepDashboardMetricsHandler);
-  server.get('/school-coverage', getSchoolCoverageMetricsHandler);
-  server.get('/commissions', getCommissionMetricsHandler);
+  server.get('/owner-dashboard', { preHandler: requirePermission(permissions.VIEW_TERRITORY_HEALTH) }, getOwnerDashboardMetricsHandler);
+  server.get('/admin-dashboard', { preHandler: requirePermission(permissions.VIEW_TERRITORY_HEALTH) }, getAdminDashboardMetricsHandler);
+  server.get('/director-dashboard-by-email', { preHandler: requirePermission(permissions.VIEW_TEAM_PIPELINE) }, getDirectorDashboardMetricsByEmailHandler);
+  server.get('/rep-dashboard-by-email', { preHandler: requirePermission(permissions.VIEW_PERSONAL_PIPELINE) }, getRepDashboardMetricsByEmailHandler);
+  server.get('/director-dashboard/:directorId', { preHandler: requirePermission(permissions.VIEW_TEAM_PIPELINE) }, getDirectorDashboardMetricsHandler);
+  server.get('/rep-dashboard/:repId', { preHandler: requirePermission(permissions.VIEW_PERSONAL_PIPELINE) }, getRepDashboardMetricsHandler);
+  server.get('/school-coverage', { preHandler: requirePermission(permissions.VIEW_TERRITORY_HEALTH) }, getSchoolCoverageMetricsHandler);
+  server.get('/commissions', { preHandler: requirePermission(permissions.VIEW_PERSONAL_PIPELINE) }, getCommissionMetricsHandler);
 }
