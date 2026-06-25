@@ -22,6 +22,25 @@ export type DashboardMetrics = {
   total_gross_profit: number;
   total_rep_commission: number;
   total_director_override: number;
+  // total qualified opportunities vs. goal
+  pipeline_coverage_needed: number;
+  pipeline_coverage_current: number;
+  pipeline_coverage_ratio: number;
+  // next-action discipline
+  next_actions_overdue: number;
+  open_opps_without_next_action: number;
+  // staleness by age
+  stale_7_day_count: number;
+  stale_14_day_count: number;
+  stale_21_day_count: number;
+  // relationship depth
+  relationship_contacts_active: number;
+  relationship_contacts_total: number;
+  // territory coverage
+  territory_penetration_pct: number;
+  // composite health scores
+  pipeline_health_score: number;
+  territory_health_score: number;
 };
 
 export function emptyDashboardMetrics(): DashboardMetrics {
@@ -45,6 +64,19 @@ export function emptyDashboardMetrics(): DashboardMetrics {
     total_gross_profit: 0,
     total_rep_commission: 0,
     total_director_override: 0,
+    pipeline_coverage_needed: 0,
+    pipeline_coverage_current: 0,
+    pipeline_coverage_ratio: 0,
+    next_actions_overdue: 0,
+    open_opps_without_next_action: 0,
+    stale_7_day_count: 0,
+    stale_14_day_count: 0,
+    stale_21_day_count: 0,
+    relationship_contacts_active: 0,
+    relationship_contacts_total: 0,
+    territory_penetration_pct: 0,
+    pipeline_health_score: 0,
+    territory_health_score: 0,
   };
 }
 
