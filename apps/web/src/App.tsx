@@ -78,7 +78,7 @@ function CertificationProtected({ user, path, children }: { user: AppUser | null
   if (UNCERTIFIED_ACCESSIBLE_PATHS.has(path)) return children;
 
   // REP users: gate CRM access behind certification
-  if (!user.isCertified) return <Navigate to="/training" replace />;
+  if (!user.isCertified) return <Navigate to="/academy" replace />;
 
   return children;
 }
