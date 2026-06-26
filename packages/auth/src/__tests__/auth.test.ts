@@ -20,15 +20,15 @@ describe('TUF compatibility role and permission foundation', () => {
     expect(isAdmin('REP')).toBe(false);
   });
 
-  it('defines exactly 34 permissions and canonical roles including operations', () => {
-    expect(Object.keys(permissions)).toHaveLength(34);
+  it('defines exactly 35 permissions and canonical roles including operations', () => {
+    expect(Object.keys(permissions)).toHaveLength(35);
     expect(Object.values(roles)).toEqual(['admin', 'regional_director', 'director', 'tae', 'operations']);
   });
 
   it('maps canonical role permission counts safely', () => {
-    expect(rolePermissions[roles.ADMIN]).toHaveLength(34);
+    expect(rolePermissions[roles.ADMIN]).toHaveLength(35);
     expect(rolePermissions[roles.REGIONAL_DIRECTOR]).toHaveLength(31);
-    expect(rolePermissions[roles.TAE]).toHaveLength(18);
+    expect(rolePermissions[roles.TAE]).toHaveLength(19);
     expect(rolePermissions[roles.DIRECTOR]).toHaveLength(30);
     expect(rolePermissions[roles.OPERATIONS]).toHaveLength(12);
   });
@@ -77,5 +77,13 @@ describe('TUF compatibility role and permission foundation', () => {
     expect(hasPermission(legacyRep, permissions.CREATE_ORGANIZATION)).toBe(true);
     expect(() => requirePermission(legacyRep, permissions.SET_CLOSED_WON)).toThrow(PermissionDenied);
     expect(() => requirePermission(legacyRep, permissions.SET_CLOSED_WON)).toThrow('set_closed_won');
+  });
+
+  it('gives TAE EDIT_RELATIONSHIP_FIELDS permission for stage-based degradation', () => {
+    const taePerms = getPermissions('REP');
+    expect(taePerms.has(permissions.EDIT_RELATIONSHIP_FIELDS)).toBe(true);
+    // Directors and Ops do NOT have this permission
+    expect(getPermissions('DIRECTOR').has(permissions.EDIT_RELATIONSHIP_FIELDS)).toBe(false);
+    expect(getPermissions('operations').has(permissions.EDIT_RELATIONSHIP_FIELDS)).toBe(false);
   });
 });

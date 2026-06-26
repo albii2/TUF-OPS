@@ -28,6 +28,7 @@ export declare const permissions: {
     readonly VIEW_CERT_PROGRESS_TEAM: "view_cert_progress_team";
     readonly VIEW_RELATIONSHIP_HISTORY: "view_relationship_history";
     readonly LOG_RELATIONSHIP_ACTIVITY: "log_relationship_activity";
+    readonly EDIT_RELATIONSHIP_FIELDS: "edit_relationship_fields";
     readonly VIEW_RENEWAL_PIPELINE: "view_renewal_pipeline";
     readonly INVITE_USER: "invite_user";
     readonly DEACTIVATE_USER: "deactivate_user";
