@@ -18,8 +18,10 @@ exports.PermissionDenied = void 0;
 exports.hasPermission = hasPermission;
 exports.requirePermission = requirePermission;
 exports.requireRole = requireRole;
+const permissions_js_1 = require("./permissions.js");
 const roles_js_1 = require("./roles.js");
 __exportStar(require("./roles.js"), exports);
+__exportStar(require("./permissions.js"), exports);
 class PermissionDenied extends Error {
     statusCode = 403;
     constructor(message) {
@@ -32,15 +34,15 @@ function hasPermission(userOrRole, permission) {
     if (!userOrRole)
         return false;
     if (typeof userOrRole === 'string')
-        return (0, roles_js_1.getPermissions)(userOrRole).has(permission);
+        return (0, permissions_js_1.getPermissions)(userOrRole).has(permission);
     const roles = userOrRole.roles?.length ? userOrRole.roles : userOrRole.role ? [userOrRole.role] : [];
-    return roles.some((role) => (0, roles_js_1.getPermissions)(role).has(permission));
+    return roles.some((role) => (0, permissions_js_1.getPermissions)(role).has(permission));
 }
 function requirePermission(userOrRole, permission) {
     if (hasPermission(userOrRole, permission))
         return;
     const rawRole = typeof userOrRole === 'string' ? userOrRole : userOrRole?.role ?? userOrRole?.roles?.[0] ?? 'anonymous';
-    const normalized = (0, roles_js_1.normalizeRole)(rawRole)?.valueOf() ?? String(rawRole);
+    const normalized = (0, roles_js_1.normalizeRole)(rawRole) ?? String(rawRole);
     throw new PermissionDenied(`Permission '${permission}' required. Your role '${normalized}' does not have it.`);
 }
 function requireRole(userOrRole, role) {

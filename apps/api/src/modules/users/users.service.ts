@@ -78,15 +78,8 @@ function sanitizeUser(row: any): SafeUser {
   return safe as SafeUser;
 }
 
-function normalizeRbacRole(role: string) {
-  if (role === 'REP' || role === 'tae') return 'tae';
-  if (role === 'DIRECTOR' || role === 'ADMIN' || role === 'director') return 'director';
-  if (role === 'REGIONAL_DIRECTOR' || role === 'OPS' || role === 'OPERATIONS' || role === 'operations') return 'operations';
-  return role;
-}
-
 function assertAdmin(actor?: SafeUser | null) {
-  if (!actor || normalizeRbacRole(actor.role) !== 'director') throw new Error('Only Director users can manage credentials');
+  if (!actor || actor.role !== 'ADMIN') throw new Error('Only Owner/Admin users can manage credentials');
 }
 
 async function audit(action: CredentialAuditAction, targetUserId: number | null, actorUserId?: number | null, metadata: Record<string, unknown> = {}) {
@@ -132,7 +125,7 @@ export async function createUserWithTemporaryCredential(payload: CreateUserPaylo
     [
       payload.name.trim(),
       payload.email.trim(),
-      normalizeRbacRole(payload.role),
+      payload.role,
       payload.rank ?? null,
       payload.tier ?? null,
       payload.region ?? null,

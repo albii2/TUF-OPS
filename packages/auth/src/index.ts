@@ -1,6 +1,8 @@
-import { getPermissions, normalizeRole, type Permission, type Role } from './roles.js';
+import { getPermissions, type Permission } from './permissions.js';
+import { normalizeRole, type Role } from './roles.js';
 
 export * from './roles.js';
+export * from './permissions.js';
 
 export interface User {
   id: string | number;
@@ -28,7 +30,7 @@ export function hasPermission(userOrRole: User | Role | string | null | undefine
 export function requirePermission(userOrRole: User | Role | string | null | undefined, permission: Permission): void {
   if (hasPermission(userOrRole, permission)) return;
   const rawRole = typeof userOrRole === 'string' ? userOrRole : userOrRole?.role ?? userOrRole?.roles?.[0] ?? 'anonymous';
-  const normalized = normalizeRole(rawRole)?.valueOf() ?? String(rawRole);
+  const normalized = normalizeRole(rawRole) ?? String(rawRole);
   throw new PermissionDenied(`Permission '${permission}' required. Your role '${normalized}' does not have it.`);
 }
 

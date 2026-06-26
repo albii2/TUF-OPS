@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { hasPermission, permissions } from "@/lib/permissions";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -27,7 +28,7 @@ export async function GET() {
   const totalRevenue = totalRevenueResult._sum.amount?.toNumber() || 0;
 
   let directorData = null;
-  if (session.user.role === "admin") {
+  if (hasPermission(session.user.role, permissions.VIEW_ADMIN_DASHBOARD)) {
     const totalCostResult = await prisma.uniformOrder.aggregate({
       _sum: {
         vendor_cost: true,
