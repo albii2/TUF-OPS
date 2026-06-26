@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createActivity, getActivitiesByOpportunity, getActivitiesByOrganization, markActivityComplete } from './activities.service';
+import { createActivity, getActivitiesByOpportunity, getActivitiesByOrganization, markActivityComplete, createRepActivity, getRepActivitiesByOpportunity } from './activities.service';
 import { ActivityType } from './activities.interface';
 
 export async function createActivityHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -35,4 +35,43 @@ export async function markActivityCompleteHandler(request: FastifyRequest, reply
     }
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
+}
+
+// RepActivity handlers (prospecting activity logging)
+export async function createRepActivityHandler(request: FastifyRequest, reply: FastifyReply) {
+  const currentUser = request.currentUser;
+  if (!currentUser?.id) {
+    return reply.code(401).send({ message: 'Authentication required' });
+  }
+
+  const { opportunity_id, activity_type, notes } = request.body as any;
+
+  try {
+    const activity = await createRepActivity({
+      user_id: currentUser.id,
+      opportunity_id,
+      activity_type,
+      notes,
+    });
+    return reply.code(201).send(activity);
+  } catch (error: any) {
+    if (error.message.includes('Invalid activity_type')) {
+      return reply.code(400).send({ message: error.message });
+    }
+    if (error.message.includes('required')) {
+      return reply.code(400).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
+}
+
+export async function getRepActivitiesByOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { opportunity_id } = request.query as any;
+
+  if (!opportunity_id) {
+    return reply.code(400).send({ message: 'opportunity_id query parameter is required' });
+  }
+
+  const activities = await getRepActivitiesByOpportunity(Number(opportunity_id));
+  return reply.send(activities);
 }
