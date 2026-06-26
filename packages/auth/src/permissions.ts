@@ -29,6 +29,7 @@ export const permissions = {
   VIEW_CERT_PROGRESS_TEAM: 'view_cert_progress_team',
   VIEW_RELATIONSHIP_HISTORY: 'view_relationship_history',
   LOG_RELATIONSHIP_ACTIVITY: 'log_relationship_activity',
+  EDIT_RELATIONSHIP_FIELDS: 'edit_relationship_fields',
   VIEW_RENEWAL_PIPELINE: 'view_renewal_pipeline',
   INVITE_USER: 'invite_user',
   DEACTIVATE_USER: 'deactivate_user',
@@ -46,7 +47,7 @@ const TAE_PERMISSIONS = [
   permissions.ADVANCE_STAGE_PRE_CW, permissions.VIEW_FULFILLMENT_STAGE, permissions.VIEW_PRODUCTION_DETAILS,
   permissions.VIEW_UNASSIGNED_LEADS, permissions.CLAIM_UNASSIGNED_LEAD, permissions.VIEW_PERSONAL_PIPELINE,
   permissions.VIEW_CERT_PROGRESS_OWN, permissions.VIEW_RELATIONSHIP_HISTORY, permissions.LOG_RELATIONSHIP_ACTIVITY,
-  permissions.VIEW_RENEWAL_PIPELINE, permissions.VIEW_ACADEMY_MODULES, permissions.VIEW_GUIDED_TOURS,
+  permissions.EDIT_RELATIONSHIP_FIELDS, permissions.VIEW_RENEWAL_PIPELINE, permissions.VIEW_ACADEMY_MODULES, permissions.VIEW_GUIDED_TOURS,
 ] as const;
 
 const DIRECTOR_PERMISSIONS = [

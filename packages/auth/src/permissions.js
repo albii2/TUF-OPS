@@ -32,6 +32,7 @@ exports.permissions = {
     VIEW_CERT_PROGRESS_TEAM: 'view_cert_progress_team',
     VIEW_RELATIONSHIP_HISTORY: 'view_relationship_history',
     LOG_RELATIONSHIP_ACTIVITY: 'log_relationship_activity',
+    EDIT_RELATIONSHIP_FIELDS: 'edit_relationship_fields',
     VIEW_RENEWAL_PIPELINE: 'view_renewal_pipeline',
     INVITE_USER: 'invite_user',
     DEACTIVATE_USER: 'deactivate_user',
@@ -45,7 +46,7 @@ const TAE_PERMISSIONS = [
     exports.permissions.ADVANCE_STAGE_PRE_CW, exports.permissions.VIEW_FULFILLMENT_STAGE, exports.permissions.VIEW_PRODUCTION_DETAILS,
     exports.permissions.VIEW_UNASSIGNED_LEADS, exports.permissions.CLAIM_UNASSIGNED_LEAD, exports.permissions.VIEW_PERSONAL_PIPELINE,
     exports.permissions.VIEW_CERT_PROGRESS_OWN, exports.permissions.VIEW_RELATIONSHIP_HISTORY, exports.permissions.LOG_RELATIONSHIP_ACTIVITY,
-    exports.permissions.VIEW_RENEWAL_PIPELINE, exports.permissions.VIEW_ACADEMY_MODULES, exports.permissions.VIEW_GUIDED_TOURS,
+    exports.permissions.EDIT_RELATIONSHIP_FIELDS, exports.permissions.VIEW_RENEWAL_PIPELINE, exports.permissions.VIEW_ACADEMY_MODULES, exports.permissions.VIEW_GUIDED_TOURS,
 ];
 const DIRECTOR_PERMISSIONS = [
     exports.permissions.CREATE_ORGANIZATION, exports.permissions.VIEW_ORGANIZATION_OWN, exports.permissions.VIEW_ORGANIZATION_TEAM,
