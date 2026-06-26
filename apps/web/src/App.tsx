@@ -18,6 +18,7 @@ import {
   SettingsPage,
   TerritoryPage,
   TerritoryMapPage,
+  TerritoryMapView,
   MyOpportunitiesPage,
   TeamOpportunitiesPage,
   TeamPerformancePage,
@@ -130,7 +131,7 @@ export default function App() {
         <Route path="/reports" element={<CertificationProtected user={user} path="/reports"><PageProtected user={user} path="/reports"><ReportsPage /></PageProtected></CertificationProtected>} />
         <Route path="/earnings" element={<CertificationProtected user={user} path="/earnings"><PageProtected user={user} path="/earnings"><EarningsPage /></PageProtected></CertificationProtected>} />
         <Route path="/territory" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected></CertificationProtected>} />
-        <Route path="/territory/map" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected></CertificationProtected>} />
+        <Route path="/territory/map" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryMapView /></PageProtected></CertificationProtected>} />
         <Route path="/settings" element={<CertificationProtected user={user} path="/settings"><PageProtected user={user} path="/settings"><SettingsPage /></PageProtected></CertificationProtected>} />
         <Route path="/users" element={<CertificationProtected user={user} path="/users"><PageProtected user={user} path="/users"><UsersPage /></PageProtected></CertificationProtected>} />
       </Route>
