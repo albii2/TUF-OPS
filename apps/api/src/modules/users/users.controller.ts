@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { changeOwnCredential, createUserWithTemporaryCredential, listUsers, loginWithCredential, resetUserCredential, verifyAuthToken } from './users.service';
+import { changeOwnCredential, certifyUser, createUserWithTemporaryCredential, listUsers, loginWithCredential, resetUserCredential, verifyAuthToken } from './users.service';
 import type { SafeUser } from './users.interface';
 
 function bearerToken(request: FastifyRequest) {
@@ -81,4 +81,15 @@ export async function loginHandler(request: FastifyRequest, reply: FastifyReply)
   const result = await loginWithCredential(request.body as any);
   if (!result) return reply.code(401).send({ error: 'Invalid credentials' });
   return reply.send(result);
+}
+
+export async function certifyUserHandler(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  const actor = await requireAuthenticatedUser(request, reply);
+  if (!actor) return;
+  try {
+    const user = await certifyUser(Number(request.params.id), actor);
+    return reply.send({ user });
+  } catch (error) {
+    return handleError(reply, error);
+  }
 }
