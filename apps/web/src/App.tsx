@@ -31,6 +31,15 @@ import LockerRoomSimulatorPage from './pages/LockerRoomSimulatorPage';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
 
+// Routes that are always accessible regardless of certification status
+const UNCERTIFIED_ACCESSIBLE_PATHS = new Set([
+  '/training',
+  '/training/simulator',
+  '/login',
+  '/change-credential',
+  '/dashboard',
+]);
+
 function Protected({ user, children }: { user: AppUser | null; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   return children;
@@ -47,6 +56,27 @@ function PageProtected({ user, path, children }: { user: AppUser | null; path: s
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
   if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/training') return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
+/**
+ * Certification gate: uncertified REP users are redirected to the Academy.
+ * Non-REP roles (ADMIN, DIRECTOR, REGIONAL_DIRECTOR) bypass this gate.
+ * Training, login, change-credential, and dashboard paths are always accessible.
+ */
+function CertificationProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
+
+  // Non-REP roles are not gated by certification
+  if (user.role !== 'REP') return children;
+
+  // REP users: allow access to training portal and essential paths
+  if (UNCERTIFIED_ACCESSIBLE_PATHS.has(path)) return children;
+
+  // REP users: gate CRM access behind certification
+  if (!user.isCertified) return <Navigate to="/training" replace />;
+
   return children;
 }
 
@@ -75,21 +105,21 @@ export default function App() {
         }
       >
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
-        <Route path="/dashboard" element={<PageProtected user={user} path="/dashboard">{dashboard}</PageProtected>} />
+        <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{dashboard}</PageProtected></CertificationProtected>} />
         <Route path="/training" element={<PageProtected user={user} path="/training"><TrainingPage /></PageProtected>} />
         <Route path="/training/simulator" element={<PageProtected user={user} path="/training"><LockerRoomSimulatorPage /></PageProtected>} />
-        <Route path="/organizations" element={<PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected>} />
-        <Route path="/organizations/new" element={<PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected>} />
-        <Route path="/organizations/:id" element={<PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected>} />
-        <Route path="/ecosystem-pipeline" element={<PageProtected user={user} path="/ecosystem-pipeline"><EcosystemPipelinePage /></PageProtected>} />
-        <Route path="/opportunities" element={<PageProtected user={user} path="/opportunities"><OpportunitiesPage /></PageProtected>} />
-        <Route path="/opportunities/new" element={<PageProtected user={user} path="/opportunities"><OpportunityNewPage /></PageProtected>} />
-        <Route path="/opportunities/:id" element={<PageProtected user={user} path="/opportunities"><OpportunityDetailPage /></PageProtected>} />
-        <Route path="/my-opportunities" element={<PageProtected user={user} path="/my-opportunities"><MyOpportunitiesPage /></PageProtected>} />
-        <Route path="/team-opportunities" element={<PageProtected user={user} path="/team-opportunities"><TeamOpportunitiesPage /></PageProtected>} />
-        <Route path="/team-performance" element={<PageProtected user={user} path="/team-performance"><TeamPerformancePage /></PageProtected>} />
-        <Route path="/orders" element={<PageProtected user={user} path="/orders"><OrdersPage /></PageProtected>} />
-        <Route path="/orders/:id" element={<PageProtected user={user} path="/orders"><OrderDetailPage /></PageProtected>} />
+        <Route path="/organizations" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected></CertificationProtected>} />
+        <Route path="/organizations/new" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected></CertificationProtected>} />
+        <Route path="/organizations/:id" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected></CertificationProtected>} />
+        <Route path="/ecosystem-pipeline" element={<CertificationProtected user={user} path="/ecosystem-pipeline"><PageProtected user={user} path="/ecosystem-pipeline"><EcosystemPipelinePage /></PageProtected></CertificationProtected>} />
+        <Route path="/opportunities" element={<CertificationProtected user={user} path="/opportunities"><PageProtected user={user} path="/opportunities"><OpportunitiesPage /></PageProtected></CertificationProtected>} />
+        <Route path="/opportunities/new" element={<CertificationProtected user={user} path="/opportunities"><PageProtected user={user} path="/opportunities"><OpportunityNewPage /></PageProtected></CertificationProtected>} />
+        <Route path="/opportunities/:id" element={<CertificationProtected user={user} path="/opportunities"><PageProtected user={user} path="/opportunities"><OpportunityDetailPage /></PageProtected></CertificationProtected>} />
+        <Route path="/my-opportunities" element={<CertificationProtected user={user} path="/my-opportunities"><PageProtected user={user} path="/my-opportunities"><MyOpportunitiesPage /></PageProtected></CertificationProtected>} />
+        <Route path="/team-opportunities" element={<CertificationProtected user={user} path="/team-opportunities"><PageProtected user={user} path="/team-opportunities"><TeamOpportunitiesPage /></PageProtected></CertificationProtected>} />
+        <Route path="/team-performance" element={<CertificationProtected user={user} path="/team-performance"><PageProtected user={user} path="/team-performance"><TeamPerformancePage /></PageProtected></CertificationProtected>} />
+        <Route path="/orders" element={<CertificationProtected user={user} path="/orders"><PageProtected user={user} path="/orders"><OrdersPage /></PageProtected></CertificationProtected>} />
+        <Route path="/orders/:id" element={<CertificationProtected user={user} path="/orders"><PageProtected user={user} path="/orders"><OrderDetailPage /></PageProtected></CertificationProtected>} />
         <Route
           path="/ops-workspace"
           element={
@@ -98,12 +128,12 @@ export default function App() {
             </RoleProtected>
           }
         />
-        <Route path="/reports" element={<PageProtected user={user} path="/reports"><ReportsPage /></PageProtected>} />
-        <Route path="/earnings" element={<PageProtected user={user} path="/earnings"><EarningsPage /></PageProtected>} />
-        <Route path="/territory" element={<PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected>} />
-        <Route path="/territory/map" element={<PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected>} />
-        <Route path="/settings" element={<PageProtected user={user} path="/settings"><SettingsPage /></PageProtected>} />
-        <Route path="/users" element={<PageProtected user={user} path="/users"><UsersPage /></PageProtected>} />
+        <Route path="/reports" element={<CertificationProtected user={user} path="/reports"><PageProtected user={user} path="/reports"><ReportsPage /></PageProtected></CertificationProtected>} />
+        <Route path="/earnings" element={<CertificationProtected user={user} path="/earnings"><PageProtected user={user} path="/earnings"><EarningsPage /></PageProtected></CertificationProtected>} />
+        <Route path="/territory" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected></CertificationProtected>} />
+        <Route path="/territory/map" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryMapPage /></PageProtected></CertificationProtected>} />
+        <Route path="/settings" element={<CertificationProtected user={user} path="/settings"><PageProtected user={user} path="/settings"><SettingsPage /></PageProtected></CertificationProtected>} />
+        <Route path="/users" element={<CertificationProtected user={user} path="/users"><PageProtected user={user} path="/users"><UsersPage /></PageProtected></CertificationProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>
