@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest, preHandlerHookHandler } from 'fastify';
-import { getPermissions, hasPermission, permissions, PermissionDenied, type Permission } from '@packages/auth';
+import { getPermissions, hasPermission, permissions, PermissionDenied, STAGES, type Permission } from '@packages/auth';
 import { verifyAuthToken } from './modules/users/users.service';
 import type { SafeUser } from './modules/users/users.interface';
 import { getOpportunityById } from './modules/opportunities/opportunities.service';
@@ -32,9 +32,13 @@ export function permissionErrorHandler(error: unknown, reply: FastifyReply) {
  * TAE edit permissions degrade at these stages.
  */
 const POST_CLOSED_WON_STAGES: Set<string> = new Set([
-  OpportunityStage.CLOSED_WON,
-  // Post-Closed Won fulfillment stages (not yet implemented, reserved per SOS 8.2):
-  // 'READY_FOR_OPS', 'IN_PRODUCTION', 'QC', 'SHIPPED', 'DELIVERED'
+  STAGES.CLOSED_WON,
+  // Post-Closed Won fulfillment stages (lowercase canonical values)
+  STAGES.READY_FOR_OPS,
+  STAGES.IN_PRODUCTION,
+  STAGES.QUALITY_CONTROL,
+  STAGES.SHIPPED,
+  STAGES.DELIVERED,
 ]);
 
 /**

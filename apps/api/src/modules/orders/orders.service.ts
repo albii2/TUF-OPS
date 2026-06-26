@@ -1,14 +1,14 @@
 
 import { pool } from '@packages/database';
 import type { Pool, PoolClient } from 'pg';
-import { OpportunityStage } from '../opportunities/opportunities.interface';
+import { STAGES } from '@packages/auth';
 import { Order, OrderStatus } from './orders.interface';
 
 type OpportunityForOrder = {
     id: number;
     organization_id: number;
     deal_type: string;
-    stage: OpportunityStage;
+    stage: string;
     assigned_rep_id?: number;
     assigned_director_id?: number;
 };
@@ -55,7 +55,7 @@ export async function createOrderFromOpportunity(opportunityId: number, options?
             throw new Error('Opportunity not found');
         }
 
-        if (opportunity.stage !== OpportunityStage.CLOSED_WON) {
+        if (opportunity.stage !== 'CLOSED_WON' && opportunity.stage !== STAGES.CLOSED_WON) {
             throw new Error('Only CLOSED_WON opportunities can be converted to orders');
         }
 

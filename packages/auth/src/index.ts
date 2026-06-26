@@ -3,6 +3,7 @@ import { normalizeRole, type Role } from './roles.js';
 
 export * from './roles.js';
 export * from './permissions.js';
+export * from './stages.js';
 
 export interface User {
   id: string | number;
