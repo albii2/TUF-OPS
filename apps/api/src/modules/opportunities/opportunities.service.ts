@@ -1,5 +1,6 @@
 import { pool } from '@packages/database';
-import { Opportunity, OpportunityStage, OpportunityStageHistory, OpportunityChannelType } from './opportunities.interface';
+import { STAGES, isValidTransition, isSalesStage, isFulfillmentStage } from '@packages/auth';
+import { Opportunity, OpportunityStageHistory, OpportunityChannelType, CanonicalStage } from './opportunities.interface';
 import { createCommission } from '../commissions/commissions.service';
 
 const REQUIRED_CHANNELS: OpportunityChannelType[] = [
@@ -20,21 +21,36 @@ export async function getOpportunityById(id: number): Promise<Opportunity> {
     return result.rows[0];
 }
 
-const VALID_TRANSITIONS: Record<string, OpportunityStage[]> = {
-  [OpportunityStage.LEAD_ENGAGED]: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.DISCOVERY]: [OpportunityStage.MOCKUP_STAGE, OpportunityStage.MOCKUP_REQUESTED, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.MOCKUP_STAGE]: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.INVOICE_SENT]: [OpportunityStage.DECISION_PENDING, OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
-  [OpportunityStage.CLOSED_WON]: [],
-  [OpportunityStage.CLOSED_LOST]: [],
-
-  // Legacy mappings for backward compatibility:
-  LEAD_ASSIGNED: [OpportunityStage.CONTACTED, OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
-  CONTACTED: [OpportunityStage.DISCOVERY, OpportunityStage.CLOSED_LOST],
-  MOCKUP_REQUESTED: [OpportunityStage.MOCKUP_DELIVERED, OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
-  MOCKUP_DELIVERED: [OpportunityStage.INVOICE_SENT, OpportunityStage.CLOSED_LOST],
-  DECISION_PENDING: [OpportunityStage.CLOSED_WON, OpportunityStage.CLOSED_LOST],
+// Legacy transition compatibility map — maps old UPPER_CASE stage values to canonical
+// lowercase stages. Used only for backward compatibility during migration.
+const LEGACY_TO_CANONICAL: Record<string, string> = {
+  'LEAD_ASSIGNED': STAGES.LEAD,
+  'LEAD_ENGAGED': STAGES.LEAD,
+  'CONTACTED': STAGES.CONTACTED,
+  'CONTACT_INITIATED': STAGES.CONTACTED,
+  'DISCOVERY': STAGES.PROPOSAL_SENT,
+  'MOCKUP_REQUESTED': STAGES.PROPOSAL_SENT,
+  'MOCKUP_STAGE': STAGES.PROPOSAL_SENT,
+  'MOCKUP_IN_PROGRESS': STAGES.PROPOSAL_SENT,
+  'MOCKUP_DELIVERED': STAGES.NEGOTIATION,
+  'MOCKUP_APPROVED': STAGES.NEGOTIATION,
+  'INVOICE_SENT': STAGES.ORDER_ASSEMBLY,
+  'SAMPLE_REQUESTED': STAGES.ORDER_ASSEMBLY,
+  'DECISION_PENDING': STAGES.DIRECTOR_QA,
+  'SAMPLE_IN_PRODUCTION': STAGES.DIRECTOR_QA,
+  'SAMPLE_APPROVED': STAGES.DIRECTOR_QA,
+  'PAYMENT_RECEIVED': STAGES.DIRECTOR_QA,
+  'CLOSED_WON': STAGES.CLOSED_WON,
+  'CLOSED_LOST': STAGES.CLOSED_LOST,
 };
+
+function normalizeStage(input: string): string {
+  // If already canonical, return as-is
+  const canonicalValues = new Set<string>(Object.values(STAGES));
+  if (canonicalValues.has(input)) return input;
+  // Map legacy to canonical
+  return LEGACY_TO_CANONICAL[input] ?? input;
+}
 
 function normalizeChannelType(value: unknown): OpportunityChannelType | null {
   if (!value || typeof value !== 'string') {
@@ -88,7 +104,7 @@ export async function createOpportunity(opportunity: Partial<Opportunity>): Prom
       value ?? 0,
       created_by,
       updated_by,
-      stage || OpportunityStage.LEAD_ASSIGNED,
+      normalizeStage(stage ?? '') || STAGES.LEAD,
       next_action,
       expected_close_date,
       last_activity_date || new Date(),
@@ -118,11 +134,11 @@ export async function getOrganizationChannelPenetration(organizationId: number) 
     [organizationId]
   );
 
-  const channels = {
-    uniform: OpportunityStage.LEAD_ENGAGED,
-    travel_gear: OpportunityStage.LEAD_ENGAGED,
-    team_store: OpportunityStage.LEAD_ENGAGED,
-    letterman: OpportunityStage.LEAD_ENGAGED,
+  const channels: Record<string, string> = {
+    uniform: STAGES.LEAD,
+    travel_gear: STAGES.LEAD,
+    team_store: STAGES.LEAD,
+    letterman: STAGES.LEAD,
   };
 
   for (const row of result.rows) {
@@ -132,7 +148,7 @@ export async function getOrganizationChannelPenetration(organizationId: number) 
     if (row.channel_type === OpportunityChannelType.LETTERMAN) channels.letterman = row.stage;
   }
 
-  const closedWonCount = Object.values(channels).filter((stageValue) => stageValue === OpportunityStage.CLOSED_WON).length;
+  const closedWonCount = Object.values(channels).filter((stageValue) => stageValue === STAGES.CLOSED_WON).length;
 
   return {
     channels,
@@ -142,7 +158,7 @@ export async function getOrganizationChannelPenetration(organizationId: number) 
 
 export async function updateOpportunityStage(
   opportunityId: number,
-  toStage: OpportunityStage,
+  toStage: string,
   changedBy: number,
   note?: string,
   financialData?: Partial<Opportunity>
@@ -162,9 +178,11 @@ export async function updateOpportunityStage(
 
     const currentOpp = currentOpportunityResult.rows[0];
     const fromStage = currentOpp.stage;
-    const isValidTransition = Boolean(VALID_TRANSITIONS[fromStage]?.includes(toStage));
+    const normalizedFrom = normalizeStage(String(fromStage));
+    const normalizedTo = normalizeStage(String(toStage));
 
-    if (!isValidTransition) {
+    // Validate transition using canonical stages from @packages/auth
+    if (!isValidTransition(normalizedFrom as any, normalizedTo as any)) {
       throw new Error(`Invalid stage transition from ${fromStage} to ${toStage}`);
     }
 
@@ -175,7 +193,7 @@ export async function updateOpportunityStage(
     let actual_cost: number | undefined | null = currentOpp.actual_cost ?? null;
     let loss_reason: string | undefined | null = currentOpp.loss_reason ?? null;
 
-    if (toStage === OpportunityStage.CLOSED_WON) {
+    if (normalizedTo === STAGES.CLOSED_WON) {
       actual_revenue = mergedFinancialData.actual_revenue;
       actual_cost = mergedFinancialData.actual_cost;
       if (actual_revenue === null || actual_cost === null || actual_revenue === undefined || actual_cost === undefined) {
@@ -187,7 +205,7 @@ export async function updateOpportunityStage(
       }
       closed_at = new Date();
       loss_reason = null;
-    } else if (toStage === OpportunityStage.CLOSED_LOST) {
+    } else if (normalizedTo === STAGES.CLOSED_LOST) {
       loss_reason = mergedFinancialData.loss_reason;
       if (!loss_reason) {
         throw new Error('loss_reason is required to close an opportunity as lost');
@@ -215,7 +233,7 @@ export async function updateOpportunityStage(
        WHERE id = $9
        RETURNING *`,
       [
-        toStage,
+        normalizedTo,
         actionTimestamp,
         actual_revenue,
         actual_cost,
@@ -234,7 +252,7 @@ export async function updateOpportunityStage(
       [opportunityId, fromStage, toStage, changedBy, note]
     );
 
-    if (toStage === OpportunityStage.CLOSED_WON) {
+    if (normalizedTo === STAGES.CLOSED_WON) {
       await createCommission(updatedOpp, client);
       const existingOrderResult = await client.query<{ id: number }>(
         'SELECT id FROM orders WHERE opportunity_id = $1 LIMIT 1',
