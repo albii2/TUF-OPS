@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GlassCard } from '../components/ui';
 import { getStoredUser } from '../auth';
+import { markPageVisited } from '../lib/academy';
 import type { Role } from '../types';
 import { useActivities } from '../hooks/useReports';
 import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
@@ -74,6 +76,7 @@ function ActivityFeed({ title, activities }: { title: string; activities: Return
 }
 
 export function DashboardPage({ role }: { role: Role }) {
+  useEffect(() => { markPageVisited('dashboard'); }, []);
   const opportunities = useOpportunities({});
   const organizations = useOrganizations({});
   const orders = useOrders({});

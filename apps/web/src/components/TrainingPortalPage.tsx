@@ -7,6 +7,22 @@ export default function TrainingPortalPage() {
   const user = getStoredUser();
   const userId = user ? user.id : 'u-rep-jason-mulder';
   const isAdminOrDirector = user && (user.role === 'ADMIN' || user.role === 'DIRECTOR' || user.role === 'REGIONAL_DIRECTOR');
+  const isCertified = user?.isCertified === true;
+  const hrDocsDone = user?.hrDocsCompleted === true;
+  const practicalDone = user?.practicalExerciseCompleted === true;
+  const directorDone = user?.directorSignedOff === true;
+
+  const certificationLabel = isCertified
+    ? 'CRM Access: CERTIFIED ✓'
+    : 'CRM Access: GATED — Complete Academy to Unlock';
+
+  const gateStatuses = user?.role === 'REP'
+    ? [
+        { label: 'HR Docs', done: hrDocsDone },
+        { label: 'Practical Exercise', done: practicalDone },
+        { label: 'Director Signoff', done: directorDone },
+      ]
+    : [];
 
   return (
     <div className="min-h-screen text-slate-100 p-4 md:p-8">
@@ -20,7 +36,27 @@ export default function TrainingPortalPage() {
               <p className="mt-4 text-xs font-black uppercase tracking-[0.24em] text-cyan-200">Sales Enablement • CRM Sandbox • Operational Resources</p>
               <h1 className="mt-3 text-2xl font-black leading-tight text-white md:text-4xl">TUF Ops Onboarding & Resource Hub</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">Access CRM training tools, sales playbooks, operations checklists, and territory launch manuals to accelerate your sales pipeline.</p>
-              <p className="mt-3 text-xs font-bold uppercase tracking-wider text-cyan-300">Rep Role • CRM Access: UNGATED / ACTIVE</p>
+              <div className="mt-3 space-y-1.5">
+                <p className={`text-xs font-bold uppercase tracking-wider ${isCertified ? 'text-emerald-300' : 'text-amber-300'}`}>
+                  {certificationLabel}
+                </p>
+                {gateStatuses.length > 0 && (
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    {gateStatuses.map((gate) => (
+                      <span
+                        key={gate.label}
+                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
+                          gate.done
+                            ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
+                            : 'border-slate-700 bg-slate-800/40 text-slate-400'
+                        }`}
+                      >
+                        {gate.done ? '✓' : '○'} {gate.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

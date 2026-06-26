@@ -12,6 +12,44 @@ declare module 'fastify' {
   }
 }
 
+/**
+ * Fields stripped from API responses for the Operations role.
+ * Operations sees only fulfillment-relevant data — no pricing,
+ * pipeline metrics, or sales KPIs.
+ */
+const OPERATIONS_EXCLUDED_FIELDS = new Set([
+  'value',
+  'estimated_revenue',
+  'expected_close_date',
+] as const);
+
+/**
+ * Serialize response data based on the requesting user's role.
+ *
+ * When the caller has the Operations role, pricing, pipeline-metric,
+ * and sales-KPI fields are stripped from the payload.  All other roles
+ * receive the response unchanged.
+ */
+export function serializeForRole<T extends Record<string, unknown> | Array<Record<string, unknown>>>(
+  data: T,
+  role: unknown,
+): T {
+  if (!isOperations(role)) return data;
+
+  if (Array.isArray(data)) {
+    return data.map((item) => stripOperationsFields(item)) as T;
+  }
+  return stripOperationsFields(data) as T;
+}
+
+function stripOperationsFields<T extends Record<string, unknown>>(obj: T): T {
+  const result = { ...obj };
+  for (const field of OPERATIONS_EXCLUDED_FIELDS) {
+    delete (result as Record<string, unknown>)[field];
+  }
+  return result as T;
+}
+
 export async function authMiddleware(request: FastifyRequest) {
   const authorization = request.headers.authorization;
   const token = authorization?.startsWith('Bearer ') ? authorization.slice('Bearer '.length) : undefined;
@@ -67,6 +105,40 @@ export function requirePermission(permission: Permission): preHandlerHookHandler
       done(new PermissionDenied(`Permission '${permission}' required. Your role '${request.currentUser.role}' does not have it.`));
       return;
     }
+    done();
+  };
+}
+
+/**
+ * Certification gate: uncertified REP users are blocked from CRM API routes.
+ * Non-REP roles (ADMIN, DIRECTOR, REGIONAL_DIRECTOR) bypass this gate.
+ *
+ * REP users who have not completed Academy certification (hr_docs + practical
+ * exercise + director signoff) receive 403 until certified.  This middleware is
+ * intended for CRM resource routes (organizations, opportunities, orders, etc.)
+ * and should NOT be applied to auth or training endpoints.
+ */
+export function requireCertification(): preHandlerHookHandler {
+  return (request, reply, done) => {
+    if (process.env.CERTIFICATION_GATING_ENABLED === 'false') return done();
+
+    const user = request.currentUser;
+    if (!user) {
+      reply.code(401).send({ error: 'Authentication required' });
+      return;
+    }
+
+    // Only REP users are gated by certification
+    if (user.role !== 'REP' && user.role !== 'sales_rep') return done();
+
+    if (!user.is_certified) {
+      reply.code(403).send({
+        error: 'Certification required',
+        message: 'You must complete TUF Academy certification before accessing CRM features. Visit /training to get started.',
+      });
+      return;
+    }
+
     done();
   };
 }
