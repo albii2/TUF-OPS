@@ -1,5 +1,5 @@
 import { pool } from '@packages/database';
-import { OpportunityStage } from '../opportunities/opportunities.interface';
+import { STAGES, normalizeStage } from '@packages/auth';
 
 export interface DashboardMetrics {
   assigned_schools: number;
