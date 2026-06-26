@@ -282,7 +282,7 @@ export const SALES_PHILOSOPHY: PhilosophyPrinciple[] = [
   {
     number: 2,
     title: 'Relationships compound.',
-    meaning: "Every closed deal feeds the next one. Short-term deals don't build the company — relationships do.",
+    meaning: "Every closed deal feeds the next one. Short-term deals don't build a strong pipeline — relationships do.",
   },
   {
     number: 3,
