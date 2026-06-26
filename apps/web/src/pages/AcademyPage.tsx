@@ -395,9 +395,21 @@ export default function AcademyPage() {
                     </span>
                   </div>
                   <h3 className="text-base font-black text-white mb-1.5">{module.name}</h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-3">
+                  <p className="text-xs text-slate-400 leading-relaxed mb-2">
                     {module.description}
                   </p>
+
+                  {/* Learning Content — expandable study section */}
+                  {(status === 'available' || status === 'quiz_available') && module.learningContent && (
+                    <details className="mb-3 rounded-lg bg-slate-950/50 border border-blue-900/30 overflow-hidden group">
+                      <summary className="cursor-pointer px-3 py-2 text-xs font-bold text-blue-300 uppercase tracking-wider hover:text-blue-200 select-none">
+                        📖 Study: What You Need to Learn
+                      </summary>
+                      <div className="px-3 pb-3 pt-1 text-xs text-slate-300 leading-relaxed whitespace-pre-line border-t border-blue-900/20">
+                        {module.learningContent}
+                      </div>
+                    </details>
+                  )}
 
                   {/* Exercise Progress Bar */}
                   {showExerciseBar && progress && (

@@ -19,6 +19,8 @@ export interface AcademyModule {
   code: AcademyModuleCode;
   name: string;
   description: string;
+  /** Instructional content the rep studies BEFORE taking the quiz */
+  learningContent: string;
   completionCriteria: string;
   /** The SOS Sales Philosophy principle this module reinforces */
   philosophyPrinciple: number;
@@ -40,6 +42,18 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
     code: 'ACAD-101',
     name: 'Pipeline Management',
     description: 'Create and manage a healthy pipeline of 12+ active opportunities.',
+    learningContent: `Your pipeline is the single most important number in your business. It tells you — and your Director — exactly how much revenue is coming, when it's coming, and whether you're on track.
+
+What is a pipeline? It's your list of active opportunities, organized by stage: from Lead (a program you haven't contacted yet) through Closed Won (payment collected, deal done). Each opportunity moves through stages as you advance the relationship.
+
+Your target is 12 active opportunities at all times — that's 3x your monthly goal of 4 closed deals. This buffer ensures a bad week doesn't become a bad month.
+
+Key concepts:
+• Pipeline Health = active opportunities ÷ 12. 100% means you're on track.
+• Stage Distribution: not all opportunities should be in the same stage. A healthy pipeline has deals spread across stages.
+• Stale deals: if an opportunity stays in one stage more than 14 days, something is stuck — take action or move on.
+
+Sales Philosophy principle: Pipeline predicts revenue. If you want to know what next month looks like, look at your pipeline today — not what you closed last month.`,
     completionCriteria: '12+ active opportunities (pipeline health ≥ 100%)',
     philosophyPrinciple: 6, // Pipeline predicts revenue
   },
@@ -47,6 +61,18 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
     code: 'ACAD-102',
     name: 'Organization Management',
     description: 'Create complete organization records for every athletic program.',
+    learningContent: `Every deal lives under an organization. An organization is the school, club, or program you're selling to. Treat organization records as relationship infrastructure — not clerical paperwork.
+
+A complete organization record includes: school name, sport, address, team colors, and primary coach contact (name, phone, email). Incomplete records cause problems downstream — wrong shipping addresses, unreachable coaches, duplicate entries.
+
+Think of it this way: the organization record is the first artifact of your relationship with a coach. If you can't get their school name and phone number right, why would they trust you with their uniform order?
+
+Best practices:
+• Create the organization BEFORE your first conversation — have it ready.
+• Verify details during your call: "Just confirming — you're at Lincoln High School, football program, correct?"
+• One coach, one organization. Don't create duplicates.
+
+Sales Philosophy principle: We sell trust before apparel. Getting the details right IS the first sale.`,
     completionCriteria: '10+ organizations created with required fields',
     philosophyPrinciple: 2, // Relationships compound
   },
@@ -54,6 +80,19 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
     code: 'ACAD-103',
     name: 'Opportunity Creation',
     description: 'Create opportunities with accurate stage and value across the pipeline.',
+    learningContent: `An opportunity is a potential deal — a specific uniform order you're working on for a specific program. Every opportunity lives inside an organization and moves through stages from Lead to Closed Won.
+
+Accuracy matters more than volume. An opportunity with the wrong stage distorts your pipeline health — making it look healthier or weaker than it really is. Your Director coaches from pipeline data. If the data is wrong, the coaching is wrong.
+
+The 12 stages of a TUF opportunity:
+Lead → Contacted → Proposal Sent → Negotiation → Order Assembly → Director QA → Closed Won (your job ends here) → Ready for Ops → In Production → Quality Control → Shipped → Delivered
+
+Key rules:
+• Every opportunity must have a deal value (estimated order amount).
+• Stage must reflect reality — not your hope. "Proposal Sent" means you actually sent it.
+• Never skip stages. Each stage represents work done. Skipping skips the work.
+
+Sales Philosophy principle: Activity creates opportunity. Every call, every visit, every follow-up builds your pipeline.`,
     completionCriteria: '15+ opportunities across ≥ 4 stages',
     philosophyPrinciple: 5, // Activity creates opportunity
   },
@@ -61,6 +100,20 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
     code: 'ACAD-104',
     name: 'Prospecting Fundamentals',
     description: 'Identify, qualify, and make first contact with athletic programs.',
+    learningContent: `Prospecting is the engine of your pipeline. Without new leads entering the top, your pipeline dries up — no matter how good you are at closing.
+
+Prospecting means finding athletic programs that need uniforms and making first contact. This isn't cold calling a stranger — it's introducing yourself to a coach who buys uniforms every season and may not have found the right vendor yet.
+
+The prospecting workflow:
+1. Identify programs in your territory (schools, clubs, travel teams)
+2. Research: what sport? what colors? when is their season?
+3. First contact: call or email the athletic director or head coach
+4. Qualify: do they buy custom uniforms? when? what's their budget range?
+5. Log the activity in TUF Ops — every call, every email, every meeting
+
+Key rule: Activity creates opportunity. The rep who makes 50 calls this week will have more pipeline than the rep who makes 5. There is no shortcut.
+
+Sales Philosophy principle: Coaches buy from people. You're not selling a product — you're introducing yourself as someone who solves uniform problems.`,
     completionCriteria: '15+ prospecting activities logged',
     philosophyPrinciple: 5, // Activity creates opportunity
   },
@@ -68,6 +121,20 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
     code: 'ACAD-105',
     name: 'TUF Ops Navigation',
     description: 'Navigate the TUF Ops system — Dashboard, Organizations, Opportunities.',
+    learningContent: `TUF Ops is where you'll spend your working day. It's your command center: track your pipeline, manage organizations, create opportunities, log activities, and communicate with your Director.
+
+The three core pages you'll use every day:
+• Dashboard — your home screen. Shows pipeline health, action items, active deals, and your monthly progress toward 4 closed orders.
+• Organizations — where you create and manage school/program records. Every deal lives under an organization.
+• Opportunities — your pipeline. Create deals, advance them through stages, log activities, and track progress.
+
+Key tips:
+• Start every day on the Dashboard. Check your action items first.
+• Use the sidebar to navigate — don't rely on browser back button.
+• Your Director can see your pipeline. Keep it accurate — it's how they coach you.
+• The Academy page (where you are now) is always accessible from the sidebar.
+
+Sales Philosophy principle: We sell trust before apparel. Learning the system thoroughly shows coaches you're prepared and professional.`,
     completionCriteria: 'All 3 core pages visited (Dashboard, Organizations, Opportunities) + Academy page',
     philosophyPrinciple: 1, // We sell trust before apparel
   },
