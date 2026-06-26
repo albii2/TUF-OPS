@@ -9,5 +9,5 @@ export async function userRoutes(server: FastifyInstance) {
   server.post('/users', createUserHandler);
   server.post('/users/:id/reset-credential', resetCredentialHandler);
   server.post('/users/me/change-credential', changeCredentialHandler);
-  server.put('/users/:id/certify', { preHandler: requirePermission(permissions.INVITE_USER) }, certifyUserHandler);
+  server.put('/users/:id/certify', { preHandler: requirePermission(permissions.INVITE_USER) }, certifyUserHandler as any);
 }

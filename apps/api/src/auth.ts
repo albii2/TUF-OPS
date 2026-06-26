@@ -1,5 +1,5 @@
 import type { FastifyReply, FastifyRequest, preHandlerHookHandler } from 'fastify';
-import { getPermissions, hasPermission, permissions, PermissionDenied, STAGES, type Permission } from '@packages/auth';
+import { getPermissions, hasPermission, isOperations, permissions, PermissionDenied, STAGES, type Permission } from '@packages/auth';
 import { verifyAuthToken } from './modules/users/users.service';
 import type { SafeUser } from './modules/users/users.interface';
 import { getOpportunityById } from './modules/opportunities/opportunities.service';
