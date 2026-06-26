@@ -11,7 +11,6 @@ import { SportsTicker } from './SportsTicker';
 import { listUsers } from '../services/usersService';
 import TufMarkSvg from '../assets/tuf-mark.svg';
 import TufAcademyLogo from '../assets/tuf-academy.png';
-import CrmWalkthroughTour from './academy/CrmWalkthroughTour';
 
 export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUser | null) => void }) {
   const navigate = useNavigate();
@@ -55,7 +54,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
       <div className="mx-auto grid min-h-screen max-w-[1200px] grid-cols-1 md:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="hidden border-r border-[var(--border)] bg-[#070c13]/95 p-3.5 md:flex md:flex-col">
           <div className="flex h-20 items-center justify-center px-1"><TufLogo compact /></div>
-          <NavLink to="/training" className={({ isActive }) => `mb-3 block rounded-xl border p-3 text-center transition ${isActive ? 'border-cyan-300/60 bg-cyan-400/10 shadow-lg shadow-cyan-950/30' : 'border-cyan-400/20 bg-[#050b12]/80 hover:border-cyan-300/50 hover:bg-[#0d2234]/70'}`}>
+          <NavLink to="/academy" className={({ isActive }) => `mb-3 block rounded-xl border p-3 text-center transition ${isActive ? 'border-cyan-300/60 bg-cyan-400/10 shadow-lg shadow-cyan-950/30' : 'border-cyan-400/20 bg-[#050b12]/80 hover:border-cyan-300/50 hover:bg-[#0d2234]/70'}`}>
             <img src={TufAcademyLogo} alt="TUF Academy" className="mx-auto h-10 w-auto object-contain" />
             <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em] text-cyan-200">Certification Hub</p>
           </NavLink>
@@ -81,7 +80,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
           <div className="mb-3 md:hidden">
             <div className="mb-2 flex h-16 items-center justify-center px-1"><TufLogo compact /></div>
             <nav className="flex gap-2 overflow-x-auto pb-1">
-              <NavLink to="/training" className={({ isActive }) => `flex shrink-0 items-center justify-center rounded-md border px-3 py-2 ${isActive ? 'border-cyan-300/60 bg-cyan-400/10' : 'border-cyan-400/20 bg-[#0b1118]'}`}>
+              <NavLink to="/academy" className={({ isActive }) => `flex shrink-0 items-center justify-center rounded-md border px-3 py-2 ${isActive ? 'border-cyan-300/60 bg-cyan-400/10' : 'border-cyan-400/20 bg-[#0b1118]'}`}>
                 <img src={TufAcademyLogo} alt="TUF Academy" className="h-7 w-auto object-contain" />
               </NavLink>
               {navItems.filter((nav) => nav.key !== 'academy').map((nav) => (
@@ -125,7 +124,6 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
             {searchMessage ? <p className="mt-2 text-xs text-amber-200">{searchMessage}</p> : null}
           </header>
           <Outlet />
-          <CrmWalkthroughTour />
         </main>
       </div>
       <div className="pointer-events-none fixed inset-x-0 bottom-2 z-0 flex justify-center md:bottom-4">
