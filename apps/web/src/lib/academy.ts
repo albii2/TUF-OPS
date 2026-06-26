@@ -115,8 +115,20 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
         body: 'TUF targets four healthy orders per month, every month. Consistency over size. Four consistent orders beat one lucky whale. This baseline keeps your pipeline healthy and your activity consistent.',
       },
       {
-        heading: 'Lane Penetration',
-        body: 'Every athletic program has multiple sales lanes: football jerseys, basketball uniforms, fan gear, coaching apparel, spirit wear, team stores. Your job is to penetrate every lane in every program — not just sell one sport and move on. Deep accounts beat wide territories.',
+        heading: 'The Four Revenue Lanes',
+        body: 'TUF operates four fixed revenue lanes — not product categories. Every sport fits into these four lanes. Understanding this is the foundation of TUF economics:\n\n1. Uniforms — Game-day kits, jerseys, pants, shorts, practice wear.\n2. Travel Gear — Bags, warm-ups, hoodies, jackets, team travel apparel.\n3. Team Stores — Online storefront where parents and fans buy spirit wear.\n4. Letterman Jackets — Varsity jackets, senior awards, achievement gear.\n\nThese are NOT products. A football jersey is a product within the Uniforms lane. A hoodie is a product within the Travel Gear lane. The lanes are the revenue streams — the products are what you sell within each lane.',
+      },
+      {
+        heading: 'Revenue Opportunities — The TUF Economics',
+        body: 'Every sport inside an athletic department creates four core revenue opportunities for TUF:\n\n• Uniforms\n• Travel Gear\n• Team Stores\n• Letterman Jackets\n\nA Revenue Opportunity = one sport × one lane.\n\nExample: Football has 4 revenue opportunities (uniforms + travel gear + team store + letterman jackets). A school with 12 sports has 48 total revenue opportunities (12 × 4).\n\nYour responsibility is to maximize revenue by developing all four opportunities within every sport you manage. This is why TUF measures lane penetration — not just total sales.',
+      },
+      {
+        heading: 'Understanding Account Penetration',
+        body: 'Account Penetration is the percentage of revenue opportunities you have won within an account. It is the single most important number for a TUF rep.\n\nExample: Spring Lake Park High School\nFootball: ✓ Uniforms  ✗ Travel Gear  ✗ Team Store  ✗ Letterman Jackets\nBasketball: ✓ Uniforms  ✓ Travel Gear  ✗ Team Store  ✗ Letterman Jackets\nBaseball: ✗ Uniforms  ✗ Travel Gear  ✗ Team Store  ✗ Letterman Jackets\n...across all 12 sports...\n\nOverall Account Penetration: 11 / 48 Revenue Opportunities = 23%\n\nNow you instantly understand what success looks like. Your job is to increase that percentage — sport by sport, lane by lane. A rep at 23% penetration has 37 untapped revenue opportunities sitting inside an account they already have a relationship with. That is TUF economics.',
+      },
+      {
+        heading: 'Standard TUF Terminology',
+        body: 'Use this vocabulary consistently. It becomes the operating language of your territory:\n\n• Account = School, club, or organization.\n• Sport = Football, Baseball, Volleyball, etc.\n• Lane = One of the four recurring revenue streams (Uniforms, Travel Gear, Team Stores, Letterman Jackets).\n• Revenue Opportunity = One sport × one lane.\n• Account Penetration = Revenue opportunities won ÷ total revenue opportunities.\n• Territory Penetration = Combined penetration across every assigned account.\n\nThis vocabulary is durable. Everyone — TAEs, Directors, executives — knows exactly what "we\'re at 42% penetration in this account" means without discussing individual products.',
       },
       {
         heading: 'The 7 Sales Philosophy Principles',
@@ -177,8 +189,8 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
         body: 'Discovery is the conversation where you learn everything about a program’s needs — not the conversation where you pitch your product. The rep who listens most wins most. Ask open-ended questions, take detailed notes, and resist the urge to sell until you understand.',
       },
       {
-        heading: 'Sales Lanes Explained',
-        body: 'Sales lanes are the distinct product categories a program might need: football jerseys, basketball uniforms, fan gear, coaching apparel, spirit wear, team stores. Every program has multiple lanes. Your job is to identify ALL of them — not just the one the coach mentioned first.',
+        heading: 'Identifying Revenue Lanes',
+        body: 'During discovery, your job is to identify which of the four revenue lanes apply to each sport in the program. The four lanes are fixed: Uniforms, Travel Gear, Team Stores, Letterman Jackets.\n\nAsk the coach about each lane explicitly:\n• "What do you currently do for game uniforms?"\n• "Do your teams travel with matching warm-ups or bags?"\n• "Do you have an online store for parents and fans?"\n• "Do you order letterman jackets or senior achievement gear?"\n\nEvery sport may have different lane penetration. Football might have uniforms and travel gear but no team store. Basketball might only have uniforms. Your discovery notes should map every sport to every lane — checked or unchecked.\n\nRemember: products live inside lanes. Don\'t ask "do you need basketball jerseys?" — ask "what does your basketball uniform program look like?" Then identify the products within that lane.',
       },
       {
         heading: 'Recording Needs Correctly',
@@ -359,10 +371,10 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       id: '101-q3',
       question: 'What is lane penetration?',
       options: [
-        'Identifying and selling into ALL applicable sales lanes within a program (football, basketball, fan gear, etc.)',
+        'The percentage of the four revenue lanes (Uniforms, Travel Gear, Team Stores, Letterman Jackets) you have won across all sports in an account',
         'Focusing on a single sport per program',
         'Expanding into new geographic territories',
-        'Reducing the number of product options offered to a program',
+        'Reducing the number of products offered to a program',
       ],
       correctIndex: 0,
     },
@@ -427,9 +439,9 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
   'ACAD-103': [
     {
       id: '103-q1',
-      question: 'What are sales lanes?',
+      question: 'What are the four TUF revenue lanes?',
       options: [
-        'Distinct product categories within a program — e.g., football jerseys, basketball, fan gear, coaching apparel',
+        'Uniforms, Travel Gear, Team Stores, Letterman Jackets — the four recurring revenue streams every sport generates',
         'Geographic territories assigned to each rep',
         'The stages in the sales pipeline',
         'Different pricing tiers for uniforms',
