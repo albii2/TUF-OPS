@@ -50,7 +50,14 @@ function repScope(repId: number): Scope {
 }
 
 function directorScope(directorId: number): Scope {
-  return { where: 'WHERE org.assigned_director_id = $1', params: [directorId], commissionVisibility: 'director' };
+  return {
+    where: `WHERE org.assigned_director_id = $1
+      AND (org.assigned_rep_id IS NULL OR org.assigned_rep_id NOT IN (
+        SELECT u.id FROM users u WHERE u.role IN ('ADMIN', 'OWNER')
+      ))`,
+    params: [directorId],
+    commissionVisibility: 'director',
+  };
 }
 
 function adminScope(): Scope {
