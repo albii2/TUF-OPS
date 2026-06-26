@@ -357,7 +357,7 @@ function LearnContentModal({
               <h3 className="text-sm font-black text-cyan-200 mb-2">
                 {section.heading}
               </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
+              <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-line">
                 {section.body}
               </p>
             </div>
