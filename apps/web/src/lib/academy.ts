@@ -641,7 +641,7 @@ export function detectAllModules(): ModuleProgress[] {
     'ACAD-105': acad105,
   };
 
-  const extraData: Record<AcademyModuleCode, string> = {
+  const extraData: Partial<Record<AcademyModuleCode, string>> = {
     'ACAD-103': `${acad103.stagesUsed} stages`,
     'ACAD-105': acad105.visitedPages.join(', ') || 'none visited',
   };
