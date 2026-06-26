@@ -1,8 +1,9 @@
-import { getPermissions, hasPermission, isAdmin, isDirector, isOperations, isTae, normalizeRole, permissions, requirePermission, roles, rolePermissions, PermissionDenied, type User } from '../index';
+import { getPermissions, hasPermission, isAdmin, isDirector, isOperations, isRegionalDirector, isTae, normalizeRole, permissions, requirePermission, roles, rolePermissions, PermissionDenied, type User } from '../index';
 
 describe('TUF compatibility role and permission foundation', () => {
   it('normalizes existing database roles to canonical app roles', () => {
     expect(normalizeRole('ADMIN')).toBe(roles.ADMIN);
+    expect(normalizeRole('REGIONAL_DIRECTOR')).toBe(roles.REGIONAL_DIRECTOR);
     expect(normalizeRole('DIRECTOR')).toBe(roles.DIRECTOR);
     expect(normalizeRole('REP')).toBe(roles.TAE);
     expect(normalizeRole('sales_rep')).toBe(roles.TAE);
@@ -11,6 +12,7 @@ describe('TUF compatibility role and permission foundation', () => {
 
   it('exposes role predicate helpers on normalized roles', () => {
     expect(isAdmin('ADMIN')).toBe(true);
+    expect(isRegionalDirector('REGIONAL_DIRECTOR')).toBe(true);
     expect(isDirector('DIRECTOR')).toBe(true);
     expect(isTae('REP')).toBe(true);
     expect(isTae('sales_rep')).toBe(true);
@@ -20,11 +22,12 @@ describe('TUF compatibility role and permission foundation', () => {
 
   it('defines exactly 34 permissions and canonical roles including operations', () => {
     expect(Object.keys(permissions)).toHaveLength(34);
-    expect(Object.values(roles)).toEqual(['admin', 'director', 'tae', 'operations']);
+    expect(Object.values(roles)).toEqual(['admin', 'regional_director', 'director', 'tae', 'operations']);
   });
 
   it('maps canonical role permission counts safely', () => {
     expect(rolePermissions[roles.ADMIN]).toHaveLength(34);
+    expect(rolePermissions[roles.REGIONAL_DIRECTOR]).toHaveLength(31);
     expect(rolePermissions[roles.TAE]).toHaveLength(18);
     expect(rolePermissions[roles.DIRECTOR]).toHaveLength(30);
     expect(rolePermissions[roles.OPERATIONS]).toHaveLength(12);
@@ -39,6 +42,13 @@ describe('TUF compatibility role and permission foundation', () => {
     }
   });
 
+  it('gives REGIONAL_DIRECTOR more than state director but less than admin permissions', () => {
+    const perms = getPermissions('REGIONAL_DIRECTOR');
+    expect(perms.has(permissions.SET_CLOSED_WON)).toBe(true);
+    expect(perms.has(permissions.VIEW_OPERATIONS_QUEUE)).toBe(true);
+    expect(perms.has(permissions.UPDATE_FULFILLMENT_STAGE)).toBe(false);
+  });
+
   it('gives DIRECTOR director permissions', () => {
     const perms = getPermissions('DIRECTOR');
     expect(perms.has(permissions.SET_CLOSED_WON)).toBe(true);
@@ -51,6 +61,7 @@ describe('TUF compatibility role and permission foundation', () => {
     expect(perms.has(permissions.CONFIGURE_TERRITORY)).toBe(true);
     expect(perms.has(permissions.UPDATE_FULFILLMENT_STAGE)).toBe(true);
     expect(perms.has(permissions.CREATE_OPPORTUNITY)).toBe(true);
+    expect(perms.size).toBe(Object.keys(permissions).length);
   });
 
   it('unknown roles fail safely without privileged permissions', () => {

@@ -62,6 +62,11 @@ const DIRECTOR_PERMISSIONS = [
   permissions.VIEW_ACADEMY_MODULES, permissions.VIEW_GUIDED_TOURS,
 ] as const;
 
+const REGIONAL_DIRECTOR_PERMISSIONS = [
+  ...DIRECTOR_PERMISSIONS,
+  permissions.VIEW_OPERATIONS_QUEUE,
+] as const;
+
 const OPERATIONS_PERMISSIONS = [
   permissions.VIEW_ORGANIZATION_OWN, permissions.VIEW_ORGANIZATION_TEAM, permissions.VIEW_OPPORTUNITY_OWN,
   permissions.VIEW_OPPORTUNITY_TEAM, permissions.EDIT_OPPORTUNITY_POST_CW, permissions.ADVANCE_STAGE_POST_CW,
@@ -71,6 +76,7 @@ const OPERATIONS_PERMISSIONS = [
 
 export const rolePermissions: Record<Role, readonly Permission[]> = {
   [roles.ADMIN]: Object.values(permissions),
+  [roles.REGIONAL_DIRECTOR]: REGIONAL_DIRECTOR_PERMISSIONS,
   [roles.DIRECTOR]: DIRECTOR_PERMISSIONS,
   [roles.TAE]: TAE_PERMISSIONS,
   [roles.OPERATIONS]: OPERATIONS_PERMISSIONS,

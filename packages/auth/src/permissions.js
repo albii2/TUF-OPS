@@ -59,6 +59,10 @@ const DIRECTOR_PERMISSIONS = [
     exports.permissions.VIEW_RENEWAL_PIPELINE, exports.permissions.INVITE_USER, exports.permissions.DEACTIVATE_USER, exports.permissions.CONFIGURE_TERRITORY,
     exports.permissions.VIEW_ACADEMY_MODULES, exports.permissions.VIEW_GUIDED_TOURS,
 ];
+const REGIONAL_DIRECTOR_PERMISSIONS = [
+    ...DIRECTOR_PERMISSIONS,
+    exports.permissions.VIEW_OPERATIONS_QUEUE,
+];
 const OPERATIONS_PERMISSIONS = [
     exports.permissions.VIEW_ORGANIZATION_OWN, exports.permissions.VIEW_ORGANIZATION_TEAM, exports.permissions.VIEW_OPPORTUNITY_OWN,
     exports.permissions.VIEW_OPPORTUNITY_TEAM, exports.permissions.EDIT_OPPORTUNITY_POST_CW, exports.permissions.ADVANCE_STAGE_POST_CW,
@@ -67,6 +71,7 @@ const OPERATIONS_PERMISSIONS = [
 ];
 exports.rolePermissions = {
     [roles_js_1.roles.ADMIN]: Object.values(exports.permissions),
+    [roles_js_1.roles.REGIONAL_DIRECTOR]: REGIONAL_DIRECTOR_PERMISSIONS,
     [roles_js_1.roles.DIRECTOR]: DIRECTOR_PERMISSIONS,
     [roles_js_1.roles.TAE]: TAE_PERMISSIONS,
     [roles_js_1.roles.OPERATIONS]: OPERATIONS_PERMISSIONS,
