@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP';
+export type UserRole = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP' | 'sales_rep' | 'OPS' | 'OWNER';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 
 export type SafeUser = {

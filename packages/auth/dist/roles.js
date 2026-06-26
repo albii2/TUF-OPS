@@ -1,26 +1,51 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rolePermissions = exports.permissions = exports.roles = void 0;
+exports.roles = void 0;
+exports.normalizeRole = normalizeRole;
+exports.isAdmin = isAdmin;
+exports.isRegionalDirector = isRegionalDirector;
+exports.isDirector = isDirector;
+exports.isTae = isTae;
+exports.isOperations = isOperations;
 exports.roles = {
     ADMIN: 'admin',
-    USER: 'user',
+    REGIONAL_DIRECTOR: 'regional_director',
+    DIRECTOR: 'director',
+    TAE: 'tae',
+    OPERATIONS: 'operations',
 };
-exports.permissions = {
-    ORGANIZATIONS_READ: 'organizations:read',
-    ORGANIZATIONS_WRITE: 'organizations:write',
-    OPPORTUNITIES_READ: 'opportunities:read',
-    OPPORTUNITIES_WRITE: 'opportunities:write',
-};
-exports.rolePermissions = {
-    [exports.roles.ADMIN]: [
-        exports.permissions.ORGANIZATIONS_READ,
-        exports.permissions.ORGANIZATIONS_WRITE,
-        exports.permissions.OPPORTUNITIES_READ,
-        exports.permissions.OPPORTUNITIES_WRITE,
-    ],
-    [exports.roles.USER]: [
-        exports.permissions.ORGANIZATIONS_READ,
-        exports.permissions.OPPORTUNITIES_READ,
-    ],
-};
+function normalizeRole(role) {
+    if (typeof role !== 'string')
+        return null;
+    const trimmed = role.trim();
+    if (!trimmed)
+        return null;
+    const lower = trimmed.toLowerCase();
+    if (trimmed === 'ADMIN' || trimmed === 'OWNER' || lower === exports.roles.ADMIN || lower === 'owner')
+        return exports.roles.ADMIN;
+    if (trimmed === 'REGIONAL_DIRECTOR' || lower === exports.roles.REGIONAL_DIRECTOR || lower === 'regional director')
+        return exports.roles.REGIONAL_DIRECTOR;
+    if (trimmed === 'DIRECTOR' || lower === exports.roles.DIRECTOR)
+        return exports.roles.DIRECTOR;
+    if (trimmed === 'REP' || lower === 'sales_rep' || lower === exports.roles.TAE)
+        return exports.roles.TAE;
+    if (trimmed === 'OPS' || trimmed === 'OPERATIONS' || lower === exports.roles.OPERATIONS || lower === 'ops')
+        return exports.roles.OPERATIONS;
+    return null;
+}
+function isAdmin(role) {
+    return normalizeRole(role) === exports.roles.ADMIN;
+}
+function isRegionalDirector(role) {
+    return normalizeRole(role) === exports.roles.REGIONAL_DIRECTOR;
+}
+function isDirector(role) {
+    return normalizeRole(role) === exports.roles.DIRECTOR;
+}
+function isTae(role) {
+    return normalizeRole(role) === exports.roles.TAE;
+}
+function isOperations(role) {
+    return normalizeRole(role) === exports.roles.OPERATIONS;
+}
 //# sourceMappingURL=roles.js.map

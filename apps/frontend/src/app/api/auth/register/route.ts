@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
+import { isTae } from '@/lib/roles'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, fullName, role = 'sales_rep' } = await request.json()
+    const { email, password, fullName, role: requestedRole = 'sales_rep' } = await request.json()
+    const role = isTae(requestedRole) ? requestedRole : 'sales_rep'
 
     if (!email || !password) {
       return NextResponse.json(

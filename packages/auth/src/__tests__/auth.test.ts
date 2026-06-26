@@ -1,28 +1,81 @@
-import { hasPermission, roles, permissions, User } from '../index.js';
+import { getPermissions, hasPermission, isAdmin, isDirector, isOperations, isRegionalDirector, isTae, normalizeRole, permissions, requirePermission, roles, rolePermissions, PermissionDenied, type User } from '../index';
 
-describe('hasPermission', () => {
-  it('should return true for a user with the required permission', () => {
-    const user: User = { id: '1', roles: [roles.ADMIN] };
-    expect(hasPermission(user, permissions.ORGANIZATIONS_WRITE)).toBe(true);
+describe('TUF compatibility role and permission foundation', () => {
+  it('normalizes existing database roles to canonical app roles', () => {
+    expect(normalizeRole('ADMIN')).toBe(roles.ADMIN);
+    expect(normalizeRole('REGIONAL_DIRECTOR')).toBe(roles.REGIONAL_DIRECTOR);
+    expect(normalizeRole('DIRECTOR')).toBe(roles.DIRECTOR);
+    expect(normalizeRole('REP')).toBe(roles.TAE);
+    expect(normalizeRole('sales_rep')).toBe(roles.TAE);
+    expect(normalizeRole('operations')).toBe(roles.OPERATIONS);
   });
 
-  it('should return false for a user without the required permission', () => {
-    const user: User = { id: '1', roles: [roles.USER] };
-    expect(hasPermission(user, permissions.ORGANIZATIONS_WRITE)).toBe(false);
+  it('exposes role predicate helpers on normalized roles', () => {
+    expect(isAdmin('ADMIN')).toBe(true);
+    expect(isRegionalDirector('REGIONAL_DIRECTOR')).toBe(true);
+    expect(isDirector('DIRECTOR')).toBe(true);
+    expect(isTae('REP')).toBe(true);
+    expect(isTae('sales_rep')).toBe(true);
+    expect(isOperations('operations')).toBe(true);
+    expect(isAdmin('REP')).toBe(false);
   });
 
-  it('should return false for a user with no roles', () => {
-    const user: User = { id: '1', roles: [] };
-    expect(hasPermission(user, permissions.ORGANIZATIONS_READ)).toBe(false);
+  it('defines exactly 34 permissions and canonical roles including operations', () => {
+    expect(Object.keys(permissions)).toHaveLength(34);
+    expect(Object.values(roles)).toEqual(['admin', 'regional_director', 'director', 'tae', 'operations']);
   });
 
-  it('should return false for a null or undefined user', () => {
-    expect(hasPermission(null!, permissions.ORGANIZATIONS_READ)).toBe(false);
-    expect(hasPermission(undefined!, permissions.ORGANIZATIONS_READ)).toBe(false);
+  it('maps canonical role permission counts safely', () => {
+    expect(rolePermissions[roles.ADMIN]).toHaveLength(34);
+    expect(rolePermissions[roles.REGIONAL_DIRECTOR]).toHaveLength(31);
+    expect(rolePermissions[roles.TAE]).toHaveLength(18);
+    expect(rolePermissions[roles.DIRECTOR]).toHaveLength(30);
+    expect(rolePermissions[roles.OPERATIONS]).toHaveLength(12);
   });
 
-  it('should handle users with multiple roles', () => {
-    const user: User = { id: '1', roles: [roles.USER, roles.ADMIN] };
-    expect(hasPermission(user, permissions.ORGANIZATIONS_WRITE)).toBe(true);
+  it('gives REP and sales_rep the TAE permission profile', () => {
+    for (const legacyRole of ['REP', 'sales_rep']) {
+      const perms = getPermissions(legacyRole);
+      expect(perms.has(permissions.CREATE_ORGANIZATION)).toBe(true);
+      expect(perms.has(permissions.SET_CLOSED_WON)).toBe(false);
+      expect(perms.has(permissions.UPDATE_FULFILLMENT_STAGE)).toBe(false);
+    }
+  });
+
+  it('gives REGIONAL_DIRECTOR more than state director but less than admin permissions', () => {
+    const perms = getPermissions('REGIONAL_DIRECTOR');
+    expect(perms.has(permissions.SET_CLOSED_WON)).toBe(true);
+    expect(perms.has(permissions.VIEW_OPERATIONS_QUEUE)).toBe(true);
+    expect(perms.has(permissions.UPDATE_FULFILLMENT_STAGE)).toBe(false);
+  });
+
+  it('gives DIRECTOR director permissions', () => {
+    const perms = getPermissions('DIRECTOR');
+    expect(perms.has(permissions.SET_CLOSED_WON)).toBe(true);
+    expect(perms.has(permissions.ASSIGN_LEAD_TEAM)).toBe(true);
+    expect(perms.has(permissions.UPDATE_FULFILLMENT_STAGE)).toBe(false);
+  });
+
+  it('gives ADMIN admin permissions', () => {
+    const perms = getPermissions('ADMIN');
+    expect(perms.has(permissions.CONFIGURE_TERRITORY)).toBe(true);
+    expect(perms.has(permissions.UPDATE_FULFILLMENT_STAGE)).toBe(true);
+    expect(perms.has(permissions.CREATE_OPPORTUNITY)).toBe(true);
+    expect(perms.size).toBe(Object.keys(permissions).length);
+  });
+
+  it('unknown roles fail safely without privileged permissions', () => {
+    expect(normalizeRole('nonexistent')).toBeNull();
+    expect(getPermissions('nonexistent').size).toBe(0);
+    expect(hasPermission('nonexistent', permissions.CONFIGURE_TERRITORY)).toBe(false);
+  });
+
+  it('evaluates permissions for users and throws descriptive permission errors', () => {
+    const director: User = { id: 1, role: 'DIRECTOR' };
+    const legacyRep: User = { id: 2, roles: ['REP'] };
+    expect(hasPermission(director, permissions.SET_CLOSED_WON)).toBe(true);
+    expect(hasPermission(legacyRep, permissions.CREATE_ORGANIZATION)).toBe(true);
+    expect(() => requirePermission(legacyRep, permissions.SET_CLOSED_WON)).toThrow(PermissionDenied);
+    expect(() => requirePermission(legacyRep, permissions.SET_CLOSED_WON)).toThrow('set_closed_won');
   });
 });
