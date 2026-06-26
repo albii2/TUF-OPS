@@ -2,9 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { StageProgress } from '@/components/stage-progress'
 
 interface Note {
@@ -36,6 +39,20 @@ interface Opportunity {
   rep_activities: Activity[];
 }
 
+const ACTIVITY_TYPES = [
+  { value: 'call', label: '📞 Call' },
+  { value: 'email', label: '✉️ Email' },
+  { value: 'meeting', label: '🤝 Meeting' },
+  { value: 'note', label: '📝 Note' },
+];
+
+const ALLOWED_ROLES = ['admin', 'regional_director', 'director', 'tae'];
+
+function canLogActivity(role: string | undefined): boolean {
+  if (!role) return false;
+  return ALLOWED_ROLES.includes(role.toLowerCase());
+}
+
 const TUF_STAGES = [
   'Prospect',
   'Engage',
@@ -51,8 +68,13 @@ export default function OpportunityDetailPage() {
   const [opportunity, setOpportunity] = useState<Opportunity | null>(null)
   const [loading, setLoading] = useState(true)
   const [newNote, setNewNote] = useState('');
+  const [newActivityType, setNewActivityType] = useState('call');
+  const [newActivityNotes, setNewActivityNotes] = useState('');
+  const [loggingActivity, setLoggingActivity] = useState(false);
+  const [showActivityForm, setShowActivityForm] = useState(false);
   const params = useParams()
   const router = useRouter()
+  const { data: session } = useSession();
   const id = params.id
 
   useEffect(() => {
@@ -117,6 +139,42 @@ export default function OpportunityDetailPage() {
       }
     } catch (error) {
       console.error('Failed to add note', error);
+    }
+  };
+
+  const handleAddActivity = async () => {
+    if (!opportunity || !newActivityNotes.trim()) return;
+
+    setLoggingActivity(true);
+    try {
+      const response = await fetch('/api/activities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          opportunity_id: opportunity.id,
+          activity_type: newActivityType,
+          notes: newActivityNotes,
+        }),
+      });
+
+      if (response.ok) {
+        const createdActivity = await response.json();
+        setOpportunity(prev => prev ? {
+          ...prev,
+          rep_activities: [createdActivity, ...prev.rep_activities]
+        } : null);
+        setNewActivityNotes('');
+        setShowActivityForm(false);
+      } else {
+        const errData = await response.json().catch(() => ({}));
+        console.error('Failed to log activity:', errData.error || response.statusText);
+      }
+    } catch (error) {
+      console.error('Failed to log activity', error);
+    } finally {
+      setLoggingActivity(false);
     }
   };
 
@@ -190,6 +248,65 @@ export default function OpportunityDetailPage() {
             }
           </CardContent>
           </Card>
+          {canLogActivity((session?.user as any)?.role) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Log Activity</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {!showActivityForm ? (
+                  <Button variant="outline" onClick={() => setShowActivityForm(true)} className="w-full">
+                    + Log Call / Email / Meeting
+                  </Button>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="activity-type">Activity Type</Label>
+                      <Select value={newActivityType} onValueChange={setNewActivityType}>
+                        <SelectTrigger id="activity-type">
+                          <SelectValue placeholder="Select type..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ACTIVITY_TYPES.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="activity-notes">Notes</Label>
+                      <Textarea
+                        id="activity-notes"
+                        value={newActivityNotes}
+                        onChange={(e) => setNewActivityNotes(e.target.value)}
+                        placeholder="What happened in this interaction?"
+                        rows={3}
+                      />
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={handleAddActivity}
+                        disabled={loggingActivity || !newActivityNotes.trim()}
+                        size="sm"
+                      >
+                        {loggingActivity ? 'Saving...' : 'Save Activity'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => { setShowActivityForm(false); setNewActivityNotes(''); }}
+                        size="sm"
+                        disabled={loggingActivity}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Notes</CardTitle>
