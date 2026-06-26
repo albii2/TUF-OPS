@@ -1294,14 +1294,19 @@ function updateUserCertificationStatus(
  * Call the server-side certify endpoint to persist is_certified in the database.
  */
 async function callCertifyApi(userId: string): Promise<void> {
-  // Use a dynamic approach to avoid import.meta issues in test environments
   const API_BASE = typeof window !== 'undefined' && (window as any).__VITE_API_BASE_URL__
     ? (window as any).__VITE_API_BASE_URL__
     : '/api';
-  const numericId = userId.replace(/\\D/g, '');
-  const response = await fetch(`${API_BASE}/v1/users/${numericId}/certify`, {
+  const numericId = userId.replace(/\D/g, '');
+  // Auth token from localStorage for the Director performing the certification
+  const rawUser = localStorage.getItem('tuf_ops_user_v3');
+  const token = rawUser ? JSON.parse(rawUser).token : null;
+  const response = await fetch(`${API_BASE}/v1/auth/users/${numericId}/certify`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
   if (!response.ok) {
     throw new Error(`Certify API returned ${response.status}`);
