@@ -231,3 +231,25 @@ export async function seedInitialOwnerIfEmpty(initialCredential?: string) {
 }
 
 export const __test = { sanitizeUser, audit, createAuthToken, verifyAuthToken, getAuthTokenSecret, getBootstrapOwnerCredential };
+
+/**
+ * Certify a user as having completed Academy training.
+ * Only callable by users with INVITE_USER permission (Director+).
+ */
+export async function certifyUser(userId: number, actor: SafeUser): Promise<SafeUser> {
+  // Only Director+ can certify
+  if (!actor || (actor.role !== 'ADMIN' && actor.role !== 'DIRECTOR' && actor.role !== 'REGIONAL_DIRECTOR')) {
+    throw new Error('Only Director/Admin users can certify reps');
+  }
+
+  const result = await pool.query(
+    `UPDATE users SET is_certified = true, director_signed_off = true, updated_at = NOW()
+     WHERE id = $1 AND (role = 'REP' OR role = 'sales_rep')
+     RETURNING id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed, created_at, updated_at`,
+    [userId],
+  );
+
+  if (!result.rows[0]) throw new Error('User not found or cannot be certified');
+
+  return sanitizeUser(result.rows[0]);
+}

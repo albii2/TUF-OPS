@@ -794,6 +794,12 @@ export function directorApproveRep(
   // Clear the submission after approval
   clearSubmission(repUserId);
 
+  // ALSO update the server-side is_certified flag via API
+  // This ensures the requireCertification() middleware allows CRM API access
+  callCertifyApi(repUserId).catch((err) => {
+    console.warn('[TUF Academy] Failed to sync certification to server:', err);
+  });
+
   return record;
 }
 
@@ -829,5 +835,21 @@ function updateUserCertificationStatus(userId: string, isCertified: boolean): vo
     }
   } catch {
     // fail silently
+  }
+}
+
+/**
+ * Call the server-side certify endpoint to persist is_certified in the database.
+ * This is the mirror of the PUT /api/v1/users/:id/certify endpoint.
+ */
+async function callCertifyApi(userId: string): Promise<void> {
+  const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
+  const numericId = userId.replace(/\\D/g, '');
+  const response = await fetch(`${API_BASE}/v1/users/${numericId}/certify`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Certify API returned ${response.status}`);
   }
 }
