@@ -11,6 +11,7 @@ exports.resetUserCredential = resetUserCredential;
 exports.loginWithCredential = loginWithCredential;
 exports.changeOwnCredential = changeOwnCredential;
 exports.seedInitialOwnerIfEmpty = seedInitialOwnerIfEmpty;
+exports.certifyUser = certifyUser;
 const crypto_1 = require("crypto");
 const database_1 = require("@packages/database");
 const credentials_1 = require("./credentials");
@@ -95,7 +96,7 @@ async function audit(action, targetUserId, actorUserId, metadata = {}) {
     await database_1.pool.query('INSERT INTO credential_audit_logs (action, target_user_id, actor_user_id, metadata) VALUES ($1, $2, $3, $4)', [action, targetUserId, actorUserId ?? null, JSON.stringify(scrubbed)]);
 }
 async function getSafeUserById(id) {
-    const result = await database_1.pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at FROM users WHERE id = $1', [id]);
+    const result = await database_1.pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed, created_at, updated_at FROM users WHERE id = $1', [id]);
     return result.rows[0] ? sanitizeUser(result.rows[0]) : null;
 }
 async function getUserWithCredentialById(id) {
@@ -108,7 +109,7 @@ async function getUserWithCredentialByEmail(email) {
 }
 async function listUsers(actor) {
     assertAdmin(actor);
-    const result = await database_1.pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at FROM users ORDER BY name');
+    const result = await database_1.pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed, created_at, updated_at FROM users ORDER BY name');
     return result.rows.map(sanitizeUser);
 }
 async function createUserWithTemporaryCredential(payload, actor) {
@@ -214,4 +215,20 @@ async function seedInitialOwnerIfEmpty(initialCredential) {
      VALUES ($1, $2, 'ADMIN', 'Admin', 'National', 'All', 'National', 'All', 'All', $3, true, 'ACTIVE')`, ['Coach Bradshaw', 'owner@tuf.local', credentialHash]);
 }
 exports.__test = { sanitizeUser, audit, createAuthToken, verifyAuthToken, getAuthTokenSecret, getBootstrapOwnerCredential };
+/**
+ * Certify a user as having completed Academy training.
+ * Only callable by users with INVITE_USER permission (Director+).
+ */
+async function certifyUser(userId, actor) {
+    // Only Director+ can certify
+    if (!actor || (actor.role !== 'ADMIN' && actor.role !== 'DIRECTOR' && actor.role !== 'REGIONAL_DIRECTOR')) {
+        throw new Error('Only Director/Admin users can certify reps');
+    }
+    const result = await database_1.pool.query(`UPDATE users SET is_certified = true, director_signed_off = true, updated_at = NOW()
+     WHERE id = $1 AND (role = 'REP' OR role = 'sales_rep')
+     RETURNING id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed, created_at, updated_at`, [userId]);
+    if (!result.rows[0])
+        throw new Error('User not found or cannot be certified');
+    return sanitizeUser(result.rows[0]);
+}
 //# sourceMappingURL=users.service.js.map

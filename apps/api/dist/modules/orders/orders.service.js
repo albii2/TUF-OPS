@@ -9,7 +9,7 @@ exports.updateOrderStatus = updateOrderStatus;
 exports.getOrdersByVendor = getOrdersByVendor;
 exports.getOrdersByStatus = getOrdersByStatus;
 const database_1 = require("@packages/database");
-const opportunities_interface_1 = require("../opportunities/opportunities.interface");
+const auth_1 = require("@packages/auth");
 const orders_interface_1 = require("./orders.interface");
 async function getOrderById(id) {
     const result = await database_1.pool.query('SELECT * FROM orders WHERE id = $1', [id]);
@@ -44,7 +44,7 @@ async function createOrderFromOpportunity(opportunityId, options) {
         if (!opportunity) {
             throw new Error('Opportunity not found');
         }
-        if (opportunity.stage !== opportunities_interface_1.OpportunityStage.CLOSED_WON) {
+        if (opportunity.stage !== 'CLOSED_WON' && opportunity.stage !== auth_1.STAGES.CLOSED_WON) {
             throw new Error('Only CLOSED_WON opportunities can be converted to orders');
         }
         const existingOrderResult = await client.query('SELECT * FROM orders WHERE opportunity_id = $1', [opportunityId]);

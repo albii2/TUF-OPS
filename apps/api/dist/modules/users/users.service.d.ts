@@ -30,5 +30,10 @@ export declare const __test: {
     getAuthTokenSecret: typeof getAuthTokenSecret;
     getBootstrapOwnerCredential: typeof getBootstrapOwnerCredential;
 };
+/**
+ * Certify a user as having completed Academy training.
+ * Only callable by users with INVITE_USER permission (Director+).
+ */
+export declare function certifyUser(userId: number, actor: SafeUser): Promise<SafeUser>;
 export {};
 //# sourceMappingURL=users.service.d.ts.map

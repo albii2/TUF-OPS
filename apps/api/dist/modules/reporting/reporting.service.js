@@ -9,29 +9,43 @@ exports.getRepDashboardMetrics = getRepDashboardMetrics;
 exports.getDirectorDashboardMetricsByEmail = getDirectorDashboardMetricsByEmail;
 exports.getRepDashboardMetricsByEmail = getRepDashboardMetricsByEmail;
 const database_1 = require("@packages/database");
-const opportunities_interface_1 = require("../opportunities/opportunities.interface");
+const auth_1 = require("@packages/auth");
 const AUDITABLE_TOUCH_TYPES = ['CALL', 'EMAIL', 'TEXT', 'MEETING', 'NOTE', 'OPPORTUNITY_ACTIVITY', 'LOGGED_CONTACT'];
 const PAYABLE_ORDER_STATUSES = ['DELIVERED', 'COMPLETED'];
 function emptyStageCounts() {
     return {
-        [opportunities_interface_1.OpportunityStage.LEAD_ENGAGED]: 0,
-        [opportunities_interface_1.OpportunityStage.DISCOVERY]: 0,
-        [opportunities_interface_1.OpportunityStage.MOCKUP_STAGE]: 0,
-        [opportunities_interface_1.OpportunityStage.INVOICE_SENT]: 0,
-        [opportunities_interface_1.OpportunityStage.CLOSED_WON]: 0,
-        [opportunities_interface_1.OpportunityStage.CLOSED_LOST]: 0,
-        [opportunities_interface_1.OpportunityStage.LEAD_ASSIGNED]: 0,
-        [opportunities_interface_1.OpportunityStage.CONTACTED]: 0,
-        [opportunities_interface_1.OpportunityStage.MOCKUP_REQUESTED]: 0,
-        [opportunities_interface_1.OpportunityStage.MOCKUP_DELIVERED]: 0,
-        [opportunities_interface_1.OpportunityStage.DECISION_PENDING]: 0,
+        // Canonical sales stages
+        [auth_1.STAGES.LEAD]: 0,
+        [auth_1.STAGES.CONTACTED]: 0,
+        [auth_1.STAGES.PROPOSAL_SENT]: 0,
+        [auth_1.STAGES.NEGOTIATION]: 0,
+        [auth_1.STAGES.ORDER_ASSEMBLY]: 0,
+        [auth_1.STAGES.DIRECTOR_QA]: 0,
+        [auth_1.STAGES.CLOSED_WON]: 0,
+        [auth_1.STAGES.CLOSED_LOST]: 0,
+        // Canonical fulfillment stages
+        [auth_1.STAGES.READY_FOR_OPS]: 0,
+        [auth_1.STAGES.IN_PRODUCTION]: 0,
+        [auth_1.STAGES.QUALITY_CONTROL]: 0,
+        [auth_1.STAGES.SHIPPED]: 0,
+        [auth_1.STAGES.DELIVERED]: 0,
+        // Legacy uppercase values for backward compatibility
+        CLOSED_WON: 0,
+        CLOSED_LOST: 0,
     };
 }
 function repScope(repId) {
     return { where: 'WHERE org.assigned_rep_id = $1', params: [repId], commissionVisibility: 'rep' };
 }
 function directorScope(directorId) {
-    return { where: 'WHERE org.assigned_director_id = $1', params: [directorId], commissionVisibility: 'director' };
+    return {
+        where: `WHERE org.assigned_director_id = $1
+      AND (org.assigned_rep_id IS NULL OR org.assigned_rep_id NOT IN (
+        SELECT u.id FROM users u WHERE u.role IN ('ADMIN', 'OWNER')
+      ))`,
+        params: [directorId],
+        commissionVisibility: 'director',
+    };
 }
 function adminScope() {
     return { where: '', params: [], commissionVisibility: 'admin' };
@@ -63,9 +77,9 @@ async function getDashboardMetrics(scope) {
         database_1.pool.query(`
       SELECT
         COUNT(*)::int AS total_opportunities_count,
-        COUNT(*) FILTER (WHERE o.stage NOT IN ('${opportunities_interface_1.OpportunityStage.CLOSED_WON}', '${opportunities_interface_1.OpportunityStage.CLOSED_LOST}'))::int AS active_opportunities,
-        COUNT(*) FILTER (WHERE o.stage = '${opportunities_interface_1.OpportunityStage.CLOSED_WON}')::int AS closed_won_count,
-        COUNT(*) FILTER (WHERE o.stage = '${opportunities_interface_1.OpportunityStage.CLOSED_LOST}')::int AS closed_lost_count,
+        COUNT(*) FILTER (WHERE o.stage NOT IN ('CLOSED_WON', 'closed_won', 'CLOSED_LOST', 'closed_lost'))::int AS active_opportunities,
+        COUNT(*) FILTER (WHERE o.stage IN ('CLOSED_WON', 'closed_won'))::int AS closed_won_count,
+        COUNT(*) FILTER (WHERE o.stage IN ('CLOSED_LOST', 'closed_lost'))::int AS closed_lost_count,
         COUNT(*) FILTER (WHERE o.next_action IS NOT NULL OR (o.expected_close_date IS NOT NULL AND o.expected_close_date <= NOW()))::int AS action_needed_items,
         COALESCE(SUM(o.actual_revenue), 0)::float8 AS total_actual_revenue,
         COALESCE(SUM(o.gross_profit), 0)::float8 AS total_gross_profit,
@@ -99,7 +113,7 @@ async function getDashboardMetrics(scope) {
     ]);
     const opportunities_by_stage = emptyStageCounts();
     for (const row of stageResult.rows) {
-        const stage = row.stage;
+        const stage = (0, auth_1.normalizeStage)(String(row.stage));
         if (stage in opportunities_by_stage)
             opportunities_by_stage[stage] = Number(row.count);
     }

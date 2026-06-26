@@ -6,6 +6,7 @@ exports.createUserHandler = createUserHandler;
 exports.resetCredentialHandler = resetCredentialHandler;
 exports.changeCredentialHandler = changeCredentialHandler;
 exports.loginHandler = loginHandler;
+exports.certifyUserHandler = certifyUserHandler;
 const users_service_1 = require("./users.service");
 function bearerToken(request) {
     const raw = request.headers.authorization;
@@ -87,5 +88,17 @@ async function loginHandler(request, reply) {
     if (!result)
         return reply.code(401).send({ error: 'Invalid credentials' });
     return reply.send(result);
+}
+async function certifyUserHandler(request, reply) {
+    const actor = await requireAuthenticatedUser(request, reply);
+    if (!actor)
+        return;
+    try {
+        const user = await (0, users_service_1.certifyUser)(Number(request.params.id), actor);
+        return reply.send({ user });
+    }
+    catch (error) {
+        return handleError(reply, error);
+    }
 }
 //# sourceMappingURL=users.controller.js.map

@@ -1,1 +1,1 @@
-{"version":3,"file":"reporting.routes.d.ts","sourceRoot":"","sources":["../../../src/modules/reporting/reporting.routes.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAY1C,wBAAsB,eAAe,CAAC,MAAM,EAAE,eAAe,iBAS5D"}
+{"version":3,"file":"reporting.routes.d.ts","sourceRoot":"","sources":["../../../src/modules/reporting/reporting.routes.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAa1C,wBAAsB,eAAe,CAAC,MAAM,EAAE,eAAe,iBAS5D"}

@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP';
+export type UserRole = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP' | 'sales_rep' | 'OPS' | 'OWNER';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 export type SafeUser = {
     id: number;
@@ -17,6 +17,10 @@ export type SafeUser = {
     reports_to_user_id: number | null;
     status: UserStatus;
     must_change_credential: boolean;
+    is_certified: boolean;
+    hr_docs_completed: boolean;
+    director_signed_off: boolean;
+    practical_exercise_completed: boolean;
     created_at: string;
     updated_at: string;
 };

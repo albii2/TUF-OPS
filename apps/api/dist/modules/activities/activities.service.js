@@ -4,6 +4,8 @@ exports.createActivity = createActivity;
 exports.getActivitiesByOpportunity = getActivitiesByOpportunity;
 exports.getActivitiesByOrganization = getActivitiesByOrganization;
 exports.markActivityComplete = markActivityComplete;
+exports.createRepActivity = createRepActivity;
+exports.getRepActivitiesByOpportunity = getRepActivitiesByOpportunity;
 const database_1 = require("@packages/database");
 async function createActivity(activity) {
     const { type, organization_id, opportunity_id, description, created_by, due_date, completed } = activity;
@@ -71,5 +73,32 @@ async function markActivityComplete(activityId, completedBy) {
     finally {
         client.release();
     }
+}
+async function createRepActivity(data) {
+    const validTypes = ['call', 'email', 'meeting', 'note'];
+    if (!validTypes.includes(data.activity_type)) {
+        throw new Error(`Invalid activity_type. Must be one of: ${validTypes.join(', ')}`);
+    }
+    if (!data.opportunity_id) {
+        throw new Error('opportunity_id is required');
+    }
+    const result = await database_1.pool.query(`INSERT INTO rep_activities (user_id, opportunity_id, activity_type, notes)
+     VALUES ($1, $2, $3, $4)
+     RETURNING *`, [data.user_id, data.opportunity_id, data.activity_type, data.notes || null]);
+    const record = result.rows[0];
+    const userResult = await database_1.pool.query('SELECT name as full_name, email FROM users WHERE id = $1', [data.user_id]);
+    return {
+        ...record,
+        user_full_name: userResult.rows[0]?.full_name || null,
+        user_email: userResult.rows[0]?.email || null,
+    };
+}
+async function getRepActivitiesByOpportunity(opportunityId) {
+    const result = await database_1.pool.query(`SELECT ra.*, u.name as user_full_name, u.email as user_email
+     FROM rep_activities ra
+     JOIN users u ON ra.user_id = u.id
+     WHERE ra.opportunity_id = $1
+     ORDER BY ra.created_at DESC`, [opportunityId]);
+    return result.rows;
 }
 //# sourceMappingURL=activities.service.js.map

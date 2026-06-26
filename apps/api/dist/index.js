@@ -15,9 +15,11 @@ const reporting_routes_1 = require("./modules/reporting/reporting.routes");
 const orders_routes_1 = require("./modules/orders/orders.routes");
 const creative_requests_routes_1 = require("./modules/creative-requests/creative-requests.routes");
 const training_routes_1 = require("./modules/training/training.routes");
+const announcements_routes_1 = require("./modules/announcements/announcements.routes");
 const users_routes_1 = require("./modules/users/users.routes");
 const users_service_1 = require("./modules/users/users.service");
 const database_1 = require("@packages/database");
+const auth_1 = require("./auth");
 const server = (0, fastify_1.default)();
 const port = Number(process.env.PORT || 4000);
 const webDistPath = process.env.WEB_DIST_PATH || node_path_1.default.resolve(__dirname, '../../web/dist');
@@ -79,6 +81,16 @@ server.register(cors_1.default, {
     origin: corsOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 });
+server.addHook('onRequest', auth_1.authMiddleware);
+server.setErrorHandler((error, request, reply) => {
+    try {
+        return (0, auth_1.permissionErrorHandler)(error, reply);
+    }
+    catch (unhandled) {
+        request.log.error(unhandled);
+        return reply.code(500).send({ error: 'Internal server error' });
+    }
+});
 server.addHook('onRequest', async (request, reply) => {
     const host = request.headers.host?.split(':')[0];
     const forwardedProto = request.headers['x-forwarded-proto'];
@@ -108,6 +120,7 @@ server.register(orders_routes_1.orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/api/v1' });
 server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
 server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' });
+server.register(announcements_routes_1.announcementRoutes, { prefix: '/api/v1' });
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/opportunities' });
 server.register(activities_routes_1.activityRoutes, { prefix: '/activities' });

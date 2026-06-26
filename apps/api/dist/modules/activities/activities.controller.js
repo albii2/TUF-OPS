@@ -4,6 +4,8 @@ exports.createActivityHandler = createActivityHandler;
 exports.getActivitiesByOpportunityHandler = getActivitiesByOpportunityHandler;
 exports.getActivitiesByOrganizationHandler = getActivitiesByOrganizationHandler;
 exports.markActivityCompleteHandler = markActivityCompleteHandler;
+exports.createRepActivityHandler = createRepActivityHandler;
+exports.getRepActivitiesByOpportunityHandler = getRepActivitiesByOpportunityHandler;
 const activities_service_1 = require("./activities.service");
 const activities_interface_1 = require("./activities.interface");
 async function createActivityHandler(request, reply) {
@@ -37,5 +39,39 @@ async function markActivityCompleteHandler(request, reply) {
         }
         return reply.code(500).send({ message: 'Internal Server Error' });
     }
+}
+// RepActivity handlers (prospecting activity logging)
+async function createRepActivityHandler(request, reply) {
+    const currentUser = request.currentUser;
+    if (!currentUser?.id) {
+        return reply.code(401).send({ message: 'Authentication required' });
+    }
+    const { opportunity_id, activity_type, notes } = request.body;
+    try {
+        const activity = await (0, activities_service_1.createRepActivity)({
+            user_id: currentUser.id,
+            opportunity_id,
+            activity_type,
+            notes,
+        });
+        return reply.code(201).send(activity);
+    }
+    catch (error) {
+        if (error.message.includes('Invalid activity_type')) {
+            return reply.code(400).send({ message: error.message });
+        }
+        if (error.message.includes('required')) {
+            return reply.code(400).send({ message: error.message });
+        }
+        return reply.code(500).send({ message: 'Internal Server Error' });
+    }
+}
+async function getRepActivitiesByOpportunityHandler(request, reply) {
+    const { opportunity_id } = request.query;
+    if (!opportunity_id) {
+        return reply.code(400).send({ message: 'opportunity_id query parameter is required' });
+    }
+    const activities = await (0, activities_service_1.getRepActivitiesByOpportunity)(Number(opportunity_id));
+    return reply.send(activities);
 }
 //# sourceMappingURL=activities.controller.js.map

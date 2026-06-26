@@ -129,7 +129,7 @@ if (!fs.existsSync(launchCsvPath)) {
   warn(`Corrected launch assignment CSV not found at ${path.relative(root, launchCsvPath)}. Static seed support passed, but 30/30/30/30 assignment counts require the owner-provided file before preview/production seeding.`);
   if (missingCorrectedFiles.length) warn(`Missing corrected owner files: ${missingCorrectedFiles.join(', ')}`);
   checkDatabaseValidation();
-  return;
+  process.exit(0);
 }
 
 const { headers, records } = csvObjects(launchCsvPath);
@@ -137,7 +137,7 @@ const missingHeaders = requiredAssignmentHeaders.filter((header) => !headers.inc
 if (missingHeaders.length) {
   warn(`Launch assignment CSV ${path.relative(root, launchCsvPath)} is present but missing assignment headers: ${missingHeaders.join(', ')}. Use apps/web/src/assets/tuf_mn_leads_final.csv or set TUF_LEADS_CSV to the corrected file before preview/production assignment seeding.`);
   checkDatabaseValidation();
-  return;
+  process.exit(0);
 }
 
 const seen = new Set();

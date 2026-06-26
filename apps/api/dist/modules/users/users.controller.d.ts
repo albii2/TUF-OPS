@@ -9,4 +9,9 @@ export declare function resetCredentialHandler(request: FastifyRequest<{
 }>, reply: FastifyReply): Promise<undefined>;
 export declare function changeCredentialHandler(request: FastifyRequest, reply: FastifyReply): Promise<undefined>;
 export declare function loginHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function certifyUserHandler(request: FastifyRequest<{
+    Params: {
+        id: string;
+    };
+}>, reply: FastifyReply): Promise<undefined>;
 //# sourceMappingURL=users.controller.d.ts.map

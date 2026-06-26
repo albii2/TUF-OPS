@@ -1,4 +1,3 @@
-import { OpportunityStage } from '../opportunities/opportunities.interface';
 export interface DashboardMetrics {
     assigned_schools: number;
     touched_schools: number;
@@ -14,7 +13,7 @@ export interface DashboardMetrics {
     director_override_estimate: number;
     month_to_date_activity: number;
     total_opportunities_count: number;
-    opportunities_by_stage: Record<OpportunityStage, number>;
+    opportunities_by_stage: Record<string, number>;
     closed_lost_count: number;
     total_actual_revenue: number;
     total_gross_profit: number;

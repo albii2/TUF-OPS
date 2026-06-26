@@ -8,6 +8,7 @@ exports.getOrganizationChannelPenetration = getOrganizationChannelPenetration;
 exports.updateOpportunityStage = updateOpportunityStage;
 exports.updateOpportunity = updateOpportunity;
 const database_1 = require("@packages/database");
+const auth_1 = require("@packages/auth");
 const opportunities_interface_1 = require("./opportunities.interface");
 const commissions_service_1 = require("../commissions/commissions.service");
 const REQUIRED_CHANNELS = [
@@ -26,20 +27,36 @@ async function getOpportunityById(id) {
     }
     return result.rows[0];
 }
-const VALID_TRANSITIONS = {
-    [opportunities_interface_1.OpportunityStage.LEAD_ENGAGED]: [opportunities_interface_1.OpportunityStage.DISCOVERY, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    [opportunities_interface_1.OpportunityStage.DISCOVERY]: [opportunities_interface_1.OpportunityStage.MOCKUP_STAGE, opportunities_interface_1.OpportunityStage.MOCKUP_REQUESTED, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    [opportunities_interface_1.OpportunityStage.MOCKUP_STAGE]: [opportunities_interface_1.OpportunityStage.INVOICE_SENT, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    [opportunities_interface_1.OpportunityStage.INVOICE_SENT]: [opportunities_interface_1.OpportunityStage.DECISION_PENDING, opportunities_interface_1.OpportunityStage.CLOSED_WON, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    [opportunities_interface_1.OpportunityStage.CLOSED_WON]: [],
-    [opportunities_interface_1.OpportunityStage.CLOSED_LOST]: [],
-    // Legacy mappings for backward compatibility:
-    LEAD_ASSIGNED: [opportunities_interface_1.OpportunityStage.CONTACTED, opportunities_interface_1.OpportunityStage.DISCOVERY, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    CONTACTED: [opportunities_interface_1.OpportunityStage.DISCOVERY, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    MOCKUP_REQUESTED: [opportunities_interface_1.OpportunityStage.MOCKUP_DELIVERED, opportunities_interface_1.OpportunityStage.INVOICE_SENT, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    MOCKUP_DELIVERED: [opportunities_interface_1.OpportunityStage.INVOICE_SENT, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
-    DECISION_PENDING: [opportunities_interface_1.OpportunityStage.CLOSED_WON, opportunities_interface_1.OpportunityStage.CLOSED_LOST],
+// Legacy transition compatibility map — maps old UPPER_CASE stage values to canonical
+// lowercase stages. Used only for backward compatibility during migration.
+const LEGACY_TO_CANONICAL = {
+    'LEAD_ASSIGNED': auth_1.STAGES.LEAD,
+    'LEAD_ENGAGED': auth_1.STAGES.LEAD,
+    'CONTACTED': auth_1.STAGES.CONTACTED,
+    'CONTACT_INITIATED': auth_1.STAGES.CONTACTED,
+    'DISCOVERY': auth_1.STAGES.PROPOSAL_SENT,
+    'MOCKUP_REQUESTED': auth_1.STAGES.PROPOSAL_SENT,
+    'MOCKUP_STAGE': auth_1.STAGES.PROPOSAL_SENT,
+    'MOCKUP_IN_PROGRESS': auth_1.STAGES.PROPOSAL_SENT,
+    'MOCKUP_DELIVERED': auth_1.STAGES.NEGOTIATION,
+    'MOCKUP_APPROVED': auth_1.STAGES.NEGOTIATION,
+    'INVOICE_SENT': auth_1.STAGES.ORDER_ASSEMBLY,
+    'SAMPLE_REQUESTED': auth_1.STAGES.ORDER_ASSEMBLY,
+    'DECISION_PENDING': auth_1.STAGES.DIRECTOR_QA,
+    'SAMPLE_IN_PRODUCTION': auth_1.STAGES.DIRECTOR_QA,
+    'SAMPLE_APPROVED': auth_1.STAGES.DIRECTOR_QA,
+    'PAYMENT_RECEIVED': auth_1.STAGES.DIRECTOR_QA,
+    'CLOSED_WON': auth_1.STAGES.CLOSED_WON,
+    'CLOSED_LOST': auth_1.STAGES.CLOSED_LOST,
 };
+function normalizeStage(input) {
+    // If already canonical, return as-is
+    const canonicalValues = new Set(Object.values(auth_1.STAGES));
+    if (canonicalValues.has(input))
+        return input;
+    // Map legacy to canonical
+    return LEGACY_TO_CANONICAL[input] ?? input;
+}
 function normalizeChannelType(value) {
     if (!value || typeof value !== 'string') {
         return null;
@@ -78,7 +95,7 @@ async function createOpportunity(opportunity) {
         value ?? 0,
         created_by,
         updated_by,
-        stage || opportunities_interface_1.OpportunityStage.LEAD_ASSIGNED,
+        normalizeStage(stage ?? '') || auth_1.STAGES.LEAD,
         next_action,
         expected_close_date,
         last_activity_date || new Date(),
@@ -101,10 +118,10 @@ async function getOpportunities() {
 async function getOrganizationChannelPenetration(organizationId) {
     const result = await database_1.pool.query('SELECT channel_type, stage FROM opportunities WHERE organization_id = $1 AND channel_type IS NOT NULL', [organizationId]);
     const channels = {
-        uniform: opportunities_interface_1.OpportunityStage.LEAD_ENGAGED,
-        travel_gear: opportunities_interface_1.OpportunityStage.LEAD_ENGAGED,
-        team_store: opportunities_interface_1.OpportunityStage.LEAD_ENGAGED,
-        letterman: opportunities_interface_1.OpportunityStage.LEAD_ENGAGED,
+        uniform: auth_1.STAGES.LEAD,
+        travel_gear: auth_1.STAGES.LEAD,
+        team_store: auth_1.STAGES.LEAD,
+        letterman: auth_1.STAGES.LEAD,
     };
     for (const row of result.rows) {
         if (row.channel_type === opportunities_interface_1.OpportunityChannelType.UNIFORM)
@@ -116,7 +133,7 @@ async function getOrganizationChannelPenetration(organizationId) {
         if (row.channel_type === opportunities_interface_1.OpportunityChannelType.LETTERMAN)
             channels.letterman = row.stage;
     }
-    const closedWonCount = Object.values(channels).filter((stageValue) => stageValue === opportunities_interface_1.OpportunityStage.CLOSED_WON).length;
+    const closedWonCount = Object.values(channels).filter((stageValue) => stageValue === auth_1.STAGES.CLOSED_WON).length;
     return {
         channels,
         channel_penetration_score: closedWonCount / REQUIRED_CHANNELS.length,
@@ -132,8 +149,10 @@ async function updateOpportunityStage(opportunityId, toStage, changedBy, note, f
         }
         const currentOpp = currentOpportunityResult.rows[0];
         const fromStage = currentOpp.stage;
-        const isValidTransition = Boolean(VALID_TRANSITIONS[fromStage]?.includes(toStage));
-        if (!isValidTransition) {
+        const normalizedFrom = normalizeStage(String(fromStage));
+        const normalizedTo = normalizeStage(String(toStage));
+        // Validate transition using canonical stages from @packages/auth
+        if (!(0, auth_1.isValidTransition)(normalizedFrom, normalizedTo)) {
             throw new Error(`Invalid stage transition from ${fromStage} to ${toStage}`);
         }
         const mergedFinancialData = { ...currentOpp, ...financialData };
@@ -142,7 +161,7 @@ async function updateOpportunityStage(opportunityId, toStage, changedBy, note, f
         let actual_revenue = currentOpp.actual_revenue ?? null;
         let actual_cost = currentOpp.actual_cost ?? null;
         let loss_reason = currentOpp.loss_reason ?? null;
-        if (toStage === opportunities_interface_1.OpportunityStage.CLOSED_WON) {
+        if (normalizedTo === auth_1.STAGES.CLOSED_WON) {
             actual_revenue = mergedFinancialData.actual_revenue;
             actual_cost = mergedFinancialData.actual_cost;
             if (actual_revenue === null || actual_cost === null || actual_revenue === undefined || actual_cost === undefined) {
@@ -155,7 +174,7 @@ async function updateOpportunityStage(opportunityId, toStage, changedBy, note, f
             closed_at = new Date();
             loss_reason = null;
         }
-        else if (toStage === opportunities_interface_1.OpportunityStage.CLOSED_LOST) {
+        else if (normalizedTo === auth_1.STAGES.CLOSED_LOST) {
             loss_reason = mergedFinancialData.loss_reason;
             if (!loss_reason) {
                 throw new Error('loss_reason is required to close an opportunity as lost');
@@ -181,7 +200,7 @@ async function updateOpportunityStage(opportunityId, toStage, changedBy, note, f
          updated_by = $8
        WHERE id = $9
        RETURNING *`, [
-            toStage,
+            normalizedTo,
             actionTimestamp,
             actual_revenue,
             actual_cost,
@@ -193,7 +212,7 @@ async function updateOpportunityStage(opportunityId, toStage, changedBy, note, f
         ]);
         const updatedOpp = updatedOpportunityResult.rows[0];
         await client.query('INSERT INTO opportunity_stage_history (opportunity_id, from_stage, to_stage, changed_by, note) VALUES ($1, $2, $3, $4, $5) RETURNING *', [opportunityId, fromStage, toStage, changedBy, note]);
-        if (toStage === opportunities_interface_1.OpportunityStage.CLOSED_WON) {
+        if (normalizedTo === auth_1.STAGES.CLOSED_WON) {
             await (0, commissions_service_1.createCommission)(updatedOpp, client);
             const existingOrderResult = await client.query('SELECT id FROM orders WHERE opportunity_id = $1 LIMIT 1', [opportunityId]);
             if (existingOrderResult.rows.length === 0) {

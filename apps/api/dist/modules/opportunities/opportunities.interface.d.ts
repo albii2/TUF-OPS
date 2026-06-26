@@ -1,3 +1,4 @@
+export type CanonicalStage = string;
 export declare enum OpportunityStage {
     LEAD_ENGAGED = "LEAD_ENGAGED",
     DISCOVERY = "DISCOVERY",
@@ -38,7 +39,7 @@ export interface Opportunity {
     updated_by: number;
     created_at: Date;
     updated_at: Date;
-    stage: OpportunityStage;
+    stage: string;
     channel_type: OpportunityChannelType | null;
     next_action?: string;
     expected_close_date?: Date;
@@ -56,8 +57,8 @@ export interface Opportunity {
 export interface OpportunityStageHistory {
     id: number;
     opportunity_id: number;
-    from_stage: OpportunityStage;
-    to_stage: OpportunityStage;
+    from_stage: string;
+    to_stage: string;
     changed_by: number;
     changed_at: Date;
     note?: string;

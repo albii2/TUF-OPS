@@ -7,6 +7,7 @@ exports.updateOrganization = updateOrganization;
 exports.deleteOrganization = deleteOrganization;
 const database_1 = require("@packages/database");
 const opportunities_interface_1 = require("../opportunities/opportunities.interface");
+const auth_1 = require("@packages/auth");
 const REQUIRED_CHANNELS = [
     opportunities_interface_1.OpportunityChannelType.UNIFORM,
     opportunities_interface_1.OpportunityChannelType.TRAVEL_GEAR,
@@ -64,7 +65,7 @@ async function createOrganization(organization) {
                 0.00,
                 created_by,
                 updated_by,
-                opportunities_interface_1.OpportunityStage.LEAD_ASSIGNED,
+                auth_1.STAGES.LEAD,
                 assigned_rep_id,
                 assigned_director_id,
                 channelType,
