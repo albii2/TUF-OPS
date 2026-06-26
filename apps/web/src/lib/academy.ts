@@ -112,7 +112,7 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
       },
       {
         heading: 'The Four-Order Baseline',
-        body: 'TUF targets four healthy orders per month, every month. Consistency over size. Four consistent orders beat one lucky whale. This baseline keeps the pipeline predictable and revenue steady.',
+        body: 'TUF targets four healthy orders per month, every month. Consistency over size. Four consistent orders beat one lucky whale. This baseline keeps your pipeline healthy and your activity consistent.',
       },
       {
         heading: 'Lane Penetration',
@@ -196,9 +196,9 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
     description:
       'How to build a proposal from discovery notes, mockup process, pricing strategy, and presenting to coaches.',
     completionCriteria:
-      'Advance opportunities through Contacted → Proposal Sent → Negotiation, enter estimated revenue, and prepare a package for Director review.',
+      'Advance opportunities through Contacted → Proposal Sent → Negotiation, project deal value from discovery, and prepare a package for Director review.',
     demonstrateTask:
-      'Advance opportunities through the correct stages (Contacted → Proposal Sent → Negotiation), enter estimated revenue, and prepare a package.',
+      'Advance opportunities through the correct stages (Contacted → Proposal Sent → Negotiation), project deal value from discovery, and prepare a package.',
     philosophyPrinciple: 1, // We sell trust before apparel
     learnContent: [
       {
@@ -301,8 +301,8 @@ export const SALES_PHILOSOPHY: PhilosophyPrinciple[] = [
   },
   {
     number: 6,
-    title: 'Pipeline predicts revenue.',
-    meaning: "Look at this week's pipeline, not last quarter's revenue.",
+    title: 'Pipeline predicts success.',
+    meaning: "Your pipeline tells you what's coming. Last quarter tells you what already happened. Focus on what you're building today.",
   },
   {
     number: 7,
@@ -798,7 +798,7 @@ export function detectAcad103(): {
 
 /**
  * ACAD-104: Demonstrate — Advance through stages (Contacted → Proposal Sent → Negotiation),
- * enter estimated revenue.
+ * project deal value from discovery.
  * Detection: checks for opportunities at Proposal Sent or Negotiation with revenue > 0.
  */
 export function detectAcad104(): {
