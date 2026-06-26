@@ -1,8 +1,20 @@
 /**
- * TUF Academy — Module definitions, quizzes, sequential gating, practical exercises,
- * and Director approval gate for Level 1 certification.
+ * TUF Academy — Module definitions, quizzes, Learn→Demonstrate→Coach Review→Deploy flow,
+ * Director feedback loop, and "Level 1 Certified Territory Account Executive" title.
  *
- * Governing spec: docs/canon/Academy_v1.0.md Parts 3–8
+ * Governing specs:
+ *   docs/canon/SOS_v1.0.md Section 2.3 (Sales Philosophy)
+ *   docs/canon/Academy_v1.0.md
+ *
+ * MODULE STRUCTURE:
+ *   ACAD-101: The TUF Philosophy
+ *   ACAD-102: Prospecting
+ *   ACAD-103: Discovery
+ *   ACAD-104: Proposal
+ *   ACAD-105: Order Handoff
+ *
+ * PHASES PER MODULE:
+ *   LEARN → DEMONSTRATE → COACH REVIEW → DEPLOY
  */
 
 import { listOrganizations } from '../services/organizationsService';
@@ -13,131 +25,243 @@ import { getStoredUser } from '../auth';
 // ─── Module Definitions ─────────────────────────────────────────────────────
 
 export type AcademyModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105';
-export type ModuleStatus = 'locked' | 'available' | 'quiz_available' | 'quiz_passed' | 'verified' | 'submitted' | 'approved';
 
-export interface AcademyModule {
-  code: AcademyModuleCode;
-  name: string;
-  description: string;
-  /** Instructional content the rep studies BEFORE taking the quiz */
-  learningContent: string;
-  completionCriteria: string;
-  /** The SOS Sales Philosophy principle this module reinforces */
-  philosophyPrinciple: number;
+/**
+ * Module phases reflecting the Learn → Demonstrate → Coach Review → Deploy flow.
+ *
+ * locked          — Previous module not yet acknowledged; cannot start.
+ * learn           — Available to study and take the quiz.
+ * quiz_passed     — Quiz passed; now move to Demonstrate.
+ * demonstrate     — Rep performs real work (auto-detected); exercise in progress.
+ * awaiting_coach  — Exercise complete; waiting for Director to provide Coach Review.
+ * coach_review    — Director has provided feedback; rep must ACKNOWLEDGE.
+ * acknowledged    — Rep acknowledged Coach Review; module complete. Next module unlocks.
+ * certified       — All modules acknowledged → DEPLOY → Level 1 Certified TAE.
+ */
+export type ModulePhase =
+  | 'locked'
+  | 'learn'
+  | 'quiz_passed'
+  | 'demonstrate'
+  | 'awaiting_coach'
+  | 'coach_review'
+  | 'acknowledged'
+  | 'certified';
+
+export interface CoachReview {
+  /** What the rep did well */
+  strengths: string;
+  /** What needs improvement */
+  corrections: string;
+  /** General coaching guidance */
+  coachingNotes: string;
+  /** Director name who provided the review */
+  reviewedBy: string;
+  /** ISO date string */
+  reviewedAt: string;
 }
 
 export interface ModuleProgress {
   code: AcademyModuleCode;
-  status: ModuleStatus;
+  phase: ModulePhase;
   currentValue: number;
   targetValue: number;
   label: string;
   /** Additional context like stages used count */
   extra?: string;
+  /** Director feedback (only set after Coach Review phase) */
+  coachReview?: CoachReview;
+  /** ISO date when the rep acknowledged the Coach Review */
+  acknowledgedAt?: string;
 }
 
-/** Level 1 training modules per Academy_v1.0 Part 3 */
+export interface AcademyModule {
+  code: AcademyModuleCode;
+  name: string;
+  description: string;
+  completionCriteria: string;
+  /** What the rep must do in the Demonstrate phase */
+  demonstrateTask: string;
+  /** The SOS Sales Philosophy principle this module reinforces */
+  philosophyPrinciple: number;
+  /** Learning content for the Learn phase */
+  learnContent: LearnContent[];
+}
+
+export interface LearnContent {
+  heading: string;
+  body: string;
+}
+
+/** Level 1 — TUF Sales System modules */
 export const LEVEL_1_MODULES: AcademyModule[] = [
   {
     code: 'ACAD-101',
-    name: 'Pipeline Management',
-    description: 'Create and manage a healthy pipeline of 12+ active opportunities.',
-    learningContent: `Your pipeline is the single most important number in your business. It tells you — and your Director — exactly how much revenue is coming, when it's coming, and whether you're on track.
-
-What is a pipeline? It's your list of active opportunities, organized by stage: from Lead (a program you haven't contacted yet) through Closed Won (payment collected, deal done). Each opportunity moves through stages as you advance the relationship.
-
-Your target is 12 active opportunities at all times — that's 3x your monthly goal of 4 closed deals. This buffer ensures a bad week doesn't become a bad month.
-
-Key concepts:
-• Pipeline Health = active opportunities ÷ 12. 100% means you're on track.
-• Stage Distribution: not all opportunities should be in the same stage. A healthy pipeline has deals spread across stages.
-• Stale deals: if an opportunity stays in one stage more than 14 days, something is stuck — take action or move on.
-
-Sales Philosophy principle: Pipeline predicts revenue. If you want to know what next month looks like, look at your pipeline today — not what you closed last month.`,
-    completionCriteria: '12+ active opportunities (pipeline health ≥ 100%)',
-    philosophyPrinciple: 6, // Pipeline predicts revenue
+    name: 'The TUF Philosophy',
+    description:
+      'Why TUF exists, the mission, sales expectations, the four-order baseline, lane penetration, and the 7 Sales Philosophy principles.',
+    completionCriteria:
+      'Write a paragraph explaining TUF’s mission in your own words, reviewed by your Director.',
+    demonstrateTask:
+      'Write a paragraph explaining TUF’s mission in your own words and submit it for Director review.',
+    philosophyPrinciple: 1, // We sell trust before apparel
+    learnContent: [
+      {
+        heading: 'Why TUF Exists',
+        body: 'Coaches invest hundreds of hours into their athletes every season. They should not spend a single hour chasing uniform vendors, verifying artwork, fixing sizing errors, or tracking shipments. TUF exists to absorb that burden. The product is custom team uniforms. The value proposition is peace of mind.',
+      },
+      {
+        heading: 'The Four-Order Baseline',
+        body: 'TUF targets four healthy orders per month, every month. Consistency over size. Four consistent orders beat one lucky whale. This baseline keeps the pipeline predictable and revenue steady.',
+      },
+      {
+        heading: 'Lane Penetration',
+        body: 'Every athletic program has multiple sales lanes: football jerseys, basketball uniforms, fan gear, coaching apparel, spirit wear, team stores. Your job is to penetrate every lane in every program — not just sell one sport and move on. Deep accounts beat wide territories.',
+      },
+      {
+        heading: 'The 7 Sales Philosophy Principles',
+        body: 'The Sales Philosophy is the DNA of every TUF rep. It governs how we sell, not just what we sell. Memorize these seven principles — they will be referenced in every module.',
+      },
+      {
+        heading: 'Your Mission as a TUF Rep',
+        body: 'Your mission is to become the trusted apparel partner for athletic programs in your territory. Every coach who trusts their TUF rep is a program that will not shop competitors. You are not selling uniforms — you are selling confidence that their team will look right, on time, with zero hassle.',
+      },
+    ],
   },
   {
     code: 'ACAD-102',
-    name: 'Organization Management',
-    description: 'Create complete organization records for every athletic program.',
-    learningContent: `Every deal lives under an organization. An organization is the school, club, or program you're selling to. Treat organization records as relationship infrastructure — not clerical paperwork.
-
-A complete organization record includes: school name, sport, address, team colors, and primary coach contact (name, phone, email). Incomplete records cause problems downstream — wrong shipping addresses, unreachable coaches, duplicate entries.
-
-Think of it this way: the organization record is the first artifact of your relationship with a coach. If you can't get their school name and phone number right, why would they trust you with their uniform order?
-
-Best practices:
-• Create the organization BEFORE your first conversation — have it ready.
-• Verify details during your call: "Just confirming — you're at Lincoln High School, football program, correct?"
-• One coach, one organization. Don't create duplicates.
-
-Sales Philosophy principle: We sell trust before apparel. Getting the details right IS the first sale.`,
-    completionCriteria: '10+ organizations created with required fields',
-    philosophyPrinciple: 2, // Relationships compound
+    name: 'Prospecting',
+    description:
+      'How to identify programs, research, make first contact, and qualify. Territory awareness and activity mindset.',
+    completionCriteria:
+      'Create 5+ organizations, log 3+ prospecting activities, and build one week’s pipeline.',
+    demonstrateTask:
+      'Add 5 organizations, log 3 prospecting activities, and build one week’s pipeline.',
+    philosophyPrinciple: 5, // Activity creates opportunity
+    learnContent: [
+      {
+        heading: 'Identifying Programs',
+        body: 'A program is any athletic team, club, or school department that buys uniforms or apparel. Start with high schools in your territory — football, basketball, baseball, softball, soccer, volleyball, track, cheer, band. Then expand to middle schools, youth leagues, and club teams.',
+      },
+      {
+        heading: 'Research First, Contact Second',
+        body: 'Before making contact, research the program: what sports do they offer? What do their current uniforms look like? When is their season? Who is the head coach or athletic director? An informed first contact is 10x more effective than a cold call.',
+      },
+      {
+        heading: 'Making First Contact',
+        body: 'Your first contact should be personal and specific. Reference their program by name. Mention something you noticed about their current look. Ask about their upcoming season. The goal is a conversation, not a sale — not yet.',
+      },
+      {
+        heading: 'Qualifying Programs',
+        body: 'Not every program is ready to buy today. Qualify by timeline (when do they need new uniforms?), budget (do they have funding?), and authority (are you talking to the decision-maker?). A qualified lead is one where all three are known.',
+      },
+      {
+        heading: 'Activity Mindset',
+        body: 'Activity creates opportunity. Your pipeline is built through calls, visits, follow-ups. Measure activity first. The target is consistent daily outreach — not one big push before month-end.',
+      },
+    ],
   },
   {
     code: 'ACAD-103',
-    name: 'Opportunity Creation',
-    description: 'Create opportunities with accurate stage and value across the pipeline.',
-    learningContent: `An opportunity is a potential deal — a specific uniform order you're working on for a specific program. Every opportunity lives inside an organization and moves through stages from Lead to Closed Won.
-
-Accuracy matters more than volume. An opportunity with the wrong stage distorts your pipeline health — making it look healthier or weaker than it really is. Your Director coaches from pipeline data. If the data is wrong, the coaching is wrong.
-
-The 12 stages of a TUF opportunity:
-Lead → Contacted → Proposal Sent → Negotiation → Order Assembly → Director QA → Closed Won (your job ends here) → Ready for Ops → In Production → Quality Control → Shipped → Delivered
-
-Key rules:
-• Every opportunity must have a deal value (estimated order amount).
-• Stage must reflect reality — not your hope. "Proposal Sent" means you actually sent it.
-• Never skip stages. Each stage represents work done. Skipping skips the work.
-
-Sales Philosophy principle: Activity creates opportunity. Every call, every visit, every follow-up builds your pipeline.`,
-    completionCriteria: '15+ opportunities across ≥ 4 stages',
-    philosophyPrinciple: 5, // Activity creates opportunity
+    name: 'Discovery',
+    description:
+      'How to have a discovery conversation, identify all applicable sales lanes, and record needs correctly.',
+    completionCriteria:
+      'Create an opportunity, identify all applicable sales lanes, and record needs correctly in the opportunity.',
+    demonstrateTask:
+      'Create an opportunity, identify all applicable sales lanes, and record needs correctly.',
+    philosophyPrinciple: 4, // Coaches buy from people
+    learnContent: [
+      {
+        heading: 'What Is Discovery?',
+        body: 'Discovery is the conversation where you learn everything about a program’s needs — not the conversation where you pitch your product. The rep who listens most wins most. Ask open-ended questions, take detailed notes, and resist the urge to sell until you understand.',
+      },
+      {
+        heading: 'Sales Lanes Explained',
+        body: 'Sales lanes are the distinct product categories a program might need: football jerseys, basketball uniforms, fan gear, coaching apparel, spirit wear, team stores. Every program has multiple lanes. Your job is to identify ALL of them — not just the one the coach mentioned first.',
+      },
+      {
+        heading: 'Recording Needs Correctly',
+        body: 'Document every need you uncover: sport, gender, quantity, timeline, budget, design preferences, special requirements. These notes become your proposal blueprint. If it’s not in the discovery notes, it won’t be in the proposal — and the coach will notice.',
+      },
+      {
+        heading: 'Discovery Maps to Pipeline Stages',
+        body: 'Discovery happens between Lead and Contacted stages. It’s the bridge from "we should talk" to "here’s what we need." A thorough discovery moves the opportunity from Contacted to Proposal Sent with confidence.',
+      },
+    ],
   },
   {
     code: 'ACAD-104',
-    name: 'Prospecting Fundamentals',
-    description: 'Identify, qualify, and make first contact with athletic programs.',
-    learningContent: `Prospecting is the engine of your pipeline. Without new leads entering the top, your pipeline dries up — no matter how good you are at closing.
-
-Prospecting means finding athletic programs that need uniforms and making first contact. This isn't cold calling a stranger — it's introducing yourself to a coach who buys uniforms every season and may not have found the right vendor yet.
-
-The prospecting workflow:
-1. Identify programs in your territory (schools, clubs, travel teams)
-2. Research: what sport? what colors? when is their season?
-3. First contact: call or email the athletic director or head coach
-4. Qualify: do they buy custom uniforms? when? what's their budget range?
-5. Log the activity in TUF Ops — every call, every email, every meeting
-
-Key rule: Activity creates opportunity. The rep who makes 50 calls this week will have more pipeline than the rep who makes 5. There is no shortcut.
-
-Sales Philosophy principle: Coaches buy from people. You're not selling a product — you're introducing yourself as someone who solves uniform problems.`,
-    completionCriteria: '15+ prospecting activities logged',
-    philosophyPrinciple: 5, // Activity creates opportunity
+    name: 'Proposal',
+    description:
+      'How to build a proposal from discovery notes, mockup process, pricing strategy, and presenting to coaches.',
+    completionCriteria:
+      'Advance opportunities through Contacted → Proposal Sent → Negotiation, enter estimated revenue, and prepare a package for Director review.',
+    demonstrateTask:
+      'Advance opportunities through the correct stages (Contacted → Proposal Sent → Negotiation), enter estimated revenue, and prepare a package.',
+    philosophyPrinciple: 1, // We sell trust before apparel
+    learnContent: [
+      {
+        heading: 'Building from Discovery',
+        body: 'Your proposal is built entirely from discovery notes. Every item in the proposal should trace back to a need the coach expressed. If the coach didn’t ask for it, don’t include it — but DO mention additional lanes you identified that they might want to discuss.',
+      },
+      {
+        heading: 'The Mockup Process',
+        body: 'Before sending a formal proposal, create a mockup. Show the coach what their uniforms will look like. A visual sells faster than a spreadsheet. Use the mockup to confirm design choices, then attach it to the proposal.',
+      },
+      {
+        heading: 'Pricing Strategy',
+        body: 'Present pricing confidently — not apologetically. You are selling peace of mind, not just fabric. Bundle items where possible. Offer options at different price points. Never lead with the cheapest option — lead with the best value.',
+      },
+      {
+        heading: 'Presenting to Coaches',
+        body: 'Present the proposal in person or via video call whenever possible. Walk through each item, connect it back to their needs, and ask for feedback. A proposal sent without a conversation is a proposal ignored. The goal is a "yes" — or a clear "not yet" with next steps.',
+      },
+      {
+        heading: 'Handling Objections',
+        body: 'Objections are buying signals. "It\'s too expensive" means they haven\'t seen the value yet. "We need to think about it" means there\'s an unanswered question. Dig into every objection — it\'s your path to closing.',
+      },
+    ],
   },
   {
     code: 'ACAD-105',
-    name: 'TUF Ops Navigation',
-    description: 'Navigate the TUF Ops system — Dashboard, Organizations, Opportunities.',
-    learningContent: `TUF Ops is where you'll spend your working day. It's your command center: track your pipeline, manage organizations, create opportunities, log activities, and communicate with your Director.
-
-The three core pages you'll use every day:
-• Dashboard — your home screen. Shows pipeline health, action items, active deals, and your monthly progress toward 4 closed orders.
-• Organizations — where you create and manage school/program records. Every deal lives under an organization.
-• Opportunities — your pipeline. Create deals, advance them through stages, log activities, and track progress.
-
-Key tips:
-• Start every day on the Dashboard. Check your action items first.
-• Use the sidebar to navigate — don't rely on browser back button.
-• Your Director can see your pipeline. Keep it accurate — it's how they coach you.
-• The Academy page (where you are now) is always accessible from the sidebar.
-
-Sales Philosophy principle: We sell trust before apparel. Learning the system thoroughly shows coaches you're prepared and professional.`,
-    completionCriteria: 'All 3 core pages visited (Dashboard, Organizations, Opportunities) + Academy page',
-    philosophyPrinciple: 1, // We sell trust before apparel
+    name: 'Order Handoff',
+    description:
+      'The Closed Won standard, what Operations needs (roster, sizing, artwork, payment), and the Director QA question.',
+    completionCriteria:
+      'Reach Closed Won correctly, complete all required information, and successfully hand off to Operations.',
+    demonstrateTask:
+      'Reach Closed Won, complete all required information (roster, sizing, artwork, payment), and hand off to Operations.',
+    philosophyPrinciple: 7, // The Director QA question
+    learnContent: [
+      {
+        heading: 'The Closed Won Standard',
+        body: 'A deal is NOT Closed Won just because the coach said yes. A deal is Closed Won when: payment is collected, roster is received, sizing is confirmed, artwork is approved, and the Director answers "yes" to the QA question. Until all five are true, the deal stays in Order Assembly.',
+      },
+      {
+        heading: 'What Operations Needs',
+        body: 'Operations needs four things to fulfill an order without contacting the customer: (1) Final roster with names and numbers, (2) Complete sizing for every athlete, (3) Approved artwork files, (4) Payment confirmation. If any of these are missing, the handoff is incomplete.',
+      },
+      {
+        heading: 'The Director QA Question',
+        body: '"Can Operations produce this order without contacting the customer again?" If the answer is NO, the deal is not ready. Go back and fill the gaps. This single question is TUF\'s quality standard — it protects the customer, Operations, and your reputation.',
+      },
+      {
+        heading: 'Who Owns What After Closed Won',
+        body: 'After Closed Won, Operations owns fulfillment — from vendor submission through delivery. You own the relationship — post-delivery contact, testimonial collection, and renewal planning. Sales acquires. Operations fulfills. The wall between them is a feature, not a bug.',
+      },
+    ],
   },
+];
+
+// ─── Module Order (sequential gating) ────────────────────────────────────────
+
+export const MODULE_ORDER: AcademyModuleCode[] = [
+  'ACAD-101',
+  'ACAD-102',
+  'ACAD-103',
+  'ACAD-104',
+  'ACAD-105',
 ];
 
 // ─── Sales Philosophy ────────────────────────────────────────────────────────
@@ -158,7 +282,7 @@ export const SALES_PHILOSOPHY: PhilosophyPrinciple[] = [
   {
     number: 2,
     title: 'Relationships compound.',
-    meaning: 'Every closed deal feeds the next one. Short-term deals don\'t build the company — relationships do.',
+    meaning: "Every closed deal feeds the next one. Short-term deals don't build the company — relationships do.",
   },
   {
     number: 3,
@@ -178,7 +302,7 @@ export const SALES_PHILOSOPHY: PhilosophyPrinciple[] = [
   {
     number: 6,
     title: 'Pipeline predicts revenue.',
-    meaning: 'Look at this week\'s pipeline, not last quarter\'s revenue.',
+    meaning: "Look at this week's pipeline, not last quarter's revenue.",
   },
   {
     number: 7,
@@ -198,53 +322,58 @@ export interface QuizQuestion {
 
 export interface QuizResult {
   moduleCode: AcademyModuleCode;
-  score: number;       // 0–100
-  passed: boolean;     // ≥ 80%
+  score: number; // 0–100
+  passed: boolean; // ≥ 80%
   attempts: number;
   lastAttempt: string; // ISO date
 }
 
 export const QUIZ_PASS_THRESHOLD = 80;
 
-/** Quiz questions per module (3–5 each). Correct answer index is 0-based. */
+/** Quiz questions per module (4 questions each). */
 export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
   'ACAD-101': [
     {
       id: '101-q1',
-      question: 'What does pipeline health measure?',
+      question: 'Why does TUF exist?',
       options: [
-        'The ratio of active opportunities to the required target, indicating whether you are building enough pipeline',
-        'The total revenue in all closed deals',
-        'The number of organizations in your territory',
-        'How many activities you logged this week',
+        'To absorb the uniform/apparel burden so coaches can focus on their athletes',
+        'To manufacture the cheapest uniforms on the market',
+        'To replace athletic directors with sales reps',
+        'To compete with national retailers on price alone',
       ],
       correctIndex: 0,
     },
     {
       id: '101-q2',
-      question: "What is the target number of active opportunities for ACAD-101?",
-      options: ['12+', '8', '15', '20'],
+      question: 'What is the four-order baseline?',
+      options: [
+        'The target of four healthy orders per month, every month — consistency over size',
+        'A minimum of four quotes per week',
+        'Four orders is the maximum a rep can handle at once',
+        'Only the four largest programs in a territory matter',
+      ],
       correctIndex: 0,
     },
     {
       id: '101-q3',
-      question: 'Which Sales Philosophy principle applies to pipeline management?',
+      question: 'What is lane penetration?',
       options: [
-        '"Pipeline predicts revenue"',
-        '"Relationships compound"',
-        '"Activity creates opportunity"',
-        '"Four healthy orders beat one lucky order"',
+        'Identifying and selling into ALL applicable sales lanes within a program (football, basketball, fan gear, etc.)',
+        'Focusing on a single sport per program',
+        'Expanding into new geographic territories',
+        'Reducing the number of product options offered to a program',
       ],
       correctIndex: 0,
     },
     {
       id: '101-q4',
-      question: 'Why is maintaining pipeline health critical for a TUF rep?',
+      question: 'Which Sales Philosophy principle means "coaches buy from people"?',
       options: [
-        'It predicts future revenue and shows whether you are building enough opportunities to hit your monthly target',
-        'Pipeline health is a vanity metric that only Directors care about',
-        'Pipeline health auto-resets each month so it doesn\'t matter long-term',
-        'Only opportunities in the Closed Won stage count toward health',
+        '"Coaches buy from people" — the rep IS the product',
+        '"Pipeline predicts revenue"',
+        '"Four healthy orders beat one lucky order"',
+        '"Activity creates opportunity"',
       ],
       correctIndex: 0,
     },
@@ -252,34 +381,45 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
   'ACAD-102': [
     {
       id: '102-q1',
-      question: 'Why must organization records be complete?',
+      question: "What's the first step with a new lead?",
       options: [
-        'Complete records enable accurate territory tracking, pipeline development, and contact history — incomplete records break everything downstream',
-        'Organization records auto-fill when an opportunity is created, so completeness is optional',
-        'Only the organization name matters; everything else is cosmetic',
-        'Incomplete records are automatically enriched from external databases',
+        'Research the program before making contact',
+        'Send a proposal immediately',
+        'Call and ask for the order right away',
+        'Wait for the lead to contact you first',
       ],
       correctIndex: 0,
     },
     {
       id: '102-q2',
-      question: "What is the minimum required information for an organization record?",
+      question: 'How many prospecting calls should a TAE aim to make weekly?',
       options: [
-        'A non-empty name',
-        'Name, email, and phone number',
-        'Name, address, and revenue',
-        'Name and a linked opportunity',
+        'Consistent daily outreach — activity creates opportunity, not one big push',
+        'One call per week is sufficient',
+        'Only call when there is a hot lead',
+        'Calls are optional if you have enough pipeline',
       ],
       correctIndex: 0,
     },
     {
       id: '102-q3',
-      question: 'Which Sales Philosophy principle applies to organization management?',
+      question: 'Which Sales Philosophy principle applies to prospecting?',
       options: [
-        '"Relationships compound"',
         '"Activity creates opportunity"',
-        '"Pipeline predicts revenue"',
+        '"We sell trust before apparel"',
         '"The Director QA question"',
+        '"Pipeline predicts revenue"',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '102-q4',
+      question: 'What three things should you verify when qualifying a program?',
+      options: [
+        'Timeline, budget, and authority (decision-maker)',
+        'Name, email, and phone number',
+        'Sport, color, and size',
+        'Address, website, and social media',
       ],
       correctIndex: 0,
     },
@@ -287,40 +427,45 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
   'ACAD-103': [
     {
       id: '103-q1',
-      question: 'What are the correct opportunity stages in TUF Ops?',
+      question: 'What are sales lanes?',
       options: [
-        'Lead, Contacted, Proposal Sent, Negotiation, Order Assembly, Director QA, Closed Won',
-        'Lead, Qualified, Demo, Proposal, Negotiation, Close',
-        'Lead, Discovery, Mockup, Invoice, Won',
-        'Lead, Call, Meeting, Contract, Won',
+        'Distinct product categories within a program — e.g., football jerseys, basketball, fan gear, coaching apparel',
+        'Geographic territories assigned to each rep',
+        'The stages in the sales pipeline',
+        'Different pricing tiers for uniforms',
       ],
       correctIndex: 0,
     },
     {
       id: '103-q2',
-      question: 'Why does stage accuracy matter?',
+      question: 'Why must you record needs during discovery?',
       options: [
-        'Stage accuracy determines pipeline health metrics, Director coaching priorities, and whether deals are truly advancing — mis-staged deals corrupt the entire system',
-        'Stages only matter for reporting and can be fixed later',
-        'Stages auto-update when activities are logged',
-        'Stage accuracy only matters for Closed Won',
+        'Discovery notes become the proposal blueprint — if it is not in the notes, it will not be in the proposal',
+        'Recording needs is optional; the proposal can be built from memory',
+        'Needs are only recorded for Operations, not for proposals',
+        'The coach will provide a written list of needs after the discovery call',
       ],
       correctIndex: 0,
     },
     {
       id: '103-q3',
-      question: 'What is the minimum number of distinct stages needed across your opportunities for ACAD-103?',
-      options: ['4 distinct stages', '2 stages', '5 stages', 'All 7 stages simultaneously'],
+      question: 'Which pipeline stage does discovery map to?',
+      options: [
+        'Between Lead and Contacted — discovery is the bridge from "we should talk" to "here\'s what we need"',
+        'Closed Won — discovery happens after the deal is closed',
+        'Proposal Sent — discovery only happens after the proposal is sent',
+        'Negotiation — discovery is part of price negotiation',
+      ],
       correctIndex: 0,
     },
     {
       id: '103-q4',
-      question: 'Which Sales Philosophy principle applies to opportunity creation?',
+      question: 'Which Sales Philosophy principle applies to discovery?',
       options: [
-        '"Activity creates opportunity"',
-        '"Pipeline predicts revenue"',
-        '"We sell trust before apparel"',
+        '"Coaches buy from people" — they buy from someone who understands their program',
         '"Four healthy orders beat one lucky order"',
+        '"Pipeline predicts revenue"',
+        '"The Director QA question"',
       ],
       correctIndex: 0,
     },
@@ -328,75 +473,91 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
   'ACAD-104': [
     {
       id: '104-q1',
-      question: "What is the first step with a new lead?",
+      question: 'What must be complete before sending a proposal?',
       options: [
-        'Log an activity to document your initial contact',
-        'Create an opportunity immediately',
-        'Send a proposal',
-        'Wait for the lead to reach out to you',
+        'Discovery notes — every item in the proposal should trace back to a need the coach expressed',
+        'The order must already be Closed Won',
+        'Payment must be collected first',
+        'Operations must approve the proposal before it goes to the coach',
       ],
       correctIndex: 0,
     },
     {
       id: '104-q2',
-      question: 'Which Sales Philosophy principle applies to prospecting?',
+      question: 'How should you handle pricing objections?',
       options: [
-        '"Activity creates opportunity"',
-        '"Pipeline predicts revenue"',
-        '"Relationships compound"',
-        '"Coaches buy from people"',
+        'Dig into every objection — it is a buying signal and your path to closing',
+        'Immediately reduce the price by 20%',
+        'Tell the coach they are wrong about the price being too high',
+        'Skip the objection and move to the next program',
       ],
       correctIndex: 0,
     },
     {
       id: '104-q3',
-      question: 'How many prospecting activities are required for ACAD-104 certification?',
-      options: ['15+ logged activities', '5 logged activities', '10 logged activities', '25 logged activities'],
+      question: 'Which Sales Philosophy principle applies to the proposal stage?',
+      options: [
+        '"We sell trust before apparel" — the coach is buying confidence, not just uniforms',
+        '"Activity creates opportunity"',
+        '"Pipeline predicts revenue"',
+        '"Relationships compound"',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '104-q4',
+      question: 'What are the correct stages for advancing a proposal?',
+      options: [
+        'Contacted → Proposal Sent → Negotiation',
+        'Lead → Proposal Sent → Closed Won',
+        'Discovery → Invoice → Shipped',
+        'Contacted → Mockup → Delivered',
+      ],
       correctIndex: 0,
     },
   ],
   'ACAD-105': [
     {
       id: '105-q1',
-      question: 'Where do you find your pipeline in TUF Ops?',
+      question: 'What is the Director QA question?',
       options: [
-        'On the Dashboard page',
-        'On the Organizations page',
-        'On the Settings page',
-        'On the Academy page only',
+        '"Can Operations produce this order without contacting the customer again?"',
+        '"Did the rep meet their monthly quota?"',
+        '"Is the proposal formatted correctly?"',
+        '"Has the coach signed the contract?"',
       ],
       correctIndex: 0,
     },
     {
       id: '105-q2',
-      question: 'Where can you access guided tours?',
+      question: 'When is a deal truly Closed Won?',
       options: [
-        'Academy page and the Training Portal',
-        'Only in external documentation',
-        'Guided tours are emailed to reps weekly',
-        'In the Settings menu under "Help"',
+        'When payment is collected, roster received, sizing confirmed, artwork approved, AND the Director answers "yes" to the QA question',
+        'As soon as the coach verbally says "yes"',
+        'When the proposal is sent',
+        'When Operations receives the order',
       ],
       correctIndex: 0,
     },
     {
       id: '105-q3',
-      question: 'Which core pages must be visited to complete ACAD-105?',
+      question: 'Who owns fulfillment after Closed Won?',
       options: [
-        'Dashboard, Organizations, Opportunities',
-        'Dashboard only',
-        'Every page in TUF Ops',
-        'Dashboard and Academy page only',
+        'Operations — from vendor submission through delivery',
+        'The TAE — they stay involved in production',
+        'The Director — they manage all fulfillment',
+        'The coach — they coordinate directly with the vendor',
       ],
       correctIndex: 0,
     },
     {
       id: '105-q4',
-      question: 'Which Sales Philosophy principle applies to TUF Ops navigation?',
+      question: 'What four things does Operations need to fulfill without contacting the customer?',
       options: [
-        '"We sell trust before apparel"',
-        '"Pipeline predicts revenue"',
-        '"Activity creates opportunity"',
-        '"Relationships compound"',
+        'Roster, sizing, artwork, and payment confirmation',
+        'Proposal, invoice, contract, and phone number',
+        'Coach name, sport, color, and delivery date',
+        'Mockup, quote, purchase order, and email',
       ],
       correctIndex: 0,
     },
@@ -438,7 +599,6 @@ export function isQuizPassed(code: AcademyModuleCode): boolean {
 
 /**
  * Grade a quiz submission and save the result.
- * Returns the QuizResult with score, passed flag, and attempt count.
  */
 export function gradeQuiz(
   code: AcademyModuleCode,
@@ -462,6 +622,466 @@ export function gradeQuiz(
 
   saveQuizResult(result);
   return result;
+}
+
+// ─── Mission Statement Storage (ACAD-101 Demonstrate) ────────────────────────
+
+const MISSION_KEY = 'tuf_academy_mission_statement';
+
+export function getMissionStatement(userId: string): string {
+  try {
+    const raw = localStorage.getItem(MISSION_KEY);
+    if (!raw) return '';
+    const data = JSON.parse(raw) as Record<string, string>;
+    return data[userId] ?? '';
+  } catch {
+    return '';
+  }
+}
+
+export function saveMissionStatement(userId: string, text: string): void {
+  try {
+    const raw = localStorage.getItem(MISSION_KEY);
+    const data = raw ? (JSON.parse(raw) as Record<string, string>) : {};
+    data[userId] = text;
+    localStorage.setItem(MISSION_KEY, JSON.stringify(data));
+  } catch {
+    // fail silently
+  }
+}
+
+export function hasMissionStatement(userId: string): boolean {
+  return getMissionStatement(userId).trim().length > 0;
+}
+
+// ─── Coach Review Storage ────────────────────────────────────────────────────
+
+const COACH_REVIEWS_KEY = 'tuf_academy_coach_reviews';
+
+export function getCoachReviews(): Partial<Record<AcademyModuleCode, CoachReview>> {
+  try {
+    const raw = localStorage.getItem(COACH_REVIEWS_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw) as Partial<Record<AcademyModuleCode, CoachReview>>;
+  } catch {
+    return {};
+  }
+}
+
+export function getCoachReview(code: AcademyModuleCode): CoachReview | null {
+  const reviews = getCoachReviews();
+  return reviews[code] ?? null;
+}
+
+export function saveCoachReview(code: AcademyModuleCode, review: CoachReview): void {
+  try {
+    const reviews = getCoachReviews();
+    reviews[code] = review;
+    localStorage.setItem(COACH_REVIEWS_KEY, JSON.stringify(reviews));
+  } catch {
+    // fail silently
+  }
+}
+
+// ─── Acknowledgment Storage ──────────────────────────────────────────────────
+
+const ACKNOWLEDGMENTS_KEY = 'tuf_academy_acknowledgments';
+
+export function getAcknowledgments(userId: string): Set<AcademyModuleCode> {
+  try {
+    const raw = localStorage.getItem(ACKNOWLEDGMENTS_KEY);
+    if (!raw) return new Set();
+    const data = JSON.parse(raw) as Record<string, string[]>;
+    return new Set(data[userId] ?? []) as Set<AcademyModuleCode>;
+  } catch {
+    return new Set();
+  }
+}
+
+export function isModuleAcknowledged(userId: string, code: AcademyModuleCode): boolean {
+  return getAcknowledgments(userId).has(code);
+}
+
+export function acknowledgeModule(userId: string, code: AcademyModuleCode): void {
+  try {
+    const raw = localStorage.getItem(ACKNOWLEDGMENTS_KEY);
+    const data = raw ? (JSON.parse(raw) as Record<string, string[]>) : {};
+    const acked = new Set(data[userId] ?? []);
+    acked.add(code);
+    data[userId] = [...acked];
+    localStorage.setItem(ACKNOWLEDGMENTS_KEY, JSON.stringify(data));
+  } catch {
+    // fail silently
+  }
+}
+
+// ─── Auto-Detection Logic ────────────────────────────────────────────────────
+
+const ACTIVE_STAGES = new Set([
+  'Lead',
+  'Contacted',
+  'Proposal Sent',
+  'Negotiation',
+  'Order Assembly',
+  'Director QA',
+  'Closed Won',
+]);
+
+/**
+ * ACAD-101: Demonstrate — Rep writes a paragraph explaining TUF's mission.
+ * Detection: checks if the mission statement has been saved.
+ */
+export function detectAcad101(userId: string): { completed: boolean; currentValue: number } {
+  const written = hasMissionStatement(userId);
+  return { completed: written, currentValue: written ? 1 : 0 };
+}
+
+/**
+ * ACAD-102: Demonstrate — Add 5 organizations, log 3 prospecting activities.
+ */
+export function detectAcad102(): {
+  completed: boolean;
+  currentValue: number;
+  orgCount: number;
+  activityCount: number;
+} {
+  const orgs = listOrganizations({});
+  const validOrgs = orgs.filter((o) => o.name && o.name.trim().length > 0);
+
+  const user = getStoredUser();
+  const activities = listActivities({});
+  const repActivities = user
+    ? activities.filter((a) => a.user === user.name)
+    : activities;
+
+  const orgCount = Math.min(validOrgs.length, 5);
+  const actCount = Math.min(repActivities.length, 3);
+  const combined = orgCount + actCount;
+
+  return {
+    completed: validOrgs.length >= 5 && repActivities.length >= 3,
+    currentValue: combined,
+    orgCount: validOrgs.length,
+    activityCount: repActivities.length,
+  };
+}
+
+/**
+ * ACAD-103: Demonstrate — Create an opportunity, identify all sales lanes, record needs.
+ * Detection: checks for opportunities with description/notes populated.
+ */
+export function detectAcad103(): {
+  completed: boolean;
+  currentValue: number;
+  oppCount: number;
+  oppsWithNeeds: number;
+} {
+  const user = getStoredUser();
+  const opportunities = listOpportunities({});
+  const repOpps = user
+    ? opportunities.filter((o) => o.owner === user.name || o.ownerId === user.id)
+    : opportunities;
+
+  // An opportunity with needs has a non-empty description or notes
+  const oppsWithNeeds = repOpps.filter(
+    (o) =>
+      (o.description && o.description.trim().length > 0) ||
+      (o.notes && o.notes.trim().length > 0) ||
+      (o.needs && o.needs.trim().length > 0)
+  );
+
+  return {
+    completed: oppsWithNeeds.length >= 1,
+    currentValue: oppsWithNeeds.length,
+    oppCount: repOpps.length,
+    oppsWithNeeds: oppsWithNeeds.length,
+  };
+}
+
+/**
+ * ACAD-104: Demonstrate — Advance through stages (Contacted → Proposal Sent → Negotiation),
+ * enter estimated revenue.
+ * Detection: checks for opportunities at Proposal Sent or Negotiation with revenue > 0.
+ */
+export function detectAcad104(): {
+  completed: boolean;
+  currentValue: number;
+  proposalOpps: number;
+} {
+  const user = getStoredUser();
+  const opportunities = listOpportunities({});
+  const repOpps = user
+    ? opportunities.filter((o) => o.owner === user.name || o.ownerId === user.id)
+    : opportunities;
+
+  const proposalStages = new Set(['Proposal Sent', 'Negotiation']);
+  const proposalOpps = repOpps.filter(
+    (o) => proposalStages.has(o.stage) && (o.value ?? o.estimatedRevenue ?? 0) > 0
+  );
+
+  return {
+    completed: proposalOpps.length >= 1,
+    currentValue: proposalOpps.length,
+    proposalOpps: proposalOpps.length,
+  };
+}
+
+/**
+ * ACAD-105: Demonstrate — Reach Closed Won correctly, complete all required info.
+ * Detection: checks for Closed Won opportunities that have complete data.
+ */
+export function detectAcad105(): {
+  completed: boolean;
+  currentValue: number;
+  closedWonOpps: number;
+} {
+  const user = getStoredUser();
+  const opportunities = listOpportunities({});
+  const repOpps = user
+    ? opportunities.filter((o) => o.owner === user.name || o.ownerId === user.id)
+    : opportunities;
+
+  const closedWon = repOpps.filter((o) => o.stage === 'Closed Won');
+
+  return {
+    completed: closedWon.length >= 1,
+    currentValue: closedWon.length,
+    closedWonOpps: closedWon.length,
+  };
+}
+
+// ─── Module Phase Computation ────────────────────────────────────────────────
+
+/**
+ * Determine the overall phase of a module given quiz result, exercise data,
+ * coach review, and acknowledgment status.
+ *
+ * Sequential gating: module N is locked until module N-1 is acknowledged.
+ */
+function computeModulePhase(
+  code: AcademyModuleCode,
+  exerciseCompleted: boolean,
+  currentValue: number,
+  userId: string,
+  isAllCertified: boolean
+): ModulePhase {
+  const idx = MODULE_ORDER.indexOf(code);
+
+  // If the user is already fully certified, all modules show as certified
+  if (isAllCertified) return 'certified';
+
+  // Check sequential lock: ACAD-101 is always available; others require previous module acknowledged
+  if (idx > 0) {
+    const prevCode = MODULE_ORDER[idx - 1];
+    if (!isModuleAcknowledged(userId, prevCode)) {
+      return 'locked';
+    }
+  }
+
+  // Now check where this module is in its own flow
+  const coachReview = getCoachReview(code);
+  const acknowledged = isModuleAcknowledged(userId, code);
+  const quizPassed = isQuizPassed(code);
+
+  // If acknowledged, this module is done
+  if (acknowledged) return 'acknowledged';
+
+  // If coach review exists but not yet acknowledged
+  if (coachReview) return 'coach_review';
+
+  // If exercise is complete, waiting for coach review
+  if (exerciseCompleted && quizPassed) return 'awaiting_coach';
+
+  // If quiz passed but exercise not complete (or in progress)
+  if (quizPassed) {
+    // Check if there's any exercise progress at all
+    if (currentValue > 0) return 'demonstrate';
+    return 'quiz_passed';
+  }
+
+  // Module is unlocked but quiz not passed
+  return 'learn';
+}
+
+// ─── Master Detection ────────────────────────────────────────────────────────
+
+/**
+ * Master detection function — runs all 5 module checks, applies sequential gating,
+ * quiz requirements, coach review, and acknowledgment tracking.
+ */
+export function detectAllModules(): ModuleProgress[] {
+  const user = getStoredUser();
+  const userId = user?.id ?? 'unknown';
+
+  const acad101 = detectAcad101(userId);
+  const acad102 = detectAcad102();
+  const acad103 = detectAcad103();
+  const acad104 = detectAcad104();
+  const acad105 = detectAcad105();
+
+  const record = getCertificationRecord(userId);
+  const isAllCertified = record?.isLevel1Certified === true;
+
+  const rawData: Record<
+    AcademyModuleCode,
+    { completed: boolean; currentValue: number }
+  > = {
+    'ACAD-101': acad101,
+    'ACAD-102': { completed: acad102.completed, currentValue: acad102.currentValue },
+    'ACAD-103': { completed: acad103.completed, currentValue: acad103.currentValue },
+    'ACAD-104': { completed: acad104.completed, currentValue: acad104.currentValue },
+    'ACAD-105': { completed: acad105.completed, currentValue: acad105.currentValue },
+  };
+
+  const extraData: Partial<Record<AcademyModuleCode, string>> = {
+    'ACAD-102': `${acad102.orgCount} orgs, ${acad102.activityCount} activities`,
+    'ACAD-103': `${acad103.oppsWithNeeds} opps with needs / ${acad103.oppCount} total`,
+    'ACAD-104': `${acad104.proposalOpps} proposal opps`,
+    'ACAD-105': `${acad105.closedWonOpps} closed won`,
+  };
+
+  return LEVEL_1_MODULES.map((mod) => {
+    const raw = rawData[mod.code];
+    const quizPassed = isQuizPassed(mod.code);
+
+    // Exercise is only considered complete after quiz is passed AND raw data shows completion
+    const exerciseCompleted = quizPassed && raw.completed;
+
+    const phase = computeModulePhase(mod.code, exerciseCompleted, raw.currentValue, userId, isAllCertified);
+
+    const coachReview = getCoachReview(mod.code);
+
+    return {
+      code: mod.code,
+      phase,
+      currentValue: raw.currentValue,
+      targetValue:
+        mod.code === 'ACAD-101'
+          ? 1
+          : mod.code === 'ACAD-102'
+            ? 8 // 5 orgs + 3 activities = 8 combined
+            : mod.code === 'ACAD-103'
+              ? 1
+              : mod.code === 'ACAD-104'
+                ? 1
+                : 1,
+      label:
+        mod.code === 'ACAD-101'
+          ? 'mission statement'
+          : mod.code === 'ACAD-102'
+            ? 'orgs + activities'
+            : mod.code === 'ACAD-103'
+              ? 'opps with needs'
+              : mod.code === 'ACAD-104'
+                ? 'proposal opps'
+                : 'closed won opps',
+      extra: extraData[mod.code],
+      coachReview: coachReview ?? undefined,
+    };
+  });
+}
+
+// ─── Completion Helpers ──────────────────────────────────────────────────────
+
+/**
+ * Returns true if all 5 modules are acknowledged (Coach Review acknowledged by rep).
+ * This combines with Director certification to achieve DEPLOY status.
+ */
+export function isLevel1Complete(progress: ModuleProgress[]): boolean {
+  return progress.every(
+    (p) => p.phase === 'acknowledged' || p.phase === 'certified'
+  );
+}
+
+/**
+ * Returns certification progress percentage based on acknowledged modules.
+ */
+export function certificationProgress(progress: ModuleProgress[]): number {
+  const done = progress.filter(
+    (p) =>
+      p.phase === 'acknowledged' ||
+      p.phase === 'certified' ||
+      p.phase === 'coach_review'
+  ).length;
+  return Math.round((done / progress.length) * 100);
+}
+
+/**
+ * Count modules that have coach review (waiting on acknowledgment or already acknowledged).
+ */
+export function verifiedModuleCount(progress: ModuleProgress[]): number {
+  return progress.filter(
+    (p) =>
+      p.phase === 'awaiting_coach' ||
+      p.phase === 'coach_review' ||
+      p.phase === 'acknowledged' ||
+      p.phase === 'certified'
+  ).length;
+}
+
+// ─── Certification Storage ───────────────────────────────────────────────────
+
+const CERTIFICATION_KEY = 'tuf_academy_certification';
+
+export interface CertificationRecord {
+  userId: string;
+  userName: string;
+  role: string;
+  isLevel1Certified: boolean;
+  certificationTitle: string;
+  certifiedAt?: string;
+  certifiedBy?: string;
+  moduleProgress: ModuleProgress[];
+  lastChecked: string;
+}
+
+export const CERTIFICATION_TITLE = 'Level 1 Certified Territory Account Executive';
+
+export function getCertificationRecord(userId: string): CertificationRecord | null {
+  try {
+    const raw = localStorage.getItem(CERTIFICATION_KEY);
+    if (!raw) return null;
+    const records = JSON.parse(raw) as Record<string, CertificationRecord>;
+    return records[userId] || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Save certification progress WITHOUT auto-certifying.
+ */
+export function saveCertificationRecord(record: CertificationRecord): void {
+  try {
+    const raw = localStorage.getItem(CERTIFICATION_KEY);
+    const records = raw
+      ? (JSON.parse(raw) as Record<string, CertificationRecord>)
+      : {};
+    // Preserve existing certification status if already certified
+    const existing = records[record.userId];
+    if (existing?.isLevel1Certified) {
+      record.isLevel1Certified = true;
+      record.certifiedAt = existing.certifiedAt;
+      record.certifiedBy = existing.certifiedBy;
+      record.certificationTitle = existing.certificationTitle || CERTIFICATION_TITLE;
+    }
+    records[record.userId] = record;
+    localStorage.setItem(CERTIFICATION_KEY, JSON.stringify(records));
+  } catch {
+    // fail silently
+  }
+}
+
+export function getAllCertificationRecords(): CertificationRecord[] {
+  try {
+    const raw = localStorage.getItem(CERTIFICATION_KEY);
+    if (!raw) return [];
+    return Object.values(
+      JSON.parse(raw) as Record<string, CertificationRecord>
+    );
+  } catch {
+    return [];
+  }
 }
 
 // ─── Certification Submission Storage ───────────────────────────────────────
@@ -496,7 +1116,10 @@ export function getSubmission(userId: string): CertificationSubmission | null {
   }
 }
 
-export function submitForApproval(userId: string, userName: string): CertificationSubmission {
+export function submitForApproval(
+  userId: string,
+  userName: string
+): CertificationSubmission {
   const progress = detectAllModules();
   const quizResults = getQuizResults();
 
@@ -508,7 +1131,11 @@ export function submitForApproval(userId: string, userName: string): Certificati
       quizScore: quiz?.score ?? 0,
       quizPassed: quiz?.passed ?? false,
       quizAttempts: quiz?.attempts ?? 0,
-      exerciseVerified: prog?.status === 'verified',
+      exerciseVerified:
+        prog?.phase === 'awaiting_coach' ||
+        prog?.phase === 'coach_review' ||
+        prog?.phase === 'acknowledged' ||
+        prog?.phase === 'certified',
       exerciseValue: prog?.currentValue ?? 0,
       exerciseTarget: prog?.targetValue ?? 0,
     };
@@ -523,7 +1150,9 @@ export function submitForApproval(userId: string, userName: string): Certificati
 
   try {
     const raw = localStorage.getItem(SUBMISSION_KEY);
-    const submissions = raw ? JSON.parse(raw) as Record<string, CertificationSubmission> : {};
+    const submissions = raw
+      ? (JSON.parse(raw) as Record<string, CertificationSubmission>)
+      : {};
     submissions[userId] = submission;
     localStorage.setItem(SUBMISSION_KEY, JSON.stringify(submissions));
   } catch {
@@ -537,7 +1166,9 @@ export function getAllSubmissions(): CertificationSubmission[] {
   try {
     const raw = localStorage.getItem(SUBMISSION_KEY);
     if (!raw) return [];
-    return Object.values(JSON.parse(raw) as Record<string, CertificationSubmission>);
+    return Object.values(
+      JSON.parse(raw) as Record<string, CertificationSubmission>
+    );
   } catch {
     return [];
   }
@@ -556,65 +1187,119 @@ export function clearSubmission(userId: string): void {
   }
 }
 
-// ─── Auto-Detection Logic ────────────────────────────────────────────────────
-
-const ACTIVE_STAGES = new Set([
-  'Lead', 'Contacted', 'Proposal Sent', 'Negotiation',
-  'Order Assembly', 'Director QA', 'Closed Won',
-]);
+// ─── Director Approval ───────────────────────────────────────────────────────
 
 /**
- * ACAD-101: Complete when rep has 12+ active opportunities (pipeline health ≥ 100%).
- * "Active" means not in a terminal stage (Closed Lost, Delivered, etc.)
- * Only active as an exercise if the module's quiz has been passed.
+ * Director approves a rep: certifies them as Level 1 Certified Territory Account Executive.
  */
-export function detectAcad101(): { completed: boolean; currentValue: number } {
-  const opportunities = listOpportunities({});
-  const active = opportunities.filter((o) => ACTIVE_STAGES.has(o.stage));
-  return { completed: active.length >= 12, currentValue: active.length };
-}
+export function directorApproveRep(
+  repUserId: string,
+  repUserName: string,
+  directorName: string
+): CertificationRecord | null {
+  // Only certify if the rep has submitted for approval
+  const submission = getSubmission(repUserId);
+  if (!submission) return null;
 
-/**
- * ACAD-102: Complete when rep has created 10+ organizations with required fields.
- * Required fields: name must be non-empty.
- */
-export function detectAcad102(): { completed: boolean; currentValue: number } {
-  const orgs = listOrganizations({});
-  const valid = orgs.filter((o) => o.name && o.name.trim().length > 0);
-  return { completed: valid.length >= 10, currentValue: valid.length };
-}
+  // Verify all modules are complete (quiz + exercise)
+  const allQuizzesPassed = submission.moduleProgress.every((m) => m.quizPassed);
+  const allExercisesVerified = submission.moduleProgress.every(
+    (m) => m.exerciseVerified
+  );
+  if (!allQuizzesPassed || !allExercisesVerified) return null;
 
-/**
- * ACAD-103: Complete when rep has created 15+ opportunities across ≥ 4 distinct stages.
- */
-export function detectAcad103(): { completed: boolean; currentValue: number; stagesUsed: number } {
-  const opportunities = listOpportunities({});
-  const active = opportunities.filter((o) => ACTIVE_STAGES.has(o.stage));
-  const stageSet = new Set(active.map((o) => o.stage));
-  return {
-    completed: active.length >= 15 && stageSet.size >= 4,
-    currentValue: active.length,
-    stagesUsed: stageSet.size,
+  const progress = detectAllModules();
+
+  const record: CertificationRecord = {
+    userId: repUserId,
+    userName: repUserName,
+    role: 'REP',
+    isLevel1Certified: true,
+    certificationTitle: CERTIFICATION_TITLE,
+    certifiedAt: new Date().toISOString(),
+    certifiedBy: directorName,
+    moduleProgress: progress,
+    lastChecked: new Date().toISOString(),
   };
+
+  saveCertificationRecord(record);
+
+  // Update the user record so the front-end reflects certification
+  updateUserCertificationStatus(repUserId, true);
+
+  // Clear the submission after approval
+  clearSubmission(repUserId);
+
+  // Also update the server-side is_certified flag via API
+  callCertifyApi(repUserId).catch((err) => {
+    console.warn('[TUF Academy] Failed to sync certification to server:', err);
+  });
+
+  return record;
 }
 
 /**
- * ACAD-104: Complete when rep has logged 15+ prospecting activities.
- * Filters activities to the currently logged-in rep.
+ * Legacy alias for backward compatibility.
+ * @deprecated Use directorApproveRep instead.
  */
-export function detectAcad104(): { completed: boolean; currentValue: number } {
-  const user = getStoredUser();
-  const activities = listActivities({});
-  const repActivities = user
-    ? activities.filter((a) => a.user === user.name)
-    : activities;
-  return { completed: repActivities.length >= 15, currentValue: repActivities.length };
+export function directorCertifyRep(
+  repUserId: string,
+  repUserName: string,
+  directorName: string
+): CertificationRecord | null {
+  return directorApproveRep(repUserId, repUserName, directorName);
+}
+
+function updateUserCertificationStatus(
+  userId: string,
+  isCertified: boolean
+): void {
+  try {
+    const raw = localStorage.getItem('tuf_ops_user_v3');
+    if (raw) {
+      const current = JSON.parse(raw);
+      if (current.id === userId) {
+        current.isCertified = isCertified;
+        localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
+        window.dispatchEvent(
+          new CustomEvent('tuf:user-updated', { detail: current })
+        );
+      }
+    }
+    // Also update in tuf_ops_users_v7
+    const usersRaw = localStorage.getItem('tuf_ops_users_v7');
+    if (usersRaw) {
+      const users = JSON.parse(usersRaw);
+      const updated = users.map((u: any) =>
+        u.id === userId ? { ...u, isCertified } : u
+      );
+      localStorage.setItem('tuf_ops_users_v7', JSON.stringify(updated));
+    }
+  } catch {
+    // fail silently
+  }
 }
 
 /**
- * ACAD-105: Complete when rep has visited all core pages + Academy.
- * Tracked via localStorage.
+ * Call the server-side certify endpoint to persist is_certified in the database.
  */
+async function callCertifyApi(userId: string): Promise<void> {
+  // Use a dynamic approach to avoid import.meta issues in test environments
+  const API_BASE = typeof window !== 'undefined' && (window as any).__VITE_API_BASE_URL__
+    ? (window as any).__VITE_API_BASE_URL__
+    : '/api';
+  const numericId = userId.replace(/\\D/g, '');
+  const response = await fetch(`${API_BASE}/v1/users/${numericId}/certify`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    throw new Error(`Certify API returned ${response.status}`);
+  }
+}
+
+// ─── Deprecated: Page Visited Tracking (kept for backward compatibility) ─────
+
 const VISITED_PAGES_KEY = 'tuf_academy_visited_pages';
 
 function getVisitedPages(): Set<string> {
@@ -631,292 +1316,4 @@ export function markPageVisited(page: string): void {
   const visited = getVisitedPages();
   visited.add(page);
   localStorage.setItem(VISITED_PAGES_KEY, JSON.stringify([...visited]));
-}
-
-export function detectAcad105(): { completed: boolean; currentValue: number; visitedPages: string[] } {
-  const visited = getVisitedPages();
-  const required = ['dashboard', 'organizations', 'opportunities'];
-  const visitedRequired = required.filter((p) => visited.has(p));
-  return {
-    completed: visitedRequired.length >= required.length,
-    currentValue: visitedRequired.length,
-    visitedPages: [...visited],
-  };
-}
-
-// ─── Module Order (for sequential gating) ────────────────────────────────────
-
-export const MODULE_ORDER: AcademyModuleCode[] = [
-  'ACAD-101', 'ACAD-102', 'ACAD-103', 'ACAD-104', 'ACAD-105',
-];
-
-/**
- * Determine the overall status of a module given its quiz result and exercise data.
- * Sequential gating applies: module N is locked until module N-1 quiz is passed.
- */
-function computeModuleStatus(
-  code: AcademyModuleCode,
-  exerciseCompleted: boolean,
-  currentValue: number,
-  submissionExists: boolean,
-  isApproved: boolean
-): ModuleStatus {
-  const idx = MODULE_ORDER.indexOf(code);
-
-  // Check sequential lock: ACAD-101 is always available; others require previous quiz passed
-  if (idx > 0) {
-    const prevCode = MODULE_ORDER[idx - 1];
-    if (!isQuizPassed(prevCode)) {
-      return 'locked';
-    }
-  }
-
-  if (isApproved) return 'approved';
-  if (submissionExists) return 'submitted';
-
-  // Module is unlocked; check quiz and exercise status
-  const quizPassed = isQuizPassed(code);
-
-  if (quizPassed && exerciseCompleted) return 'verified';
-  if (quizPassed) return 'quiz_passed';
-  return 'available';
-}
-
-/**
- * Master detection function — runs all 5 module checks, applies sequential gating
- * and quiz requirements. Exercises only activate after the quiz is passed.
- */
-export function detectAllModules(): ModuleProgress[] {
-  const acad101 = detectAcad101();
-  const acad102 = detectAcad102();
-  const acad103 = detectAcad103();
-  const acad104 = detectAcad104();
-  const acad105 = detectAcad105();
-
-  const user = getStoredUser();
-  const userId = user?.id ?? 'unknown';
-  const submission = getSubmission(userId);
-  const submissionExists = submission !== null;
-  const record = getCertificationRecord(userId);
-  const isApproved = record?.isLevel1Certified === true;
-
-  const rawData: Record<AcademyModuleCode, { completed: boolean; currentValue: number }> = {
-    'ACAD-101': acad101,
-    'ACAD-102': acad102,
-    'ACAD-103': acad103,
-    'ACAD-104': acad104,
-    'ACAD-105': acad105,
-  };
-
-  const extraData: Partial<Record<AcademyModuleCode, string>> = {
-    'ACAD-103': `${acad103.stagesUsed} stages`,
-    'ACAD-105': acad105.visitedPages.join(', ') || 'none visited',
-  };
-
-  return LEVEL_1_MODULES.map((mod) => {
-    const raw = rawData[mod.code];
-    const quizPassed = isQuizPassed(mod.code);
-    // Exercise is only "active" (counts) after quiz is passed
-    // If quiz not passed, exercise data is still collected but doesn't count toward completion
-    const exerciseCompleted = quizPassed && raw.completed;
-
-    const status = computeModuleStatus(mod.code, exerciseCompleted, raw.currentValue, submissionExists, isApproved);
-
-    return {
-      code: mod.code,
-      status,
-      currentValue: raw.currentValue,
-      targetValue: mod.code === 'ACAD-101' ? 12 :
-                    mod.code === 'ACAD-102' ? 10 :
-                    mod.code === 'ACAD-103' ? 15 :
-                    mod.code === 'ACAD-104' ? 15 : 3,
-      label: mod.code === 'ACAD-101' ? 'active opportunities' :
-             mod.code === 'ACAD-102' ? 'organizations' :
-             mod.code === 'ACAD-103' ? `opportunities (${acad103.stagesUsed} stages)` :
-             mod.code === 'ACAD-104' ? 'activities' : 'pages visited',
-      extra: extraData[mod.code],
-    };
-  });
-}
-
-// ─── Completion Helpers ──────────────────────────────────────────────────────
-
-/**
- * Returns true if all 5 modules are verified (quiz passed + exercise completed).
- * This is the gate for being able to submit for Director approval.
- */
-export function isLevel1Complete(progress: ModuleProgress[]): boolean {
-  return progress.every((p) => p.status === 'verified');
-}
-
-/**
- * Returns certification progress percentage based on verified modules.
- */
-export function certificationProgress(progress: ModuleProgress[]): number {
-  const verified = progress.filter((p) => p.status === 'verified' || p.status === 'submitted' || p.status === 'approved').length;
-  return Math.round((verified / progress.length) * 100);
-}
-
-/**
- * Count modules that are fully verified (quiz passed + exercise done).
- */
-export function verifiedModuleCount(progress: ModuleProgress[]): number {
-  return progress.filter((p) => p.status === 'verified' || p.status === 'submitted' || p.status === 'approved').length;
-}
-
-// ─── Certification Storage ───────────────────────────────────────────────────
-
-const CERTIFICATION_KEY = 'tuf_academy_certification';
-
-export interface CertificationRecord {
-  userId: string;
-  userName: string;
-  role: string;
-  isLevel1Certified: boolean;
-  certifiedAt?: string;
-  certifiedBy?: string;
-  moduleProgress: ModuleProgress[];
-  lastChecked: string;
-}
-
-export function getCertificationRecord(userId: string): CertificationRecord | null {
-  try {
-    const raw = localStorage.getItem(CERTIFICATION_KEY);
-    if (!raw) return null;
-    const records = JSON.parse(raw) as Record<string, CertificationRecord>;
-    return records[userId] || null;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Save certification progress WITHOUT auto-certifying.
- * This only records progress; certification is a separate Director action.
- */
-export function saveCertificationRecord(record: CertificationRecord): void {
-  try {
-    const raw = localStorage.getItem(CERTIFICATION_KEY);
-    const records = raw ? JSON.parse(raw) as Record<string, CertificationRecord> : {};
-    // Preserve existing certification status if already certified
-    const existing = records[record.userId];
-    if (existing?.isLevel1Certified) {
-      record.isLevel1Certified = true;
-      record.certifiedAt = existing.certifiedAt;
-      record.certifiedBy = existing.certifiedBy;
-    }
-    records[record.userId] = record;
-    localStorage.setItem(CERTIFICATION_KEY, JSON.stringify(records));
-  } catch {
-    // fail silently
-  }
-}
-
-export function getAllCertificationRecords(): CertificationRecord[] {
-  try {
-    const raw = localStorage.getItem(CERTIFICATION_KEY);
-    if (!raw) return [];
-    return Object.values(JSON.parse(raw) as Record<string, CertificationRecord>);
-  } catch {
-    return [];
-  }
-}
-
-/**
- * Director approval: certify a TAE after reviewing their submission.
- * This is the ONLY path to certification — no auto-certification.
- */
-export function directorApproveRep(
-  repUserId: string,
-  repUserName: string,
-  directorName: string
-): CertificationRecord | null {
-  // Only certify if the rep has submitted for approval
-  const submission = getSubmission(repUserId);
-  if (!submission) return null;
-
-  // Verify all modules are complete (quiz + exercise)
-  const allQuizzesPassed = submission.moduleProgress.every((m) => m.quizPassed);
-  const allExercisesVerified = submission.moduleProgress.every((m) => m.exerciseVerified);
-  if (!allQuizzesPassed || !allExercisesVerified) return null;
-
-  const progress = detectAllModules();
-
-  const record: CertificationRecord = {
-    userId: repUserId,
-    userName: repUserName,
-    role: 'REP',
-    isLevel1Certified: true,
-    certifiedAt: new Date().toISOString(),
-    certifiedBy: directorName,
-    moduleProgress: progress,
-    lastChecked: new Date().toISOString(),
-  };
-
-  saveCertificationRecord(record);
-
-  // Update the user record so the front-end reflects certification
-  updateUserCertificationStatus(repUserId, true);
-
-  // Clear the submission after approval
-  clearSubmission(repUserId);
-
-  // ALSO update the server-side is_certified flag via API
-  // This ensures the requireCertification() middleware allows CRM API access
-  callCertifyApi(repUserId).catch((err) => {
-    console.warn('[TUF Academy] Failed to sync certification to server:', err);
-  });
-
-  return record;
-}
-
-/**
- * Legacy alias for backward compatibility with AdminCertificationPage.
- * @deprecated Use directorApproveRep instead.
- */
-export function directorCertifyRep(
-  repUserId: string,
-  repUserName: string,
-  directorName: string
-): CertificationRecord | null {
-  return directorApproveRep(repUserId, repUserName, directorName);
-}
-
-function updateUserCertificationStatus(userId: string, isCertified: boolean): void {
-  try {
-    const raw = localStorage.getItem('tuf_ops_user_v3');
-    if (raw) {
-      const current = JSON.parse(raw);
-      if (current.id === userId) {
-        current.isCertified = isCertified;
-        localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
-        window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: current }));
-      }
-    }
-    // Also update in tuf_ops_users_v7
-    const usersRaw = localStorage.getItem('tuf_ops_users_v7');
-    if (usersRaw) {
-      const users = JSON.parse(usersRaw);
-      const updated = users.map((u: any) => u.id === userId ? { ...u, isCertified } : u);
-      localStorage.setItem('tuf_ops_users_v7', JSON.stringify(updated));
-    }
-  } catch {
-    // fail silently
-  }
-}
-
-/**
- * Call the server-side certify endpoint to persist is_certified in the database.
- * This is the mirror of the PUT /api/v1/users/:id/certify endpoint.
- */
-async function callCertifyApi(userId: string): Promise<void> {
-  const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
-  const numericId = userId.replace(/\\D/g, '');
-  const response = await fetch(`${API_BASE}/v1/users/${numericId}/certify`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-  });
-  if (!response.ok) {
-    throw new Error(`Certify API returned ${response.status}`);
-  }
 }

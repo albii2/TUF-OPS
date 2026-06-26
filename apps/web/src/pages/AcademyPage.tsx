@@ -6,6 +6,8 @@ import {
   SALES_PHILOSOPHY,
   QUIZZES,
   QUIZ_PASS_THRESHOLD,
+  MODULE_ORDER,
+  CERTIFICATION_TITLE,
   detectAllModules,
   isLevel1Complete,
   verifiedModuleCount,
@@ -15,13 +17,20 @@ import {
   submitForApproval,
   saveCertificationRecord,
   getSubmission,
+  getMissionStatement,
+  saveMissionStatement,
+  hasMissionStatement,
+  getCoachReview,
+  getCoachReviews,
+  acknowledgeModule,
+  isModuleAcknowledged,
   markPageVisited,
-  MODULE_ORDER,
   type ModuleProgress,
   type AcademyModule,
   type AcademyModuleCode,
   type QuizQuestion,
   type QuizResult,
+  type CoachReview,
 } from '../lib/academy';
 import TufAcademyLogo from '../assets/tuf-academy.png';
 
@@ -163,6 +172,209 @@ function QuizModal({
   );
 }
 
+// ─── Mission Statement Modal (ACAD-101 Demonstrate) ────────────────────────
+
+function MissionStatementModal({
+  existingText,
+  onClose,
+  onSave,
+}: {
+  existingText: string;
+  onClose: () => void;
+  onSave: (text: string) => void;
+}) {
+  const [text, setText] = useState(existingText);
+  const canSave = text.trim().length > 0;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-black text-white">Your Mission Statement</h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Explain TUF's mission in your own words. This will be reviewed by your Director.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-400 hover:bg-slate-800 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="mb-4 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
+          <p className="text-sm text-slate-300 mb-2 font-bold">Prompt:</p>
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Why does TUF exist? What is our mission? How do the 7 Sales Philosophy principles
+            guide you as a Territory Account Executive? Write 3-5 sentences.
+          </p>
+        </div>
+
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Write your mission statement here..."
+          rows={8}
+          className="w-full rounded-lg border border-slate-700 bg-slate-900/60 p-4 text-sm text-slate-200 placeholder-slate-600 focus:border-cyan-400/40 focus:outline-none resize-vertical"
+        />
+
+        <div className="flex justify-between items-center mt-4">
+          <p className="text-xs text-slate-500">
+            {text.trim().length > 0
+              ? `${text.trim().length} characters`
+              : 'Enter at least 100 characters for a strong statement'}
+          </p>
+          <button
+            onClick={() => onSave(text.trim())}
+            disabled={!canSave}
+            className="rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-5 py-2 text-sm font-bold text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-40 transition-colors"
+          >
+            Save Mission Statement
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Coach Review Modal ────────────────────────────────────────────────────
+
+function CoachReviewModal({
+  moduleName,
+  moduleCode,
+  coachReview,
+  onClose,
+  onAcknowledge,
+  acknowledging,
+}: {
+  moduleName: string;
+  moduleCode: AcademyModuleCode;
+  coachReview: CoachReview;
+  onClose: () => void;
+  onAcknowledge: () => void;
+  acknowledging: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-purple-400/20 bg-[#070c13] p-6 shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-black text-white">
+              Coach Review — {moduleName}
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Reviewed by {coachReview.reviewedBy} on{' '}
+              {new Date(coachReview.reviewedAt).toLocaleDateString()}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-400 hover:bg-slate-800 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Strengths */}
+        <div className="mb-4 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-4">
+          <h3 className="text-sm font-black text-emerald-300 mb-2">💪 Strengths</h3>
+          <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+            {coachReview.strengths || 'No strengths noted.'}
+          </p>
+        </div>
+
+        {/* Corrections */}
+        <div className="mb-4 rounded-lg border border-amber-400/20 bg-amber-400/5 p-4">
+          <h3 className="text-sm font-black text-amber-300 mb-2">🔧 Corrections</h3>
+          <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+            {coachReview.corrections || 'No corrections noted.'}
+          </p>
+        </div>
+
+        {/* Coaching Notes */}
+        <div className="mb-6 rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4">
+          <h3 className="text-sm font-black text-cyan-300 mb-2">📝 Coaching Notes</h3>
+          <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+            {coachReview.coachingNotes || 'No coaching notes.'}
+          </p>
+        </div>
+
+        {/* Acknowledge */}
+        <div className="rounded-lg border border-purple-400/30 bg-purple-400/5 p-4">
+          <p className="text-sm text-slate-300 mb-3">
+            Review the Director's feedback above. When you're ready, acknowledge to unlock the next module.
+          </p>
+          <button
+            onClick={onAcknowledge}
+            disabled={acknowledging}
+            className="rounded-lg border border-purple-400/40 bg-purple-400/10 px-5 py-2 text-sm font-bold text-purple-200 hover:bg-purple-400/20 disabled:opacity-40 transition-colors"
+          >
+            {acknowledging ? 'Acknowledging...' : 'Acknowledge & Continue'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Learn Content Modal ───────────────────────────────────────────────────
+
+function LearnContentModal({
+  module,
+  onClose,
+}: {
+  module: AcademyModule;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-cyan-400/20 bg-[#070c13] p-6 shadow-2xl">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-black text-white">
+              📖 {module.name} — Learn
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Study the content below before taking the quiz.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-400 hover:bg-slate-800 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {module.learnContent.map((section, idx) => (
+            <div
+              key={idx}
+              className="rounded-lg border border-slate-800 bg-slate-900/40 p-4"
+            >
+              <h3 className="text-sm font-black text-cyan-200 mb-2">
+                {section.heading}
+              </h3>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                {section.body}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3">
+          <p className="text-xs text-amber-200">
+            💡 <strong>Philosophy Principle #{module.philosophyPrinciple}:</strong>{' '}
+            "{SALES_PHILOSOPHY[module.philosophyPrinciple - 1]?.title}"
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Academy Page ────────────────────────────────────────────────────
 
 export default function AcademyPage() {
@@ -171,6 +383,10 @@ export default function AcademyPage() {
   const [showPhilosophy, setShowPhilosophy] = useState(false);
   const [activeQuiz, setActiveQuiz] = useState<AcademyModuleCode | null>(null);
   const [submittingQuiz, setSubmittingQuiz] = useState(false);
+  const [activeLearn, setActiveLearn] = useState<AcademyModuleCode | null>(null);
+  const [showMissionModal, setShowMissionModal] = useState(false);
+  const [activeCoachReview, setActiveCoachReview] = useState<AcademyModuleCode | null>(null);
+  const [acknowledging, setAcknowledging] = useState(false);
   const [submittingForApproval, setSubmittingForApproval] = useState(false);
   const [approvalSubmitted, setApprovalSubmitted] = useState(false);
   const [approvalError, setApprovalError] = useState<string | null>(null);
@@ -200,23 +416,27 @@ export default function AcademyPage() {
         userName: user.name,
         role: user.role,
         isLevel1Certified: isCertified,
+        certificationTitle: CERTIFICATION_TITLE,
         moduleProgress: progress,
         lastChecked: new Date().toISOString(),
       });
     }
-  }, [user, userId, isCertified]);
+  }, [user, isCertified]);
 
   const verifiedCount = verifiedModuleCount(moduleProgress);
-  const completeCount = moduleProgress.filter((m) => m.status === 'verified').length;
+  const completeCount = moduleProgress.filter(
+    (m) => m.phase === 'acknowledged' || m.phase === 'certified'
+  ).length;
   const quizResults = getQuizResults();
   const submission = useMemo(() => getSubmission(userId), [userId]);
+  const missionStatement = getMissionStatement(userId);
 
   const certificationLabel = isCertified
-    ? 'Level 1 Certified — Full CRM Access Granted'
+    ? `${CERTIFICATION_TITLE} — Full CRM Access Granted`
     : isRep
       ? approvalSubmitted
-        ? 'Submitted for Director Approval — Pending Review'
-        : `Academy Progress: ${completeCount}/5 Modules Complete — Submit for Certification`
+        ? 'Submitted for Director Review — Pending'
+        : `Academy Progress: ${completeCount}/5 Modules Complete — Coach Review Required`
       : 'Director/Admin — Full CRM Access';
 
   const statusColor = isCertified
@@ -232,9 +452,8 @@ export default function AcademyPage() {
       if (!activeQuiz) return;
       setSubmittingQuiz(true);
       try {
-        const result = gradeQuiz(activeQuiz, answers);
+        gradeQuiz(activeQuiz, answers);
         setSubmittingQuiz(false);
-        // Refresh progress after quiz
         refreshProgress();
         setActiveQuiz(null);
       } catch {
@@ -248,9 +467,36 @@ export default function AcademyPage() {
     setActiveQuiz(code);
   };
 
+  const handleOpenLearn = (code: AcademyModuleCode) => {
+    setActiveLearn(code);
+  };
+
+  const handleSaveMission = (text: string) => {
+    saveMissionStatement(userId, text);
+    setShowMissionModal(false);
+    refreshProgress();
+  };
+
+  const handleAcknowledge = useCallback(
+    (code: AcademyModuleCode) => {
+      setAcknowledging(true);
+      try {
+        acknowledgeModule(userId, code);
+        setAcknowledging(false);
+        setActiveCoachReview(null);
+        refreshProgress();
+      } catch {
+        setAcknowledging(false);
+      }
+    },
+    [userId, refreshProgress]
+  );
+
   const handleSubmitForApproval = useCallback(async () => {
     if (!isLevel1Complete(moduleProgress)) {
-      setApprovalError('All 5 modules must be verified (quiz passed + exercise completed) before submitting.');
+      setApprovalError(
+        'All 5 modules must go through Coach Review and you must acknowledge each one before submitting for certification.'
+      );
       return;
     }
     setSubmittingForApproval(true);
@@ -260,7 +506,9 @@ export default function AcademyPage() {
       setApprovalSubmitted(true);
       refreshProgress();
     } catch (e) {
-      setApprovalError(e instanceof Error ? e.message : 'Failed to submit. Please try again.');
+      setApprovalError(
+        e instanceof Error ? e.message : 'Failed to submit. Please try again.'
+      );
     } finally {
       setSubmittingForApproval(false);
     }
@@ -288,11 +536,11 @@ export default function AcademyPage() {
                 className="mx-auto h-14 w-auto object-contain drop-shadow-[0_0_22px_rgba(31,182,255,0.25)] sm:h-16"
               />
               <h1 className="mt-3 text-2xl font-black leading-tight text-white md:text-4xl">
-                TUF Academy — Level 1 Certification
+                TUF Academy — TUF Sales System Certification
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                Pass the quiz for each module, complete the real-world exercise,
-                and submit for Director approval to earn your Level 1 Certification.
+                Master the TUF Sales System through five modules: Philosophy, Prospecting, Discovery,
+                Proposal, and Order Handoff. Learn → Demonstrate → Coach Review → Deploy.
               </p>
 
               {/* Certification Status */}
@@ -300,7 +548,7 @@ export default function AcademyPage() {
                 <span
                   className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${statusColor}`}
                 >
-                  {isCertified ? '✓' : approvalSubmitted ? '◆' : isRep ? '●' : '◆'}{' '}
+                  {isCertified ? '🎉' : approvalSubmitted ? '◆' : isRep ? '●' : '◆'}{' '}
                   {certificationLabel}
                 </span>
               </div>
@@ -327,50 +575,60 @@ export default function AcademyPage() {
         {/* ── Module Cards ── */}
         <div>
           <h2 className="text-xl font-black text-white mb-4 flex items-center gap-2">
-            <span>📋</span> Level 1 Training Modules
+            <span>📋</span> TUF Sales System — Level 1 Modules
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {LEVEL_1_MODULES.map((module, idx) => {
               const progress = moduleProgress.find((p) => p.code === module.code);
-              const status = progress?.status ?? 'locked';
+              const phase = progress?.phase ?? 'locked';
               const quizResult = quizResults[module.code] ?? null;
+              const coachReview = progress?.coachReview ?? getCoachReview(module.code) ?? null;
 
-              const statusColors: Record<string, string> = {
-                verified: 'border-emerald-400/30 bg-emerald-400/5',
-                submitted: 'border-purple-400/30 bg-purple-400/5',
-                approved: 'border-emerald-400/30 bg-emerald-400/5',
-                quiz_passed: 'border-amber-400/30 bg-amber-400/5',
-                available: 'border-cyan-400/30 bg-cyan-400/5',
+              const phaseColors: Record<string, string> = {
+                certified: 'border-emerald-400/30 bg-emerald-400/5 shadow-[0_0_12px_rgba(16,185,129,0.08)]',
+                acknowledged: 'border-emerald-400/30 bg-emerald-400/5 shadow-[0_0_12px_rgba(16,185,129,0.08)]',
+                coach_review: 'border-purple-400/30 bg-purple-400/5',
+                awaiting_coach: 'border-amber-400/30 bg-amber-400/5',
+                demonstrate: 'border-cyan-400/30 bg-cyan-400/5',
+                quiz_passed: 'border-cyan-400/30 bg-cyan-400/5',
+                learn: 'border-blue-400/30 bg-blue-400/5',
                 locked: 'border-slate-700/60 bg-slate-900/30 opacity-50',
               };
 
-              const statusLabel: Record<string, string> = {
-                verified: '✓ Verified',
-                submitted: '◆ Submitted',
-                approved: '✓ Certified',
+              const phaseLabel: Record<string, string> = {
+                certified: '✓ Deploy',
+                acknowledged: '✓ Acknowledged',
+                coach_review: '◆ Coach Review',
+                awaiting_coach: '⏳ Awaiting Coach',
+                demonstrate: '▶ Demonstrate',
                 quiz_passed: '✓ Quiz Passed',
-                available: '○ Available',
+                learn: '📖 Learn',
                 locked: '🔒 Locked',
               };
 
               const exerciseProgressPercent =
-                status === 'verified' || status === 'quiz_passed'
-                  ? Math.min((progress?.currentValue ?? 0) / (progress?.targetValue ?? 1) * 100, 100)
+                phase === 'demonstrate' ||
+                phase === 'awaiting_coach' ||
+                phase === 'coach_review' ||
+                phase === 'acknowledged' ||
+                phase === 'certified'
+                  ? Math.min(
+                      ((progress?.currentValue ?? 0) / (progress?.targetValue ?? 1)) * 100,
+                      100
+                    )
                   : 0;
 
               const philosophy = SALES_PHILOSOPHY[module.philosophyPrinciple - 1];
-              const isExerciseActive = status === 'quiz_passed' || status === 'verified' || status === 'submitted' || status === 'approved';
-              const showExerciseBar = status === 'quiz_passed' || status === 'verified';
+              const showExerciseBar =
+                phase === 'demonstrate' ||
+                phase === 'awaiting_coach' ||
+                phase === 'coach_review';
 
               return (
                 <div
                   key={module.code}
-                  className={`rounded-xl border p-5 transition-all ${statusColors[status] || statusColors['locked']} ${
-                    status === 'verified' || status === 'approved'
-                      ? 'shadow-[0_0_12px_rgba(16,185,129,0.08)]'
-                      : status === 'submitted'
-                        ? 'shadow-[0_0_12px_rgba(147,51,234,0.08)]'
-                        : ''
+                  className={`rounded-xl border p-5 transition-all ${
+                    phaseColors[phase] || phaseColors['locked']
                   }`}
                 >
                   {/* Module Header */}
@@ -380,18 +638,22 @@ export default function AcademyPage() {
                     </span>
                     <span
                       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        status === 'verified' || status === 'approved'
+                        phase === 'certified' || phase === 'acknowledged'
                           ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
-                          : status === 'submitted'
+                          : phase === 'coach_review'
                             ? 'bg-purple-400/20 text-purple-200 border-purple-400/30'
-                            : status === 'quiz_passed'
+                            : phase === 'awaiting_coach'
                               ? 'bg-amber-400/20 text-amber-200 border-amber-400/30'
-                              : status === 'available'
+                              : phase === 'demonstrate'
                                 ? 'bg-cyan-400/20 text-cyan-200 border-cyan-400/30'
-                                : 'bg-slate-700/40 text-slate-400 border-slate-600/30'
+                                : phase === 'quiz_passed'
+                                  ? 'bg-cyan-400/20 text-cyan-200 border-cyan-400/30'
+                                  : phase === 'learn'
+                                    ? 'bg-blue-400/20 text-blue-200 border-blue-400/30'
+                                    : 'bg-slate-700/40 text-slate-400 border-slate-600/30'
                       }`}
                     >
-                      {statusLabel[status] || statusLabel['locked']}
+                      {phaseLabel[phase] || phaseLabel['locked']}
                     </span>
                   </div>
                   <h3 className="text-base font-black text-white mb-1.5">{module.name}</h3>
@@ -415,7 +677,7 @@ export default function AcademyPage() {
                   {showExerciseBar && progress && (
                     <div className="mb-3 rounded-lg bg-slate-950/50 border border-slate-800/60 p-2.5">
                       <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                        {status === 'quiz_passed' ? 'Now Practicing' : 'Exercise Complete'}
+                        Demonstrate Progress
                       </p>
                       <p className="text-xs text-slate-300">{module.completionCriteria}</p>
                       <div className="mt-2 flex items-center gap-2">
@@ -432,52 +694,162 @@ export default function AcademyPage() {
                     </div>
                   )}
 
-                  {/* Quiz Section */}
-                  {quizResult ? (
-                    <div className="mb-3 rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${
-                            quizResult.passed
-                              ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
-                              : 'bg-amber-400/20 text-amber-200 border-amber-400/30'
-                          }`}
+                  {/* Learn Phase */}
+                  {phase === 'learn' && (
+                    <div className="mb-3 space-y-2">
+                      <button
+                        onClick={() => handleOpenLearn(module.code)}
+                        className="w-full rounded-lg border border-blue-400/30 bg-blue-400/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-blue-400/10 transition-colors"
+                      >
+                        📖 Study Learning Content
+                      </button>
+                      <button
+                        onClick={() => handleTakeQuiz(module.code)}
+                        className="w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors"
+                      >
+                        📝 Take Quiz
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Quiz Passed / Demonstrate */}
+                  {(phase === 'quiz_passed' || phase === 'demonstrate') && (
+                    <div className="mb-3 space-y-2">
+                      {quizResult && (
+                        <div className="rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5 flex items-center justify-between">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${
+                              quizResult.passed
+                                ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
+                                : 'bg-amber-400/20 text-amber-200 border-amber-400/30'
+                            }`}
+                          >
+                            {quizResult.passed ? '✓' : '✗'} Quiz: {quizResult.score}%
+                          </span>
+                          <button
+                            onClick={() => handleTakeQuiz(module.code)}
+                            className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/20 transition-colors"
+                          >
+                            Retake Quiz
+                          </button>
+                        </div>
+                      )}
+                      <div className="rounded-lg bg-slate-950/50 border border-slate-800/60 p-2.5">
+                        <p className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider mb-1">
+                          ▶ Demonstrate
+                        </p>
+                        <p className="text-xs text-slate-400">{module.demonstrateTask}</p>
+                      </div>
+                      {/* Module-specific Demonstrate actions */}
+                      {module.code === 'ACAD-101' && (
+                        <button
+                          onClick={() => setShowMissionModal(true)}
+                          className="w-full rounded-lg border border-emerald-400/30 bg-emerald-400/5 px-3 py-2 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10 transition-colors"
                         >
-                          {quizResult.passed ? '✓' : '✗'} Quiz: {quizResult.score}%
-                        </span>
-                        <span className="text-[10px] text-slate-500">
-                          ({quizResult.attempts} attempt{quizResult.attempts !== 1 ? 's' : ''})
-                        </span>
+                          ✍️ Write Mission Statement
+                        </button>
+                      )}
+                      {module.code === 'ACAD-102' && (
+                        <div className="space-y-1.5">
+                          <Link
+                            to="/organizations"
+                            className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                          >
+                            Practice: Add Organizations →
+                          </Link>
+                          <Link
+                            to="/opportunities"
+                            className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                          >
+                            Practice: Log Activities →
+                          </Link>
+                        </div>
+                      )}
+                      {module.code === 'ACAD-103' && (
+                        <Link
+                          to="/opportunities"
+                          className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                        >
+                          Practice: Create Discovery Opportunities →
+                        </Link>
+                      )}
+                      {module.code === 'ACAD-104' && (
+                        <Link
+                          to="/opportunities"
+                          className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                        >
+                          Practice: Build Proposals →
+                        </Link>
+                      )}
+                      {module.code === 'ACAD-105' && (
+                        <Link
+                          to="/opportunities"
+                          className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                        >
+                          Practice: Close & Hand Off →
+                        </Link>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Awaiting Coach */}
+                  {phase === 'awaiting_coach' && (
+                    <div className="mb-3 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3">
+                      <p className="text-xs font-bold text-amber-300 mb-1">⏳ Awaiting Coach Review</p>
+                      <p className="text-xs text-slate-400">
+                        Your work has been submitted. Your Director will review and provide feedback.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Coach Review Ready */}
+                  {phase === 'coach_review' && coachReview && (
+                    <div className="mb-3 space-y-2">
+                      <div className="rounded-lg border border-purple-400/20 bg-purple-400/5 p-3">
+                        <p className="text-xs font-bold text-purple-300 mb-1">
+                          ◆ Coach Review Ready
+                        </p>
+                        <p className="text-xs text-slate-400">
+                          Reviewed by {coachReview.reviewedBy}. Open to view feedback and acknowledge.
+                        </p>
                       </div>
                       <button
-                        onClick={() => handleTakeQuiz(module.code)}
-                        className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/20 transition-colors"
+                        onClick={() => setActiveCoachReview(module.code)}
+                        className="w-full rounded-lg border border-purple-400/40 bg-purple-400/10 px-3 py-2 text-xs font-bold text-purple-200 hover:bg-purple-400/20 transition-colors"
                       >
-                        {quizResult.passed ? 'Retake Quiz' : 'Take Quiz'}
+                        View Coach Review & Acknowledge
                       </button>
                     </div>
-                  ) : status === 'available' ? (
-                    <div className="mb-3 rounded-lg bg-[#0d1520] border border-cyan-400/20 p-3">
-                      <p className="text-xs font-bold text-cyan-300 mb-2">
-                        📝 Quiz Required
-                      </p>
+                  )}
+
+                  {/* Acknowledged */}
+                  {phase === 'acknowledged' && (
+                    <div className="mb-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3">
+                      <p className="text-xs font-bold text-emerald-300 mb-1">✓ Acknowledged</p>
                       <p className="text-xs text-slate-400">
-                        Pass the quiz ({QUIZ_PASS_THRESHOLD}%) to unlock the practical exercise.
+                        Coach Review acknowledged. Module complete!
                       </p>
-                      <button
-                        onClick={() => handleTakeQuiz(module.code)}
-                        className="mt-2 rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200 hover:bg-cyan-400/20 transition-colors"
-                      >
-                        Take Quiz
-                      </button>
                     </div>
-                  ) : status === 'locked' ? (
+                  )}
+
+                  {/* Certified */}
+                  {(phase === 'certified') && (
+                    <div className="mb-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3">
+                      <p className="text-xs font-bold text-emerald-300 mb-1">🎉 Certified</p>
+                      <p className="text-xs text-slate-400">
+                        {CERTIFICATION_TITLE}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Locked */}
+                  {phase === 'locked' && (
                     <div className="mb-3 rounded-lg bg-slate-950/40 border border-slate-700/50 p-2.5">
                       <p className="text-xs text-slate-500 italic">
-                        🔒 Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} first.
+                        🔒 Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} first (acknowledge Coach Review).
                       </p>
                     </div>
-                  ) : null}
+                  )}
 
                   {/* Philosophy Principle */}
                   <div className="rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5">
@@ -488,52 +860,6 @@ export default function AcademyPage() {
                       &ldquo;{philosophy.title}&rdquo;
                     </p>
                   </div>
-
-                  {/* Practice Link (for reps) */}
-                  {isRep && !isCertified && status !== 'verified' && status !== 'approved' && status !== 'submitted' && (
-                    <div className="mt-3">
-                      {module.code === 'ACAD-101' && (
-                        <Link
-                          to="/opportunities"
-                          className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-wider"
-                        >
-                          Practice: Go to Opportunities →
-                        </Link>
-                      )}
-                      {module.code === 'ACAD-102' && (
-                        <Link
-                          to="/organizations"
-                          className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-wider"
-                        >
-                          Practice: Create Organizations →
-                        </Link>
-                      )}
-                      {module.code === 'ACAD-103' && (
-                        <Link
-                          to="/opportunities"
-                          className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-wider"
-                        >
-                          Practice: Build Pipeline →
-                        </Link>
-                      )}
-                      {module.code === 'ACAD-104' && (
-                        <Link
-                          to="/organizations"
-                          className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-wider"
-                        >
-                          Practice: Log Activities →
-                        </Link>
-                      )}
-                      {module.code === 'ACAD-105' && (
-                        <Link
-                          to="/dashboard"
-                          className="text-[10px] font-bold text-cyan-400 hover:text-cyan-300 uppercase tracking-wider"
-                        >
-                          Practice: Navigate TUF Ops →
-                        </Link>
-                      )}
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -553,15 +879,46 @@ export default function AcademyPage() {
           />
         )}
 
-        {/* ── Submit for Approval Section ── */}
-        {isRep && verifiedCount === 5 && !approvalSubmitted && !isCertified && (
+        {/* ── Learn Content Modal ── */}
+        {activeLearn && (
+          <LearnContentModal
+            module={moduleDefMap.get(activeLearn)!}
+            onClose={() => setActiveLearn(null)}
+          />
+        )}
+
+        {/* ── Mission Statement Modal ── */}
+        {showMissionModal && (
+          <MissionStatementModal
+            existingText={missionStatement}
+            onClose={() => setShowMissionModal(false)}
+            onSave={handleSaveMission}
+          />
+        )}
+
+        {/* ── Coach Review Modal ── */}
+        {activeCoachReview && getCoachReview(activeCoachReview) && (
+          <CoachReviewModal
+            moduleName={moduleDefMap.get(activeCoachReview)?.name ?? activeCoachReview}
+            moduleCode={activeCoachReview}
+            coachReview={getCoachReview(activeCoachReview)!}
+            onClose={() => setActiveCoachReview(null)}
+            onAcknowledge={() => handleAcknowledge(activeCoachReview)}
+            acknowledging={acknowledging}
+          />
+        )}
+
+        {/* ── Submit for Certification Section ── */}
+        {isRep && completeCount === 5 && !approvalSubmitted && !isCertified && (
           <div className="rounded-2xl border border-purple-400/25 bg-purple-500/5 p-6 backdrop-blur-md mt-6">
             <div className="flex items-start gap-3">
               <span className="text-2xl">📋</span>
               <div>
-                <h2 className="text-lg font-black text-white">Submit for Level 1 Certification</h2>
+                <h2 className="text-lg font-black text-white">
+                  Submit for {CERTIFICATION_TITLE}
+                </h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  All 5 modules are complete. Submit for Director review to earn your certification.
+                  All 5 modules have been reviewed and acknowledged. Submit for Director certification.
                 </p>
                 {approvalError && (
                   <div className="mt-3 rounded-lg border border-red-400/20 bg-red-500/5 p-3 text-xs text-red-200">
@@ -573,7 +930,7 @@ export default function AcademyPage() {
                   disabled={submittingForApproval}
                   className="mt-2 rounded-lg border border-purple-400/40 bg-purple-400/10 px-5 py-2 text-sm font-bold text-purple-200 hover:bg-purple-400/20 disabled:opacity-40 transition-colors"
                 >
-                  {submittingForApproval ? 'Submitting...' : 'Submit for Director Approval'}
+                  {submittingForApproval ? 'Submitting...' : 'Submit for Certification'}
                 </button>
               </div>
             </div>
@@ -586,10 +943,10 @@ export default function AcademyPage() {
             <div className="flex items-start gap-3">
               <span className="text-2xl">◆</span>
               <div>
-                <h2 className="text-lg font-black text-white">Submitted for Director Approval</h2>
+                <h2 className="text-lg font-black text-white">Submitted for Director Certification</h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  Your certification submission is under review. The Director will review your quiz scores,
-                  exercise verification, and decide: &ldquo;Would I trust you with one of our schools?&rdquo;
+                  Your certification submission is under review. The Director will review your completed
+                  modules, Coach Reviews, and decide: &ldquo;Would I trust you with one of our schools?&rdquo;
                 </p>
               </div>
             </div>
@@ -635,19 +992,19 @@ export default function AcademyPage() {
         </div>
 
         {/* ── Footer Status Boxes ── */}
-        {isRep && !isCertified && !approvalSubmitted && verifiedCount < 5 && (
+        {isRep && !isCertified && !approvalSubmitted && completeCount < 5 && (
           <div className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-6 backdrop-blur-md">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🔒</span>
               <div>
                 <h2 className="text-lg font-black text-white">CRM Access is Gated</h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  Complete all 5 modules (quiz + exercise), then submit for
-                  Director approval to unlock the full CRM.
+                  Complete all 5 modules (Learn → Demonstrate → Coach Review → Acknowledge),
+                  then submit for Director certification to unlock the full CRM.
                 </p>
                 <p className="mt-3 text-xs text-amber-300 font-medium">
-                  {5 - verifiedCount} module{5 - verifiedCount !== 1 ? 's' : ''} remaining before
-                  you can submit.
+                  {5 - completeCount} module{5 - completeCount !== 1 ? 's' : ''} remaining before
+                  you can submit for {CERTIFICATION_TITLE}.
                 </p>
               </div>
             </div>
@@ -660,7 +1017,7 @@ export default function AcademyPage() {
               <span className="text-2xl">🎉</span>
               <div>
                 <h2 className="text-lg font-black text-white">
-                  You Are Level 1 Certified!
+                  {CERTIFICATION_TITLE}!
                 </h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
                   Full CRM access has been unlocked. You can now access all TUF Ops features.
