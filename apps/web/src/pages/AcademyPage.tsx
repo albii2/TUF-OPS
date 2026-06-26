@@ -1,86 +1,278 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getStoredUser } from '../auth';
 import {
   LEVEL_1_MODULES,
   SALES_PHILOSOPHY,
+  QUIZZES,
+  QUIZ_PASS_THRESHOLD,
   detectAllModules,
   isLevel1Complete,
+  verifiedModuleCount,
   certificationProgress,
-  markPageVisited,
+  getQuizResults,
+  gradeQuiz,
+  submitForApproval,
   saveCertificationRecord,
+  getSubmission,
+  markPageVisited,
+  MODULE_ORDER,
   type ModuleProgress,
   type AcademyModule,
+  type AcademyModuleCode,
+  type QuizQuestion,
+  type QuizResult,
 } from '../lib/academy';
 import TufAcademyLogo from '../assets/tuf-academy.png';
+
+// ─── Quiz Modal Component ──────────────────────────────────────────────────
+
+function QuizModal({
+  moduleCode,
+  moduleName,
+  questions,
+  quizResult,
+  onClose,
+  onSubmit,
+  submitting,
+}: {
+  moduleCode: AcademyModuleCode;
+  moduleName: string;
+  questions: QuizQuestion[];
+  quizResult: QuizResult | null;
+  onClose: () => void;
+  onSubmit: (answers: number[]) => void;
+  submitting: boolean;
+}) {
+  const [answers, setAnswers] = useState<number[]>(
+    () => new Array(questions.length).fill(-1)
+  );
+  const [feedback, setFeedback] = useState<{ message: string; passed: boolean } | null>(null);
+
+  const handleSubmit = () => {
+    if (answers.some((a) => a === -1)) return;
+    onSubmit(answers);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-black text-white">{moduleName} Quiz</h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {questions.length} questions · Pass threshold: {QUIZ_PASS_THRESHOLD}%
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-400 hover:bg-slate-800 transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Previous Result */}
+        {quizResult && (
+          <div
+            className={`mb-4 rounded-lg border p-3 text-xs ${
+              quizResult.passed
+                ? 'border-emerald-400/20 bg-emerald-400/5 text-emerald-200'
+                : 'border-amber-400/20 bg-amber-400/5 text-amber-200'
+            }`}
+          >
+            <span className="font-bold">
+              Previous Attempt: {quizResult.score}% —{' '}
+              {quizResult.passed ? 'Passed ✓' : 'Did Not Pass'}
+            </span>
+            <span className="text-slate-500 ml-2">
+              (Attempt #{quizResult.attempts})
+            </span>
+          </div>
+        )}
+
+        {/* Feedback Banner */}
+        {feedback && (
+          <div
+            className={`mb-4 rounded-lg border p-3 text-xs font-medium ${
+              feedback.passed
+                ? 'border-emerald-400/20 bg-emerald-400/5 text-emerald-300'
+                : 'border-red-400/20 bg-red-400/5 text-red-200'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
+        {/* Questions */}
+        <div className="space-y-5 max-h-[50vh] overflow-y-auto">
+          {questions.map((q, i) => (
+            <div
+              key={q.id}
+              className="rounded-lg border border-slate-800 bg-slate-900/40 p-4"
+            >
+              <p className="text-sm font-bold text-white mb-3">
+                {i + 1}. {q.question}
+              </p>
+              <div className="space-y-2 mt-3">
+                {q.options.map((opt, oi) => {
+                  const isSelected = answers[i] === oi;
+                  return (
+                    <label
+                      key={oi}
+                      className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors text-sm ${
+                        isSelected
+                          ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-200'
+                          : 'border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name={`quiz-${moduleCode}-q${i}`}
+                        checked={isSelected}
+                        onChange={() => {
+                          const newAnswers = [...answers];
+                          newAnswers[i] = oi;
+                          setAnswers(newAnswers);
+                          setFeedback(null);
+                        }}
+                        className="sr-only"
+                      />
+                      <span className="select-none">{opt}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Submit */}
+        <div className="flex justify-end mt-6">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting || answers.some((a) => a === -1)}
+            className="rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-5 py-2 text-sm font-bold text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-40 transition-colors"
+          >
+            {submitting ? 'Submitting...' : 'Submit Answers'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Academy Page ────────────────────────────────────────────────────
 
 export default function AcademyPage() {
   const user = getStoredUser();
   const [moduleProgress, setModuleProgress] = useState<ModuleProgress[]>([]);
   const [showPhilosophy, setShowPhilosophy] = useState(false);
+  const [activeQuiz, setActiveQuiz] = useState<AcademyModuleCode | null>(null);
+  const [submittingQuiz, setSubmittingQuiz] = useState(false);
+  const [submittingForApproval, setSubmittingForApproval] = useState(false);
+  const [approvalSubmitted, setApprovalSubmitted] = useState(false);
+  const [approvalError, setApprovalError] = useState<string | null>(null);
 
   const isCertified = user?.isCertified === true;
   const isRep = user?.role === 'REP';
   const userName = user?.name ?? 'TAE';
+  const userId = user?.id ?? '';
 
+  // Load progress
   useEffect(() => {
-    // Mark this page as visited for ACAD-105
     markPageVisited('academy');
+    refreshProgress();
 
-    // Detect module completion from real data
+    const interval = setInterval(refreshProgress, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  const refreshProgress = useCallback(() => {
     const progress = detectAllModules();
     setModuleProgress(progress);
 
-    // Save certification record
+    // Save certification record WITHOUT auto-certifying
     if (user) {
-      const allComplete = isLevel1Complete(progress);
       saveCertificationRecord({
         userId: user.id,
         userName: user.name,
         role: user.role,
-        isLevel1Certified: allComplete,
-        certifiedAt: allComplete ? new Date().toISOString() : undefined,
+        isLevel1Certified: isCertified,
         moduleProgress: progress,
         lastChecked: new Date().toISOString(),
       });
     }
+  }, [user, userId, isCertified]);
 
-    // Refresh progress every 30 seconds
-    const interval = setInterval(() => {
-      const fresh = detectAllModules();
-      setModuleProgress(fresh);
-
-      if (user) {
-        const allComplete = isLevel1Complete(fresh);
-        saveCertificationRecord({
-          userId: user.id,
-          userName: user.name,
-          role: user.role,
-          isLevel1Certified: allComplete,
-          certifiedAt: allComplete ? new Date().toISOString() : undefined,
-          moduleProgress: fresh,
-          lastChecked: new Date().toISOString(),
-        });
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const completedCount = moduleProgress.filter((m) => m.status === 'completed').length;
-  const progressPercent = moduleProgress.length ? Math.round((completedCount / moduleProgress.length) * 100) : 0;
-
-  const moduleDefMap = useMemo(() => {
-    const map = new Map<string, AcademyModule>();
-    LEVEL_1_MODULES.forEach((m) => map.set(m.code, m));
-    return map;
-  }, []);
+  const verifiedCount = verifiedModuleCount(moduleProgress);
+  const completeCount = moduleProgress.filter((m) => m.status === 'verified').length;
+  const quizResults = getQuizResults();
+  const submission = useMemo(() => getSubmission(userId), [userId]);
 
   const certificationLabel = isCertified
     ? 'Level 1 Certified — Full CRM Access Granted'
     : isRep
-      ? `Academy Progress: ${completedCount}/5 Modules — CRM Access Gated`
+      ? approvalSubmitted
+        ? 'Submitted for Director Approval — Pending Review'
+        : `Academy Progress: ${completeCount}/5 Modules Complete — Submit for Certification`
       : 'Director/Admin — Full CRM Access';
+
+  const statusColor = isCertified
+    ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200'
+    : approvalSubmitted
+      ? 'border-purple-400/40 bg-purple-400/10 text-purple-200'
+      : isRep
+        ? 'border-amber-400/40 bg-amber-400/10 text-amber-200'
+        : 'border-cyan-400/40 bg-cyan-400/10 text-cyan-200';
+
+  const handleQuizSubmit = useCallback(
+    (answers: number[]) => {
+      if (!activeQuiz) return;
+      setSubmittingQuiz(true);
+      try {
+        const result = gradeQuiz(activeQuiz, answers);
+        setSubmittingQuiz(false);
+        // Refresh progress after quiz
+        refreshProgress();
+        setActiveQuiz(null);
+      } catch {
+        setSubmittingQuiz(false);
+      }
+    },
+    [activeQuiz, refreshProgress]
+  );
+
+  const handleTakeQuiz = (code: AcademyModuleCode) => {
+    setActiveQuiz(code);
+  };
+
+  const handleSubmitForApproval = useCallback(async () => {
+    if (!isLevel1Complete(moduleProgress)) {
+      setApprovalError('All 5 modules must be verified (quiz passed + exercise completed) before submitting.');
+      return;
+    }
+    setSubmittingForApproval(true);
+    setApprovalError(null);
+    try {
+      submitForApproval(userId, userName);
+      setApprovalSubmitted(true);
+      refreshProgress();
+    } catch (e) {
+      setApprovalError(e instanceof Error ? e.message : 'Failed to submit. Please try again.');
+    } finally {
+      setSubmittingForApproval(false);
+    }
+  }, [userId, userName, moduleProgress]);
+
+  const moduleDefMap = useMemo(() => {
+    const map = new Map<AcademyModuleCode, AcademyModule>();
+    LEVEL_1_MODULES.forEach((m) => map.set(m.code, m));
+    return map;
+  }, []);
+
+  // ─── Render ──
 
   return (
     <div className="min-h-screen text-slate-100 p-4 md:p-8">
@@ -99,36 +291,31 @@ export default function AcademyPage() {
                 TUF Academy — Level 1 Certification
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                Complete all 5 training modules through real production work to earn Level 1 Certification
-                and unlock full CRM access.
+                Pass the quiz for each module, complete the real-world exercise,
+                and submit for Director approval to earn your Level 1 Certification.
               </p>
 
               {/* Certification Status */}
               <div className="mt-4">
                 <span
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${
-                    isCertified
-                      ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200'
-                      : isRep
-                        ? 'border-amber-400/40 bg-amber-400/10 text-amber-200'
-                        : 'border-cyan-400/40 bg-cyan-400/10 text-cyan-200'
-                  }`}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${statusColor}`}
                 >
-                  {isCertified ? '✓' : isRep ? '●' : '◆'} {certificationLabel}
+                  {isCertified ? '✓' : approvalSubmitted ? '◆' : isRep ? '●' : '◆'}{' '}
+                  {certificationLabel}
                 </span>
               </div>
 
-              {/* Progress Bar */}
-              {isRep && moduleProgress.length > 0 && (
+              {/* Progress Bar for reps */}
+              {isRep && (
                 <div className="mt-4 max-w-md mx-auto">
                   <div className="flex justify-between text-xs text-slate-400 mb-1">
                     <span>Certification Progress</span>
-                    <span>{completedCount} / 5 ({progressPercent}%)</span>
+                    <span>{verifiedCount} / 5 ({certificationProgress(moduleProgress)}%)</span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
                     <div
                       className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${progressPercent}%` }}
+                      style={{ width: `${certificationProgress(moduleProgress)}%` }}
                     />
                   </div>
                 </div>
@@ -137,50 +324,74 @@ export default function AcademyPage() {
           </div>
         </div>
 
-        {/* ── Training Modules ── */}
+        {/* ── Module Cards ── */}
         <div>
           <h2 className="text-xl font-black text-white mb-4 flex items-center gap-2">
             <span>📋</span> Level 1 Training Modules
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {LEVEL_1_MODULES.map((module) => {
+            {LEVEL_1_MODULES.map((module, idx) => {
               const progress = moduleProgress.find((p) => p.code === module.code);
-              const status = progress?.status ?? 'not_started';
-              const statusColors = {
-                completed: 'border-emerald-400/30 bg-emerald-400/5',
-                in_progress: 'border-cyan-400/30 bg-cyan-400/5',
-                not_started: 'border-slate-700/60 bg-slate-900/30',
-              };
-              const statusBadge = {
-                completed: 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30',
-                in_progress: 'bg-cyan-400/20 text-cyan-200 border-cyan-400/30',
-                not_started: 'bg-slate-700/40 text-slate-400 border-slate-600/30',
-              };
-              const statusLabel = {
-                completed: '✓ Completed',
-                in_progress: '⟳ In Progress',
-                not_started: '○ Not Started',
+              const status = progress?.status ?? 'locked';
+              const quizResult = quizResults[module.code] ?? null;
+
+              const statusColors: Record<string, string> = {
+                verified: 'border-emerald-400/30 bg-emerald-400/5',
+                submitted: 'border-purple-400/30 bg-purple-400/5',
+                approved: 'border-emerald-400/30 bg-emerald-400/5',
+                quiz_passed: 'border-amber-400/30 bg-amber-400/5',
+                available: 'border-cyan-400/30 bg-cyan-400/5',
+                locked: 'border-slate-700/60 bg-slate-900/30 opacity-50',
               };
 
+              const statusLabel: Record<string, string> = {
+                verified: '✓ Verified',
+                submitted: '◆ Submitted',
+                approved: '✓ Certified',
+                quiz_passed: '✓ Quiz Passed',
+                available: '○ Available',
+                locked: '🔒 Locked',
+              };
+
+              const exerciseProgressPercent =
+                status === 'verified' || status === 'quiz_passed'
+                  ? Math.min((progress?.currentValue ?? 0) / (progress?.targetValue ?? 1) * 100, 100)
+                  : 0;
+
               const philosophy = SALES_PHILOSOPHY[module.philosophyPrinciple - 1];
+              const isExerciseActive = status === 'quiz_passed' || status === 'verified' || status === 'submitted' || status === 'approved';
+              const showExerciseBar = status === 'quiz_passed' || status === 'verified';
 
               return (
                 <div
                   key={module.code}
-                  className={`rounded-xl border p-5 transition-all ${statusColors[status]} ${
-                    status === 'completed'
+                  className={`rounded-xl border p-5 transition-all ${statusColors[status] || statusColors['locked']} ${
+                    status === 'verified' || status === 'approved'
                       ? 'shadow-[0_0_12px_rgba(16,185,129,0.08)]'
-                      : ''
+                      : status === 'submitted'
+                        ? 'shadow-[0_0_12px_rgba(147,51,234,0.08)]'
+                        : ''
                   }`}
                 >
+                  {/* Module Header */}
                   <div className="flex items-start justify-between mb-2">
                     <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
                       {module.code}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusBadge[status]}`}
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                        status === 'verified' || status === 'approved'
+                          ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
+                          : status === 'submitted'
+                            ? 'bg-purple-400/20 text-purple-200 border-purple-400/30'
+                            : status === 'quiz_passed'
+                              ? 'bg-amber-400/20 text-amber-200 border-amber-400/30'
+                              : status === 'available'
+                                ? 'bg-cyan-400/20 text-cyan-200 border-cyan-400/30'
+                                : 'bg-slate-700/40 text-slate-400 border-slate-600/30'
+                      }`}
                     >
-                      {statusLabel[status]}
+                      {statusLabel[status] || statusLabel['locked']}
                     </span>
                   </div>
                   <h3 className="text-base font-black text-white mb-1.5">{module.name}</h3>
@@ -188,33 +399,73 @@ export default function AcademyPage() {
                     {module.description}
                   </p>
 
-                  {/* Completion Criteria */}
-                  <div className="mb-3 rounded-lg bg-slate-950/50 border border-slate-800/60 p-2.5">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                      What You Need To Do
-                    </p>
-                    <p className="text-xs text-slate-300">{module.completionCriteria}</p>
-                    {progress && (
+                  {/* Exercise Progress Bar */}
+                  {showExerciseBar && progress && (
+                    <div className="mb-3 rounded-lg bg-slate-950/50 border border-slate-800/60 p-2.5">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                        {status === 'quiz_passed' ? 'Now Practicing' : 'Exercise Complete'}
+                      </p>
+                      <p className="text-xs text-slate-300">{module.completionCriteria}</p>
                       <div className="mt-2 flex items-center gap-2">
                         <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full transition-all ${
-                              status === 'completed' ? 'bg-emerald-400' : 'bg-cyan-400'
-                            }`}
-                            style={{
-                              width: `${Math.min(
-                                (progress.currentValue / progress.targetValue) * 100,
-                                100
-                              )}%`,
-                            }}
+                            className="h-full rounded-full transition-all bg-cyan-400"
+                            style={{ width: `${exerciseProgressPercent}%` }}
                           />
                         </div>
                         <span className="text-[10px] font-mono text-slate-500 whitespace-nowrap">
-                          {progress.currentValue}/{progress.targetValue}
+                          {progress?.currentValue ?? 0}/{progress?.targetValue ?? '?'}
                         </span>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
+
+                  {/* Quiz Section */}
+                  {quizResult ? (
+                    <div className="mb-3 rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${
+                            quizResult.passed
+                              ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
+                              : 'bg-amber-400/20 text-amber-200 border-amber-400/30'
+                          }`}
+                        >
+                          {quizResult.passed ? '✓' : '✗'} Quiz: {quizResult.score}%
+                        </span>
+                        <span className="text-[10px] text-slate-500">
+                          ({quizResult.attempts} attempt{quizResult.attempts !== 1 ? 's' : ''})
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleTakeQuiz(module.code)}
+                        className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/20 transition-colors"
+                      >
+                        {quizResult.passed ? 'Retake Quiz' : 'Take Quiz'}
+                      </button>
+                    </div>
+                  ) : status === 'available' ? (
+                    <div className="mb-3 rounded-lg bg-[#0d1520] border border-cyan-400/20 p-3">
+                      <p className="text-xs font-bold text-cyan-300 mb-2">
+                        📝 Quiz Required
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        Pass the quiz ({QUIZ_PASS_THRESHOLD}%) to unlock the practical exercise.
+                      </p>
+                      <button
+                        onClick={() => handleTakeQuiz(module.code)}
+                        className="mt-2 rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-4 py-1.5 text-xs font-bold text-cyan-200 hover:bg-cyan-400/20 transition-colors"
+                      >
+                        Take Quiz
+                      </button>
+                    </div>
+                  ) : status === 'locked' ? (
+                    <div className="mb-3 rounded-lg bg-slate-950/40 border border-slate-700/50 p-2.5">
+                      <p className="text-xs text-slate-500 italic">
+                        🔒 Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} first.
+                      </p>
+                    </div>
+                  ) : null}
 
                   {/* Philosophy Principle */}
                   <div className="rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5">
@@ -226,8 +477,8 @@ export default function AcademyPage() {
                     </p>
                   </div>
 
-                  {/* Practice Link */}
-                  {isRep && status !== 'completed' && (
+                  {/* Practice Link (for reps) */}
+                  {isRep && !isCertified && status !== 'verified' && status !== 'approved' && status !== 'submitted' && (
                     <div className="mt-3">
                       {module.code === 'ACAD-101' && (
                         <Link
@@ -277,6 +528,62 @@ export default function AcademyPage() {
           </div>
         </div>
 
+        {/* ── Quiz Modal ── */}
+        {activeQuiz && (
+          <QuizModal
+            moduleCode={activeQuiz}
+            moduleName={moduleDefMap.get(activeQuiz)?.name ?? activeQuiz}
+            questions={QUIZZES[activeQuiz]}
+            quizResult={quizResults[activeQuiz] ?? null}
+            onClose={() => setActiveQuiz(null)}
+            onSubmit={handleQuizSubmit}
+            submitting={submittingQuiz}
+          />
+        )}
+
+        {/* ── Submit for Approval Section ── */}
+        {isRep && verifiedCount === 5 && !approvalSubmitted && !isCertified && (
+          <div className="rounded-2xl border border-purple-400/25 bg-purple-500/5 p-6 backdrop-blur-md mt-6">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">📋</span>
+              <div>
+                <h2 className="text-lg font-black text-white">Submit for Level 1 Certification</h2>
+                <p className="mt-2 text-sm text-slate-300 leading-relaxed">
+                  All 5 modules are complete. Submit for Director review to earn your certification.
+                </p>
+                {approvalError && (
+                  <div className="mt-3 rounded-lg border border-red-400/20 bg-red-500/5 p-3 text-xs text-red-200">
+                    {approvalError}
+                  </div>
+                )}
+                <button
+                  onClick={handleSubmitForApproval}
+                  disabled={submittingForApproval}
+                  className="mt-2 rounded-lg border border-purple-400/40 bg-purple-400/10 px-5 py-2 text-sm font-bold text-purple-200 hover:bg-purple-400/20 disabled:opacity-40 transition-colors"
+                >
+                  {submittingForApproval ? 'Submitting...' : 'Submit for Director Approval'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Submitted State ── */}
+        {approvalSubmitted && !isCertified && (
+          <div className="rounded-2xl border border-purple-400/25 bg-purple-500/5 p-6 backdrop-blur-md mb-6">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">◆</span>
+              <div>
+                <h2 className="text-lg font-black text-white">Submitted for Director Approval</h2>
+                <p className="mt-2 text-sm text-slate-300 leading-relaxed">
+                  Your certification submission is under review. The Director will review your quiz scores,
+                  exercise verification, and decide: &ldquo;Would I trust you with one of our schools?&rdquo;
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Sales Philosophy ── */}
         <div>
           <button
@@ -315,40 +622,27 @@ export default function AcademyPage() {
           )}
         </div>
 
-        {/* ── Uncertified Rep Notice ── */}
-        {isRep && !isCertified && (
+        {/* ── Footer Status Boxes ── */}
+        {isRep && !isCertified && !approvalSubmitted && verifiedCount < 5 && (
           <div className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-6 backdrop-blur-md">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🔒</span>
               <div>
                 <h2 className="text-lg font-black text-white">CRM Access is Gated</h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  While you complete your Level 1 certification, you can access:
+                  Complete all 5 modules (quiz + exercise), then submit for
+                  Director approval to unlock the full CRM.
                 </p>
-                <ul className="mt-2 space-y-1 text-sm text-slate-400">
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span> The Academy (this page)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span> Dashboard (read-only, to see your progress)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span> Organizations (to practice creating them)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-emerald-400">✓</span> Opportunities (to practice creating them)
-                  </li>
-                </ul>
                 <p className="mt-3 text-xs text-amber-300 font-medium">
-                  Complete all 5 modules above to unlock the full CRM.
+                  {5 - verifiedCount} module{5 - verifiedCount !== 1 ? 's' : ''} remaining before
+                  you can submit.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── Certified Rep Notice ── */}
-        {isRep && isCertified && (
+        {isCertified && (
           <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/5 p-6 backdrop-blur-md">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🎉</span>

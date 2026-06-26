@@ -3,8 +3,11 @@ import { getStoredUser } from '../auth';
 import { listUsers } from '../services/usersService';
 import {
   getAllCertificationRecords,
-  directorCertifyRep,
+  getAllSubmissions,
+  directorApproveRep,
+  getQuizResults,
   type CertificationRecord,
+  type CertificationSubmission,
   type ModuleProgress,
 } from '../lib/academy';
 import type { ManagedUser } from '../services/usersService';
@@ -14,14 +17,13 @@ export default function AdminCertificationPage() {
   const isDirectorOrAdmin =
     user?.role === 'DIRECTOR' || user?.role === 'REGIONAL_DIRECTOR' || user?.role === 'ADMIN';
   const [records, setRecords] = useState<CertificationRecord[]>([]);
+  const [submissions, setSubmissions] = useState<CertificationSubmission[]>([]);
   const [allUsers, setAllUsers] = useState<ManagedUser[]>([]);
-  const [certifying, setCertifying] = useState<string | null>(null);
+  const [approving, setApproving] = useState<string | null>(null);
+  const [selectedRep, setSelectedRep] = useState<ManagedUser | null>(null);
 
   useEffect(() => {
-    const loadedUsers = listUsers();
-    setAllUsers(loadedUsers);
-    const loadedRecords = getAllCertificationRecords();
-    setRecords(loadedRecords);
+    refreshData();
   }, []);
 
   const refreshData = () => {
@@ -29,16 +31,21 @@ export default function AdminCertificationPage() {
     setAllUsers(loadedUsers);
     const loadedRecords = getAllCertificationRecords();
     setRecords(loadedRecords);
+    const loadedSubmissions = getAllSubmissions();
+    setSubmissions(loadedSubmissions);
   };
 
-  const handleCertify = async (repUser: ManagedUser) => {
+  const handleApprove = async (repUser: ManagedUser) => {
     if (!user) return;
-    setCertifying(repUser.id);
+    setApproving(repUser.id);
     try {
-      directorCertifyRep(repUser.id, repUser.displayName, user.name);
+      const result = directorApproveRep(repUser.id, repUser.displayName, user.name);
+      if (!result) {
+        alert('Cannot approve: the rep must have a valid submission with all quizzes passed and exercises verified.');
+      }
       refreshData();
     } finally {
-      setCertifying(null);
+      setApproving(null);
     }
   };
 
@@ -52,32 +59,65 @@ export default function AdminCertificationPage() {
   const getRepRecord = (userId: string): CertificationRecord | undefined =>
     records.find((r) => r.userId === userId);
 
-  const getStatusBadge = (record?: CertificationRecord) => {
-    if (!record) {
-      return {
-        label: 'Not Enrolled',
-        className: 'bg-slate-700/40 text-slate-400 border-slate-600/30',
-      };
-    }
-    if (record.isLevel1Certified) {
+  const getRepSubmission = (userId: string): CertificationSubmission | undefined =>
+    submissions.find((s) => s.userId === userId);
+
+  const getStatusBadge = (rep: ManagedUser) => {
+    const record = getRepRecord(rep.id);
+    const submission = getRepSubmission(rep.id);
+
+    if (record?.isLevel1Certified) {
       return {
         label: 'Certified ✓',
         className: 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30',
+        detail: record.certifiedBy ? `Approved by ${record.certifiedBy}` : undefined,
       };
     }
-    const completed = record.moduleProgress.filter((m) => m.status === 'completed').length;
+    if (submission) {
+      return {
+        label: 'Submitted ◆',
+        className: 'bg-purple-400/20 text-purple-200 border-purple-400/30',
+        detail: `Submitted ${new Date(submission.submittedAt).toLocaleDateString()}`,
+      };
+    }
+    // Check module progress from record
+    const verified = record?.moduleProgress.filter(
+      (m) => m.status === 'verified'
+    ).length ?? 0;
+    if (record && verified > 0) {
+      return {
+        label: `${verified}/5 Verified`,
+        className: 'bg-amber-400/20 text-amber-200 border-amber-400/30',
+        detail: undefined,
+      };
+    }
+    if (record) {
+      return {
+        label: 'In Progress',
+        className: 'bg-cyan-400/20 text-cyan-200 border-cyan-400/30',
+        detail: undefined,
+      };
+    }
     return {
-      label: `${completed}/5 Modules`,
-      className: 'bg-amber-400/20 text-amber-200 border-amber-400/30',
+      label: 'Not Enrolled',
+      className: 'bg-slate-700/40 text-slate-400 border-slate-600/30',
+      detail: undefined,
     };
   };
 
   const getModuleStatusClass = (status: ModuleProgress['status']) => {
     switch (status) {
-      case 'completed':
+      case 'verified':
+      case 'approved':
         return 'bg-emerald-400/20 text-emerald-300 border-emerald-400/30';
-      case 'in_progress':
+      case 'submitted':
+        return 'bg-purple-400/20 text-purple-300 border-purple-400/30';
+      case 'quiz_passed':
+        return 'bg-amber-400/20 text-amber-300 border-amber-400/30';
+      case 'available':
         return 'bg-cyan-400/20 text-cyan-300 border-cyan-400/30';
+      case 'locked':
+        return 'bg-slate-700/40 text-slate-500 border-slate-600/30';
       default:
         return 'bg-slate-700/40 text-slate-500 border-slate-600/30';
     }
@@ -85,13 +125,33 @@ export default function AdminCertificationPage() {
 
   const getModuleStatusLabel = (status: ModuleProgress['status']) => {
     switch (status) {
-      case 'completed':
-        return '✓';
-      case 'in_progress':
-        return '⟳';
-      default:
-        return '○';
+      case 'verified': return '✓';
+      case 'approved': return '✓';
+      case 'submitted': return '◆';
+      case 'quiz_passed': return 'Q';
+      case 'available': return '○';
+      case 'locked': return '—';
+      default: return '○';
     }
+  };
+
+  const getModuleStatusTitle = (status: ModuleProgress['status'], code: string, submission?: CertificationSubmission) => {
+    switch (status) {
+      case 'verified': return `${code}: Verified (quiz + exercise)`;
+      case 'approved': return `${code}: Certified`;
+      case 'submitted': return `${code}: Submitted`;
+      case 'quiz_passed': return `${code}: Quiz passed, exercise in progress`;
+      case 'available': return `${code}: Available (quiz not yet passed)`;
+      case 'locked': return `${code}: Locked`;
+      default: return `${code}: Not started`;
+    }
+  };
+
+  const getQuizScoreForModule = (repId: string, moduleCode: string): number | null => {
+    const submission = getRepSubmission(repId);
+    if (!submission) return null;
+    const detail = submission.moduleProgress.find((m) => m.code === moduleCode);
+    return detail?.quizScore ?? null;
   };
 
   if (!isDirectorOrAdmin) {
@@ -107,6 +167,13 @@ export default function AdminCertificationPage() {
     );
   }
 
+  const isRepActionable = (rep: ManagedUser): boolean => {
+    const record = getRepRecord(rep.id);
+    const submission = getRepSubmission(rep.id);
+    // Can approve if submitted and not yet certified
+    return !!submission && !record?.isLevel1Certified;
+  };
+
   return (
     <div className="min-h-screen text-slate-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -115,7 +182,7 @@ export default function AdminCertificationPage() {
           <div>
             <h1 className="text-2xl font-black text-white">TAE Certification Review</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Review certification progress for all Territory Account Executives.{' '}
+              Review quiz scores, exercise verification, and approve certification for Territory Account Executives.{' '}
               {user?.name ? `Signed in as ${user.name}.` : ''}
             </p>
           </div>
@@ -172,8 +239,11 @@ export default function AdminCertificationPage() {
                 ) : (
                   reps.map((rep) => {
                     const record = getRepRecord(rep.id);
-                    const statusBadge = getStatusBadge(record);
+                    const submission = getRepSubmission(rep.id);
+                    const statusBadge = getStatusBadge(rep);
                     const isAlreadyCertified = record?.isLevel1Certified === true;
+                    const hasSubmission = !!submission;
+                    const canApprove = isRepActionable(rep);
 
                     return (
                       <tr
@@ -197,9 +267,9 @@ export default function AdminCertificationPage() {
                           >
                             {statusBadge.label}
                           </span>
-                          {record?.certifiedBy && (
+                          {statusBadge.detail && (
                             <p className="text-[10px] text-slate-500 mt-1">
-                              by {record.certifiedBy}
+                              {statusBadge.detail}
                             </p>
                           )}
                         </td>
@@ -208,17 +278,26 @@ export default function AdminCertificationPage() {
                             const mod = record?.moduleProgress.find(
                               (m) => m.code === code
                             );
-                            const status = mod?.status ?? 'not_started';
+                            const status = mod?.status ?? 'locked';
+                            const quizScore = getQuizScoreForModule(rep.id, code);
+
                             return (
                               <td key={code} className="px-2 py-3 text-center">
-                                <span
-                                  className={`inline-flex items-center justify-center w-8 h-8 rounded-full border text-xs font-bold ${getModuleStatusClass(
-                                    status
-                                  )}`}
-                                  title={`${status}: ${mod?.currentValue ?? 0}/${mod?.targetValue ?? '?'}`}
-                                >
-                                  {getModuleStatusLabel(status)}
-                                </span>
+                                <div className="flex flex-col items-center gap-1">
+                                  <span
+                                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full border text-xs font-bold ${getModuleStatusClass(
+                                      status
+                                    )}`}
+                                    title={getModuleStatusTitle(status, code, submission)}
+                                  >
+                                    {getModuleStatusLabel(status)}
+                                  </span>
+                                  {quizScore !== null && quizScore > 0 && (
+                                    <span className="text-[9px] text-slate-500 font-mono">
+                                      {quizScore}%
+                                    </span>
+                                  )}
+                                </div>
                               </td>
                             );
                           }
@@ -228,14 +307,18 @@ export default function AdminCertificationPage() {
                             <span className="text-xs text-emerald-400 font-bold">
                               Certified ✓
                             </span>
-                          ) : (
+                          ) : hasSubmission && !isAlreadyCertified ? (
                             <button
-                              onClick={() => handleCertify(rep)}
-                              disabled={certifying === rep.id}
-                              className="rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-3 py-1.5 text-[10px] font-bold text-cyan-300 hover:bg-cyan-400/20 hover:border-cyan-400/60 transition-colors disabled:opacity-50"
+                              onClick={() => handleApprove(rep)}
+                              disabled={approving === rep.id}
+                              className="rounded-lg border border-purple-400/40 bg-purple-400/10 px-3 py-1.5 text-[10px] font-bold text-purple-200 hover:bg-purple-400/20 hover:border-purple-400/60 transition-colors disabled:opacity-50"
                             >
-                              {certifying === rep.id ? '...' : 'Certify'}
+                              {approving === rep.id ? '...' : 'Approve'}
                             </button>
+                          ) : (
+                            <span className="text-[10px] text-slate-600">
+                              {record ? 'Not submitted' : '—'}
+                            </span>
                           )}
                         </td>
                       </tr>
@@ -246,6 +329,124 @@ export default function AdminCertificationPage() {
             </table>
           </div>
         </div>
+
+        {/* Submitted Details (expanded view) */}
+        {submissions.length > 0 && (
+          <div>
+            <h3 className="text-lg font-black text-white mb-3">
+              Submission Details — Director Review
+            </h3>
+            <div className="space-y-4">
+              {submissions
+                .filter((s) => !getRepRecord(s.userId)?.isLevel1Certified)
+                .map((sub) => {
+                  const rep = reps.find((r) => r.id === sub.userId);
+                  return (
+                    <div
+                      key={sub.userId}
+                      className="rounded-xl border border-purple-400/15 bg-[#0d1520] p-5"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <p className="font-bold text-white text-lg">
+                            {sub.userName}
+                          </p>
+                          <p className="text-xs text-slate-400">
+                            Submitted {new Date(sub.submittedAt).toLocaleDateString()} at{' '}
+                            {new Date(sub.submittedAt).toLocaleTimeString()}
+                          </p>
+                        </div>
+                        <div className="rounded-lg border border-purple-400/20 bg-purple-400/5 px-3 py-1.5 text-xs text-purple-200 font-bold">
+                          Director QA: &ldquo;Would I trust this person with one of our schools?&rdquo;
+                        </div>
+                      </div>
+
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-slate-800">
+                            <th className="text-left px-3 py-2 text-xs font-bold text-slate-400 uppercase">Module</th>
+                            <th className="text-center px-3 py-2 text-xs font-bold text-slate-400 uppercase">Quiz Score</th>
+                            <th className="text-center px-3 py-2 text-xs font-bold text-slate-400 uppercase">Quiz Passed</th>
+                            <th className="text-center px-3 py-2 text-xs font-bold text-slate-400 uppercase">Attempts</th>
+                            <th className="text-center px-3 py-2 text-xs font-bold text-slate-400 uppercase">Exercise</th>
+                            <th className="text-center px-3 py-2 text-xs font-bold text-slate-400 uppercase">Progress</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60">
+                          {sub.moduleProgress.map((detail) => (
+                            <tr key={detail.code} className="hover:bg-slate-900/20">
+                              <td className="px-3 py-2.5">
+                                <span className="font-bold text-white">{detail.code}</span>
+                              </td>
+                              <td className="px-3 py-2.5 text-center">
+                                <span
+                                  className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${
+                                    detail.quizPassed
+                                      ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
+                                      : 'bg-red-400/20 text-red-200 border-red-400/30'
+                                  }`}
+                                >
+                                  {detail.quizScore}%
+                                </span>
+                              </td>
+                              <td className="px-3 py-2.5 text-center">
+                                {detail.quizPassed ? (
+                                  <span className="text-emerald-400 font-bold">✓</span>
+                                ) : (
+                                  <span className="text-red-400 font-bold">✗</span>
+                                )}
+                              </td>
+                              <td className="px-3 py-2.5 text-center">
+                                <span className="text-xs text-slate-400">{detail.quizAttempts}</span>
+                              </td>
+                              <td className="px-3 py-2.5 text-center">
+                                {detail.exerciseVerified ? (
+                                  <span className="text-emerald-400 font-bold">✓ Verified</span>
+                                ) : (
+                                  <span className="text-slate-500 text-xs">
+                                    {detail.exerciseValue}/{detail.exerciseTarget}
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-3 py-2.5 text-center">
+                                <div className="w-20 mx-auto h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${
+                                      detail.exerciseVerified ? 'bg-emerald-400' : 'bg-cyan-400'
+                                    }`}
+                                    style={{
+                                      width: `${Math.min(
+                                        (detail.exerciseValue / detail.exerciseTarget) * 100,
+                                        100
+                                      )}%`,
+                                    }}
+                                  />
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+
+                      {rep && (
+                        <div className="mt-4 flex justify-end">
+                          <button
+                            onClick={() => handleApprove(rep)}
+                            disabled={approving === rep.id}
+                            className="rounded-lg border border-purple-400/40 bg-purple-400/10 px-4 py-2 text-sm font-bold text-purple-200 hover:bg-purple-400/20 disabled:opacity-40 transition-colors"
+                          >
+                            {approving === rep.id
+                              ? 'Approving...'
+                              : `Approve ${sub.userName} — Grant Level 1 Certification`}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        )}
 
         {/* Directors List */}
         {directors.length > 0 && (
@@ -284,24 +485,36 @@ export default function AdminCertificationPage() {
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
             Module Legend
           </h3>
-          <div className="flex flex-wrap gap-4 text-xs">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs">
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-emerald-400/30 bg-emerald-400/20 text-emerald-300 text-xs">
                 ✓
               </span>
-              <span className="text-slate-400">Completed</span>
+              <span className="text-slate-400">Verified (Quiz + Exercise)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-purple-400/30 bg-purple-400/20 text-purple-300 text-xs">
+                ◆
+              </span>
+              <span className="text-slate-400">Submitted for Approval</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-amber-400/30 bg-amber-400/20 text-amber-300 text-xs">
+                Q
+              </span>
+              <span className="text-slate-400">Quiz Passed (Exercise Active)</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-cyan-400/30 bg-cyan-400/20 text-cyan-300 text-xs">
-                ⟳
+                ○
               </span>
-              <span className="text-slate-400">In Progress</span>
+              <span className="text-slate-400">Available</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center justify-center w-6 h-6 rounded-full border border-slate-600/30 bg-slate-700/40 text-slate-500 text-xs">
-                ○
+                —
               </span>
-              <span className="text-slate-400">Not Started</span>
+              <span className="text-slate-400">Locked</span>
             </div>
           </div>
         </div>
