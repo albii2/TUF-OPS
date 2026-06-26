@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, DataTable, EmptyState, Input, LaneBadge, Pagination, Select, StageBadge, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
@@ -6,12 +6,14 @@ import { useOpportunities, useOpportunityStages, useRevenueLanes } from '../hook
 import { getNearCloseOpportunities } from '../services/businessSelectors';
 import { canCreateOpportunity } from '../services/roleScope';
 import { deleteOpportunity } from '../services/opportunitiesService';
+import { markPageVisited } from '../lib/academy';
 import type { OpportunityStage } from '../data/mockSalesData';
 
 const PAGE_SIZE = 100;
 
 export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }: { forceRep?: string; title?: string } = {}) {
   const navigate = useNavigate();
+  useEffect(() => { markPageVisited('opportunities'); }, []);
   const [search, setSearch] = useState('');
   const [stage, setStage] = useState('ALL');
   const [lane, setLane] = useState('ALL');

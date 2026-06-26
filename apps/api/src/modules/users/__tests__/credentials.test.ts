@@ -7,7 +7,7 @@ jest.mock('@packages/database', () => ({
   pool: { query: jest.fn(async () => ({ rows: [] })) },
 }));
 
-const owner: SafeUser = { id: 7, name: 'Owner', email: 'owner@tuf.local', role: 'ADMIN', rank: null, tier: null, region: null, state_market: null, division: null, territory: null, subterritory: null, sport_focus: null, assigned_director_id: null, reports_to_user_id: null, status: 'ACTIVE', must_change_credential: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+const owner: SafeUser = { id: 7, name: 'Owner', email: 'owner@tuf.local', role: 'ADMIN', rank: null, tier: null, region: null, state_market: null, division: null, territory: null, subterritory: null, sport_focus: null, assigned_director_id: null, reports_to_user_id: null, status: 'ACTIVE', must_change_credential: false, is_certified: true, hr_docs_completed: true, director_signed_off: true, practical_exercise_completed: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
 const rep: SafeUser = { ...owner, id: 8, role: 'REP', email: 'rep@tuf.local' };
 
 describe('secure user credentials', () => {
