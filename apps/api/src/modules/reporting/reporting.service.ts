@@ -1,5 +1,5 @@
 import { pool } from '@packages/database';
-import { OpportunityStage } from '../opportunities/opportunities.interface';
+import { STAGES, normalizeStage } from '@packages/auth';
 
 export interface DashboardMetrics {
   assigned_schools: number;
@@ -16,7 +16,7 @@ export interface DashboardMetrics {
   director_override_estimate: number;
   month_to_date_activity: number;
   total_opportunities_count: number;
-  opportunities_by_stage: Record<OpportunityStage, number>;
+  opportunities_by_stage: Record<string, number>;
   closed_lost_count: number;
   total_actual_revenue: number;
   total_gross_profit: number;
@@ -29,20 +29,27 @@ type Scope = { where: string; params: number[]; commissionVisibility: 'admin' | 
 const AUDITABLE_TOUCH_TYPES = ['CALL', 'EMAIL', 'TEXT', 'MEETING', 'NOTE', 'OPPORTUNITY_ACTIVITY', 'LOGGED_CONTACT'];
 const PAYABLE_ORDER_STATUSES = ['DELIVERED', 'COMPLETED'];
 
-function emptyStageCounts(): Record<OpportunityStage, number> {
+function emptyStageCounts(): Record<string, number> {
   return {
-    [OpportunityStage.LEAD_ENGAGED]: 0,
-    [OpportunityStage.DISCOVERY]: 0,
-    [OpportunityStage.MOCKUP_STAGE]: 0,
-    [OpportunityStage.INVOICE_SENT]: 0,
-    [OpportunityStage.CLOSED_WON]: 0,
-    [OpportunityStage.CLOSED_LOST]: 0,
-    [OpportunityStage.LEAD_ASSIGNED]: 0,
-    [OpportunityStage.CONTACTED]: 0,
-    [OpportunityStage.MOCKUP_REQUESTED]: 0,
-    [OpportunityStage.MOCKUP_DELIVERED]: 0,
-    [OpportunityStage.DECISION_PENDING]: 0,
-  } as unknown as Record<OpportunityStage, number>;
+    // Canonical sales stages
+    [STAGES.LEAD]: 0,
+    [STAGES.CONTACTED]: 0,
+    [STAGES.PROPOSAL_SENT]: 0,
+    [STAGES.NEGOTIATION]: 0,
+    [STAGES.ORDER_ASSEMBLY]: 0,
+    [STAGES.DIRECTOR_QA]: 0,
+    [STAGES.CLOSED_WON]: 0,
+    [STAGES.CLOSED_LOST]: 0,
+    // Canonical fulfillment stages
+    [STAGES.READY_FOR_OPS]: 0,
+    [STAGES.IN_PRODUCTION]: 0,
+    [STAGES.QUALITY_CONTROL]: 0,
+    [STAGES.SHIPPED]: 0,
+    [STAGES.DELIVERED]: 0,
+    // Legacy uppercase values for backward compatibility
+    CLOSED_WON: 0,
+    CLOSED_LOST: 0,
+  };
 }
 
 function repScope(repId: number): Scope {
@@ -92,9 +99,9 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
     pool.query(`
       SELECT
         COUNT(*)::int AS total_opportunities_count,
-        COUNT(*) FILTER (WHERE o.stage NOT IN ('${OpportunityStage.CLOSED_WON}', '${OpportunityStage.CLOSED_LOST}'))::int AS active_opportunities,
-        COUNT(*) FILTER (WHERE o.stage = '${OpportunityStage.CLOSED_WON}')::int AS closed_won_count,
-        COUNT(*) FILTER (WHERE o.stage = '${OpportunityStage.CLOSED_LOST}')::int AS closed_lost_count,
+        COUNT(*) FILTER (WHERE o.stage NOT IN ('CLOSED_WON', 'closed_won', 'CLOSED_LOST', 'closed_lost'))::int AS active_opportunities,
+        COUNT(*) FILTER (WHERE o.stage IN ('CLOSED_WON', 'closed_won'))::int AS closed_won_count,
+        COUNT(*) FILTER (WHERE o.stage IN ('CLOSED_LOST', 'closed_lost'))::int AS closed_lost_count,
         COUNT(*) FILTER (WHERE o.next_action IS NOT NULL OR (o.expected_close_date IS NOT NULL AND o.expected_close_date <= NOW()))::int AS action_needed_items,
         COALESCE(SUM(o.actual_revenue), 0)::float8 AS total_actual_revenue,
         COALESCE(SUM(o.gross_profit), 0)::float8 AS total_gross_profit,
@@ -129,7 +136,7 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
 
   const opportunities_by_stage = emptyStageCounts();
   for (const row of stageResult.rows) {
-    const stage = row.stage as OpportunityStage;
+    const stage = normalizeStage(String(row.stage));
     if (stage in opportunities_by_stage) opportunities_by_stage[stage] = Number(row.count);
   }
 

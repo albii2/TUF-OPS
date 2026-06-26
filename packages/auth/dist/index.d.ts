@@ -2,6 +2,7 @@ import { type Permission } from './permissions.js';
 import { type Role } from './roles.js';
 export * from './roles.js';
 export * from './permissions.js';
+export * from './stages.js';
 export interface User {
     id: string | number;
     role?: Role | string;

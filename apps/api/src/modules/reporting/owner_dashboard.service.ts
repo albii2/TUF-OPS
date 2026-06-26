@@ -13,13 +13,13 @@ export async function getOwnerDashboardData() {
       COALESCE('Rep ' || o.assigned_rep_id, 'Unassigned') AS rep_name,
       COALESCE('Director ' || o.assigned_director_id, 'Unassigned') AS director_name,
       CASE
-        WHEN o.stage = 'CLOSED_WON' THEN 0
-        WHEN o.stage = 'CLOSED_LOST' THEN 0
+        WHEN o.stage IN ('CLOSED_WON', 'closed_won') THEN 0
+        WHEN o.stage IN ('CLOSED_LOST', 'closed_lost') THEN 0
         ELSE 10
       END AS pressure_score
     FROM opportunities o
     LEFT JOIN organizations org ON org.id = o.organization_id
-    WHERE o.stage NOT IN ('CLOSED_WON', 'CLOSED_LOST')
+    WHERE o.stage NOT IN ('CLOSED_WON', 'closed_won', 'CLOSED_LOST', 'closed_lost')
     ORDER BY pressure_score DESC
     LIMIT 10;
   `;
@@ -28,9 +28,9 @@ export async function getOwnerDashboardData() {
     SELECT
       SUM(CASE WHEN o.stage = 'INVOICE_SENT' THEN o.value ELSE 0 END) AS pending_payment,
       SUM(CASE WHEN o.payment_received_at >= NOW() - INTERVAL '30 days' THEN o.value ELSE 0 END) AS recently_paid_amount,
-      SUM(CASE WHEN o.stage = 'CLOSED_WON' AND o.closed_at >= NOW() - INTERVAL '30 days' THEN o.value ELSE 0 END) AS recently_closed_amount,
+      SUM(CASE WHEN o.stage IN ('CLOSED_WON', 'closed_won') AND o.closed_at >= NOW() - INTERVAL '30 days' THEN o.value ELSE 0 END) AS recently_closed_amount,
       AVG(CASE WHEN o.stage = 'DECISION_PENDING' THEN o.payment_received_at - o.created_at ELSE NULL END) AS avg_days_to_payment,
-      (CAST(COUNT(CASE WHEN o.stage = 'CLOSED_WON' THEN 1 ELSE NULL END) AS DECIMAL) / COUNT(*)) * 100 AS conversion_rate
+      (CAST(COUNT(CASE WHEN o.stage IN ('CLOSED_WON', 'closed_won') THEN 1 ELSE NULL END) AS DECIMAL) / COUNT(*)) * 100 AS conversion_rate
     FROM opportunities o;
   `;
 
@@ -65,7 +65,7 @@ export async function getOwnerDashboardData() {
         SUM(o.value) AS total_revenue
     FROM
         opportunities o
-    WHERE o.stage NOT IN ('CLOSED_WON', 'CLOSED_LOST')
+    WHERE o.stage NOT IN ('CLOSED_WON', 'closed_won', 'CLOSED_LOST', 'closed_lost')
     GROUP BY
         o.assigned_rep_id
     ORDER BY
@@ -82,7 +82,7 @@ export async function getOwnerDashboardData() {
         SUM(o.value) AS total_revenue
     FROM
         opportunities o
-    WHERE o.stage NOT IN ('CLOSED_WON', 'CLOSED_LOST')
+    WHERE o.stage NOT IN ('CLOSED_WON', 'closed_won', 'CLOSED_LOST', 'closed_lost')
     GROUP BY
         o.assigned_director_id
     ORDER BY

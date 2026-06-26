@@ -22,6 +22,7 @@ const permissions_js_1 = require("./permissions.js");
 const roles_js_1 = require("./roles.js");
 __exportStar(require("./roles.js"), exports);
 __exportStar(require("./permissions.js"), exports);
+__exportStar(require("./stages.js"), exports);
 class PermissionDenied extends Error {
     statusCode = 403;
     constructor(message) {

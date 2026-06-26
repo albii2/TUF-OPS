@@ -1,5 +1,6 @@
 import { pool } from '@packages/database';
-import { OpportunityChannelType, OpportunityStage } from '../opportunities/opportunities.interface';
+import { OpportunityChannelType } from '../opportunities/opportunities.interface';
+import { STAGES } from '@packages/auth';
 
 const REQUIRED_CHANNELS: OpportunityChannelType[] = [
   OpportunityChannelType.UNIFORM,
@@ -78,7 +79,7 @@ export async function createOrganization(organization: any) {
           0.00,
           created_by,
           updated_by,
-          OpportunityStage.LEAD_ASSIGNED,
+          STAGES.LEAD,
           assigned_rep_id,
           assigned_director_id,
           channelType,
