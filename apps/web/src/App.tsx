@@ -28,11 +28,14 @@ import {
 } from './pages/CrudPages';
 import { TrainingPage } from './pages/TrainingPage';
 import LockerRoomSimulatorPage from './pages/LockerRoomSimulatorPage';
+import AcademyPage from './pages/AcademyPage';
+import AdminCertificationPage from './pages/AdminCertificationPage';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
 
 // Routes that are always accessible regardless of certification status
 const UNCERTIFIED_ACCESSIBLE_PATHS = new Set([
+  '/academy',
   '/training',
   '/training/simulator',
   '/login',
@@ -55,7 +58,7 @@ function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null;
 function PageProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
-  if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/training') return <Navigate to="/dashboard" replace />;
+  if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/training' && path !== '/academy' && path !== '/admin/certification') return <Navigate to="/dashboard" replace />;
   return children;
 }
 
@@ -108,6 +111,8 @@ export default function App() {
         <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{dashboard}</PageProtected></CertificationProtected>} />
         <Route path="/training" element={<PageProtected user={user} path="/training"><TrainingPage /></PageProtected>} />
         <Route path="/training/simulator" element={<PageProtected user={user} path="/training"><LockerRoomSimulatorPage /></PageProtected>} />
+        <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
+        <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'DIRECTOR']}><AdminCertificationPage /></RoleProtected>} />
         <Route path="/organizations" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/new" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/:id" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected></CertificationProtected>} />

@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getStoredUser } from '../auth';
+import { markPageVisited } from '../lib/academy';
 import { Button, Card, DataTable, EmptyState, Input, Pagination, Select, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrganizations } from '../hooks/useOrganizations';
@@ -18,6 +19,8 @@ export function OrganizationsPage() {
   const user = getStoredUser();
   const canBulkAssign = user?.role === 'ADMIN';
   const isPrimeauDirector = user?.role === 'DIRECTOR' && user.name === 'Primeau Hill';
+
+  useEffect(() => { markPageVisited('organizations'); }, []);
 
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('ALL');

@@ -16,5 +16,5 @@
     "types": ["vite/client"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "dist", ".vercel", "build"]
+  "exclude": ["node_modules", "dist", ".vercel", "build", "src/__tests__"]
 }
