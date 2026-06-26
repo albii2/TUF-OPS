@@ -454,7 +454,7 @@ export default function AdminCertificationPage() {
                             </p>
                           )}
                         </td>
-                        {(MODULE_ORDER as const).map((code) => {
+                        {MODULE_ORDER.map((code) => {
                           const mod = record?.moduleProgress.find((m) => m.code === code);
                           const phase = mod?.phase ?? 'locked';
                           const quizScore = getQuizScoreForModule(rep.id, code);

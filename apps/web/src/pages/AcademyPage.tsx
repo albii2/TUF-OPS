@@ -662,13 +662,23 @@ export default function AcademyPage() {
                   </p>
 
                   {/* Learning Content — expandable study section */}
-                  {(status === 'available' || status === 'quiz_available') && module.learningContent && (
+                  {(status === 'available' || status === 'quiz_available') && module.learnContent && (
                     <details className="mb-3 rounded-lg bg-slate-950/50 border border-blue-900/30 overflow-hidden group">
                       <summary className="cursor-pointer px-3 py-2 text-xs font-bold text-blue-300 uppercase tracking-wider hover:text-blue-200 select-none">
                         📖 Study: What You Need to Learn
                       </summary>
-                      <div className="px-3 pb-3 pt-1 text-xs text-slate-300 leading-relaxed whitespace-pre-line border-t border-blue-900/20">
-                        {module.learningContent}
+                      <div className="px-3 pb-3 pt-1 text-xs text-slate-300 leading-relaxed border-t border-blue-900/20 space-y-3">
+                        {Array.isArray(module.learnContent)
+                          ? (module.learnContent as any[]).map((section: any, i: number) => (
+                              <div key={i}>
+                                {section.title && (
+                                  <h4 className="text-xs font-bold text-blue-200 mb-1">{section.title}</h4>
+                                )}
+                                <p className="whitespace-pre-line">{section.body}</p>
+                              </div>
+                            ))
+                          : <p className="whitespace-pre-line">{String(module.learnContent)}</p>
+                        }
                       </div>
                     </details>
                   )}

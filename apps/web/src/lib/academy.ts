@@ -779,15 +779,13 @@ export function detectAcad103(): {
   const user = getStoredUser();
   const opportunities = listOpportunities({});
   const repOpps = user
-    ? opportunities.filter((o) => o.owner === user.name || o.ownerId === user.id)
+    ? opportunities.filter((o) => o.assignedRep === user.name)
     : opportunities;
 
   // An opportunity with needs has a non-empty description or notes
   const oppsWithNeeds = repOpps.filter(
     (o) =>
-      (o.description && o.description.trim().length > 0) ||
-      (o.notes && o.notes.trim().length > 0) ||
-      (o.needs && o.needs.trim().length > 0)
+      (o.nextAction && o.nextAction.trim().length > 0)
   );
 
   return {
@@ -811,12 +809,12 @@ export function detectAcad104(): {
   const user = getStoredUser();
   const opportunities = listOpportunities({});
   const repOpps = user
-    ? opportunities.filter((o) => o.owner === user.name || o.ownerId === user.id)
+    ? opportunities.filter((o) => o.assignedRep === user.name)
     : opportunities;
 
   const proposalStages = new Set(['Proposal Sent', 'Negotiation']);
   const proposalOpps = repOpps.filter(
-    (o) => proposalStages.has(o.stage) && (o.value ?? o.estimatedRevenue ?? 0) > 0
+    (o) => proposalStages.has(o.stage) && (o.value ?? o.estimatedValue ?? 0) > 0
   );
 
   return {
@@ -838,10 +836,10 @@ export function detectAcad105(): {
   const user = getStoredUser();
   const opportunities = listOpportunities({});
   const repOpps = user
-    ? opportunities.filter((o) => o.owner === user.name || o.ownerId === user.id)
+    ? opportunities.filter((o) => o.assignedRep === user.name)
     : opportunities;
 
-  const closedWon = repOpps.filter((o) => o.stage === 'Closed Won');
+  const closedWon = repOpps.filter((o) => o.stage === 'CLOSED_WON');
 
   return {
     completed: closedWon.length >= 1,
