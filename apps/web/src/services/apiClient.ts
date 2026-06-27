@@ -38,5 +38,11 @@ export async function apiClient<T>(path: string, config: ApiRequestConfig = {}):
     throw new Error(`API request failed: ${response.status}`);
   }
 
-  return response.json() as Promise<T>;
+  const text = await response.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    console.warn(`[apiClient] Non-JSON response from ${path}:`, text.substring(0, 100));
+    return {} as T;
+  }
 }
