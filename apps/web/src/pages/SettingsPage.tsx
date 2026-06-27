@@ -90,6 +90,9 @@ export function SettingsPage() {
     territoryGrowthPercent: 0,
     pipelineHealthPercent: 0,
     territoriesProfitable: 0,
+    regionalDirectorsHired: 0,
+    statesOperational: 0,
+    seniorLeadershipPromoted: false,
   });
 
   useEffect(() => {
@@ -166,6 +169,9 @@ export function SettingsPage() {
           territoryGrowthPercent: 0,
           pipelineHealthPercent: dealsThisMonth > 0 && activeOpps > 0 ? Math.round((dealsThisMonth / activeOpps) * 100) : 0,
           territoriesProfitable: 0,
+    regionalDirectorsHired: 0,
+    statesOperational: 0,
+    seniorLeadershipPromoted: false,
         };
 
         setStats(newStats);

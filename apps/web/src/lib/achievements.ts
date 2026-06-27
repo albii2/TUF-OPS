@@ -14,7 +14,8 @@ export type CollectionId =
   | 'sales'
   | 'territory'
   | 'lane'
-  | 'leadership';
+  | 'leadership'
+  | 'executive';
 
 export type MetalTier = 'bronze' | 'silver' | 'gold' | 'black';
 
@@ -77,6 +78,11 @@ export interface RepStats {
   territoryGrowthPercent: number;
   pipelineHealthPercent: number;
   territoriesProfitable: number;
+
+  // Executive (VP)
+  regionalDirectorsHired: number;
+  statesOperational: number;
+  seniorLeadershipPromoted: boolean;
 }
 
 export interface EarnedQualification {
@@ -109,6 +115,7 @@ export const COLLECTIONS: CollectionConfig[] = [
   { id: 'territory', label: 'Territory', shape: 'compass', accent: '#059669', description: 'Ownership' },
   { id: 'lane', label: 'Lane', shape: 'diamond', accent: '#DC2626', description: 'Product Mastery' },
   { id: 'leadership', label: 'Leadership', shape: 'star', accent: '#1E293B', description: 'Responsibility' },
+  { id: 'executive', label: 'Executive', shape: 'star', accent: '#D97706', description: 'Vision' },
 ];
 
 // ─── Qualification Definitions ───────────────────────────────────────────────
@@ -865,6 +872,70 @@ export const ALL_QUALIFICATIONS: Qualification[] = [
       return null;
     },
   },
+  // ═══ EXECUTIVE (Star, Black/Gold #D97706) ═══════════════════════════════════
+  {
+    id: 'exec-regional-architect',
+    name: 'REGIONAL ARCHITECT',
+    collection: 'executive',
+    description: 'Hired your first Regional Director',
+    condition: '1+ Regional Director hired',
+    shape: 'star',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 1, label: 'First' },
+      { tier: 'silver', required: 2, label: '2' },
+      { tier: 'gold', required: 3, label: '3' },
+      { tier: 'black', required: 4, label: '4+' },
+    ],
+    check: (s) => {
+      if (s.regionalDirectorsHired >= 4) return { tier: 'black', value: s.regionalDirectorsHired };
+      if (s.regionalDirectorsHired >= 3) return { tier: 'gold', value: s.regionalDirectorsHired };
+      if (s.regionalDirectorsHired >= 2) return { tier: 'silver', value: s.regionalDirectorsHired };
+      if (s.regionalDirectorsHired >= 1) return { tier: 'bronze', value: s.regionalDirectorsHired };
+      return null;
+    },
+  },
+  {
+    id: 'exec-midwest-builder',
+    name: 'MIDWEST BUILDER',
+    collection: 'executive',
+    description: 'States operational across the Midwest',
+    condition: '4 states operational',
+    shape: 'star',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1 state' },
+      { tier: 'silver', required: 2, label: '2 states' },
+      { tier: 'gold', required: 3, label: '3 states' },
+      { tier: 'black', required: 4, label: '4 states' },
+    ],
+    check: (s) => {
+      if (s.statesOperational >= 4) return { tier: 'black', value: s.statesOperational };
+      if (s.statesOperational >= 3) return { tier: 'gold', value: s.statesOperational };
+      if (s.statesOperational >= 2) return { tier: 'silver', value: s.statesOperational };
+      if (s.statesOperational >= 1) return { tier: 'bronze', value: s.statesOperational };
+      return null;
+    },
+  },
+  {
+    id: 'exec-senior-leadership',
+    name: 'SENIOR LEADERSHIP',
+    collection: 'executive',
+    description: 'Promoted a Senior Regional Director — built the bench',
+    condition: 'Promoted first Senior Regional Director',
+    shape: 'star',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 1, label: 'First' },
+      { tier: 'silver', required: 2, label: '2' },
+      { tier: 'gold', required: 3, label: '3' },
+      { tier: 'black', required: 4, label: '4+' },
+    ],
+    check: (s) => {
+      if (s.seniorLeadershipPromoted) return { tier: 'bronze', value: 1 };
+      return null;
+    },
+  },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -956,8 +1027,12 @@ export function seedExecutiveProfile(userId: string): void {
     // Lane — four lane operator
     { qualificationId: 'lane-four-lane-operator', tier: 'black', earnedAt: now },
     // Leadership — built the system
-    { qualificationId: 'lead-directors-circle', tier: 'black', earnedAt: now },
-    { qualificationId: 'lead-regional-builder', tier: 'black', earnedAt: now },
+    { qualificationId: 'leadership-directors-circle', tier: 'black', earnedAt: now },
+    { qualificationId: 'leadership-regional-builder', tier: 'black', earnedAt: now },
+    // Executive — VP-level achievements
+    { qualificationId: 'exec-regional-architect', tier: 'black', earnedAt: now },
+    { qualificationId: 'exec-midwest-builder', tier: 'black', earnedAt: now },
+    { qualificationId: 'exec-senior-leadership', tier: 'black', earnedAt: now },
   ];
 
   for (const badge of executiveBadges) {
