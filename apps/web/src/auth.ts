@@ -1,5 +1,6 @@
 import type { AppUser, Role } from './types';
 import { authenticateWithCredential, authenticateWithPin, getActiveUserByRole } from './services/usersService';
+import { seedExecutiveProfile } from './lib/achievements';
 
 const USER_KEY = 'tuf_ops_user_v3';
 const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'];
@@ -35,7 +36,9 @@ export async function loginWithPin(pin: string): Promise<AppUser | null> {
   try {
     const matched = await authenticateWithPin(pin);
     if (!matched) return null;
-    return persistUser(matched);
+    const user = persistUser(matched);
+    if (user.role === 'ADMIN') seedExecutiveProfile(user.id);
+    return user;
   } catch {
     return null;
   }

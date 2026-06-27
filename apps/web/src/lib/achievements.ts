@@ -929,6 +929,47 @@ export function getEarnedQualifications(): EarnedQualification[] {
   return loadQualifications().earned;
 }
 
+/**
+ * Seed executive-level qualifications for the founder/VP account.
+ * Called on login for the executive user to ensure their profile reflects
+ * actual achievements: first TAE, $200K+, 50+ schools, community builder.
+ */
+export function seedExecutiveProfile(userId: string): void {
+  const store = loadQualifications();
+  const existing = new Set(store.earned.map((e) => e.qualificationId));
+  const now = new Date().toISOString();
+
+  const executiveBadges: EarnedQualification[] = [
+    // Academy — certified at every level
+    { qualificationId: 'acad-certified-tae', tier: 'gold', earnedAt: now },
+    { qualificationId: 'acad-senior-tae', tier: 'black', earnedAt: now },
+    // Activity — 1000+ calls, consistency
+    { qualificationId: 'act-1000-calls', tier: 'black', earnedAt: now },
+    { qualificationId: 'act-consistency', tier: 'gold', earnedAt: now },
+    // Sales — $200K+ and counting
+    { qualificationId: 'sales-first-win', tier: 'black', earnedAt: now },
+    { qualificationId: 'sales-100k', tier: 'gold', earnedAt: now },
+    { qualificationId: 'sales-250k', tier: 'gold', earnedAt: now },
+    // Territory — 50 schools, ecosystem builder
+    { qualificationId: 'territory-50-schools', tier: 'gold', earnedAt: now },
+    { qualificationId: 'territory-ecosystem-builder', tier: 'black', earnedAt: now },
+    // Lane — four lane operator
+    { qualificationId: 'lane-four-lane-operator', tier: 'black', earnedAt: now },
+    // Leadership — built the system
+    { qualificationId: 'lead-directors-circle', tier: 'black', earnedAt: now },
+    { qualificationId: 'lead-regional-builder', tier: 'black', earnedAt: now },
+  ];
+
+  for (const badge of executiveBadges) {
+    if (!existing.has(badge.qualificationId)) {
+      store.earned.push(badge);
+    }
+  }
+
+  store.lastCheck = now;
+  saveQualifications(store);
+}
+
 export function getHighestEarnedTier(qualificationId: string): MetalTier | null {
   const store = loadQualifications();
   const entries = store.earned.filter((e) => e.qualificationId === qualificationId);
