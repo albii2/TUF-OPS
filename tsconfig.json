@@ -11,5 +11,15 @@
     "declarationMap": true,
     "sourceMap": true,
     "composite": true
-  }
+  },
+  "exclude": [
+    "__tests__bak",
+    "e2e",
+    "prisma",
+    "apps/frontend",
+    "apps/api/src/modules/**/__tests__",
+    "apps/api/src/modules/*.test.ts",
+    "apps/web/src/__tests__",
+    "packages/auth/src/__tests__"
+  ]
 }
