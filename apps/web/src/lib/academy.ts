@@ -12,6 +12,7 @@
  *   ACAD-103: Discovery
  *   ACAD-104: Proposal
  *   ACAD-105: Order Handoff
+ *   ACAD-106: Product Knowledge
  *
  * PHASES PER MODULE:
  *   LEARN → DEMONSTRATE → COACH REVIEW → DEPLOY
@@ -24,7 +25,7 @@ import { getStoredUser } from '../auth';
 
 // ─── Module Definitions ─────────────────────────────────────────────────────
 
-export type AcademyModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105';
+export type AcademyModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105' | 'ACAD-106';
 
 /**
  * Module phases reflecting the Learn → Demonstrate → Coach Review → Deploy flow.
@@ -264,6 +265,43 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
       },
     ],
   },
+  {
+    code: 'ACAD-106',
+    name: 'Product Knowledge',
+    description:
+      'The 4-lane program system, 7 quality standards, 8 collections — know what TUF builds and why.',
+    completionCriteria:
+      'Pass the product knowledge quiz (80%) and deliver a 5-minute product walkthrough to your Director.',
+    demonstrateTask:
+      'Deliver a 5-minute product walkthrough to your Director covering one collection, three quality standards with physical samples, and the 4-lane system.',
+    philosophyPrinciple: 1, // We sell trust before apparel
+    learnContent: [
+      {
+        heading: 'The 4-Lane Program System — TUF\'s Moat',
+        body: 'TUF doesn\'t sell uniforms. TUF outfits entire athletic programs across four lanes:\n\n1. UNIFORMS — Game-day uniforms for every sport (GRIND, DIAMOND, SHIFT, OVERTIME)\n2. TRAVEL GEAR — ISSUE collection: tech suits, duffles, backpacks, one system\n3. TEAM STORES — Fan gear, spirit wear, booster merchandise for the community\n4. LETTERMAN JACKETS — LEGACY collection: the jacket that carries the program\'s tradition\n\nNobody else thinks about a school this way. Other vendors sell products. TUF builds program identity across all four lanes. That\'s the moat — once a school is across 3-4 lanes, leaving means breaking four relationships and rebuilding their entire visual identity from scratch.',
+      },
+      {
+        heading: 'The 8 Collections — What Athletes Wear',
+        body: 'GRIND™ — Football. Game-day uniforms built for the physical work.\nDIAMOND™ — Baseball / Softball. Named for the field of play.\nSHIFT™ — 7v7 / Flag. Motion, adaptation, speed.\nOVERTIME™ — Basketball. Clutch moments, when the game is on the line.\nISSUE™ — Travel Gear. Team-issued. Exclusive. Earned, not sold.\nCAMP™ — Performance Apparel. Training gear, warmups, off-field athlete wear.\nSIDELINE™ — Coaches Collection. What the leader wears on the sideline.\nLEGACY™ — Letterman Jackets. Tradition. The jacket that carries the program\'s history.\n\nEvery collection has a reason for its name. Know the reason. A coach asking "why GRIND?" deserves an answer.',
+      },
+      {
+        heading: 'The 7 Quality Standards — What TUF Demands from Every Product',
+        body: 'PRO CUT™ — Athletic competition fit derived from inside knowledge of college/pro patterns. Not stock blanks. Athletic taper, articulated sleeves, reduced bulk.\n\nFLEX-WAIST™ — Reversible basketball waistband. 360-degree stretch. No bunching, no twisting, flips clean. Women\'s basketball athletes have been folding their shorts for years — nobody named the problem. TUF did.\n\nPOWER-STRETCH™ — 4-way stretch with shape recovery. Moves with the athlete in every direction. Doesn\'t bag out after repeated wear.\n\nAIR-FORGE™ — Laser-cut ventilation mapped to high-heat zones. Air flows where athletes generate heat — not random holes.\n\nLOCK-FIT™ — Reinforced construction. Triple-stitched stress points, taped seams, reinforced neck, grip waistband. Built to survive a season.\n\nIRONCLAD GUARANTEE™ — If anything goes wrong, TUF fixes it. Period. Not pro-rated. Not "within reason." Fixed.\n\nPACKSYSTEM™ — Integrated travel gear system. Tech suit, duffle, backpack designed as one unified system — not three separate products.',
+      },
+      {
+        heading: 'The 3-Thing Close — What Every Rep Delivers',
+        body: 'Every TUF uniform comes down to three things:\n\n1. THE PRO LOOK — The aesthetic standard athletes recognize as premium. Built from inside knowledge of what college and pro programs actually wear.\n2. PRO-STANDARD FIT — Built to specifications derived from college/pro patterns. Not generic stock sizing.\n3. IRONCLAD GUARANTEE — If anything goes wrong, we make it right. No questions. No runaround. Fixed.\n\nMemorize this. Deliver it. Don\'t read it off a sheet — say it like you mean it.',
+      },
+      {
+        heading: 'The Discovery Rule — When to Use Brand Language',
+        body: 'First 10 minutes of a discovery call: ZERO brand vocabulary. Ask about the coach\'s program. Learn their pain points. Listen. The only collection name to use: "We outfit football programs through our GRIND collection" — establishes TUF has a dedicated line without launching into features.\n\nWhen the coach signals interest (minute 10-15): Introduce the 4-lane system. "Coach, here\'s what separates us. We think about your entire athletic program — game day, travel, fans, tradition — as one system. Four lanes. One look. One relationship."\n\nThe demo (minute 15-25): Show, don\'t tell. Hold up a jersey next to theirs. Let PRO CUT speak. Stretch POWER-STRETCH. Reverse FLEX-WAIST. The product proves the claim.\n\nThe close (final 5 minutes): Three things. THE PRO LOOK. PRO-STANDARD FIT. IRONCLAD GUARANTEE. Then ask: "Coach, if your athletes walked out in these, would you be proud of how they look?"',
+      },
+      {
+        heading: 'BUILT FOR THE PROGRAM.',
+        body: 'That\'s the rallying cry. Four words. It means TUF was built for the whole program — not just varsity. Built by someone who was in programs — not a corporate executive. Built for the program\'s identity — not a catalog transaction. Built to last for the program — backed by the IRONCLAD GUARANTEE.\n\nEvery rep should know those four words. Put them on your phone lock screen. Put them in your email signature. They are the answer to "what makes TUF different?"\n\nTUF is the program brand. Not a uniform vendor.',
+      },
+    ],
+  },
 ];
 
 // ─── Module Order (sequential gating) ────────────────────────────────────────
@@ -274,6 +312,7 @@ export const MODULE_ORDER: AcademyModuleCode[] = [
   'ACAD-103',
   'ACAD-104',
   'ACAD-105',
+  'ACAD-106',
 ];
 
 // ─── Sales Philosophy ────────────────────────────────────────────────────────
@@ -639,6 +678,63 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       correctIndex: 0,
     },
   ],
+  'ACAD-106': [
+    {
+      id: '106-q1',
+      question: 'What are the four revenue lanes in the TUF program system?',
+      options: [
+        'Uniforms, Travel Gear, Team Stores, Letterman Jackets — the four lanes that outfit an entire athletic program',
+        'Football, Basketball, Baseball, Hockey — the four sports TUF serves',
+        'Varsity, JV, Freshman, Youth — the four levels of a program',
+        'Jerseys, Shorts, Bags, Jackets — the four product categories',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '106-q2',
+      question: 'A basketball coach asks why their players should care about FLEX-WAIST. What\'s the best answer?',
+      options: [
+        '"It\'s a patented technology that only TUF has — no other brand can do this."',
+        '"Your players have been folding their shorts waistbands for years. Nobody named the problem. We did. FLEX-WAIST is a reversible waistband that flips clean, stays flat, and doesn\'t bunch up — so your athletes can focus on basketball, not adjusting their shorts."',
+        '"FLEX-WAIST uses premium elastic materials that last longer than standard waistbands."',
+        '"It comes standard on all TUF basketball uniforms at no extra cost."',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '106-q3',
+      question: 'A football coach is on a tight budget and only wants to order varsity uniforms. Why should you introduce the 4-lane system anyway?',
+      options: [
+        '"Because you\'re leaving money on the table — you should order all four lanes now."',
+        '"Coach, I hear you. Let\'s start with uniforms. I just want you to know the system exists — when you\'re ready for travel gear or team stores or letterman jackets, you\'re not starting from scratch. You\'re building on what we start today."',
+        '"TUF requires minimum orders across at least two lanes — we can\'t do uniforms only."',
+        '"The other lanes are optional. Let me show you pricing."',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '106-q4',
+      question: 'Scenario: A coach has been with the same local vendor for 10 years. He says "they do sublimation just like you, and they\'re cheaper." What\'s the right response?',
+      options: [
+        '"Our sublimation is better quality — you get what you pay for."',
+        '"Coach, sublimation is a standard process — we both do it. The question is what standard he\'s building to. Does he know how a D1 football jersey is cut? Does he have PRO CUT fit specifications? Does he back his work with an ironclad guarantee? If price is the only variable, he wins. If what your athletes look like on game day matters, let\'s talk about what\'s actually different."',
+        '"We use higher-quality sublimation inks that last three times longer."',
+        '"You should switch because our pricing is competitive and we have better customer service."',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '106-q5',
+      question: 'What is the rallying cry that captures TUF\'s entire brand philosophy?',
+      options: [
+        '"BUILT FOR THE PROGRAM."',
+        '"THE PRO LOOK. THE TEAM BUDGET."',
+        '"WE OUTFIT PROGRAMS. NOT PLAYERS."',
+        '"QUALITY YOU CAN SEE. PRICE YOU CAN AFFORD."',
+      ],
+      correctIndex: 0,
+    },
+  ],
 };
 
 // ─── Quiz Storage ────────────────────────────────────────────────────────────
@@ -925,6 +1021,27 @@ export function detectAcad105(): {
   };
 }
 
+/**
+ * ACAD-106: Demonstrate — deliver a 5-minute product walkthrough to Director.
+ * Detection: verified by Director sign-off in the certification review.
+ */
+export function detectAcad106(): {
+  completed: boolean;
+  currentValue: number;
+} {
+  const user = getStoredUser();
+  if (!user) return { completed: false, currentValue: 0 };
+
+  const cert = getCertificationRecord(user.id);
+  if (!cert) return { completed: false, currentValue: 0 };
+
+  const moduleData = cert.moduleProgress?.find((p) => p.code === 'ACAD-106');
+  return {
+    completed: !!moduleData?.coachReview,
+    currentValue: moduleData?.coachReview ? 1 : 0,
+  };
+}
+
 // ─── Module Phase Computation ────────────────────────────────────────────────
 
 /**
@@ -983,7 +1100,7 @@ function computeModulePhase(
 // ─── Master Detection ────────────────────────────────────────────────────────
 
 /**
- * Master detection function — runs all 5 module checks, applies sequential gating,
+ * Master detection function — runs all 6 module checks, applies sequential gating,
  * quiz requirements, coach review, and acknowledgment tracking.
  */
 export function detectAllModules(): ModuleProgress[] {
@@ -995,6 +1112,7 @@ export function detectAllModules(): ModuleProgress[] {
   const acad103 = detectAcad103();
   const acad104 = detectAcad104();
   const acad105 = detectAcad105();
+  const acad106 = detectAcad106();
 
   const record = getCertificationRecord(userId);
   const isAllCertified = record?.isLevel1Certified === true;
@@ -1008,6 +1126,7 @@ export function detectAllModules(): ModuleProgress[] {
     'ACAD-103': { completed: acad103.completed, currentValue: acad103.currentValue },
     'ACAD-104': { completed: acad104.completed, currentValue: acad104.currentValue },
     'ACAD-105': { completed: acad105.completed, currentValue: acad105.currentValue },
+    'ACAD-106': { completed: acad106.completed, currentValue: acad106.currentValue },
   };
 
   const extraData: Partial<Record<AcademyModuleCode, string>> = {
@@ -1061,7 +1180,7 @@ export function detectAllModules(): ModuleProgress[] {
 // ─── Completion Helpers ──────────────────────────────────────────────────────
 
 /**
- * Returns true if all 5 modules are acknowledged (Coach Review acknowledged by rep).
+ * Returns true if all 6 modules are acknowledged (Coach Review acknowledged by rep).
  * This combines with Director certification to achieve DEPLOY status.
  */
 export function isLevel1Complete(progress: ModuleProgress[]): boolean {
