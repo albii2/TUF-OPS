@@ -36,6 +36,30 @@ const stageCtas = {
 
 const stageFlow = ['LEAD_ENGAGED','DISCOVERY','MOCKUP_STAGE','INVOICE_SENT','CLOSED_WON'] as const;
 
+function formatActivityTime(iso: string): { date: string; time: string } {
+  const d = new Date(iso);
+  return {
+    date: d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
+    time: d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }),
+  };
+}
+
+function getActivityTypeInfo(message: string): { label: string; color: string; borderClass: string; bgClass: string } {
+  const isStageChange =
+    message.startsWith('Stage advanced') ||
+    message.includes('Advanced to') ||
+    message.startsWith('Marked') ||
+    message.startsWith('Removed');
+  const isWarning = message.startsWith('Follow-up');
+  if (isStageChange) {
+    return { label: 'stage', color: '#38bdf8', borderClass: 'border-l-sky-400', bgClass: 'bg-sky-500/10' };
+  }
+  if (isWarning) {
+    return { label: 'follow-up', color: '#fbbf24', borderClass: 'border-l-amber-400', bgClass: 'bg-amber-500/10' };
+  }
+  return { label: 'note', color: '#34d399', borderClass: 'border-l-emerald-400', bgClass: 'bg-emerald-500/10' };
+}
+
 
 export function OpportunityDetailPage() {
   const { id } = useParams();
@@ -253,7 +277,18 @@ export function OpportunityDetailPage() {
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Decision Timeline" className="lg:col-span-2">
           <div className="space-y-2 text-sm">
-            {dealActivity.length ? dealActivity.map((entry) => <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">{entry.message}<p className="text-xs text-slate-400">{entry.timestamp} · {entry.user}</p></div>) : <p className="text-slate-400">No activity entries yet.</p>}
+            {dealActivity.length ? dealActivity.map((entry) => {
+              const typeInfo = getActivityTypeInfo(entry.message);
+              const { date, time } = formatActivityTime(entry.timestamp);
+              return (
+                <div key={entry.id} className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-1 border-l-2" style={{ borderLeftColor: typeInfo.color }}>
+                  <p className="text-sm font-bold text-slate-100">{date}</p>
+                  <p className="text-xs text-slate-500">{time}</p>
+                  <p className="text-sm text-slate-200 leading-relaxed">{entry.message}</p>
+                  <p className="text-xs text-slate-500 text-right">{entry.user}</p>
+                </div>
+              );
+            }) : <p className="text-slate-400">No activity entries yet.</p>}
           </div>
         </Card>
         <Card title="Creative / Mockup Panel"><p className="text-sm text-slate-300">Creative requests: {summary.total}. Active requests: {summary.active}. Delivered asset count: {summary.delivered}.</p></Card>
