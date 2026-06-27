@@ -11,7 +11,7 @@ import { bulkUpdateOrganizations } from '../services/organizationsService';
 import { listUsers } from '../services/usersService';
 import type { CoverageStatus, TerritoryId } from '../data/mockSalesData';
 
-const PAGE_SIZE = 100;
+const DEFAULT_pageSize = 25;
 
 export function OrganizationsPage() {
   const navigate = useNavigate();
@@ -30,6 +30,7 @@ export function OrganizationsPage() {
   const [coverageStatus, setCoverageStatus] = useState(searchParams.get('coverageStatus') || 'ALL');
   const [priority, setPriority] = useState('ALL');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_pageSize);
   const [selected, setSelected] = useState<string[]>([]);
   const [assignmentCue, setAssignmentCue] = useState('');
   const [bulkMessage, setBulkMessage] = useState('');
@@ -46,10 +47,10 @@ export function OrganizationsPage() {
   const reps = useMemo(() => Array.from(new Set([...allOrganizations.map((o) => o.assignedRep), ...managedUsers.filter((u) => u.role === 'REP' && u.status === 'ACTIVE').map((u) => u.displayName)])).filter(Boolean), [allOrganizations, managedUsers]);
   const directors = useMemo(() => Array.from(new Set([...managedUsers.filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE').map((u) => u.displayName), ...allOrganizations.map((o) => o.assignedDirector)])).filter(Boolean), [allOrganizations, managedUsers]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const safePage = Math.min(page, totalPages);
   const prioritized = [...filtered].sort((a, b) => getOrganizationPriorityScore(b) - getOrganizationPriorityScore(a));
-  const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  const paged = prioritized.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   const toggleSelected = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
   const toggleSelectVisible = () => {
@@ -83,7 +84,6 @@ export function OrganizationsPage() {
   return (
     <div className='space-y-3 min-w-0'>
       {canBulkAssign ? <OrganizationImportPanel existingKeys={existingKeys} onImported={(ids) => { setSelected(ids); setRefreshKey((value) => value + 1); setAssignmentCue(`Imported accounts selected (${ids.length}). Review bulk fields below, then assign territory, director, and rep.`); }} /> : null}
-      {isPrimeauDirector ? <div className='rounded-md border border-cyan-400/30 bg-cyan-500/10 p-3 text-sm text-cyan-100'>Primeau director view: showing TUF Metro and TUF North schools assigned to Primeau plus schools assigned to Primeau-managed reps. Up to 100 schools display per page.</div> : null}
       <Card title='Accounts & Expansion Pipeline'>
         <div className='safe-grid mb-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8'>
           <Input placeholder='Search organizations' value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
@@ -125,7 +125,14 @@ export function OrganizationsPage() {
         )}
 
         {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(row) => navigate(`/organizations/${row.id}`)} /> : <EmptyState title='No organizations match filters' description='Try a different filter set.' />}
-        <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+        <div className="flex items-center justify-between">
+          <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+          <Select value={String(pageSize)} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="ml-3 w-20">
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </Select>
+        </div>
       </Card>
     </div>
   );
