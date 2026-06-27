@@ -28,6 +28,22 @@ exports.up = (pgm) => {
     UPDATE opportunities SET stage = 'closed_lost'
       WHERE stage = 'CLOSED_LOST';
 
+    -- Catch-all: map any remaining non-conforming stage values to 'lead'
+    UPDATE opportunities SET stage = 'lead'
+      WHERE stage NOT IN (
+        'lead', 'contacted', 'proposal_sent', 'negotiation',
+        'order_assembly', 'director_qa', 'closed_won',
+        'ready_for_operations', 'in_production',
+        'quality_control', 'shipped', 'delivered',
+        'closed_lost',
+        'LEAD', 'CONTACTED', 'PROPOSAL_SENT', 'NEGOTIATION',
+        'ORDER_ASSEMBLY', 'DIRECTOR_QA', 'CLOSED_WON',
+        'CLOSED_LOST', 'READY_FOR_OPS', 'IN_PRODUCTION',
+        'QUALITY_CONTROL', 'SHIPPED', 'DELIVERED',
+        'NOT_STARTED', 'LEAD_ASSIGNED', 'INVOICE_SENT',
+        'DECISION_PENDING'
+      );
+
     -- Add the CHECK constraint for canonical stages plus legacy uppercase values
     ALTER TABLE opportunities
       ADD CONSTRAINT opportunities_stage_check
