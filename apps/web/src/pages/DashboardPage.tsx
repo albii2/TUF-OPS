@@ -104,7 +104,7 @@ export function DashboardPage({ role }: { role: Role }) {
   const readyForVendorOrders = orders.filter((order) => order.productionStatus === 'READY_FOR_VENDOR');
   const stageCounts = Object.fromEntries(pipelineStages.map((stage) => [stage, opportunities.filter((opp) => opp.stage === stage).length]));
   const stageValues = Object.fromEntries(pipelineStages.map((stage) => [stage, opportunities.filter((opp) => opp.stage === stage).reduce((sum, opp) => sum + opp.value, 0)]));
-  const orderPaceCount = isApiBacked ? backendMetrics.paid_order_count : completedOrders.length;
+  const orderPaceCount = isApiBacked ? (backendMetrics.paid_order_count ?? 0) : completedOrders.length;
   const monthlyOrderPct = Math.min(100, Math.round((orderPaceCount / MONTHLY_ORDER_GOAL) * 100));
 
   if (role === 'REGIONAL_DIRECTOR') {
