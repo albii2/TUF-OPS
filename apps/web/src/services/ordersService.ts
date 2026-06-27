@@ -152,7 +152,7 @@ export function createMockOrderFromOpportunity(opportunity?: Opportunity): Order
     organizationName: opportunity.organizationName,
     opportunityId: opportunity.id,
     title: opportunity.title,
-    lane: opportunity.lane,
+    lane: opportunity.lanes[0],
     sport: opportunity.sport,
     value: Math.round(opportunity.value),
     productionStatus: 'NEEDS_REVIEW',

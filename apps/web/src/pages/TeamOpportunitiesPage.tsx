@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStoredUser } from '../auth';
-import { Button, Card, DataTable, EmptyState, Select, type Column } from '../components/primitives';
+import { Button, Card, DataTable, EmptyState, LaneBadge, Select, type Column } from '../components/primitives';
 import { useOpportunities, useOpportunityStages, useRevenueLanes } from '../hooks/useOpportunities';
 import { getNearCloseOpportunities, getStuckOpportunities } from '../services/businessSelectors';
 import { formatCurrency, formatDate } from '../utils/format';
@@ -17,7 +17,7 @@ export function TeamOpportunitiesPage() {
   let rows = all.filter((o) => user?.role === 'ADMIN' || user?.role === 'DIRECTOR');
   if (rep !== 'ALL') rows = rows.filter((o) => o.assignedRep === rep);
   if (stage !== 'ALL') rows = rows.filter((o) => o.stage === stage);
-  if (lane !== 'ALL') rows = rows.filter((o) => o.lane === lane);
+  if (lane !== 'ALL') rows = rows.filter((o) => o.lanes.includes(lane as any));
   if (sport !== 'ALL') rows = rows.filter((o) => o.sport === sport);
   if (focus === 'NEAR_CLOSE') rows = getNearCloseOpportunities(rows);
   if (focus === 'STUCK') rows = getStuckOpportunities(rows);
@@ -26,7 +26,7 @@ export function TeamOpportunitiesPage() {
     { key: 'opp', header: 'Opportunity', cell: (r) => r.title },
     { key: 'org', header: 'Organization', cell: (r) => r.organizationName },
     { key: 'rep', header: 'Rep', cell: (r) => r.assignedRep },
-    { key: 'lane', header: 'Lane', cell: (r) => r.lane },
+    { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lanes={r.lanes} /> },
     { key: 'sport', header: 'Sport', cell: (r) => r.sport },
     { key: 'stage', header: 'Stage', cell: (r) => r.stage },
     { key: 'value', header: 'Value', cell: (r) => formatCurrency(r.value) },

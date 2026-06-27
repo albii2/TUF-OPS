@@ -85,7 +85,7 @@ export function EarningsPage() {
   const totalOrders = focusRows.reduce((sum, row) => sum + row.wonCount, 0);
   const grossProfitEstimate = totalWon * 0.42;
   const netRevenue = totalWon - totalRepCommission - totalOverride;
-  const laneRevenue = ['UNIFORM','TRAVEL_GEAR','TEAM_STORE','LETTERMAN'].map((lane)=>({lane, value: opportunities.filter((o)=>o.stage==='CLOSED_WON' && o.lane===lane).reduce((sum,o)=>sum+o.value,0)}));
+  const laneRevenue = ['UNIFORM','TRAVEL_GEAR','TEAM_STORE','LETTERMAN'].map((lane)=>({lane, value: opportunities.filter((o)=>o.stage==='CLOSED_WON' && o.lanes.includes(lane as any)).reduce((sum,o)=>sum+o.value,0)}));
   const totalGoal = focusRows.length * MONTHLY_ORDER_GOAL;
   const pendingCommission = totalRepCommission * 0.35;
   const paidCommission = totalRepCommission - pendingCommission;

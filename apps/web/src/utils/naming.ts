@@ -31,6 +31,7 @@ export function getLaneLabel(lane: RevenueLane): string {
   return lane === 'TRAVEL_GEAR' ? 'Team Gear' : toTitleCase(lane.replace('_', ' '));
 }
 
-export function buildOpportunityDisplayName(input: { programLevel: string; sport: string; seasonCode: string; lane: RevenueLane }): string {
-  return `${normalizeProgramLevel(input.programLevel)} ${normalizeSport(input.sport)} ${normalizeSeasonCode(input.seasonCode)} — ${getLaneLabel(input.lane)}`;
+export function buildOpportunityDisplayName(input: { programLevel: string; sport: string; seasonCode: string; lanes: RevenueLane[] }): string {
+  const lanePart = input.lanes.map((l) => getLaneLabel(l)).join(' + ');
+  return `${normalizeProgramLevel(input.programLevel)} ${normalizeSport(input.sport)} ${normalizeSeasonCode(input.seasonCode)} — ${lanePart}`;
 }

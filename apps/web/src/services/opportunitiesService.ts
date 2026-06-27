@@ -83,8 +83,15 @@ function getAllOpportunities() {
   const deletedIds = new Set(readDeletedOpportunityIds());
   const localRows = readLocalOpportunities();
   const localIds = new Set(localRows.map((row) => row.id));
-  return [...localRows, ...opportunities.filter((row) => !localIds.has(row.id))]
+  const allRows = [...localRows, ...opportunities.filter((row) => !localIds.has(row.id))]
     .filter((row) => !deletedIds.has(row.id));
+  // Backward compat: normalize legacy single-lane opportunities to use lanes array
+  return allRows.map((row) => {
+    if ((row as any).lane && !row.lanes) {
+      return { ...row, lanes: [(row as any).lane] as RevenueLane[], lane: undefined } as Opportunity;
+    }
+    return row;
+  }).filter((row) => Array.isArray(row.lanes) && row.lanes.length > 0);
 }
 
 export function listOpportunities(params: OpportunityListParams = {}): Opportunity[] {
@@ -93,7 +100,7 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
       ? [opp.title, opp.organizationName].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase())
       : true;
     const matchesStage = !params.stage || params.stage === 'ALL' || opp.stage === params.stage;
-    const matchesLane = !params.lane || params.lane === 'ALL' || opp.lane === params.lane;
+    const matchesLane = !params.lane || params.lane === 'ALL' || opp.lanes.includes(params.lane);
     const matchesRep = !params.rep || params.rep === 'ALL' || opp.assignedRep === params.rep;
     const matchesSport = !params.sport || params.sport === 'ALL' || opp.sport === params.sport;
     const roleScoped = canViewOpportunity(opp) || Boolean(getOrganizationById(opp.organizationId));
@@ -128,10 +135,10 @@ export function createMockOpportunity(input: {
   const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep;
   const row: Opportunity = {
     id: `opp-local-${Date.now()}`,
-    title: buildOpportunityDisplayName({ programLevel: input.programLevel, sport: input.sport, seasonCode: input.seasonCode, lane: input.lane }),
+    title: buildOpportunityDisplayName({ programLevel: input.programLevel, sport: input.sport, seasonCode: input.seasonCode, lanes: [input.lane] }),
     organizationId: input.organizationId,
     organizationName: input.organizationName,
-    lane: input.lane,
+    lanes: [input.lane],
     sport: input.sport,
     season: input.seasonCode,
     stage: 'LEAD_ENGAGED',
@@ -183,15 +190,14 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
   return updated;
 }
 
-export function updateOpportunityLane(id: string, lane: RevenueLane) {
+export function addOpportunityLane(id: string, lane: RevenueLane) {
   const existing = getAllOpportunities().find((opp) => opp.id === id);
   if (!existing) return undefined;
-  if (existing.lane === lane) return existing;
-  const previousLabel = getLaneLabel(existing.lane);
+  if (existing.lanes.includes(lane)) return existing;
   const newLabel = getLaneLabel(lane);
   const updated: Opportunity = {
     ...existing,
-    lane,
+    lanes: [...existing.lanes, lane],
     lastActivity: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -200,7 +206,29 @@ export function updateOpportunityLane(id: string, lane: RevenueLane) {
   createActivity({
     entityType: 'OPPORTUNITY',
     entityId: id,
-    message: `Lane changed from ${previousLabel} to ${newLabel}.`,
+    message: `Lane added: ${newLabel}.`,
+  });
+  window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
+  return updated;
+}
+
+export function removeOpportunityLane(id: string, lane: RevenueLane) {
+  const existing = getAllOpportunities().find((opp) => opp.id === id);
+  if (!existing) return undefined;
+  if (!existing.lanes.includes(lane)) return existing;
+  const newLabel = getLaneLabel(lane);
+  const updated: Opportunity = {
+    ...existing,
+    lanes: existing.lanes.filter((l) => l !== lane),
+    lastActivity: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
+  removeLegacyOpportunity(id);
+  createActivity({
+    entityType: 'OPPORTUNITY',
+    entityId: id,
+    message: `Lane removed: ${newLabel}.`,
   });
   window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
   return updated;

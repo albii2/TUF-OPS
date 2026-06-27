@@ -57,7 +57,7 @@ export type Opportunity = {
   title: string;
   organizationId: string;
   organizationName: string;
-  lane: RevenueLane;
+  lanes: RevenueLane[];
   sport: string;
   season: string;
   stage: OpportunityStage;

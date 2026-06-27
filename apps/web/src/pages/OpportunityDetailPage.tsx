@@ -9,7 +9,7 @@ import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreative
 import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
 import { SPORT_OPTIONS, REVENUE_LANES } from '../config/business';
 import { getLaneLabel } from '../utils/naming';
-import { deleteOpportunity, logOpportunityActivity, updateOpportunityLane, updateOpportunityStage } from '../services/opportunitiesService';
+import { deleteOpportunity, logOpportunityActivity, addOpportunityLane, removeOpportunityLane, updateOpportunityStage } from '../services/opportunitiesService';
 import type { Opportunity, OpportunityStage, RevenueLane } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
@@ -147,43 +147,46 @@ export function OpportunityDetailPage() {
             <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
             <p className="text-xs text-slate-400">Sport: {activeOpp.sport} · Zone: {zoneLabel}</p>
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span>Lane:</span>
-              {inlineLaneEditing ? (
-                <>
+              <span>Lanes:</span>
+              <span className="inline-flex flex-wrap gap-1">
+                {activeOpp.lanes.map((lane) => (
+                  <span key={lane} className="inline-flex items-center gap-1 rounded-full border border-[#23557a] bg-[#0e2131] px-2 py-0.5 text-[10px] font-semibold text-[#cdeaff]">
+                    {getLaneLabel(lane)}
+                    <button
+                      className="ml-0.5 text-slate-500 hover:text-rose-400 leading-none"
+                      onClick={() => {
+                        const result = removeOpportunityLane(activeOpp.id, lane);
+                        if (result) setLocalOpp(result);
+                      }}
+                      title="Remove lane"
+                    >×</button>
+                  </span>
+                ))}
+                {inlineLaneEditing ? (
                   <select
-                    className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-xs text-slate-100"
-                    value={activeOpp.lane}
+                    className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-100"
+                    value=""
                     onChange={(e) => {
-                      const newLane = e.target.value as RevenueLane;
-                      if (newLane !== activeOpp.lane) {
-                        const confirmed = window.confirm(
-                          `Change lane from ${getLaneLabel(activeOpp.lane)} to ${getLaneLabel(newLane)}?\n\nThis replaces the current lane on this opportunity. Previous lane activity is preserved in the log. The organization will show both lanes as active.`
-                        );
-                        if (!confirmed) return;
+                      const lane = e.target.value as RevenueLane;
+                      if (lane) {
+                        const result = addOpportunityLane(activeOpp.id, lane);
+                        if (result) setLocalOpp(result);
                       }
-                      const result = updateOpportunityLane(activeOpp.id, newLane);
-                      if (result) setLocalOpp(result);
                       setInlineLaneEditing(false);
                     }}
                   >
-                    {REVENUE_LANES.map((lane) => (
+                    <option value="">+ Add Lane</option>
+                    {REVENUE_LANES.filter((l) => !activeOpp.lanes.includes(l)).map((lane) => (
                       <option key={lane} value={lane}>{getLaneLabel(lane)}</option>
                     ))}
                   </select>
-                  <button
-                    className="text-slate-500 hover:text-slate-300"
-                    onClick={() => setInlineLaneEditing(false)}
-                  >✕</button>
-                </>
-              ) : (
-                <>
-                  <span className="text-cyan-300">{getLaneLabel(activeOpp.lane)}</span>
+                ) : (
                   <button
                     className="ml-1 text-slate-500 hover:text-cyan-300 text-[10px] underline"
                     onClick={() => setInlineLaneEditing(true)}
-                  >edit</button>
-                </>
-              )}
+                  >+ Add Lane</button>
+                )}
+              </span>
             </div>
             <p className="text-xs text-slate-400">Assigned Rep: {activeOpp.assignedRep}</p>
             <Button className="mt-2 border-rose-500/50 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20" onClick={removeOpportunity}>Remove Opportunity</Button>
@@ -228,7 +231,7 @@ export function OpportunityDetailPage() {
                 creativeSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
               }
               setShowAdvanceDrawer(true);
-              setAdvanceForm({ lane: activeOpp.lane });
+              setAdvanceForm({ lane: activeOpp.lanes[0] });
             }}>{stageCtas[activeOpp.stage]}</Button>
           ) : nextStage && !canAdvance ? (
             <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p>
@@ -305,8 +308,8 @@ export function OpportunityDetailPage() {
                 }
                 // Apply lane change from drawer if different from current
                 const newLane = advanceForm['lane'];
-                if (newLane && newLane !== activeOpp.lane) {
-                  const laneResult = updateOpportunityLane(activeOpp.id, newLane as RevenueLane);
+                if (newLane && !activeOpp.lanes.includes(newLane as RevenueLane)) {
+                  const laneResult = addOpportunityLane(activeOpp.id, newLane as RevenueLane);
                   if (laneResult) setLocalOpp(laneResult);
                 }
                 setStage(nextStage, `Advanced to ${nextStage.replace(/_/g, ' ')} in mock mode with guided drawer fields.`);

@@ -40,10 +40,10 @@ export const territories: Territory[] = (['metro', 'north', 'west', 'south'] as 
     pipeline: territoryOpportunities.filter((opportunity) => !['CLOSED_WON', 'CLOSED_LOST'].includes(opportunity.stage)).reduce((sum, opportunity) => sum + opportunity.value, 0),
     closed: territoryOpportunities.filter((opportunity) => opportunity.stage === 'CLOSED_WON').reduce((sum, opportunity) => sum + opportunity.value, 0),
     lanePenetration: {
-      uniform: territoryOpportunities.filter((opportunity) => opportunity.lane === 'UNIFORM').length,
-      teamStore: territoryOpportunities.filter((opportunity) => opportunity.lane === 'TEAM_STORE').length,
-      travelGear: territoryOpportunities.filter((opportunity) => opportunity.lane === 'TRAVEL_GEAR').length,
-      letterman: territoryOpportunities.filter((opportunity) => opportunity.lane === 'LETTERMAN').length,
+      uniform: territoryOpportunities.filter((opportunity) => opportunity.lanes.includes('UNIFORM')).length,
+      teamStore: territoryOpportunities.filter((opportunity) => opportunity.lanes.includes('TEAM_STORE')).length,
+      travelGear: territoryOpportunities.filter((opportunity) => opportunity.lanes.includes('TRAVEL_GEAR')).length,
+      letterman: territoryOpportunities.filter((opportunity) => opportunity.lanes.includes('LETTERMAN')).length,
     },
   };
 });

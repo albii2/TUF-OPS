@@ -39,7 +39,7 @@ export function OrganizationDetailPage() {
 
   const laneCoverageBySport = Array.from(new Set(allOpportunities.filter((o) => o.organizationId === id).map((o) => o.sport))).map((sport) => {
     const sportOpps = allOpportunities.filter((o) => o.organizationId === id && o.sport === sport);
-    const has = (lane: 'UNIFORM' | 'TEAM_STORE' | 'TRAVEL_GEAR' | 'LETTERMAN') => sportOpps.some((o) => o.lane === lane);
+    const has = (lane: 'UNIFORM' | 'TEAM_STORE' | 'TRAVEL_GEAR' | 'LETTERMAN') => sportOpps.some((o) => o.lanes.includes(lane));
     return { sport, UNIFORM: has('UNIFORM'), TEAM_STORE: has('TEAM_STORE'), TRAVEL_GEAR: has('TRAVEL_GEAR'), LETTERMAN: has('LETTERMAN') };
   });
 
@@ -65,7 +65,7 @@ export function OrganizationDetailPage() {
   const attackLane = (lane: RevenueLane) => {
     if (!id || !org) return;
 
-    const existingActiveLaneOpportunity = activeOpportunities.find((opportunity) => opportunity.lane === lane);
+    const existingActiveLaneOpportunity = activeOpportunities.find((opportunity) => opportunity.lanes.includes(lane));
     if (existingActiveLaneOpportunity) {
       setLaneMessage(`${lane.replace(/_/g, ' ')} already has an active opportunity: ${existingActiveLaneOpportunity.title}. Open it below and advance the next step.`);
       createActivity({

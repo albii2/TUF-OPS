@@ -50,7 +50,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const columns: Column<(typeof filtered)[number]>[] = [
     { key: 'opp', header: 'Deal', cell: (r) => <div><p className='font-semibold text-slate-100'>{r.title}</p><p className='text-xs text-slate-400'>{r.organizationName}</p></div> },
     { key: 'org', header: 'Account', cell: (r) => r.organizationName },
-    { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lane={r.lane} /> },
+    { key: 'lane', header: 'Lane', cell: (r) => <LaneBadge lanes={r.lanes} /> },
     { key: 'sport', header: 'Sport', cell: (r) => r.sport },
     { key: 'stage', header: 'Stage', className: 'min-w-[170px] whitespace-nowrap', cell: (r) => <StageBadge stage={r.stage} /> },
     { key: 'value', header: 'Value', className: 'text-right min-w-[120px]', cell: (r) => formatCurrency(r.value) },

@@ -125,10 +125,10 @@ export function SettingsPage() {
 
         // Lane penetration
         const wonOpps = opps.filter((o) => o.stage === 'CLOSED_WON');
-        const uniformsDealClosed = wonOpps.some((o) => o.lane === 'UNIFORM');
-        const travelGearDealClosed = wonOpps.some((o) => o.lane === 'TRAVEL_GEAR');
-        const teamStoreDealClosed = wonOpps.some((o) => o.lane === 'TEAM_STORE');
-        const lettermanDealClosed = wonOpps.some((o) => o.lane === 'LETTERMAN');
+        const uniformsDealClosed = wonOpps.some((o) => o.lanes.includes('UNIFORM'));
+        const travelGearDealClosed = wonOpps.some((o) => o.lanes.includes('TRAVEL_GEAR'));
+        const teamStoreDealClosed = wonOpps.some((o) => o.lanes.includes('TEAM_STORE'));
+        const lettermanDealClosed = wonOpps.some((o) => o.lanes.includes('LETTERMAN'));
 
         // Academy quiz progress from localStorage
         let quizModulesPassed = 0;

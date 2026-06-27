@@ -61,7 +61,7 @@ export function OpportunityNewPage() {
   const { success, error } = useToast();
 
   const levels = useMemo(() => [...SCHOOL_PROGRAM_LEVELS, ...YOUTH_PROGRAM_LEVELS, ...CLUB_PROGRAM_LEVELS], []);
-  const preview = buildOpportunityDisplayName({ programLevel, sport, seasonCode, lane });
+  const preview = buildOpportunityDisplayName({ programLevel, sport, seasonCode, lanes: [lane] });
   const selectedOrg = organizations.find((org) => org.id === organizationId) ?? organizations[0];
 
   useEffect(() => {
