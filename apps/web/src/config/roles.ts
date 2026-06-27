@@ -37,15 +37,15 @@ export const roleConfig: Record<Role, RoleConfig> = {
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'invoices', 'messages', 'programs', 'academy', 'settings'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification', '/orders', '/settings'],
   },
   REP: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy', 'territory'],
+    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy', 'territory', 'settings'],
     dashboardWidgets: ['Deals Need Action', 'Near Close', 'Payments Pending', 'This Month Progress'],
     primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/academy', '/territory'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/academy', '/territory', '/settings'],
   },
 };

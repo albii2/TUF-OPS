@@ -107,7 +107,7 @@ export default function App() {
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
         <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{dashboard}</PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
-        <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'DIRECTOR']}><AdminCertificationPage /></RoleProtected>} />
+        <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'DIRECTOR', 'REGIONAL_DIRECTOR']}><AdminCertificationPage /></RoleProtected>} />
         <Route path="/organizations" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/new" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/:id" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected></CertificationProtected>} />
@@ -130,8 +130,8 @@ export default function App() {
         />
         <Route path="/reports" element={<CertificationProtected user={user} path="/reports"><PageProtected user={user} path="/reports"><ReportsPage /></PageProtected></CertificationProtected>} />
         <Route path="/earnings" element={<CertificationProtected user={user} path="/earnings"><PageProtected user={user} path="/earnings"><EarningsPage /></PageProtected></CertificationProtected>} />
-        <Route path="/territory" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected></CertificationProtected>} />
-        <Route path="/territory/map" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryMapView /></PageProtected></CertificationProtected>} />
+        <Route path="/territory" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryMapView /></PageProtected></CertificationProtected>} />
+        <Route path="/territory/static" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected></CertificationProtected>} />
         <Route path="/settings" element={<CertificationProtected user={user} path="/settings"><PageProtected user={user} path="/settings"><SettingsPage /></PageProtected></CertificationProtected>} />
         <Route path="/users" element={<CertificationProtected user={user} path="/users"><PageProtected user={user} path="/users"><UsersPage /></PageProtected></CertificationProtected>} />
       </Route>

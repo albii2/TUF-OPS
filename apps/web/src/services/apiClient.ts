@@ -13,9 +13,24 @@ export async function apiClient<T>(path: string, config: ApiRequestConfig = {}):
       ).toString()}`
     : '';
 
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+
+  // Attach auth token if available (stored in localStorage after login)
+  try {
+    const rawUser = localStorage.getItem('tuf_ops_user_v3');
+    if (rawUser) {
+      const parsed = JSON.parse(rawUser);
+      if (parsed.token) {
+        headers['Authorization'] = `Bearer ${parsed.token}`;
+      }
+    }
+  } catch {
+    // fail silently — no token, no auth header
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}${queryString}`, {
     method: config.method ?? 'GET',
-    headers: { 'Content-Type': 'application/json' },
+    headers,
     body: config.body ? JSON.stringify(config.body) : undefined,
   });
 

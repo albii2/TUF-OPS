@@ -404,6 +404,9 @@ export default function AdminCertificationPage() {
                     ACAD-105
                   </th>
                   <th className="text-center px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    ACAD-106
+                  </th>
+                  <th className="text-center px-4 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
                     Action
                   </th>
                 </tr>
@@ -411,7 +414,7 @@ export default function AdminCertificationPage() {
               <tbody className="divide-y divide-slate-800/60">
                 {reps.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-slate-500">
+                    <td colSpan={10} className="px-4 py-8 text-center text-slate-500">
                       No active TAEs found.
                     </td>
                   </tr>

@@ -12,6 +12,8 @@ export { OrganizationNewPage, OpportunityNewPage } from './NewPages';
 export { TerritoryPage } from './TerritoryPage';
 export { TerritoryMapPage } from './TerritoryMapPage';
 export { TerritoryMapView } from '../components/TerritoryMap';
+export { RepOrdersPage } from './RepOrdersPage';
+export { ProductionTrackerPage } from './ProductionTrackerPage';
 export { MyOpportunitiesPage } from './MyOpportunitiesPage';
 export { TeamOpportunitiesPage } from './TeamOpportunitiesPage';
 export { TeamPerformancePage } from './TeamPerformancePage';

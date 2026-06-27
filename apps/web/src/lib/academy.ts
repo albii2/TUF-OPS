@@ -1518,3 +1518,62 @@ export function markPageVisited(page: string): void {
   visited.add(page);
   localStorage.setItem(VISITED_PAGES_KEY, JSON.stringify([...visited]));
 }
+
+// ─── Certification Reset (clear all cert data for fresh start) ───────────────
+
+const ALL_CERT_KEYS = [
+  'tuf_academy_certification',
+  'tuf_academy_submission',
+  'tuf_academy_quiz_results',
+  'tuf_academy_acknowledgments',
+  'tuf_academy_coach_reviews',
+  'tuf_academy_mission_statement',
+];
+
+/**
+ * Reset all certification data for all users.
+ * Clears quiz results, submissions, coach reviews, acknowledgments, mission statements,
+ * and certification records. Then updates all REP/TAE users to is_certified=false.
+ *
+ * Call this when you need a fresh start for all certifications (e.g., pre-launch reset).
+ */
+export function resetAllCertifications(): void {
+  // Clear all localStorage certification keys
+  ALL_CERT_KEYS.forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // fail silently
+    }
+  });
+
+  // Reset isCertified flag on all users with role REP
+  try {
+    // Update current user
+    const rawUser = localStorage.getItem('tuf_ops_user_v3');
+    if (rawUser) {
+      const user = JSON.parse(rawUser);
+      if (user.role === 'REP') {
+        user.isCertified = false;
+        localStorage.setItem('tuf_ops_user_v3', JSON.stringify(user));
+        window.dispatchEvent(
+          new CustomEvent('tuf:user-updated', { detail: user })
+        );
+      }
+    }
+
+    // Update all users in the users list
+    const usersRaw = localStorage.getItem('tuf_ops_users_v7');
+    if (usersRaw) {
+      const users = JSON.parse(usersRaw);
+      const updated = users.map((u: any) =>
+        u.role === 'REP'
+          ? { ...u, isCertified: false }
+          : u
+      );
+      localStorage.setItem('tuf_ops_users_v7', JSON.stringify(updated));
+    }
+  } catch {
+    // fail silently
+  }
+}

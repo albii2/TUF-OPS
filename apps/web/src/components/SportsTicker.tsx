@@ -119,7 +119,7 @@ function injectMarqueeStyles() {
       100% { transform: translateX(-50%); }
     }
     .tuf-marquee-track {
-      animation: tuf-marquee-scroll 40s linear infinite;
+      animation: tuf-marquee-scroll 60s linear infinite;
     }
     .tuf-marquee-track:hover {
       animation-play-state: paused;
