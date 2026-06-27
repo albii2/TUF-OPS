@@ -5,11 +5,11 @@ import type { Role } from '../types';
 import { useToast } from '../components/toast';
 import {
   type RepStats,
-  loadAchievements,
-  getBadgeProgress,
-  checkAndAwardBadges,
+  loadQualifications,
+  getQualificationProgress,
+  checkAndAwardQualifications,
 } from '../lib/achievements';
-import { BadgeShowcase } from '../components/BadgeShowcase';
+import { BadgeLocker } from '../components/BadgeLocker';
 import { listOrganizations } from '../services/organizationsService';
 import {
   listOpportunities,
@@ -69,14 +69,27 @@ export function SettingsPage() {
     quizModulesPassed: 0,
     isLevel1Certified: false,
     isLevel2Certified: false,
-    organizationsCreated: 0,
+    isDirector: false,
+    prospectingActivities: 0,
     activeOpportunities: 0,
-    dealsClosedThisMonth: 0,
-    dealsClosedThisQuarter: 0,
+    followUpActivities: 0,
+    ordersThisMonth: 0,
+    consecutiveMonthsWithOrders: 0,
+    totalClosedAmount: 0,
+    ordersClosed: 0,
+    organizationsCreated: 0,
+    territoryCoveragePercent: 0,
+    territoryPenetrationPercent: 0,
+    organizationsWithThreeSports: 0,
     uniformsDealClosed: false,
     travelGearDealClosed: false,
     teamStoreDealClosed: false,
     lettermanDealClosed: false,
+    dealsAssisted: 0,
+    repsCertified: 0,
+    territoryGrowthPercent: 0,
+    pipelineHealthPercent: 0,
+    territoriesProfitable: 0,
   });
 
   useEffect(() => {
@@ -132,22 +145,35 @@ export function SettingsPage() {
           quizModulesPassed,
           isLevel1Certified: user?.isCertified ?? false,
           isLevel2Certified: false,
-          organizationsCreated: orgCount,
+          isDirector: user?.role === 'DIRECTOR' || user?.role === 'REGIONAL_DIRECTOR' || user?.role === 'ADMIN',
+          prospectingActivities: 0,
           activeOpportunities: activeOpps,
-          dealsClosedThisMonth: dealsThisMonth,
-          dealsClosedThisQuarter: dealsThisQuarter,
+          followUpActivities: 0,
+          ordersThisMonth: dealsThisMonth,
+          consecutiveMonthsWithOrders: 0,
+          totalClosedAmount: 0,
+          ordersClosed: opps.filter((o) => o.stage === 'CLOSED_WON').length,
+          organizationsCreated: orgCount,
+          territoryCoveragePercent: orgCount > 0 ? Math.round((Math.min(orgCount, Math.floor(orgCount * 0.7)) / orgCount) * 100) : 0,
+          territoryPenetrationPercent: 0,
+          organizationsWithThreeSports: 0,
           uniformsDealClosed,
           travelGearDealClosed,
           teamStoreDealClosed,
           lettermanDealClosed,
+          dealsAssisted: 0,
+          repsCertified: 0,
+          territoryGrowthPercent: 0,
+          pipelineHealthPercent: dealsThisMonth > 0 && activeOpps > 0 ? Math.round((dealsThisMonth / activeOpps) * 100) : 0,
+          territoriesProfitable: 0,
         };
 
         setStats(newStats);
 
-        // Check for newly earned badges
-        const newlyEarned = checkAndAwardBadges(newStats);
-        for (const badge of newlyEarned) {
-          success(`🏅 Badge Earned: ${badge.icon} ${badge.name} — ${badge.description}`);
+        // Check for newly earned qualifications
+        const newlyEarned = checkAndAwardQualifications(newStats);
+        for (const qual of newlyEarned) {
+          success(`QUALIFICATION EARNED: ${qual.name} — ${qual.description}`);
         }
       } catch {
         // Fall back to whatever we have
@@ -164,17 +190,17 @@ export function SettingsPage() {
     return { total: organizationsCreated, active, coverage };
   }, [stats]);
 
-  // ── Badge summary ─────────────────────────────────────────────────────────
-  const badgeSummary = useMemo(() => {
-    const progress = getBadgeProgress(stats);
-    const earned = progress.filter((p) => p.earned).length;
+  // ── Qualification summary ──────────────────────────────────────────────────
+  const qualSummary = useMemo(() => {
+    const progress = getQualificationProgress(stats);
+    const earned = progress.filter((p) => p.earnedTier !== null).length;
     const total = progress.length;
     return { earned, total };
   }, [stats]);
 
-  // ── Learn more badge for Settings page badge notification ────────────────
+  // ── Earned count for settings badge notification ───────────────────────────
   const earnedCount = useMemo(() => {
-    const store = loadAchievements();
+    const store = loadQualifications();
     return store.earned.length;
   }, [stats]);
 
@@ -246,7 +272,7 @@ export function SettingsPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-semibold text-slate-300">
-                      {user?.isCertified ? '🏆' : stats.quizModulesPassed >= 5 ? '📚' : stats.quizModulesPassed >= 1 ? '🎓' : '🔒'} Certification
+                      CERTIFICATION
                     </p>
                     <p className="text-[11px] text-slate-400">{certificationLevel}</p>
                   </div>
@@ -304,12 +330,12 @@ export function SettingsPage() {
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-slate-500">Orders This Month</p>
-                <p className="text-xl font-bold text-slate-100">{stats.dealsClosedThisMonth}</p>
+                <p className="text-xl font-bold text-slate-100">{stats.ordersThisMonth}</p>
               </div>
               <div className="rounded-lg border border-slate-700/50 bg-slate-800/30 p-3">
                 <p className="text-[10px] uppercase tracking-wide text-slate-500">Pipeline Health</p>
                 <p className="text-xl font-bold text-cyan-300">
-                  {stats.activeOpportunities > 0 ? `${Math.min(100, Math.round((stats.dealsClosedThisMonth / Math.max(1, stats.activeOpportunities)) * 100))}%` : '0%'}
+                  {stats.activeOpportunities > 0 ? `${Math.min(100, Math.round((stats.ordersThisMonth / Math.max(1, stats.activeOpportunities)) * 100))}%` : '0%'}
                 </p>
               </div>
             </div>
@@ -455,14 +481,14 @@ export function SettingsPage() {
         </div>
       </div>
 
-      {/* ── BOTTOM — Gamification ──────────────────────────────────────── */}
-      <Card title={`🏅 Achievements (${badgeSummary.earned}/${badgeSummary.total})`}>
-        <BadgeShowcase stats={stats} />
+      {/* ── BOTTOM — Qualifications ────────────────────────────────────── */}
+      <Card title={`QUALIFICATIONS (${qualSummary.earned}/${qualSummary.total})`}>
+        <BadgeLocker stats={stats} />
 
         {/* Leaderboard stub */}
         <div className="mt-4 rounded-lg border border-dashed border-slate-700/50 bg-slate-800/20 p-3 text-center">
           <p className="text-xs text-slate-400">
-            📊 Leaderboard: Coming in next release. Keep earning badges to climb the ranks!
+            LEADERBOARD: Coming in next release. Earn qualifications to climb the ranks.
           </p>
         </div>
       </Card>

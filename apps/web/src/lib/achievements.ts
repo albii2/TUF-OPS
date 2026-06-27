@@ -1,377 +1,1064 @@
 /**
- * TUF Ops Achievement / Badge System
+ * TUF Ops Qualification System
  *
- * Badge categories: academy | territory | pipeline | lanes
- * Tiers: bronze | silver | gold | platinum
- *
- * Storage: localStorage key 'tuf_ops_achievements_v1'
- * Check badge conditions on relevant actions and trigger toast notifications.
+ * Military-inspired qualification badges across 6 collections.
+ * Metal tiers: Bronze → Silver → Gold → Black (highest).
+ * Storage: localStorage key 'tuf_ops_qualifications_v1'
  */
 
-export type BadgeCategory = 'academy' | 'territory' | 'pipeline' | 'lanes';
-export type BadgeTier = 'bronze' | 'silver' | 'gold' | 'platinum';
+// ─── Types ───────────────────────────────────────────────────────────────────
 
-export interface Badge {
+export type CollectionId =
+  | 'academy'
+  | 'activity'
+  | 'sales'
+  | 'territory'
+  | 'lane'
+  | 'leadership';
+
+export type MetalTier = 'bronze' | 'silver' | 'gold' | 'black';
+
+export interface TierThreshold {
+  tier: MetalTier;
+  required: number;
+  /** Human-readable value for the progress bar (e.g. "10", "10/10") */
+  label: string;
+}
+
+export interface Qualification {
   id: string;
   name: string;
+  collection: CollectionId;
   description: string;
-  category: BadgeCategory;
-  icon: string; // emoji
-  tier: BadgeTier;
   condition: string; // human-readable
-  check: (stats: RepStats) => boolean;
+  /** Shape identifier for rendering */
+  shape: 'shield' | 'chevron' | 'hexagon' | 'compass' | 'diamond' | 'star';
+  /** Collection accent color */
+  accent: string;
+  /** Tier progression thresholds — ALL 4 tiers for every badge */
+  tiers: TierThreshold[];
+  /** Compute earned tier based on stats (null if none earned) */
+  check: (stats: RepStats) => { tier: MetalTier; value: number } | null;
 }
 
 export interface RepStats {
-  /** Academy */
-  quizModulesPassed: number; // 0-5
+  // Academy
+  quizModulesPassed: number;
   isLevel1Certified: boolean;
   isLevel2Certified: boolean;
+  isDirector: boolean;
 
-  /** Territory */
-  organizationsCreated: number;
-
-  /** Pipeline */
+  // Activity
+  prospectingActivities: number;
   activeOpportunities: number;
-  dealsClosedThisMonth: number;
-  dealsClosedThisQuarter: number;
+  followUpActivities: number;
+  ordersThisMonth: number;
+  consecutiveMonthsWithOrders: number;
 
-  /** Lanes */
+  // Sales
+  totalClosedAmount: number;
+  ordersClosed: number;
+
+  // Territory
+  organizationsCreated: number;
+  territoryCoveragePercent: number;
+  territoryPenetrationPercent: number;
+  organizationsWithThreeSports: number;
+
+  // Lane
   uniformsDealClosed: boolean;
   travelGearDealClosed: boolean;
   teamStoreDealClosed: boolean;
   lettermanDealClosed: boolean;
+
+  // Leadership
+  dealsAssisted: number;
+  repsCertified: number;
+  territoryGrowthPercent: number;
+  pipelineHealthPercent: number;
+  territoriesProfitable: number;
 }
 
-export interface EarnedBadge {
-  badgeId: string;
+export interface EarnedQualification {
+  qualificationId: string;
+  tier: MetalTier;
   earnedAt: string; // ISO date string
 }
 
-export type AchievementsStore = {
-  earned: EarnedBadge[];
-  lastCheck: string; // ISO date
+export type QualificationsStore = {
+  earned: EarnedQualification[];
+  lastCheck: string;
 };
 
-const STORAGE_KEY = 'tuf_ops_achievements_v1';
+const STORAGE_KEY = 'tuf_ops_qualifications_v1';
 
-// ─── Badge Definitions ───────────────────────────────────────────────────────
+// ─── Collection Config ───────────────────────────────────────────────────────
 
-export const ALL_BADGES: Badge[] = [
-  // ── Academy ──────────────────────────────────────────────────────────────
+export interface CollectionConfig {
+  id: CollectionId;
+  label: string;
+  shape: 'shield' | 'chevron' | 'hexagon' | 'compass' | 'diamond' | 'star';
+  accent: string;
+  description: string;
+}
+
+export const COLLECTIONS: CollectionConfig[] = [
+  { id: 'academy', label: 'Academy', shape: 'shield', accent: '#2563EB', description: 'Knowledge' },
+  { id: 'activity', label: 'Activity', shape: 'chevron', accent: '#94A3B8', description: 'Daily Discipline' },
+  { id: 'sales', label: 'Sales', shape: 'hexagon', accent: '#D97706', description: 'Production' },
+  { id: 'territory', label: 'Territory', shape: 'compass', accent: '#059669', description: 'Ownership' },
+  { id: 'lane', label: 'Lane', shape: 'diamond', accent: '#DC2626', description: 'Product Mastery' },
+  { id: 'leadership', label: 'Leadership', shape: 'star', accent: '#1E293B', description: 'Responsibility' },
+];
+
+// ─── Qualification Definitions ───────────────────────────────────────────────
+
+export const ALL_QUALIFICATIONS: Qualification[] = [
+
+  // ═══ ACADEMY (Shield, Blue #2563EB) ════════════════════════════════════
+
   {
-    id: 'academy-rookie',
-    name: 'Rookie',
-    description: 'Complete Module 1 quiz',
-    category: 'academy',
-    icon: '🎓',
-    tier: 'bronze',
-    condition: 'Pass Module 1 (ACAD-101) quiz',
-    check: (s) => s.quizModulesPassed >= 1,
+    id: 'academy-foundation',
+    name: 'FOUNDATION',
+    collection: 'academy',
+    description: 'Complete Module 1',
+    condition: 'Complete Module 1 (ACAD-101)',
+    shape: 'shield',
+    accent: '#2563EB',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1/1' },
+      { tier: 'silver', required: 3, label: '3/3' },
+      { tier: 'gold', required: 5, label: '5/5' },
+      { tier: 'black', required: 6, label: 'Black' },
+    ],
+    check: (s) => {
+      if (s.quizModulesPassed >= 5) return { tier: 'gold', value: s.quizModulesPassed };
+      if (s.quizModulesPassed >= 3) return { tier: 'silver', value: s.quizModulesPassed };
+      if (s.quizModulesPassed >= 1) return { tier: 'bronze', value: s.quizModulesPassed };
+      return null;
+    },
   },
   {
     id: 'academy-scholar',
-    name: 'Scholar',
+    name: 'SCHOLAR',
+    collection: 'academy',
     description: 'Complete all 5 module quizzes',
-    category: 'academy',
-    icon: '📚',
-    tier: 'silver',
     condition: 'Pass all 5 module quizzes',
-    check: (s) => s.quizModulesPassed >= 5,
+    shape: 'shield',
+    accent: '#2563EB',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1/5' },
+      { tier: 'silver', required: 5, label: '5/5' },
+      { tier: 'gold', required: 6, label: 'Gold' },
+      { tier: 'black', required: 7, label: 'Black' },
+    ],
+    check: (s) => {
+      if (s.quizModulesPassed >= 5) return { tier: 'silver', value: s.quizModulesPassed };
+      if (s.quizModulesPassed >= 1) return { tier: 'bronze', value: s.quizModulesPassed };
+      return null;
+    },
   },
   {
-    id: 'academy-level1',
-    name: 'Level 1 Certified',
-    description: 'Director approved certification',
-    category: 'academy',
-    icon: '🏆',
-    tier: 'gold',
-    condition: 'Become Level 1 Certified',
-    check: (s) => s.isLevel1Certified,
+    id: 'academy-certified-tae',
+    name: 'CERTIFIED TAE',
+    collection: 'academy',
+    description: 'Level 1 Certification approved by Director',
+    condition: 'Level 1 Certification',
+    shape: 'shield',
+    accent: '#2563EB',
+    tiers: [
+      { tier: 'bronze', required: 1, label: 'Provisional' },
+      { tier: 'silver', required: 2, label: 'Silver' },
+      { tier: 'gold', required: 3, label: 'Certified' },
+      { tier: 'black', required: 4, label: 'Black' },
+    ],
+    check: (s) => {
+      if (s.isLevel1Certified) return { tier: 'gold', value: 3 };
+      if (s.quizModulesPassed >= 5) return { tier: 'silver', value: 2 };
+      if (s.quizModulesPassed >= 1) return { tier: 'bronze', value: 1 };
+      return null;
+    },
   },
   {
-    id: 'academy-master',
-    name: 'Master',
-    description: 'Level 2 Certified',
-    category: 'academy',
-    icon: '🎯',
-    tier: 'platinum',
-    condition: 'Become Level 2 Certified',
-    check: (s) => s.isLevel2Certified,
+    id: 'academy-senior-tae',
+    name: 'SENIOR TAE',
+    collection: 'academy',
+    description: 'Level 2 Certification',
+    condition: 'Level 2 Certification',
+    shape: 'shield',
+    accent: '#2563EB',
+    tiers: [
+      { tier: 'bronze', required: 1, label: 'Candidate' },
+      { tier: 'silver', required: 2, label: 'Silver' },
+      { tier: 'gold', required: 3, label: 'Gold' },
+      { tier: 'black', required: 4, label: 'Senior' },
+    ],
+    check: (s) => {
+      if (s.isLevel2Certified) return { tier: 'black', value: 4 };
+      if (s.isLevel1Certified) return { tier: 'gold', value: 3 };
+      return null;
+    },
+  },
+  {
+    id: 'academy-director',
+    name: 'DIRECTOR',
+    collection: 'academy',
+    description: 'Promoted to Director',
+    condition: 'Director Promotion',
+    shape: 'shield',
+    accent: '#2563EB',
+    tiers: [
+      { tier: 'bronze', required: 1, label: 'Rep' },
+      { tier: 'silver', required: 2, label: 'Silver' },
+      { tier: 'gold', required: 3, label: 'Gold' },
+      { tier: 'black', required: 4, label: 'Director' },
+    ],
+    check: (s) => {
+      if (s.isDirector) return { tier: 'black', value: 4 };
+      return null;
+    },
   },
 
-  // ── Territory ────────────────────────────────────────────────────────────
+  // ═══ ACTIVITY (Chevron, White/Silver #94A3B8) ══════════════════════════
+
+  {
+    id: 'activity-first-contact',
+    name: 'FIRST CONTACT',
+    collection: 'activity',
+    description: 'Log first prospecting activity',
+    condition: '1 prospecting activity',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 5, label: '5' },
+      { tier: 'gold', required: 10, label: '10' },
+      { tier: 'black', required: 25, label: '25' },
+    ],
+    check: (s) => {
+      if (s.prospectingActivities >= 1) return { tier: 'bronze', value: s.prospectingActivities };
+      return null;
+    },
+  },
+  {
+    id: 'activity-25-calls',
+    name: '25 CALLS',
+    collection: 'activity',
+    description: '25 prospecting activities',
+    condition: '25 prospecting activities',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 25, label: '25' },
+      { tier: 'silver', required: 50, label: '50' },
+      { tier: 'gold', required: 75, label: '75' },
+      { tier: 'black', required: 100, label: '100' },
+    ],
+    check: (s) => {
+      if (s.prospectingActivities >= 25) return { tier: 'bronze', value: s.prospectingActivities };
+      return null;
+    },
+  },
+  {
+    id: 'activity-100-calls',
+    name: '100 CALLS',
+    collection: 'activity',
+    description: '100 prospecting activities',
+    condition: '100 prospecting activities',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 100, label: '100' },
+      { tier: 'silver', required: 250, label: '250' },
+      { tier: 'gold', required: 500, label: '500' },
+      { tier: 'black', required: 750, label: '750' },
+    ],
+    check: (s) => {
+      if (s.prospectingActivities >= 100) return { tier: 'silver', value: s.prospectingActivities };
+      return null;
+    },
+  },
+  {
+    id: 'activity-500-calls',
+    name: '500 CALLS',
+    collection: 'activity',
+    description: '500 prospecting activities',
+    condition: '500 prospecting activities',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 500, label: '500' },
+      { tier: 'silver', required: 750, label: '750' },
+      { tier: 'gold', required: 1000, label: '1000' },
+      { tier: 'black', required: 1500, label: '1500' },
+    ],
+    check: (s) => {
+      if (s.prospectingActivities >= 500) return { tier: 'gold', value: s.prospectingActivities };
+      return null;
+    },
+  },
+  {
+    id: 'activity-1000-calls',
+    name: '1000 CALLS',
+    collection: 'activity',
+    description: '1000 prospecting activities',
+    condition: '1000 prospecting activities',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 1000, label: '1000' },
+      { tier: 'silver', required: 1500, label: '1500' },
+      { tier: 'gold', required: 2000, label: '2000' },
+      { tier: 'black', required: 2500, label: '2500' },
+    ],
+    check: (s) => {
+      if (s.prospectingActivities >= 1000) return { tier: 'black', value: s.prospectingActivities };
+      return null;
+    },
+  },
+  {
+    id: 'activity-pipeline-builder',
+    name: 'PIPELINE BUILDER',
+    collection: 'activity',
+    description: '12+ active opportunities',
+    condition: '12+ active opportunities',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 4, label: '4' },
+      { tier: 'silver', required: 12, label: '12' },
+      { tier: 'gold', required: 24, label: '24' },
+      { tier: 'black', required: 48, label: '48' },
+    ],
+    check: (s) => {
+      if (s.activeOpportunities >= 12) return { tier: 'silver', value: s.activeOpportunities };
+      if (s.activeOpportunities >= 4) return { tier: 'bronze', value: s.activeOpportunities };
+      return null;
+    },
+  },
+  {
+    id: 'activity-followup-specialist',
+    name: 'FOLLOW-UP SPECIALIST',
+    collection: 'activity',
+    description: '50+ follow-up activities',
+    condition: '50+ follow-up activities',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 10, label: '10' },
+      { tier: 'silver', required: 25, label: '25' },
+      { tier: 'gold', required: 50, label: '50' },
+      { tier: 'black', required: 100, label: '100' },
+    ],
+    check: (s) => {
+      if (s.followUpActivities >= 50) return { tier: 'gold', value: s.followUpActivities };
+      if (s.followUpActivities >= 25) return { tier: 'silver', value: s.followUpActivities };
+      if (s.followUpActivities >= 10) return { tier: 'bronze', value: s.followUpActivities };
+      return null;
+    },
+  },
+  {
+    id: 'activity-consistency',
+    name: 'CONSISTENCY',
+    collection: 'activity',
+    description: '4+ orders/month for 3 consecutive months',
+    condition: '4+ orders/month × 3 months',
+    shape: 'chevron',
+    accent: '#94A3B8',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1 month' },
+      { tier: 'silver', required: 2, label: '2 months' },
+      { tier: 'gold', required: 3, label: '3 months' },
+      { tier: 'black', required: 6, label: '6 months' },
+    ],
+    check: (s) => {
+      if (s.consecutiveMonthsWithOrders >= 3) return { tier: 'gold', value: s.consecutiveMonthsWithOrders };
+      if (s.consecutiveMonthsWithOrders >= 2) return { tier: 'silver', value: s.consecutiveMonthsWithOrders };
+      if (s.consecutiveMonthsWithOrders >= 1) return { tier: 'bronze', value: s.consecutiveMonthsWithOrders };
+      return null;
+    },
+  },
+
+  // ═══ SALES (Hexagon, Gold #D97706) ═════════════════════════════════════
+
+  {
+    id: 'sales-first-win',
+    name: 'FIRST WIN',
+    collection: 'sales',
+    description: 'Close first order',
+    condition: '1 order closed',
+    shape: 'hexagon',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 5, label: '5' },
+      { tier: 'gold', required: 25, label: '25' },
+      { tier: 'black', required: 100, label: '100' },
+    ],
+    check: (s) => {
+      if (s.ordersClosed >= 1) return { tier: 'bronze', value: s.ordersClosed };
+      return null;
+    },
+  },
+  {
+    id: 'sales-10k',
+    name: '$10K',
+    collection: 'sales',
+    description: '$10K total closed',
+    condition: '$10,000 total closed',
+    shape: 'hexagon',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 10000, label: '$10K' },
+      { tier: 'silver', required: 25000, label: '$25K' },
+      { tier: 'gold', required: 50000, label: '$50K' },
+      { tier: 'black', required: 75000, label: '$75K' },
+    ],
+    check: (s) => {
+      if (s.totalClosedAmount >= 10000) return { tier: 'bronze', value: s.totalClosedAmount };
+      return null;
+    },
+  },
+  {
+    id: 'sales-50k',
+    name: '$50K',
+    collection: 'sales',
+    description: '$50K total closed',
+    condition: '$50,000 total closed',
+    shape: 'hexagon',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 50000, label: '$50K' },
+      { tier: 'silver', required: 100000, label: '$100K' },
+      { tier: 'gold', required: 250000, label: '$250K' },
+      { tier: 'black', required: 500000, label: '$500K' },
+    ],
+    check: (s) => {
+      if (s.totalClosedAmount >= 50000) return { tier: 'silver', value: s.totalClosedAmount };
+      return null;
+    },
+  },
+  {
+    id: 'sales-100k',
+    name: '$100K',
+    collection: 'sales',
+    description: '$100K total closed',
+    condition: '$100,000 total closed',
+    shape: 'hexagon',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 100000, label: '$100K' },
+      { tier: 'silver', required: 250000, label: '$250K' },
+      { tier: 'gold', required: 500000, label: '$500K' },
+      { tier: 'black', required: 1000000, label: '$1M' },
+    ],
+    check: (s) => {
+      if (s.totalClosedAmount >= 100000) return { tier: 'gold', value: s.totalClosedAmount };
+      return null;
+    },
+  },
+  {
+    id: 'sales-250k',
+    name: '$250K',
+    collection: 'sales',
+    description: '$250K total closed',
+    condition: '$250,000 total closed',
+    shape: 'hexagon',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 250000, label: '$250K' },
+      { tier: 'silver', required: 500000, label: '$500K' },
+      { tier: 'gold', required: 750000, label: '$750K' },
+      { tier: 'black', required: 1000000, label: '$1M' },
+    ],
+    check: (s) => {
+      if (s.totalClosedAmount >= 250000) return { tier: 'gold', value: s.totalClosedAmount };
+      return null;
+    },
+  },
+  {
+    id: 'sales-500k',
+    name: '$500K',
+    collection: 'sales',
+    description: '$500K total closed',
+    condition: '$500,000 total closed',
+    shape: 'hexagon',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 500000, label: '$500K' },
+      { tier: 'silver', required: 750000, label: '$750K' },
+      { tier: 'gold', required: 1000000, label: '$1M' },
+      { tier: 'black', required: 1500000, label: '$1.5M' },
+    ],
+    check: (s) => {
+      if (s.totalClosedAmount >= 500000) return { tier: 'black', value: s.totalClosedAmount };
+      return null;
+    },
+  },
+  {
+    id: 'sales-1m-club',
+    name: '$1M CLUB',
+    collection: 'sales',
+    description: '$1M total closed',
+    condition: '$1,000,000 total closed',
+    shape: 'hexagon',
+    accent: '#D97706',
+    tiers: [
+      { tier: 'bronze', required: 1000000, label: '$1M' },
+      { tier: 'silver', required: 2000000, label: '$2M' },
+      { tier: 'gold', required: 3000000, label: '$3M' },
+      { tier: 'black', required: 5000000, label: '$5M' },
+    ],
+    check: (s) => {
+      if (s.totalClosedAmount >= 1000000) return { tier: 'black', value: s.totalClosedAmount };
+      return null;
+    },
+  },
+
+  // ═══ TERRITORY (Compass, Green #059669) ════════════════════════════════
+
   {
     id: 'territory-first-school',
-    name: 'First School',
-    description: 'Create your first organization',
-    category: 'territory',
-    icon: '🏠',
-    tier: 'bronze',
-    condition: 'Create 1 organization',
-    check: (s) => s.organizationsCreated >= 1,
+    name: 'FIRST SCHOOL',
+    collection: 'territory',
+    description: 'Create first organization',
+    condition: '1 organization',
+    shape: 'compass',
+    accent: '#059669',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 5, label: '5' },
+      { tier: 'gold', required: 10, label: '10' },
+      { tier: 'black', required: 25, label: '25' },
+    ],
+    check: (s) => {
+      if (s.organizationsCreated >= 1) return { tier: 'bronze', value: s.organizationsCreated };
+      return null;
+    },
   },
   {
-    id: 'territory-neighborhood',
-    name: 'Neighborhood Watch',
-    description: '10 organizations created',
-    category: 'territory',
-    icon: '🏘️',
-    tier: 'silver',
-    condition: 'Create 10 organizations',
-    check: (s) => s.organizationsCreated >= 10,
+    id: 'territory-10-schools',
+    name: '10 SCHOOLS',
+    collection: 'territory',
+    description: '10 organizations',
+    condition: '10 organizations',
+    shape: 'compass',
+    accent: '#059669',
+    tiers: [
+      { tier: 'bronze', required: 10, label: '10' },
+      { tier: 'silver', required: 25, label: '25' },
+      { tier: 'gold', required: 50, label: '50' },
+      { tier: 'black', required: 75, label: '75' },
+    ],
+    check: (s) => {
+      if (s.organizationsCreated >= 10) return { tier: 'bronze', value: s.organizationsCreated };
+      return null;
+    },
   },
   {
-    id: 'territory-city-builder',
-    name: 'City Builder',
-    description: '25 organizations created',
-    category: 'territory',
-    icon: '🏙️',
-    tier: 'gold',
-    condition: 'Create 25 organizations',
-    check: (s) => s.organizationsCreated >= 25,
+    id: 'territory-25-schools',
+    name: '25 SCHOOLS',
+    collection: 'territory',
+    description: '25 organizations',
+    condition: '25 organizations',
+    shape: 'compass',
+    accent: '#059669',
+    tiers: [
+      { tier: 'bronze', required: 25, label: '25' },
+      { tier: 'silver', required: 50, label: '50' },
+      { tier: 'gold', required: 75, label: '75' },
+      { tier: 'black', required: 100, label: '100' },
+    ],
+    check: (s) => {
+      if (s.organizationsCreated >= 25) return { tier: 'silver', value: s.organizationsCreated };
+      return null;
+    },
   },
   {
-    id: 'territory-metro-owner',
-    name: 'Metro Owner',
-    description: '50+ organizations created',
-    category: 'territory',
-    icon: '🌆',
-    tier: 'platinum',
-    condition: 'Create 50 organizations',
-    check: (s) => s.organizationsCreated >= 50,
+    id: 'territory-50-schools',
+    name: '50 SCHOOLS',
+    collection: 'territory',
+    description: '50 organizations',
+    condition: '50 organizations',
+    shape: 'compass',
+    accent: '#059669',
+    tiers: [
+      { tier: 'bronze', required: 50, label: '50' },
+      { tier: 'silver', required: 75, label: '75' },
+      { tier: 'gold', required: 100, label: '100' },
+      { tier: 'black', required: 150, label: '150' },
+    ],
+    check: (s) => {
+      if (s.organizationsCreated >= 50) return { tier: 'gold', value: s.organizationsCreated };
+      return null;
+    },
+  },
+  {
+    id: 'territory-full-coverage',
+    name: 'FULL COVERAGE',
+    collection: 'territory',
+    description: '100% territory coverage',
+    condition: '100% territory coverage',
+    shape: 'compass',
+    accent: '#059669',
+    tiers: [
+      { tier: 'bronze', required: 25, label: '25%' },
+      { tier: 'silver', required: 50, label: '50%' },
+      { tier: 'gold', required: 100, label: '100%' },
+      { tier: 'black', required: 110, label: 'Black' },
+    ],
+    check: (s) => {
+      if (s.territoryCoveragePercent >= 100) return { tier: 'gold', value: s.territoryCoveragePercent };
+      if (s.territoryCoveragePercent >= 50) return { tier: 'silver', value: s.territoryCoveragePercent };
+      if (s.territoryCoveragePercent >= 25) return { tier: 'bronze', value: s.territoryCoveragePercent };
+      return null;
+    },
+  },
+  {
+    id: 'territory-master',
+    name: 'TERRITORY MASTER',
+    collection: 'territory',
+    description: '75%+ territory penetration',
+    condition: '75%+ penetration',
+    shape: 'compass',
+    accent: '#059669',
+    tiers: [
+      { tier: 'bronze', required: 25, label: '25%' },
+      { tier: 'silver', required: 50, label: '50%' },
+      { tier: 'gold', required: 75, label: '75%' },
+      { tier: 'black', required: 90, label: '90%' },
+    ],
+    check: (s) => {
+      if (s.territoryPenetrationPercent >= 75) return { tier: 'black', value: s.territoryPenetrationPercent };
+      if (s.territoryPenetrationPercent >= 50) return { tier: 'silver', value: s.territoryPenetrationPercent };
+      if (s.territoryPenetrationPercent >= 25) return { tier: 'bronze', value: s.territoryPenetrationPercent };
+      return null;
+    },
+  },
+  {
+    id: 'territory-ecosystem-builder',
+    name: 'ECOSYSTEM BUILDER',
+    collection: 'territory',
+    description: '50+ organizations with 3+ sports each',
+    condition: '50 orgs × 3+ sports',
+    shape: 'compass',
+    accent: '#059669',
+    tiers: [
+      { tier: 'bronze', required: 10, label: '10' },
+      { tier: 'silver', required: 25, label: '25' },
+      { tier: 'gold', required: 35, label: '35' },
+      { tier: 'black', required: 50, label: '50' },
+    ],
+    check: (s) => {
+      if (s.organizationsWithThreeSports >= 50) return { tier: 'black', value: s.organizationsWithThreeSports };
+      if (s.organizationsWithThreeSports >= 25) return { tier: 'silver', value: s.organizationsWithThreeSports };
+      if (s.organizationsWithThreeSports >= 10) return { tier: 'bronze', value: s.organizationsWithThreeSports };
+      return null;
+    },
   },
 
-  // ── Pipeline ─────────────────────────────────────────────────────────────
-  {
-    id: 'pipeline-first-deal',
-    name: 'First Deal',
-    description: 'First opportunity created',
-    category: 'pipeline',
-    icon: '🌱',
-    tier: 'bronze',
-    condition: 'Create your first opportunity',
-    check: (s) => s.activeOpportunities >= 1,
-  },
-  {
-    id: 'pipeline-growing',
-    name: 'Growing',
-    description: '12+ active opportunities',
-    category: 'pipeline',
-    icon: '🌿',
-    tier: 'silver',
-    condition: 'Have 12+ active opportunities',
-    check: (s) => s.activeOpportunities >= 12,
-  },
-  {
-    id: 'pipeline-master',
-    name: 'Pipeline Master',
-    description: '4+ deals closed in one month',
-    category: 'pipeline',
-    icon: '🌳',
-    tier: 'gold',
-    condition: 'Close 4+ deals in a single month',
-    check: (s) => s.dealsClosedThisMonth >= 4,
-  },
-  {
-    id: 'pipeline-deal-factory',
-    name: 'Deal Factory',
-    description: '12+ deals closed in one quarter',
-    category: 'pipeline',
-    icon: '🏭',
-    tier: 'platinum',
-    condition: 'Close 12+ deals in a single quarter',
-    check: (s) => s.dealsClosedThisQuarter >= 12,
-  },
+  // ═══ LANE (Diamond, Red #DC2626) ═══════════════════════════════════════
 
-  // ── Lanes ────────────────────────────────────────────────────────────────
   {
-    id: 'lanes-uniforms',
-    name: 'Uniforms',
+    id: 'lane-uniform-specialist',
+    name: 'UNIFORM SPECIALIST',
+    collection: 'lane',
     description: 'Close a uniforms deal',
-    category: 'lanes',
-    icon: '👕',
-    tier: 'bronze',
-    condition: 'Close a deal in the Uniforms lane',
-    check: (s) => s.uniformsDealClosed,
+    condition: 'Uniforms deal',
+    shape: 'diamond',
+    accent: '#DC2626',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 2, label: '2' },
+      { tier: 'gold', required: 3, label: '3' },
+      { tier: 'black', required: 4, label: '4' },
+    ],
+    check: (s) => {
+      if (s.uniformsDealClosed) return { tier: 'bronze', value: 1 };
+      return null;
+    },
   },
   {
-    id: 'lanes-travel-gear',
-    name: 'Travel Gear',
+    id: 'lane-travel-gear',
+    name: 'TRAVEL GEAR',
+    collection: 'lane',
     description: 'Close a travel gear deal',
-    category: 'lanes',
-    icon: '🧳',
-    tier: 'silver',
-    condition: 'Close a deal in the Travel Gear lane',
-    check: (s) => s.travelGearDealClosed,
+    condition: 'Travel gear deal',
+    shape: 'diamond',
+    accent: '#DC2626',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 2, label: '2' },
+      { tier: 'gold', required: 3, label: '3' },
+      { tier: 'black', required: 4, label: '4' },
+    ],
+    check: (s) => {
+      if (s.travelGearDealClosed) return { tier: 'silver', value: 1 };
+      return null;
+    },
   },
   {
-    id: 'lanes-team-store',
-    name: 'Team Store',
+    id: 'lane-team-store',
+    name: 'TEAM STORE',
+    collection: 'lane',
     description: 'Close a team store deal',
-    category: 'lanes',
-    icon: '🏪',
-    tier: 'gold',
-    condition: 'Close a deal in the Team Store lane',
-    check: (s) => s.teamStoreDealClosed,
+    condition: 'Team store deal',
+    shape: 'diamond',
+    accent: '#DC2626',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 2, label: '2' },
+      { tier: 'gold', required: 3, label: '3' },
+      { tier: 'black', required: 4, label: '4' },
+    ],
+    check: (s) => {
+      if (s.teamStoreDealClosed) return { tier: 'gold', value: 1 };
+      return null;
+    },
   },
   {
-    id: 'lanes-letterman',
-    name: 'Letterman',
+    id: 'lane-letterman',
+    name: 'LETTERMAN',
+    collection: 'lane',
     description: 'Close a letterman jacket deal',
-    category: 'lanes',
-    icon: '🧥',
-    tier: 'platinum',
-    condition: 'Close a deal in the Letterman lane',
-    check: (s) => s.lettermanDealClosed,
+    condition: 'Letterman deal',
+    shape: 'diamond',
+    accent: '#DC2626',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 2, label: '2' },
+      { tier: 'gold', required: 3, label: '3' },
+      { tier: 'black', required: 4, label: '4' },
+    ],
+    check: (s) => {
+      if (s.lettermanDealClosed) return { tier: 'gold', value: 1 };
+      return null;
+    },
+  },
+  {
+    id: 'lane-four-lane-operator',
+    name: 'FOUR LANE OPERATOR',
+    collection: 'lane',
+    description: 'Close deals in all 4 lanes at one school',
+    condition: 'All 4 lanes × 1 school',
+    shape: 'diamond',
+    accent: '#DC2626',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1 lane' },
+      { tier: 'silver', required: 2, label: '2 lanes' },
+      { tier: 'gold', required: 3, label: '3 lanes' },
+      { tier: 'black', required: 4, label: 'All 4' },
+    ],
+    check: (s) => {
+      const lanes = [s.uniformsDealClosed, s.travelGearDealClosed, s.teamStoreDealClosed, s.lettermanDealClosed].filter(Boolean).length;
+      if (lanes >= 4) return { tier: 'black', value: lanes };
+      if (lanes >= 3) return { tier: 'gold', value: lanes };
+      if (lanes >= 2) return { tier: 'silver', value: lanes };
+      if (lanes >= 1) return { tier: 'bronze', value: lanes };
+      return null;
+    },
+  },
+
+  // ═══ LEADERSHIP (Star, Black/Gold #1E293B) ═════════════════════════════
+
+  {
+    id: 'leadership-mentor',
+    name: 'MENTOR',
+    collection: 'leadership',
+    description: 'Assist another rep on 5+ deals',
+    condition: '5+ assisted deals',
+    shape: 'star',
+    accent: '#1E293B',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 5, label: '5' },
+      { tier: 'gold', required: 15, label: '15' },
+      { tier: 'black', required: 30, label: '30' },
+    ],
+    check: (s) => {
+      if (s.dealsAssisted >= 5) return { tier: 'silver', value: s.dealsAssisted };
+      if (s.dealsAssisted >= 1) return { tier: 'bronze', value: s.dealsAssisted };
+      return null;
+    },
+  },
+  {
+    id: 'leadership-coach',
+    name: 'COACH',
+    collection: 'leadership',
+    description: 'Promoted to Director + 2 reps certified',
+    condition: 'Director + 2 certified reps',
+    shape: 'star',
+    accent: '#1E293B',
+    tiers: [
+      { tier: 'bronze', required: 1, label: 'Director' },
+      { tier: 'silver', required: 2, label: '+1 rep' },
+      { tier: 'gold', required: 3, label: '+2 reps' },
+      { tier: 'black', required: 4, label: 'Master Coach' },
+    ],
+    check: (s) => {
+      if (s.isDirector && s.repsCertified >= 2) return { tier: 'gold', value: s.repsCertified };
+      if (s.isDirector && s.repsCertified >= 1) return { tier: 'silver', value: s.repsCertified };
+      if (s.isDirector) return { tier: 'bronze', value: 1 };
+      return null;
+    },
+  },
+  {
+    id: 'leadership-builder',
+    name: 'BUILDER',
+    collection: 'leadership',
+    description: 'Territory grew 25%+ under direction',
+    condition: '25%+ territory growth',
+    shape: 'star',
+    accent: '#1E293B',
+    tiers: [
+      { tier: 'bronze', required: 10, label: '10%' },
+      { tier: 'silver', required: 20, label: '20%' },
+      { tier: 'gold', required: 25, label: '25%' },
+      { tier: 'black', required: 50, label: '50%' },
+    ],
+    check: (s) => {
+      if (s.territoryGrowthPercent >= 25) return { tier: 'gold', value: s.territoryGrowthPercent };
+      if (s.territoryGrowthPercent >= 20) return { tier: 'silver', value: s.territoryGrowthPercent };
+      if (s.territoryGrowthPercent >= 10) return { tier: 'bronze', value: s.territoryGrowthPercent };
+      return null;
+    },
+  },
+  {
+    id: 'leadership-directors-circle',
+    name: "DIRECTOR'S CIRCLE",
+    collection: 'leadership',
+    description: 'Full team at 100% pipeline health',
+    condition: '100% team pipeline health',
+    shape: 'star',
+    accent: '#1E293B',
+    tiers: [
+      { tier: 'bronze', required: 50, label: '50%' },
+      { tier: 'silver', required: 75, label: '75%' },
+      { tier: 'gold', required: 90, label: '90%' },
+      { tier: 'black', required: 100, label: '100%' },
+    ],
+    check: (s) => {
+      if (s.pipelineHealthPercent >= 100) return { tier: 'black', value: s.pipelineHealthPercent };
+      if (s.pipelineHealthPercent >= 90) return { tier: 'gold', value: s.pipelineHealthPercent };
+      if (s.pipelineHealthPercent >= 75) return { tier: 'silver', value: s.pipelineHealthPercent };
+      if (s.pipelineHealthPercent >= 50) return { tier: 'bronze', value: s.pipelineHealthPercent };
+      return null;
+    },
+  },
+  {
+    id: 'leadership-regional-builder',
+    name: 'REGIONAL BUILDER',
+    collection: 'leadership',
+    description: 'Multiple territories profitable',
+    condition: '2+ profitable territories',
+    shape: 'star',
+    accent: '#1E293B',
+    tiers: [
+      { tier: 'bronze', required: 1, label: '1' },
+      { tier: 'silver', required: 2, label: '2' },
+      { tier: 'gold', required: 3, label: '3' },
+      { tier: 'black', required: 5, label: '5+' },
+    ],
+    check: (s) => {
+      if (s.territoriesProfitable >= 2) return { tier: 'black', value: s.territoriesProfitable };
+      if (s.territoriesProfitable >= 1) return { tier: 'bronze', value: s.territoriesProfitable };
+      return null;
+    },
   },
 ];
 
-// ─── Storage Helpers ─────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
-export function loadAchievements(): AchievementsStore {
+export function getQualificationById(id: string): Qualification | undefined {
+  return ALL_QUALIFICATIONS.find((q) => q.id === id);
+}
+
+export function getQualificationsByCollection(collection: CollectionId): Qualification[] {
+  return ALL_QUALIFICATIONS.filter((q) => q.collection === collection);
+}
+
+export function getCollectionConfig(collectionId: CollectionId): CollectionConfig {
+  return COLLECTIONS.find((c) => c.id === collectionId)!;
+}
+
+export function getTierLabel(tier: MetalTier): string {
+  switch (tier) {
+    case 'bronze': return 'BRONZE';
+    case 'silver': return 'SILVER';
+    case 'gold': return 'GOLD';
+    case 'black': return 'BLACK';
+  }
+}
+
+export function getTierOrder(tier: MetalTier): number {
+  switch (tier) {
+    case 'bronze': return 0;
+    case 'silver': return 1;
+    case 'gold': return 2;
+    case 'black': return 3;
+  }
+}
+
+export function getCollectionColor(collectionId: CollectionId): string {
+  const c = getCollectionConfig(collectionId);
+  return c.accent;
+}
+
+// ─── Storage ─────────────────────────────────────────────────────────────────
+
+export function loadQualifications(): QualificationsStore {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && Array.isArray(parsed.earned)) {
-        return parsed as AchievementsStore;
+        return parsed as QualificationsStore;
       }
     }
   } catch {
-    // corrupt data — reset
+    // corrupt
   }
   return { earned: [], lastCheck: new Date().toISOString() };
 }
 
-export function saveAchievements(store: AchievementsStore): void {
+export function saveQualifications(store: QualificationsStore): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
 }
 
-export function hasBadge(badgeId: string): boolean {
-  const store = loadAchievements();
-  return store.earned.some((e) => e.badgeId === badgeId);
+export function getEarnedQualifications(): EarnedQualification[] {
+  return loadQualifications().earned;
 }
 
-/** Returns badges earned during this check that weren't already in the store */
-export function checkAndAwardBadges(stats: RepStats): Badge[] {
-  const store = loadAchievements();
-  const newlyEarned: Badge[] = [];
+export function getHighestEarnedTier(qualificationId: string): MetalTier | null {
+  const store = loadQualifications();
+  const entries = store.earned.filter((e) => e.qualificationId === qualificationId);
+  if (entries.length === 0) return null;
+  const maxOrder = Math.max(...entries.map((e) => getTierOrder(e.tier)));
+  return (['bronze', 'silver', 'gold', 'black'] as MetalTier[])[maxOrder] ?? null;
+}
 
-  for (const badge of ALL_BADGES) {
-    if (store.earned.some((e) => e.badgeId === badge.id)) continue;
-    if (badge.check(stats)) {
-      store.earned.push({ badgeId: badge.id, earnedAt: new Date().toISOString() });
-      newlyEarned.push(badge);
+// ─── Check & Award ───────────────────────────────────────────────────────────
+
+export function checkAndAwardQualifications(stats: RepStats): Qualification[] {
+  const store = loadQualifications();
+  const newlyEarned: Qualification[] = [];
+
+  for (const qual of ALL_QUALIFICATIONS) {
+    const result = qual.check(stats);
+    if (!result) continue;
+
+    // Only award if tier is higher than previously earned
+    const existing = store.earned.filter((e) => e.qualificationId === qual.id);
+    const maxExistingOrder = existing.length > 0
+      ? Math.max(...existing.map((e) => getTierOrder(e.tier)))
+      : -1;
+
+    const resultOrder = getTierOrder(result.tier);
+    if (resultOrder > maxExistingOrder) {
+      store.earned.push({
+        qualificationId: qual.id,
+        tier: result.tier,
+        earnedAt: new Date().toISOString(),
+      });
+      newlyEarned.push(qual);
     }
   }
 
   if (newlyEarned.length > 0) {
     store.lastCheck = new Date().toISOString();
-    saveAchievements(store);
+    saveQualifications(store);
   }
 
   return newlyEarned;
 }
 
-export function getEarnedBadges(): EarnedBadge[] {
-  return loadAchievements().earned;
+// ─── Progress Summary ────────────────────────────────────────────────────────
+
+export interface QualificationProgress {
+  qualification: Qualification;
+  /** The highest tier currently earned (null if locked) */
+  earnedTier: MetalTier | null;
+  /** When the highest tier was earned */
+  earnedAt: string | null;
+  /** Tier-by-tier progress with 0-100% completion */
+  tierProgress: Array<{
+    tier: MetalTier;
+    label: string;
+    required: number;
+    current: number;
+    percent: number;
+    unlocked: boolean;
+  }>;
 }
 
-export function getBadgeById(id: string): Badge | undefined {
-  return ALL_BADGES.find((b) => b.id === id);
-}
+export function getQualificationProgress(
+  stats: RepStats,
+): QualificationProgress[] {
+  const store = loadQualifications();
+  const earnedMap = new Map<string, EarnedQualification[]>();
+  for (const e of store.earned) {
+    const list = earnedMap.get(e.qualificationId) ?? [];
+    list.push(e);
+    earnedMap.set(e.qualificationId, list);
+  }
 
-/** Returns badges sorted by tier weight (platinum first) and then category */
-export function getBadgeProgress(stats: RepStats): Array<{ badge: Badge; earned: boolean; progress: number }> {
-  const earned = loadAchievements().earned;
-  const earnedIds = new Set(earned.map((e) => e.badgeId));
+  return ALL_QUALIFICATIONS.map((qual) => {
+    const earned = earnedMap.get(qual.id) ?? [];
+    const maxOrder = earned.length > 0
+      ? Math.max(...earned.map((e) => getTierOrder(e.tier)))
+      : -1;
+    const earnedTier: MetalTier | null = maxOrder >= 0
+      ? (['bronze', 'silver', 'gold', 'black'] as MetalTier[])[maxOrder] ?? null
+      : null;
 
-  return ALL_BADGES.map((badge) => {
-    const isEarned = earnedIds.has(badge.id);
-    const progress = isEarned ? 100 : computeBadgeProgress(badge, stats);
-    return { badge, earned: isEarned, progress };
+    const earnedAt = earned.length > 0
+      ? earned.reduce((latest, e) => e.earnedAt > latest ? e.earnedAt : latest, '')
+      : null;
+
+    // Build tier progress
+    const checkResult = qual.check(stats);
+    const currentValue = checkResult?.value ?? 0;
+
+    const tierProgress = qual.tiers.map((t) => {
+      const tOrder = getTierOrder(t.tier);
+      const percent = t.required > 0
+        ? Math.min(100, Math.round((currentValue / t.required) * 100))
+        : 0;
+      return {
+        tier: t.tier,
+        label: t.label,
+        required: t.required,
+        current: currentValue,
+        percent,
+        unlocked: maxOrder >= tOrder,
+      };
+    });
+
+    return {
+      qualification: qual,
+      earnedTier,
+      earnedAt,
+      tierProgress,
+    };
   });
 }
 
-function computeBadgeProgress(badge: Badge, stats: RepStats): number {
-  switch (badge.id) {
-    case 'academy-rookie':
-      return Math.min(100, (stats.quizModulesPassed / 1) * 100);
-    case 'academy-scholar':
-      return Math.min(100, (stats.quizModulesPassed / 5) * 100);
-    case 'academy-level1':
-      return stats.isLevel1Certified ? 100 : (stats.quizModulesPassed >= 5 ? 50 : 0);
-    case 'academy-master':
-      return stats.isLevel2Certified ? 100 : (stats.isLevel1Certified ? 50 : 0);
+export function getCollectionSummary(stats: RepStats): Array<{
+  collection: CollectionConfig;
+  total: number;
+  earned: number;
+  progress: QualificationProgress[];
+}> {
+  const allProgress = getQualificationProgress(stats);
 
-    case 'territory-first-school':
-      return Math.min(100, (stats.organizationsCreated / 1) * 100);
-    case 'territory-neighborhood':
-      return Math.min(100, (stats.organizationsCreated / 10) * 100);
-    case 'territory-city-builder':
-      return Math.min(100, (stats.organizationsCreated / 25) * 100);
-    case 'territory-metro-owner':
-      return Math.min(100, (stats.organizationsCreated / 50) * 100);
-
-    case 'pipeline-first-deal':
-      return Math.min(100, (stats.activeOpportunities / 1) * 100);
-    case 'pipeline-growing':
-      return Math.min(100, (stats.activeOpportunities / 12) * 100);
-    case 'pipeline-master':
-      return Math.min(100, (stats.dealsClosedThisMonth / 4) * 100);
-    case 'pipeline-deal-factory':
-      return Math.min(100, (stats.dealsClosedThisQuarter / 12) * 100);
-
-    case 'lanes-uniforms':
-      return stats.uniformsDealClosed ? 100 : 0;
-    case 'lanes-travel-gear':
-      return stats.travelGearDealClosed ? 100 : 0;
-    case 'lanes-team-store':
-      return stats.teamStoreDealClosed ? 100 : 0;
-    case 'lanes-letterman':
-      return stats.lettermanDealClosed ? 100 : 0;
-
-    default:
-      return 0;
-  }
-}
-
-export function getTierColor(tier: BadgeTier): string {
-  switch (tier) {
-    case 'platinum':
-      return 'border-purple-400 bg-purple-500/10 text-purple-200';
-    case 'gold':
-      return 'border-yellow-400 bg-yellow-500/10 text-yellow-200';
-    case 'silver':
-      return 'border-slate-300 bg-slate-400/10 text-slate-200';
-    case 'bronze':
-      return 'border-amber-600 bg-amber-700/10 text-amber-300';
-  }
-}
-
-export function getCategoryLabel(category: BadgeCategory): string {
-  switch (category) {
-    case 'academy':
-      return 'Academy';
-    case 'territory':
-      return 'Territory';
-    case 'pipeline':
-      return 'Pipeline';
-    case 'lanes':
-      return 'Lanes';
-  }
-}
-
-export function getCategoryColor(category: BadgeCategory): string {
-  switch (category) {
-    case 'academy':
-      return 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200';
-    case 'territory':
-      return 'border-emerald-500/30 bg-emerald-500/10 text-emerald-200';
-    case 'pipeline':
-      return 'border-blue-500/30 bg-blue-500/10 text-blue-200';
-    case 'lanes':
-      return 'border-amber-500/30 bg-amber-500/10 text-amber-200';
-  }
+  return COLLECTIONS.map((col) => {
+    const colProgress = allProgress.filter((p) => p.qualification.collection === col.id);
+    const earned = colProgress.filter((p) => p.earnedTier !== null).length;
+    return {
+      collection: col,
+      total: colProgress.length,
+      earned,
+      progress: colProgress,
+    };
+  });
 }
