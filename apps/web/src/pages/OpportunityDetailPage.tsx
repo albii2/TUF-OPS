@@ -1,5 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { Button, Card, EmptyState, StageBadge } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOpportunityById, useOpportunityStages } from '../hooks/useOpportunities';
@@ -17,20 +17,20 @@ import { notify } from '../services/feedbackService';
 import { createMockOrderFromOpportunity, getAnyOrderByOpportunityId } from '../services/ordersService';
 
 const stageCtas = {
-  LEAD_ENGAGED: 'Contact coach',
-  DISCOVERY: 'Conduct discovery',
-  MOCKUP_STAGE: 'Send invoice',
-  INVOICE_SENT: 'Follow up payment',
-  CLOSED_WON: 'View order',
-  CLOSED_LOST: 'Review loss reason',
+  LEAD_ENGAGED: 'Mark as Contacted',
+  DISCOVERY: 'Complete Discovery',
+  MOCKUP_STAGE: 'Request Mockup',
+  INVOICE_SENT: 'Send Invoice',
+  CLOSED_WON: 'View Order',
+  CLOSED_LOST: 'Review Loss Reason',
 
   // Legacy mappings for backward compatibility:
-  LEAD_ASSIGNED: 'Contact coach',
-  CONTACTED: 'Contact coach',
-  MOCKUP_REQUESTED: 'Send invoice',
-  MOCKUP_DELIVERED: 'Send invoice',
-  DECISION_PENDING: 'Follow up payment',
-  PAYMENT_RECEIVED: 'Follow up payment',
+  LEAD_ASSIGNED: 'Mark as Contacted',
+  CONTACTED: 'Mark as Contacted',
+  MOCKUP_REQUESTED: 'Request Mockup',
+  MOCKUP_DELIVERED: 'Send Invoice',
+  DECISION_PENDING: 'Send Invoice',
+  PAYMENT_RECEIVED: 'View Order',
 } as const;
 
 
@@ -52,6 +52,11 @@ export function OpportunityDetailPage() {
   const [localOpp, setLocalOpp] = useState<Opportunity | undefined>();
   const [showAdvanceDrawer, setShowAdvanceDrawer] = useState(false);
   const [advanceForm, setAdvanceForm] = useState<Record<string, string>>({});
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [noteText, setNoteText] = useState('');
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+  const [followUpForm, setFollowUpForm] = useState({ date: '', notes: '' });
+  const creativeSectionRef = useRef<HTMLDivElement>(null);
   const activeOpp = localOpp ?? opp;
   const creativeRequests = useCreativeRequests(id, refreshTick);
   const [form, setForm] = useState({ requestType: 'MOCKUP' as CreativeRequestType, designTeam: 'APPAREL_MOCKUP' as DesignTeam, priority: 'NORMAL' as CreativePriority, title: '', sport: opp?.sport ?? '', season: opp?.season ?? '', neededItems: [] as string[], designNotes: '', inspirationNotes: '', dueDate: '', assetLinks: '', internalNotes: '' });
@@ -65,10 +70,11 @@ export function OpportunityDetailPage() {
   const zoneLabel = organization?.territory === 'north' ? 'TUF NORTH' : organization?.territory === 'west' ? 'TUF WEST' : organization?.territory === 'south' ? 'TUF SOUTH' : 'TUF METRO';
   const canAdvance = canAdvanceOpportunity(activeOpp);
   const requiredFieldsByStage: Partial<Record<OpportunityStage, { key: string; label: string; type?: 'date' | 'text' }[]>> = {
-    DISCOVERY: [{ key: 'budgetConfirmed', label: 'Confirm Budget Alignment (Yes/No)' }, { key: 'rosterSize', label: 'Estimated Roster Size' }, { key: 'timelineConfirmed', label: 'Confirm Season Timeline (Yes/No)' }],
-    MOCKUP_STAGE: [{ key: 'sport', label: 'Sport' }, { key: 'lane', label: 'Lane' }, { key: 'designNotes', label: 'Design Notes' }, { key: 'neededItems', label: 'Needed Items' }, { key: 'urgency', label: 'Urgency / Due Date' }],
+    LEAD_ENGAGED: [{ key: 'contactNote', label: 'Note / Description (required)', type: 'text' }],
+    DISCOVERY: [{ key: 'budgetConfirmed', label: 'Confirm Budget Alignment (Yes/No)' }, { key: 'rosterSize', label: 'Estimated Roster Size' }, { key: 'timelineConfirmed', label: 'Confirm Season Timeline (Yes/No)' }, { key: 'discoveryDate', label: 'Discovery Date', type: 'date' }],
+    MOCKUP_STAGE: [{ key: 'sport', label: 'Sport' }, { key: 'lane', label: 'Lane' }, { key: 'designNotes', label: 'Design Notes' }, { key: 'neededItems', label: 'Needed Items' }, { key: 'urgency', label: 'Urgency / Due Date', type: 'date' }],
     INVOICE_SENT: [{ key: 'invoiceAmount', label: 'Invoice Amount' }, { key: 'invoiceDate', label: 'Invoice Date', type: 'date' }, { key: 'paymentFollowupDate', label: 'Payment Follow-up Date', type: 'date' }],
-    CLOSED_WON: [{ key: 'confirmPaymentReceived', label: 'Confirm Payment Received (Yes/No)' }, { key: 'confirmOrderHandoff', label: 'Confirm Order Handoff Created (Yes/No)' }],
+    CLOSED_WON: [{ key: 'confirmPaymentReceived', label: 'Confirm Payment Received (Yes/No)' }, { key: 'confirmOrderHandoff', label: 'Confirm Order Handoff Created (Yes/No)' }, { key: 'closedDate', label: 'Closed Date', type: 'date' }],
   };
   const requiredAdvanceFields = nextStage ? (requiredFieldsByStage[nextStage as OpportunityStage] ?? []) : [];
 
@@ -148,12 +154,25 @@ export function OpportunityDetailPage() {
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Mission Priority" className="lg:col-span-2"><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Issue:</span> {staleDays >= 7 ? `No follow-up in ${staleDays} days.` : 'Deal has not reached close path finish.'}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Action:</span> {activeOpp.nextAction}</p><p className="text-sm text-slate-300"><span className="font-semibold text-slate-100">Impact:</span> Protect {formatCurrency(activeOpp.value)} and keep 4-order pace.</p>{actionMessage ? <p className={`mt-2 text-sm ${actionMessage.includes('permission') || actionMessage.includes('read-only') ? 'text-amber-200' : 'text-cyan-200'}`}>{actionMessage}</p> : null}</Card>
-        <Card title="Next Action Console"><div className='space-y-2'><Button className="w-full" onClick={() => {
-          logCrmActivity(`${stageCtas[activeOpp.stage]} logged.`);
-          if (activeOpp.stage === 'LEAD_ENGAGED') {
-            setStage('DISCOVERY', 'Initial contact logged. Opportunity advanced to Discovery.');
-          }
-        }}>{stageCtas[activeOpp.stage]}</Button>{nextStage && canAdvance ? <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => setShowAdvanceDrawer(true)}>Open Stage Advancement Drawer</Button> : null}{nextStage && !canAdvance ? <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p> : null}<Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => logCrmActivity('Follow-up scheduled and logged.')}>Schedule / Log Follow-up</Button><Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => logCrmActivity('Rep note captured for next touch.')}>Add Note</Button></div></Card>
+        <Card title="Next Action Console"><div className='space-y-2'>
+          {/* Stage-specific button — opens the stage advancement drawer */}
+          {nextStage && canAdvance ? (
+            <Button className="w-full" onClick={() => {
+              if (activeOpp.stage === 'MOCKUP_STAGE') {
+                // For Mockup stage, scroll to creative request section
+                setShowForm(true);
+                creativeSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+              }
+              setShowAdvanceDrawer(true);
+            }}>{stageCtas[activeOpp.stage]}</Button>
+          ) : nextStage && !canAdvance ? (
+            <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p>
+          ) : null}
+          {/* Schedule / Log Follow-up */}
+          <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => { setFollowUpForm({ date: '', notes: '' }); setShowFollowUpModal(true); }}>Schedule / Log Follow-up</Button>
+          {/* Add Note */}
+          <Button className='w-full border-slate-600 bg-slate-800/60 text-slate-200' onClick={() => { setNoteText(''); setShowNoteModal(true); }}>Add Note</Button>
+        </div></Card>
       </div>
 
       <Card title="Stage Advancement Drawer (Guided)">
@@ -246,7 +265,7 @@ export function OpportunityDetailPage() {
       </div>
 
       <Card title="Creative Requests">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
+        <div ref={creativeSectionRef} className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
           <p>Total: {summary.total} · Active: {summary.active} · Delivered: {summary.delivered} · High/Urgent: {summary.highUrgent}</p>
           <Button onClick={() => { setShowForm((v) => !v); setError(''); setSuccess(''); }}>{showForm ? 'Cancel' : 'Create Creative Request'}</Button>
         </div>
@@ -270,6 +289,72 @@ export function OpportunityDetailPage() {
         </div> : null}
         {creativeRequests.length ? <div className='space-y-2'>{creativeRequests.map((r)=><div key={r.id} className='rounded-lg border border-slate-800 bg-slate-950/60 p-3 text-sm'><p className='font-semibold'>{r.title}</p><p className='text-slate-300'>{r.requestType} · {r.designTeam} · Priority {r.priority} · Status {r.status}</p><p className='text-slate-400'>Due: {r.dueDate || '—'} · Designer: {r.assignedDesigner || 'Unassigned'}</p><p className='text-slate-400'>Trello queue: {r.trelloDispatchStatus === 'SENT' ? 'Sent to interns' : r.trelloDispatchStatus === 'FAILED' ? `Failed — ${r.trelloDispatchError}` : r.trelloDispatchStatus === 'NOT_CONFIGURED' ? 'Not configured' : 'Pending'}</p>{r.trelloCardUrl ? <a className='text-cyan-300' href={r.trelloCardUrl} target='_blank' rel='noreferrer'>Open Trello card →</a> : null}</div>)}</div> : <p className='text-sm text-slate-400'>No creative requests yet. Create a request when this opportunity needs a mockup, apparel graphic, sales visual, or brand asset.</p>}
       </Card>
+
+      {/* ── Note Modal ── */}
+      {showNoteModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-black text-white">Add Note</h2>
+              <button onClick={() => setShowNoteModal(false)} className="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-400 hover:bg-slate-800">✕</button>
+            </div>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Enter your note..."
+              rows={5}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900/60 p-3 text-sm text-slate-200 placeholder-slate-600 focus:border-cyan-400/40 focus:outline-none resize-vertical"
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <Button className="border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setShowNoteModal(false)}>Cancel</Button>
+              <Button onClick={() => { if (noteText.trim()) { logCrmActivity(noteText.trim()); setShowNoteModal(false); } }} disabled={!noteText.trim()}>Save Note</Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* ── Follow-Up Modal ── */}
+      {showFollowUpModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-black text-white">Schedule / Log Follow-up</h2>
+              <button onClick={() => setShowFollowUpModal(false)} className="rounded-lg border border-slate-600 px-3 py-1 text-xs text-slate-400 hover:bg-slate-800">✕</button>
+            </div>
+            <div className="space-y-3">
+              <label className="block text-xs text-slate-300">
+                <span className="mb-1 block font-semibold text-slate-200">Follow-up Date</span>
+                <input
+                  type="date"
+                  value={followUpForm.date}
+                  onChange={(e) => setFollowUpForm((p) => ({ ...p, date: e.target.value }))}
+                  className="mt-1 w-full rounded border border-slate-700 bg-slate-900 px-2 py-2 text-sm text-slate-100"
+                />
+              </label>
+              <label className="block text-xs text-slate-300">
+                <span className="mb-1 block font-semibold text-slate-200">Notes</span>
+                <textarea
+                  value={followUpForm.notes}
+                  onChange={(e) => setFollowUpForm((p) => ({ ...p, notes: e.target.value }))}
+                  placeholder="Follow-up details..."
+                  rows={4}
+                  className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-900/60 p-3 text-sm text-slate-200 placeholder-slate-600 focus:border-cyan-400/40 focus:outline-none resize-vertical"
+                />
+              </label>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Button className="border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setShowFollowUpModal(false)}>Cancel</Button>
+              <Button onClick={() => {
+                const msg = followUpForm.date
+                  ? `Follow-up scheduled for ${followUpForm.date}. ${followUpForm.notes}`.trim()
+                  : `Follow-up logged. ${followUpForm.notes}`.trim();
+                logCrmActivity(msg);
+                setShowFollowUpModal(false);
+              }} disabled={!followUpForm.notes.trim() && !followUpForm.date}>Log Follow-up</Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

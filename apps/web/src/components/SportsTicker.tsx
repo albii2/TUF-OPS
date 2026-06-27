@@ -119,7 +119,7 @@ function injectMarqueeStyles() {
       100% { transform: translateX(-50%); }
     }
     .tuf-marquee-track {
-      animation: tuf-marquee-scroll 60s linear infinite;
+      animation: tuf-marquee-scroll 40s linear infinite;
     }
     .tuf-marquee-track:hover {
       animation-play-state: paused;
@@ -154,10 +154,15 @@ export function SportsTicker() {
   // Listen for settings changes
   useEffect(() => {
     const handleStorage = () => setSelectedLeagues(getSelectedLeagues());
+    const handleSettingsChanged = () => setSelectedLeagues(getSelectedLeagues());
     window.addEventListener('storage', handleStorage);
+    window.addEventListener('tuf:settings-changed', handleSettingsChanged);
     // Also read initially
     setSelectedLeagues(getSelectedLeagues());
-    return () => window.removeEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('tuf:settings-changed', handleSettingsChanged);
+    };
   }, []);
 
   // Fetch scores
@@ -266,8 +271,11 @@ export function SportsTicker() {
       if (!cancelled) {
         setScoreSlots(results.flat());
         const now = new Date();
+        const hours = now.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 || 12;
         setLastUpdated(
-          `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
+          `${displayHours}:${now.getMinutes().toString().padStart(2, '0')} ${ampm} CST`
         );
       }
     };

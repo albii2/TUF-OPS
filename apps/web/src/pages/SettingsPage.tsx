@@ -45,7 +45,7 @@ const ALL_LEAGUES = [
 ];
 
 export function SettingsPage() {
-  const user = getStoredUser();
+  const user = useMemo(() => getStoredUser(), []);
   const [role, setRole] = useState<Role>(user?.role ?? 'ADMIN');
   const [prefs, setPrefs] = useState<UserPrefs>(defaultPrefs);
   const [saved, setSaved] = useState('');
@@ -154,7 +154,7 @@ export function SettingsPage() {
       }
     }
     computeStats();
-  }, [user]);
+  }, [user?.id]);
 
   // ── Computed territory stats ──────────────────────────────────────────────
   const territoryStats = useMemo(() => {
@@ -186,6 +186,8 @@ export function SettingsPage() {
       document.documentElement.setAttribute('data-accent', prefs.accent);
       setSaved('Settings saved for this device.');
       success('Settings saved ✓');
+      // Notify SportsTicker of league changes
+      window.dispatchEvent(new CustomEvent('tuf:settings-changed'));
     } catch {
       error('Failed to save. Please try again.', saveAll);
     }

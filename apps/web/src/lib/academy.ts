@@ -945,10 +945,12 @@ function computeModulePhase(
   // If the user is already fully certified, all modules show as certified
   if (isAllCertified) return 'certified';
 
-  // Check sequential lock: ACAD-101 is always available; others require previous module acknowledged
+  // Check sequential lock: ACAD-101 is always available; others require previous module quiz passed.
+  // Quiz pass unlocks the next module immediately. Director review happens asynchronously
+  // and does NOT block progression.
   if (idx > 0) {
     const prevCode = MODULE_ORDER[idx - 1];
-    if (!isModuleAcknowledged(userId, prevCode)) {
+    if (!isQuizPassed(prevCode)) {
       return 'locked';
     }
   }

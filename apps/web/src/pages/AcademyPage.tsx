@@ -856,7 +856,7 @@ export default function AcademyPage() {
                   {phase === 'locked' && (
                     <div className="mb-3 rounded-lg bg-slate-950/40 border border-slate-700/50 p-2.5">
                       <p className="text-xs text-slate-500 italic">
-                        🔒 Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} first (acknowledge Coach Review).
+                        🔒 Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} quiz first to unlock this module.
                       </p>
                     </div>
                   )}
