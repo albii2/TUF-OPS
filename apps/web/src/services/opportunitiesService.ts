@@ -6,6 +6,7 @@ import { DATA_MODE } from './dataMode';
 import { getOrganizationById } from './organizationsService';
 import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
 import { createActivity } from './activitiesService';
+import { getLaneLabel } from '../utils/naming';
 
 export type OpportunityListParams = {
   search?: string;
@@ -177,6 +178,29 @@ export function updateOpportunityStage(id: string, stage: OpportunityStage) {
     entityType: 'OPPORTUNITY',
     entityId: id,
     message: `Stage advanced from ${existing.stage.replace(/_/g, ' ')} to ${stage.replace(/_/g, ' ')}.`,
+  });
+  window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
+  return updated;
+}
+
+export function updateOpportunityLane(id: string, lane: RevenueLane) {
+  const existing = getAllOpportunities().find((opp) => opp.id === id);
+  if (!existing) return undefined;
+  if (existing.lane === lane) return existing;
+  const previousLabel = getLaneLabel(existing.lane);
+  const newLabel = getLaneLabel(lane);
+  const updated: Opportunity = {
+    ...existing,
+    lane,
+    lastActivity: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
+  removeLegacyOpportunity(id);
+  createActivity({
+    entityType: 'OPPORTUNITY',
+    entityId: id,
+    message: `Lane changed from ${previousLabel} to ${newLabel}.`,
   });
   window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
   return updated;
