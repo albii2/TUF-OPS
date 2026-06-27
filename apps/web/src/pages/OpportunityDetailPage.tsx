@@ -154,7 +154,14 @@ export function OpportunityDetailPage() {
                     className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-xs text-slate-100"
                     value={activeOpp.lane}
                     onChange={(e) => {
-                      const result = updateOpportunityLane(activeOpp.id, e.target.value as RevenueLane);
+                      const newLane = e.target.value as RevenueLane;
+                      if (newLane !== activeOpp.lane) {
+                        const confirmed = window.confirm(
+                          `Change lane from ${getLaneLabel(activeOpp.lane)} to ${getLaneLabel(newLane)}?\n\nThis replaces the current lane on this opportunity. Previous lane activity is preserved in the log. The organization will show both lanes as active.`
+                        );
+                        if (!confirmed) return;
+                      }
+                      const result = updateOpportunityLane(activeOpp.id, newLane);
                       if (result) setLocalOpp(result);
                       setInlineLaneEditing(false);
                     }}
