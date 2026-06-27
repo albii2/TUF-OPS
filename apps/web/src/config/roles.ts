@@ -43,9 +43,9 @@ export const roleConfig: Record<Role, RoleConfig> = {
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification'],
   },
   REP: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy'],
+    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy', 'territory'],
     dashboardWidgets: ['Deals Need Action', 'Near Close', 'Payments Pending', 'This Month Progress'],
     primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/academy'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/academy', '/territory'],
   },
 };
