@@ -55,18 +55,22 @@ function numericId(id?: string) {
 
 export async function fetchDashboardMetrics(role: Role, userId?: string, userEmail?: string): Promise<DashboardMetrics> {
   if (DATA_MODE !== 'api') return emptyDashboardMetrics();
-  if (role === 'ADMIN') return apiClient<DashboardMetrics>('/reporting/owner-dashboard');
-  if (role === 'DIRECTOR') {
-    const id = numericId(userId);
-    if (id) return apiClient<DashboardMetrics>(`/reporting/director-dashboard/${id}`);
-    if (userEmail) return apiClient<DashboardMetrics>('/reporting/director-dashboard-by-email', { query: { email: userEmail } });
-    throw new Error('Director dashboard requires backend numeric user id or email in API mode');
-  }
-  if (role === 'REP') {
-    const id = numericId(userId);
-    if (id) return apiClient<DashboardMetrics>(`/reporting/rep-dashboard/${id}`);
-    if (userEmail) return apiClient<DashboardMetrics>('/reporting/rep-dashboard-by-email', { query: { email: userEmail } });
-    throw new Error('Rep dashboard requires backend numeric user id or email in API mode');
+  try {
+    if (role === 'ADMIN') return apiClient<DashboardMetrics>('/reporting/owner-dashboard');
+    if (role === 'DIRECTOR') {
+      const id = numericId(userId);
+      if (id) return apiClient<DashboardMetrics>(`/reporting/director-dashboard/${id}`);
+      if (userEmail) return apiClient<DashboardMetrics>('/reporting/director-dashboard-by-email', { query: { email: userEmail } });
+      throw new Error('Director dashboard requires backend numeric user id or email in API mode');
+    }
+    if (role === 'REP') {
+      const id = numericId(userId);
+      if (id) return apiClient<DashboardMetrics>(`/reporting/rep-dashboard/${id}`);
+      if (userEmail) return apiClient<DashboardMetrics>('/reporting/rep-dashboard-by-email', { query: { email: userEmail } });
+      throw new Error('Rep dashboard requires backend numeric user id or email in API mode');
+    }
+  } catch {
+    console.warn('[dashboardMetrics] API unavailable — using empty metrics');
   }
   return emptyDashboardMetrics();
 }
