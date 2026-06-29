@@ -105,7 +105,7 @@ const seedRows: StoredManagedUser[] = [
     directorSignedOff: true,
     isCertified: true,
     credentialSalt: 'seed-primeau',
-    credentialHash: '1ae172702387440e02923886c5b0513aff04861cd4f9fb23bfd934a927c0428b',
+    credentialHash: '00399ec96c4d81818f40f802315d89ad77c3e37cf3f46681eff3a77a0e661601',
   },
   {
     id: 'u-rep-jason-mulder',
