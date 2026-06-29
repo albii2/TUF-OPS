@@ -876,6 +876,163 @@ export default function AcademyPage() {
           </div>
         </div>
 
+        {/* ── Resources / Sales Enablement ── */}
+        <div>
+          <h2 className="text-xl font-black text-white mb-4 flex items-center gap-2">
+            <span>📚</span> Sales Enablement Resources
+          </h2>
+          <p className="text-xs text-slate-400 mb-4 -mt-2">
+            Training manuals, templates, and reference materials — available to all roles.
+          </p>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {/* Training Manuals */}
+            {[
+              {
+                icon: '📖',
+                name: 'Training Manual 01: The TUF Philosophy',
+                desc: 'Core philosophy, mission, and values behind the TUF Sales System.',
+                file: 'TRAINING_MANUAL_01_PHILOSOPHY.md',
+              },
+              {
+                icon: '🔍',
+                name: 'Training Manual 02: Prospecting',
+                desc: 'Identifying, qualifying, and engaging potential school partners.',
+                file: 'TRAINING_MANUAL_02_PROSPECTING.md',
+              },
+              {
+                icon: '🎯',
+                name: 'Training Manual 03: Discovery',
+                desc: 'Running effective discovery meetings to uncover program needs.',
+                file: 'TRAINING_MANUAL_03_DISCOVERY.md',
+              },
+              {
+                icon: '📝',
+                name: 'Training Manual 04: Proposal',
+                desc: 'Building compelling proposals that win deals.',
+                file: 'TRAINING_MANUAL_04_PROPOSAL.md',
+              },
+              {
+                icon: '🤝',
+                name: 'Training Manual 05: Order Handoff',
+                desc: 'Seamless order processing and handoff procedures.',
+                file: 'TRAINING_MANUAL_05_ORDER_HANDOFF.md',
+              },
+              {
+                icon: '🏷️',
+                name: 'Training Manual 06: Product Knowledge',
+                desc: 'Deep dive into TUF products, fabrics, and customization options.',
+                file: 'TRAINING_MANUAL_06_PRODUCT_KNOWLEDGE.md',
+              },
+              {
+                icon: '📘',
+                name: 'Complete Training Manual',
+                desc: 'All six modules combined into one comprehensive document.',
+                file: 'TRAINING_MANUAL_COMPLETE.md',
+              },
+            ].map((resource) => (
+              <a
+                key={resource.file}
+                href={`/training/${resource.file}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-xl border border-slate-700/60 bg-slate-900/30 p-5 hover:border-cyan-400/30 hover:bg-slate-800/40 transition-all group"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-lg">
+                    {resource.icon}
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-white mb-1 group-hover:text-cyan-200 transition-colors">
+                      {resource.name}
+                    </h3>
+                    <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                      {resource.desc}
+                    </p>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-cyan-400 uppercase tracking-wider">
+                      📥 Download
+                    </span>
+                  </div>
+                </div>
+              </a>
+            ))}
+
+            {/* Email Template */}
+            <a
+              href="/training/FIRST_CONTACT_EMAIL_TEMPLATE.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-amber-400/15 bg-amber-400/5 p-5 hover:border-amber-400/30 hover:bg-amber-400/10 transition-all group"
+            >
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-lg">
+                  ✉️
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-amber-200 transition-colors">
+                    First Contact Email Template
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                    Proven email template for initial outreach to coaches and ADs.
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                    📥 Download
+                  </span>
+                </div>
+              </div>
+            </a>
+
+            {/* Product Cheat Sheet */}
+            <a
+              href="/training/product-cheat-sheets.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-5 hover:border-emerald-400/30 hover:bg-emerald-400/10 transition-all group"
+            >
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center text-lg">
+                  🏷️
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-emerald-200 transition-colors">
+                    Product Cheat Sheet
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                    Quick reference for TUF products, pricing tiers, and fabric options.
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
+                    📥 Download
+                  </span>
+                </div>
+              </div>
+            </a>
+
+            {/* Territory Map */}
+            <a
+              href="/training/territorymap_tuf_2026.png"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-xl border border-purple-400/15 bg-purple-400/5 p-5 hover:border-purple-400/30 hover:bg-purple-400/10 transition-all group"
+            >
+              <div className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-purple-400/10 border border-purple-400/20 flex items-center justify-center text-lg">
+                  🗺️
+                </span>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-purple-200 transition-colors">
+                    Territory Map (2026)
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                    Visual reference for TUF territory coverage across Minnesota.
+                  </p>
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-400 uppercase tracking-wider">
+                    📥 Download / View
+                  </span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
         {/* ── Quiz Modal ── */}
         {activeQuiz && (
           <QuizModal
