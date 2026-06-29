@@ -13,7 +13,9 @@ export type SidebarKey =
   | 'ops_workspace'
   | 'settings'
   | 'users'
-  | 'academy';
+  | 'academy'
+  | 'certification_review'
+  | 'documents';
 
 export type AppUser = {
   id: string;
