@@ -29,6 +29,7 @@ import {
 } from './pages/CrudPages';
 import AcademyPage from './pages/AcademyPage';
 import AdminCertificationPage from './pages/AdminCertificationPage';
+import { DocumentGeneratorPage } from './pages/DocumentGeneratorPage';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
 
@@ -107,6 +108,7 @@ export default function App() {
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
         <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{dashboard}</PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
+        <Route path="/documents" element={<RoleProtected user={user} allowedRoles={['ADMIN']}><DocumentGeneratorPage /></RoleProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'DIRECTOR', 'REGIONAL_DIRECTOR']}><AdminCertificationPage /></RoleProtected>} />
         <Route path="/organizations" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/new" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected></CertificationProtected>} />
