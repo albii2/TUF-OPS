@@ -27,7 +27,7 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'settings'],
+    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy', '/admin/certification', '/documents'],

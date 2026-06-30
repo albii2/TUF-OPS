@@ -74,7 +74,7 @@ function CoachReviewForm({
         {/* Strengths */}
         <div>
           <label className="block text-xs font-bold text-emerald-300 uppercase tracking-wider mb-1.5">
-            💪 Strengths — What the rep did well
+            Strengths — What the rep did well
           </label>
           <textarea
             value={strengths}
@@ -88,7 +88,7 @@ function CoachReviewForm({
         {/* Corrections */}
         <div>
           <label className="block text-xs font-bold text-amber-300 uppercase tracking-wider mb-1.5">
-            🔧 Corrections — What needs improvement
+            Corrections — What needs improvement
           </label>
           <textarea
             value={corrections}
@@ -102,7 +102,7 @@ function CoachReviewForm({
         {/* Coaching Notes */}
         <div>
           <label className="block text-xs font-bold text-cyan-300 uppercase tracking-wider mb-1.5">
-            📝 Coaching Notes — General guidance
+            Coaching Notes — General guidance
           </label>
           <textarea
             value={coachingNotes}
@@ -151,6 +151,10 @@ export default function AdminCertificationPage() {
     moduleName: string;
   } | null>(null);
   const [savingReview, setSavingReview] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'uncertified' | 'pending_review' | 'certified'>('all');
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
+  const [sendingBulkReminder, setSendingBulkReminder] = useState(false);
+  const [reminderSent, setReminderSent] = useState<string | null>(null);
 
   useEffect(() => {
     refreshData();
@@ -210,20 +214,74 @@ export default function AdminCertificationPage() {
     return getMissionStatement(userId);
   };
 
+  const getFilteredReps = () => {
+    if (filter === 'all') return reps;
+    return reps.filter((r) => {
+      const record = getRepRecord(r.id);
+      const submission = getRepSubmission(r.id);
+      switch (filter) {
+        case 'certified':
+          return record?.isLevel1Certified === true;
+        case 'pending_review':
+          return !!submission && !record?.isLevel1Certified;
+        case 'uncertified':
+          return !record?.isLevel1Certified;
+        default:
+          return true;
+      }
+    });
+  };
+
+  const uncertifiedCount = reps.filter((r) => {
+    const record = getRepRecord(r.id);
+    return !record?.isLevel1Certified;
+  }).length;
+  const pendingCount = reps.filter((r) => {
+    const submission = getRepSubmission(r.id);
+    const record = getRepRecord(r.id);
+    return !!submission && !record?.isLevel1Certified;
+  }).length;
+  const certifiedCount = reps.filter((r) => {
+    const record = getRepRecord(r.id);
+    return record?.isLevel1Certified === true;
+  }).length;
+
+  const handleSendReminder = async (repId: string) => {
+    setSendingReminder(repId);
+    // Simulate sending a reminder (in-app notification or email template)
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    setReminderSent(repId);
+    setSendingReminder(null);
+    setTimeout(() => setReminderSent(null), 3000);
+  };
+
+  const handleBulkReminder = async () => {
+    setSendingBulkReminder(true);
+    const uncertified = reps.filter((r) => {
+      const record = getRepRecord(r.id);
+      return !record?.isLevel1Certified;
+    });
+    for (const rep of uncertified) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+    }
+    setSendingBulkReminder(false);
+    alert(`Reminder sent to ${uncertified.length} uncertified rep(s).`);
+  };
+
   const getStatusBadge = (rep: ManagedUser) => {
     const record = getRepRecord(rep.id);
     const submission = getRepSubmission(rep.id);
 
     if (record?.isLevel1Certified) {
       return {
-        label: `🎉 ${CERTIFICATION_TITLE.split(' ').slice(0, 3).join(' ')} ✓`,
+        label: `Certified ✓`,
         className: 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30',
         detail: record.certifiedBy ? `Approved by ${record.certifiedBy}` : undefined,
       };
     }
     if (submission) {
       return {
-        label: 'Submitted ◆',
+        label: 'Submitted',
         className: 'bg-purple-400/20 text-purple-200 border-purple-400/30',
         detail: `Submitted ${new Date(submission.submittedAt).toLocaleDateString()}`,
       };
@@ -282,18 +340,18 @@ export default function AdminCertificationPage() {
   const getModulePhaseLabel = (phase: ModuleProgress['phase']) => {
     switch (phase) {
       case 'certified':
-        return '🎉';
+        return '✓';
       case 'acknowledged':
         return '✓';
       case 'coach_review':
-        return '◆';
+        return 'CR';
       case 'awaiting_coach':
-        return '⏳';
+        return 'AR';
       case 'demonstrate':
       case 'quiz_passed':
-        return 'Q';
+        return 'IP';
       case 'learn':
-        return '📖';
+        return 'AV';
       case 'locked':
         return '—';
       default:
@@ -304,7 +362,7 @@ export default function AdminCertificationPage() {
   const getModulePhaseTitle = (phase: ModuleProgress['phase'], code: string) => {
     switch (phase) {
       case 'certified':
-        return `${code}: Deploy — Certified`;
+        return `${code}: Certified`;
       case 'acknowledged':
         return `${code}: Coach Review Acknowledged`;
       case 'coach_review':
@@ -312,11 +370,11 @@ export default function AdminCertificationPage() {
       case 'awaiting_coach':
         return `${code}: Exercise Complete — Needs Coach Review`;
       case 'demonstrate':
-        return `${code}: Demonstrate — Exercise in Progress`;
+        return `${code}: Exercise in Progress`;
       case 'quiz_passed':
-        return `${code}: Quiz Passed`;
+        return `${code}: Assessment Passed`;
       case 'learn':
-        return `${code}: Learn — Available`;
+        return `${code}: Available`;
       case 'locked':
         return `${code}: Locked`;
       default:
@@ -373,6 +431,37 @@ export default function AdminCertificationPage() {
           </button>
         </div>
 
+        {/* Filter Tabs and Bulk Actions */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex gap-1 rounded-lg border border-slate-700 bg-slate-900/40 p-1">
+            {([
+              ['all', `All (${reps.length})`],
+              ['uncertified', `Uncertified (${uncertifiedCount})`],
+              ['pending_review', `Pending Review (${pendingCount})`],
+              ['certified', `Certified (${certifiedCount})`],
+            ] as const).map(([key, label]) => (
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${
+                  filter === key
+                    ? 'bg-slate-700 text-white'
+                    : 'text-slate-400 hover:text-slate-300'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={handleBulkReminder}
+            disabled={sendingBulkReminder || uncertifiedCount === 0}
+            className="rounded-lg border border-amber-400/30 bg-amber-400/5 px-4 py-2 text-xs font-bold text-amber-200 hover:bg-amber-400/10 disabled:opacity-40 transition-colors"
+          >
+            {sendingBulkReminder ? 'Sending...' : `Send Reminder to All Uncertified (${uncertifiedCount})`}
+          </button>
+        </div>
+
         {/* TAEs Table */}
         <div className="rounded-xl border border-slate-800 bg-[#070c13]/80 overflow-hidden">
           <div className="overflow-x-auto">
@@ -419,7 +508,7 @@ export default function AdminCertificationPage() {
                     </td>
                   </tr>
                 ) : (
-                  reps.map((rep) => {
+                  getFilteredReps().map((rep) => {
                     const record = getRepRecord(rep.id);
                     const submission = getRepSubmission(rep.id);
                     const statusBadge = getStatusBadge(rep);
@@ -489,7 +578,7 @@ export default function AdminCertificationPage() {
                         <td className="px-4 py-3 text-center">
                           {isAlreadyCertified ? (
                             <span className="text-xs text-emerald-400 font-bold">
-                              {CERTIFICATION_TITLE.split(' ').slice(-2).join(' ')} ✓
+                              Certified ✓
                             </span>
                           ) : hasSubmission && !isAlreadyCertified ? (
                             <button
@@ -577,7 +666,7 @@ export default function AdminCertificationPage() {
                     {coachReview ? (
                       <div className="mt-2 rounded-lg border border-purple-400/20 bg-purple-400/5 p-2.5">
                         <p className="text-[10px] font-bold text-purple-300 mb-1">
-                          ✓ Coach Review Done
+                          Coach Review Done
                         </p>
                         <p className="text-[10px] text-slate-400">
                           By {coachReview.reviewedBy} on{' '}
@@ -613,7 +702,7 @@ export default function AdminCertificationPage() {
                       <div className="mt-2">
                         <div className="rounded-lg border border-amber-400/20 bg-amber-400/5 p-2.5 mb-2">
                           <p className="text-[10px] text-amber-300 font-bold">
-                            ⏳ Needs Coach Review
+                            Needs Coach Review
                           </p>
                         </div>
                         {pendingCoachReview &&
@@ -648,7 +737,7 @@ export default function AdminCertificationPage() {
                       <div className="mt-2">
                         <div className="rounded-lg border border-purple-400/20 bg-purple-400/5 p-2.5 mb-2">
                           <p className="text-[10px] text-purple-300 font-bold">
-                            ◆ Awaiting Rep Acknowledgment
+                            Awaiting Rep Acknowledgment
                           </p>
                         </div>
                         {pendingCoachReview &&
@@ -688,7 +777,7 @@ export default function AdminCertificationPage() {
                     ) : phase === 'acknowledged' || phase === 'certified' ? (
                       <div className="mt-2 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-2.5">
                         <p className="text-[10px] text-emerald-300">
-                          ✓ Module Complete
+                          Module Complete
                         </p>
                       </div>
                     ) : null}

@@ -279,7 +279,7 @@ function CoachReviewModal({
 
         {/* Strengths */}
         <div className="mb-4 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-4">
-          <h3 className="text-sm font-black text-emerald-300 mb-2">💪 Strengths</h3>
+          <h3 className="text-sm font-black text-emerald-300 mb-2">Strengths</h3>
           <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
             {coachReview.strengths || 'No strengths noted.'}
           </p>
@@ -287,7 +287,7 @@ function CoachReviewModal({
 
         {/* Corrections */}
         <div className="mb-4 rounded-lg border border-amber-400/20 bg-amber-400/5 p-4">
-          <h3 className="text-sm font-black text-amber-300 mb-2">🔧 Corrections</h3>
+          <h3 className="text-sm font-black text-amber-300 mb-2">Corrections</h3>
           <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
             {coachReview.corrections || 'No corrections noted.'}
           </p>
@@ -295,7 +295,7 @@ function CoachReviewModal({
 
         {/* Coaching Notes */}
         <div className="mb-6 rounded-lg border border-cyan-400/20 bg-cyan-400/5 p-4">
-          <h3 className="text-sm font-black text-cyan-300 mb-2">📝 Coaching Notes</h3>
+          <h3 className="text-sm font-black text-cyan-300 mb-2">Coaching Notes</h3>
           <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
             {coachReview.coachingNotes || 'No coaching notes.'}
           </p>
@@ -304,7 +304,7 @@ function CoachReviewModal({
         {/* Acknowledge */}
         <div className="rounded-lg border border-purple-400/30 bg-purple-400/5 p-4">
           <p className="text-sm text-slate-300 mb-3">
-            Review the Director's feedback above. When you're ready, acknowledge to unlock the next module.
+            Review the Director's feedback above. When you're ready, acknowledge to access the next module.
           </p>
           <button
             onClick={onAcknowledge}
@@ -334,7 +334,7 @@ function LearnContentModal({
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-lg font-black text-white">
-              📖 {module.name} — Learn
+              {module.name} — Learn
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">
               Study the content below before taking the quiz.
@@ -366,7 +366,7 @@ function LearnContentModal({
 
         <div className="mt-6 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3">
           <p className="text-xs text-amber-200">
-            💡 <strong>Philosophy Principle #{module.philosophyPrinciple}:</strong>{' '}
+            Philosophy Principle #{module.philosophyPrinciple}:
             "{SALES_PHILOSOPHY[module.philosophyPrinciple - 1]?.title}"
           </p>
         </div>
@@ -526,45 +526,86 @@ export default function AcademyPage() {
     <div className="min-h-screen text-slate-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* ── Header ── */}
-        <div className="relative overflow-hidden rounded-2xl border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(31,182,255,0.22),transparent_38%),linear-gradient(135deg,rgba(7,12,19,0.98),rgba(3,7,12,0.94))] p-5 shadow-2xl shadow-cyan-950/30 md:p-7">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/70 to-transparent" />
+        <div className="relative overflow-hidden rounded-2xl border border-slate-700 bg-[#070c13] p-5 md:p-7">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-500/30 to-transparent" />
           <div className="flex flex-col items-center gap-6 text-center">
             <div className="mx-auto max-w-3xl">
               <img
                 src={TufAcademyLogo}
                 alt="TUF Academy"
-                className="mx-auto h-14 w-auto object-contain drop-shadow-[0_0_22px_rgba(31,182,255,0.25)] sm:h-16"
+                className="mx-auto h-14 w-auto object-contain sm:h-16"
               />
               <h1 className="mt-3 text-2xl font-black leading-tight text-white md:text-4xl">
-                TUF Academy — TUF Sales System Certification
+                TUF Sales System Certification
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                Master the TUF Sales System through five modules: Philosophy, Prospecting, Discovery,
-                Proposal, and Order Handoff. Learn → Demonstrate → Coach Review → Deploy.
+                Master the TUF Sales System through six modules: Philosophy, Prospecting, Discovery,
+                Proposal, Order Handoff, and Product Knowledge. Learn → Demonstrate → Coach Review → Deploy.
               </p>
 
-              {/* Certification Status */}
+              {/* Certification Status — Professional badge */}
               <div className="mt-4">
                 <span
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${statusColor}`}
+                  className={`inline-flex items-center gap-2 rounded border px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${statusColor}`}
                 >
-                  {isCertified ? '🎉' : approvalSubmitted ? '◆' : isRep ? '●' : '◆'}{' '}
+                  {isCertified ? '' : approvalSubmitted ? '' : isRep ? '' : ''}
                   {certificationLabel}
                 </span>
               </div>
 
-              {/* Progress Bar for reps */}
+              {/* Certification Module Checklist */}
               {isRep && (
-                <div className="mt-4 max-w-md mx-auto">
-                  <div className="flex justify-between text-xs text-slate-400 mb-1">
-                    <span>Certification Progress</span>
-                    <span>{verifiedCount} / 5 ({certificationProgress(moduleProgress)}%)</span>
+                <div className="mt-5 max-w-md mx-auto rounded-lg border border-slate-700 bg-slate-900/40 p-4 text-left">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                    Module Status
+                  </h3>
+                  <div className="space-y-1.5">
+                    {MODULE_ORDER.map((code) => {
+                      const progress = moduleProgress.find((p) => p.code === code);
+                      const phase = progress?.phase ?? 'locked';
+                      const mod = LEVEL_1_MODULES.find((m) => m.code === code);
+                      const statusText =
+                        phase === 'certified' || phase === 'acknowledged' ? 'COMPLETE' :
+                        (phase as string) === 'demonstrate' || phase === 'quiz_passed' || phase === 'awaiting_coach' || phase === 'coach_review' ? 'IN PROGRESS' :
+                        'LOCKED';
+                      const statusColor =
+                        phase === 'certified' || phase === 'acknowledged' ? 'text-emerald-400' :
+                        phase !== 'locked' ? 'text-amber-400' :
+                        'text-slate-600';
+                      return (
+                        <div key={code} className="flex items-center justify-between text-xs">
+                          <span className="text-slate-300 font-mono">{code}: {mod?.name ?? code}</span>
+                          <span className={`font-bold tracking-wider ${statusColor}`}>{statusText}</span>
+                        </div>
+                      );
+                    })}
+                    <div className="border-t border-slate-700/50 pt-1.5 mt-1.5 flex items-center justify-between text-xs">
+                      <span className="text-slate-400 font-bold">Director Review</span>
+                      <span className={isCertified ? 'text-emerald-400 font-bold' : approvalSubmitted ? 'text-purple-400 font-bold' : 'text-amber-400 font-bold'}>
+                        {isCertified ? 'APPROVED' : approvalSubmitted ? 'PENDING' : 'NOT SUBMITTED'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="w-full bg-slate-800 rounded-full h-3 overflow-hidden">
-                    <div
-                      className="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-500"
-                      style={{ width: `${certificationProgress(moduleProgress)}%` }}
-                    />
+                </div>
+              )}
+
+              {/* Sales Operations Performance Metrics */}
+              {isRep && isCertified && (
+                <div className="mt-5 max-w-md mx-auto grid grid-cols-2 gap-3">
+                  <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">This Month</p>
+                    <p className="text-xl font-black text-white mt-0.5">{0}/4 Orders</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">4-order baseline</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-3">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Weekly Activity</p>
+                    <p className="text-xl font-black text-white mt-0.5">{0}/40 Touchpoints</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">Activity target</p>
+                  </div>
+                  <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-3 col-span-2">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Next Action</p>
+                    <p className="text-sm font-bold text-white mt-0.5">Build pipeline — target 4 opportunities in qualifying</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">Focus: consistent daily outreach</p>
                   </div>
                 </div>
               )}
@@ -575,7 +616,7 @@ export default function AcademyPage() {
         {/* ── Module Cards ── */}
         <div>
           <h2 className="text-xl font-black text-white mb-4 flex items-center gap-2">
-            <span>📋</span> TUF Sales System — Level 1 Modules
+            TUF Sales System — Certification Modules
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {LEVEL_1_MODULES.map((module, idx) => {
@@ -585,25 +626,25 @@ export default function AcademyPage() {
               const coachReview = progress?.coachReview ?? getCoachReview(module.code) ?? null;
 
               const phaseColors: Record<string, string> = {
-                certified: 'border-emerald-400/30 bg-emerald-400/5 shadow-[0_0_12px_rgba(16,185,129,0.08)]',
-                acknowledged: 'border-emerald-400/30 bg-emerald-400/5 shadow-[0_0_12px_rgba(16,185,129,0.08)]',
+                certified: 'border-slate-500/40 bg-slate-800/40',
+                acknowledged: 'border-slate-500/40 bg-slate-800/40',
                 coach_review: 'border-purple-400/30 bg-purple-400/5',
                 awaiting_coach: 'border-amber-400/30 bg-amber-400/5',
-                demonstrate: 'border-cyan-400/30 bg-cyan-400/5',
-                quiz_passed: 'border-cyan-400/30 bg-cyan-400/5',
-                learn: 'border-blue-400/30 bg-blue-400/5',
+                demonstrate: 'border-slate-600/40 bg-slate-900/30',
+                quiz_passed: 'border-slate-600/40 bg-slate-900/30',
+                learn: 'border-slate-600/40 bg-slate-900/30',
                 locked: 'border-slate-700/60 bg-slate-900/30 opacity-50',
               };
 
               const phaseLabel: Record<string, string> = {
-                certified: '✓ Deploy',
-                acknowledged: '✓ Acknowledged',
-                coach_review: '◆ Coach Review',
-                awaiting_coach: '⏳ Awaiting Coach',
-                demonstrate: '▶ Demonstrate',
-                quiz_passed: '✓ Quiz Passed',
-                learn: '📖 Learn',
-                locked: '🔒 Locked',
+                certified: 'COMPLETE',
+                acknowledged: 'ACKNOWLEDGED',
+                coach_review: 'Coach Review',
+                awaiting_coach: 'Awaiting Coach',
+                demonstrate: 'In Progress',
+                quiz_passed: 'Quiz Passed',
+                learn: 'Available',
+                locked: 'Locked',
               };
 
               const exerciseProgressPercent =
@@ -637,20 +678,14 @@ export default function AcademyPage() {
                       {module.code}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                      className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                         phase === 'certified' || phase === 'acknowledged'
                           ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
                           : phase === 'coach_review'
                             ? 'bg-purple-400/20 text-purple-200 border-purple-400/30'
                             : phase === 'awaiting_coach'
                               ? 'bg-amber-400/20 text-amber-200 border-amber-400/30'
-                              : phase === 'demonstrate'
-                                ? 'bg-cyan-400/20 text-cyan-200 border-cyan-400/30'
-                                : phase === 'quiz_passed'
-                                  ? 'bg-cyan-400/20 text-cyan-200 border-cyan-400/30'
-                                  : phase === 'learn'
-                                    ? 'bg-blue-400/20 text-blue-200 border-blue-400/30'
-                                    : 'bg-slate-700/40 text-slate-400 border-slate-600/30'
+                              : 'bg-slate-700/50 text-slate-400 border-slate-600/40'
                       }`}
                     >
                       {phaseLabel[phase] || phaseLabel['locked']}
@@ -663,11 +698,11 @@ export default function AcademyPage() {
 
                   {/* Learning Content — expandable study section */}
                   {(status === 'available' || status === 'quiz_available') && module.learnContent && (
-                    <details className="mb-3 rounded-lg bg-slate-950/50 border border-blue-900/30 overflow-hidden group">
-                      <summary className="cursor-pointer px-3 py-2 text-xs font-bold text-blue-300 uppercase tracking-wider hover:text-blue-200 select-none">
-                        📖 Study: What You Need to Learn
+                    <details className="mb-3 rounded-lg bg-slate-950/50 border border-slate-700/30 overflow-hidden group">
+                      <summary className="cursor-pointer px-3 py-2 text-xs font-bold text-slate-300 uppercase tracking-wider hover:text-slate-200 select-none">
+                        Study: What You Need to Learn
                       </summary>
-                      <div className="px-3 pb-3 pt-1 text-xs text-slate-300 leading-relaxed border-t border-blue-900/20 space-y-3">
+                      <div className="px-3 pb-3 pt-1 text-xs text-slate-300 leading-relaxed border-t border-slate-700/20 space-y-3">
                         {Array.isArray(module.learnContent)
                           ? (module.learnContent as any[]).map((section: any, i: number) => (
                               <div key={i}>
@@ -709,15 +744,15 @@ export default function AcademyPage() {
                     <div className="mb-3 space-y-2">
                       <button
                         onClick={() => handleOpenLearn(module.code)}
-                        className="w-full rounded-lg border border-blue-400/30 bg-blue-400/5 px-3 py-2 text-xs font-bold text-blue-200 hover:bg-blue-400/10 transition-colors"
+                        className="w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors"
                       >
-                        📖 Study Learning Content
+                        Study Learning Content
                       </button>
                       <button
                         onClick={() => handleTakeQuiz(module.code)}
-                        className="w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors"
+                        className="w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors"
                       >
-                        📝 Take Quiz
+                        Take Assessment
                       </button>
                     </div>
                   )}
@@ -728,25 +763,25 @@ export default function AcademyPage() {
                       {quizResult && (
                         <div className="rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5 flex items-center justify-between">
                           <span
-                            className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase ${
+                            className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${
                               quizResult.passed
                                 ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
                                 : 'bg-amber-400/20 text-amber-200 border-amber-400/30'
                             }`}
                           >
-                            {quizResult.passed ? '✓' : '✗'} Quiz: {quizResult.score}%
+                            {quizResult.passed ? 'PASSED' : 'NOT PASSED'}: {quizResult.score}%
                           </span>
                           <button
                             onClick={() => handleTakeQuiz(module.code)}
-                            className="rounded-lg border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-[10px] font-bold text-cyan-200 hover:bg-cyan-400/20 transition-colors"
+                            className="rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-1 text-[10px] font-bold text-slate-300 hover:bg-slate-700/40 transition-colors"
                           >
-                            Retake Quiz
+                            Retake Assessment
                           </button>
                         </div>
                       )}
                       <div className="rounded-lg bg-slate-950/50 border border-slate-800/60 p-2.5">
-                        <p className="text-[10px] font-bold text-cyan-300 uppercase tracking-wider mb-1">
-                          ▶ Demonstrate
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                          Demonstrate
                         </p>
                         <p className="text-xs text-slate-400">{module.demonstrateTask}</p>
                       </div>
@@ -754,22 +789,22 @@ export default function AcademyPage() {
                       {module.code === 'ACAD-101' && (
                         <button
                           onClick={() => setShowMissionModal(true)}
-                          className="w-full rounded-lg border border-emerald-400/30 bg-emerald-400/5 px-3 py-2 text-xs font-bold text-emerald-200 hover:bg-emerald-400/10 transition-colors"
+                          className="w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors"
                         >
-                          ✍️ Write Mission Statement
+                          Write Mission Statement
                         </button>
                       )}
                       {module.code === 'ACAD-102' && (
                         <div className="space-y-1.5">
                           <Link
                             to="/organizations"
-                            className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                            className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
                           >
                             Practice: Add Organizations →
                           </Link>
                           <Link
                             to="/opportunities"
-                            className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                            className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
                           >
                             Practice: Log Activities →
                           </Link>
@@ -778,7 +813,7 @@ export default function AcademyPage() {
                       {module.code === 'ACAD-103' && (
                         <Link
                           to="/opportunities"
-                          className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                          className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
                         >
                           Practice: Create Discovery Opportunities →
                         </Link>
@@ -786,7 +821,7 @@ export default function AcademyPage() {
                       {module.code === 'ACAD-104' && (
                         <Link
                           to="/opportunities"
-                          className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                          className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
                         >
                           Practice: Build Proposals →
                         </Link>
@@ -794,7 +829,7 @@ export default function AcademyPage() {
                       {module.code === 'ACAD-105' && (
                         <Link
                           to="/opportunities"
-                          className="block w-full rounded-lg border border-cyan-400/30 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/10 transition-colors text-center"
+                          className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
                         >
                           Practice: Close & Hand Off →
                         </Link>
@@ -805,7 +840,7 @@ export default function AcademyPage() {
                   {/* Awaiting Coach */}
                   {phase === 'awaiting_coach' && (
                     <div className="mb-3 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3">
-                      <p className="text-xs font-bold text-amber-300 mb-1">⏳ Awaiting Coach Review</p>
+                      <p className="text-xs font-bold text-amber-300 mb-1">Awaiting Coach Review</p>
                       <p className="text-xs text-slate-400">
                         Your work has been submitted. Your Director will review and provide feedback.
                       </p>
@@ -817,7 +852,7 @@ export default function AcademyPage() {
                     <div className="mb-3 space-y-2">
                       <div className="rounded-lg border border-purple-400/20 bg-purple-400/5 p-3">
                         <p className="text-xs font-bold text-purple-300 mb-1">
-                          ◆ Coach Review Ready
+                          Coach Review Ready
                         </p>
                         <p className="text-xs text-slate-400">
                           Reviewed by {coachReview.reviewedBy}. Open to view feedback and acknowledge.
@@ -835,9 +870,9 @@ export default function AcademyPage() {
                   {/* Acknowledged */}
                   {phase === 'acknowledged' && (
                     <div className="mb-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3">
-                      <p className="text-xs font-bold text-emerald-300 mb-1">✓ Acknowledged</p>
+                      <p className="text-xs font-bold text-emerald-300 mb-1">Acknowledged</p>
                       <p className="text-xs text-slate-400">
-                        Coach Review acknowledged. Module complete!
+                        Coach Review acknowledged. Module complete.
                       </p>
                     </div>
                   )}
@@ -845,7 +880,7 @@ export default function AcademyPage() {
                   {/* Certified */}
                   {(phase === 'certified') && (
                     <div className="mb-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3">
-                      <p className="text-xs font-bold text-emerald-300 mb-1">🎉 Certified</p>
+                      <p className="text-xs font-bold text-emerald-300 mb-1">Certified</p>
                       <p className="text-xs text-slate-400">
                         {CERTIFICATION_TITLE}
                       </p>
@@ -856,7 +891,7 @@ export default function AcademyPage() {
                   {phase === 'locked' && (
                     <div className="mb-3 rounded-lg bg-slate-950/40 border border-slate-700/50 p-2.5">
                       <p className="text-xs text-slate-500 italic">
-                        🔒 Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} quiz first to unlock this module.
+                        Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} assessment first to access this module.
                       </p>
                     </div>
                   )}
@@ -878,8 +913,8 @@ export default function AcademyPage() {
 
         {/* ── Resources / Sales Enablement ── */}
         <div>
-          <h2 className="text-xl font-black text-white mb-4 flex items-center gap-2">
-            <span>📚</span> Sales Enablement Resources
+          <h2 className="text-xl font-black text-white mb-4">
+            Sales Enablement Resources
           </h2>
           <p className="text-xs text-slate-400 mb-4 -mt-2">
             Training manuals, templates, and reference materials — available to all roles.
@@ -1079,13 +1114,12 @@ export default function AcademyPage() {
         {isRep && completeCount === 5 && !approvalSubmitted && !isCertified && (
           <div className="rounded-2xl border border-purple-400/25 bg-purple-500/5 p-6 backdrop-blur-md mt-6">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">📋</span>
               <div>
                 <h2 className="text-lg font-black text-white">
                   Submit for {CERTIFICATION_TITLE}
                 </h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  All 5 modules have been reviewed and acknowledged. Submit for Director certification.
+                  All modules have been reviewed and acknowledged. Submit for Director certification.
                 </p>
                 {approvalError && (
                   <div className="mt-3 rounded-lg border border-red-400/20 bg-red-500/5 p-3 text-xs text-red-200">
@@ -1108,7 +1142,6 @@ export default function AcademyPage() {
         {approvalSubmitted && !isCertified && (
           <div className="rounded-2xl border border-purple-400/25 bg-purple-500/5 p-6 backdrop-blur-md mb-6">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">◆</span>
               <div>
                 <h2 className="text-lg font-black text-white">Submitted for Director Certification</h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
@@ -1126,9 +1159,7 @@ export default function AcademyPage() {
             onClick={() => setShowPhilosophy(!showPhilosophy)}
             className="w-full flex items-center justify-between rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 hover:border-amber-400/40 transition-colors"
           >
-            <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <span>🧠</span> The 7 Sales Philosophy Principles
-            </h2>
+            <h2 className="text-xl font-black text-white">The 7 Sales Philosophy Principles</h2>
             <span className="text-amber-400 text-lg">{showPhilosophy ? '▲' : '▼'}</span>
           </button>
 
@@ -1162,12 +1193,11 @@ export default function AcademyPage() {
         {isRep && !isCertified && !approvalSubmitted && completeCount < 5 && (
           <div className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-6 backdrop-blur-md">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">🔒</span>
               <div>
                 <h2 className="text-lg font-black text-white">CRM Access is Gated</h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  Complete all 5 modules (Learn → Demonstrate → Coach Review → Acknowledge),
-                  then submit for Director certification to unlock the full CRM.
+                  Complete all modules (Learn → Demonstrate → Coach Review → Acknowledge),
+                  then submit for Director certification to access the full CRM.
                 </p>
                 <p className="mt-3 text-xs text-amber-300 font-medium">
                   {5 - completeCount} module{5 - completeCount !== 1 ? 's' : ''} remaining before
@@ -1181,14 +1211,12 @@ export default function AcademyPage() {
         {isCertified && (
           <div className="rounded-2xl border border-emerald-400/25 bg-emerald-500/5 p-6 backdrop-blur-md">
             <div className="flex items-start gap-3">
-              <span className="text-2xl">🎉</span>
               <div>
                 <h2 className="text-lg font-black text-white">
-                  {CERTIFICATION_TITLE}!
+                  {CERTIFICATION_TITLE}
                 </h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  Full CRM access has been unlocked. You can now access all TUF Ops features.
-                  Continue building your pipeline and working toward Level 2 certification.
+                  Full CRM access has been granted. Continue building your pipeline toward the 4-order monthly baseline.
                 </p>
               </div>
             </div>
