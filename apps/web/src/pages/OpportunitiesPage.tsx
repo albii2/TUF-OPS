@@ -7,9 +7,31 @@ import { getNearCloseOpportunities } from '../services/businessSelectors';
 import { canCreateOpportunity } from '../services/roleScope';
 import { deleteOpportunity } from '../services/opportunitiesService';
 import { markPageVisited } from '../lib/academy';
-import type { OpportunityStage } from '../data/mockSalesData';
+import type { OpportunityStage, Opportunity } from '../data/mockSalesData';
 
 const PAGE_SIZE = 100;
+
+type SortOption = 'latest' | 'oldest' | 'value-high' | 'value-low' | 'close-prob';
+
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'latest', label: 'Latest Added' },
+  { value: 'oldest', label: 'Oldest First' },
+  { value: 'value-high', label: 'Highest Value' },
+  { value: 'value-low', label: 'Lowest Value' },
+  { value: 'close-prob', label: 'Best Chance to Close' },
+];
+
+function sortOpportunities(opps: Opportunity[], sort: SortOption): Opportunity[] {
+  return [...opps].sort((a, b) => {
+    switch (sort) {
+      case 'latest': return (b.createdAt ?? '').localeCompare(a.createdAt ?? '');
+      case 'oldest': return (a.createdAt ?? '').localeCompare(b.createdAt ?? '');
+      case 'value-high': return b.value - a.value;
+      case 'value-low': return a.value - b.value;
+      case 'close-prob': return b.closeProbability - a.closeProbability;
+    }
+  });
+}
 
 export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }: { forceRep?: string; title?: string } = {}) {
   const navigate = useNavigate();
@@ -20,6 +42,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const [rep, setRep] = useState(forceRep ?? 'ALL');
   const [sport, setSport] = useState('ALL');
   const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<SortOption>('latest');
 
   const allOpportunities = useOpportunities({});
   const filtered = useOpportunities({
@@ -35,10 +58,12 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const reps = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.assignedRep))), [allOpportunities]);
   const sports = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.sport))), [allOpportunities]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const sorted = useMemo(() => sortOpportunities(filtered, sort), [filtered, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
-  const nearCloseSorted = getNearCloseOpportunities(filtered);
-  const remainder = filtered.filter((opp) => !nearCloseSorted.some((n) => n.id === opp.id));
+  const nearCloseSorted = getNearCloseOpportunities(sorted);
+  const remainder = sorted.filter((opp) => !nearCloseSorted.some((n) => n.id === opp.id));
   const prioritized = [...nearCloseSorted, ...remainder];
   const paged = prioritized.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
@@ -88,6 +113,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
         <Select value={lane} onChange={(e) => { setLane(e.target.value); setPage(1); }}><option value="ALL">All Lanes</option>{revenueLanes.map((l: string) => <option key={l}>{l}</option>)}</Select>
         {forceRep ? <div className='h-10 rounded-lg border border-[#2b4368] bg-[#020b1e]/95 px-3 text-sm text-slate-300 flex items-center'>Rep: {forceRep}</div> : <Select value={rep} onChange={(e) => { setRep(e.target.value); setPage(1); }}><option value="ALL">All Reps</option>{reps.map((r) => <option key={r}>{r}</option>)}</Select>}
         <Select value={sport} onChange={(e) => { setSport(e.target.value); setPage(1); }}><option value="ALL">All Sports</option>{sports.map((s: string) => <option key={s}>{s}</option>)}</Select>
+        <Select value={sort} onChange={(e) => { setSort(e.target.value as SortOption); setPage(1); }}>{sortOptions.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}</Select>
         <Button className="min-h-11" disabled={!canCreateOpportunity()} onClick={() => navigate('/opportunities/new')}>New Opportunity</Button>
       </div>
       {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(r) => navigate(`/opportunities/${r.id}`)} /> : <EmptyState title="No opportunities found" description="Adjust filters or search to broaden results." />}
