@@ -297,7 +297,81 @@ pre strong, .script-block strong { color:#ffffff;font-weight:700; }
 
 /* ── Footer ── */
 .footer { position:absolute;bottom:0.25in;right:0.65in;font-size:0.7rem;color:var(--muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase; }
-.page { position:relative; }
+
+/* ── Product Spotlight Cards ── */
+.product-spotlight {
+  background: linear-gradient(135deg, var(--black) 0%, #0a0a0a 60%, #151515 100%);
+  color: var(--paper);
+  padding: 0.3in 0.35in;
+  margin: 0.25in 0;
+  border-radius: 3px;
+  border: 1px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+.product-spotlight::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 2.5in; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
+  pointer-events: none;
+}
+.product-spotlight .ps-label {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-name {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  color: var(--paper);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-collection {
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  color: var(--steel);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.15in;
+}
+.product-spotlight .ps-features {
+  font-size: 0.85rem;
+  color: #cccccc;
+  line-height: 1.55;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-stat {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  padding: 0.06in 0.12in;
+  margin: 0.04in 0.04in 0 0;
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+}
+.product-spotlight strong { color: #ffffff; }
+
+/* ── Midwest Callout ── */
+.midwest-callout {
+  background: var(--soft);
+  border-left: 4px solid var(--black);
+  padding: 0.2in 0.25in;
+  margin: 0.2in 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--charcoal);
+}
+.midwest-callout strong { color: var(--black); }
+
+/* ── Ensure no z-index overlap ── */
+.rail { z-index: 1; }
+.content { z-index: 2; position: relative; }
 
 /* ── Print ── */
 @media print {
@@ -348,17 +422,7 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
     <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-106 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
 </div>
 
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <hr class="rule">
-<div class="quote"><strong>"**"You don't need to be a textile engineer. You need to make a coach feel the difference between TUF and everything else they've ever worn."**"</strong></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-106 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
+
 
 <div class="page">
     <div class="rail">
@@ -397,6 +461,19 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
     <div class="content">
         <p><strong>Know the left column cold. Deploy the right column in the field.</strong></p>
 <h3>1.2 The Product Knowledge Principles</h3>
+<div class="product-spotlight">
+<div class="ps-label">PRODUCT SPOTLIGHT</div>
+<div class="ps-name">GRIND FOOTBALL JERSEY</div>
+<div class="ps-collection">COLLECTION: GRIND // LANE: UNIFORMS // SPORT: FOOTBALL</div>
+<div class="ps-features">
+<strong>PRO CUT FIT</strong> — Athletic-tapered pattern with articulated sleeves. Built to college spec. No boxy stock-blank look.<br>
+<strong>POWER-STRETCH FABRIC</strong> — 4-way stretch with shape recovery. Moves with the athlete, snaps back, doesn't bag out.<br>
+<strong>LOCK-FIT CONSTRUCTION</strong> — Triple-stitched at every stress point. Linemen can't tear through the shoulders.<br>
+<strong>FULL SUBLIMATION</strong> — Color and graphics fused into the fiber. Won't peel, won't crack, won't fade.<br>
+<strong>MOISTURE-PRO</strong> — Pulls sweat off the body. 4th quarter, your jersey isn't 10 pounds heavier.
+</div>
+<span class="ps-stat">$55-75/SET</span><span class="ps-stat">PRO CUT</span><span class="ps-stat">LOCK-FIT</span><span class="ps-stat">IRONCLAD</span>
+</div>
 <p><strong>Principle 1: The Demo Proves the Claim</strong></p>
 <p>Never say a standard name without showing it physically. "PRO CUT" means nothing without holding up a jersey and showing the taper.</p>
 <p><strong>Principle 2: Three Standards, Not Seven</strong></p>
@@ -884,6 +961,18 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
     </div>
     <div class="content">
         <h3>3.1 GRIND™ — FOOTBALL</h3>
+<div class="product-spotlight">
+<div class="ps-label">PRODUCT SPOTLIGHT</div>
+<div class="ps-name">OVERTIME BASKETBALL SHORTS</div>
+<div class="ps-collection">COLLECTION: OVERTIME // LANE: UNIFORMS // SPORT: BASKETBALL</div>
+<div class="ps-features">
+<strong>FLEX-WAIST</strong> — Reversible waistband that stays flat in-game, flips clean in two seconds. Solves the #1 complaint female players have about reversible shorts.<br>
+<strong>POWER-STRETCH FABRIC</strong> — 4-way stretch. Full range of motion. No restriction on drives or jump shots.<br>
+<strong>MOISTURE-PRO</strong> — Sweat-wicking. Stays light through the 4th quarter.<br>
+<strong>LOCK-FIT</strong> — Triple-stitched at stress points. Built for a full high school season.
+</div>
+<span class="ps-stat">$25-35/SHORTS</span><span class="ps-stat">FLEX-WAIST</span><span class="ps-stat">POWER-STRETCH</span>
+</div>
 <div class="quote"><em>"Built for the physical work. The uniform that matches the mentality."</em></div>
 <p><strong>Sport:</strong> Football (11-man, 9-man, all levels)</p>
 <p><strong>Key Products:</strong> Game Jersey ($85–$125), Game Pants ($65–$95)</p>
@@ -979,6 +1068,18 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
     <div class="content">
         <p>TUF has seven branded quality standards. Each is a threshold TUF demands from vendors — not a claim to have invented the underlying material or process.</p>
 <h3>4.1 STANDARD 1 — PRO CUT™ (FIT)</h3>
+<div class="product-spotlight">
+<div class="ps-label">PRODUCT SPOTLIGHT</div>
+<div class="ps-name">ISSUE TRAVEL HOODIE</div>
+<div class="ps-collection">COLLECTION: ISSUE // LANE: TRAVEL GEAR // ALL SPORTS</div>
+<div class="ps-features">
+<strong>MIDWEST-WEATHER BUILT</strong> — Heavyweight fleece. Built for Minnesota sidelines in November. Wind-resistant outer, thermal-lined inner.<br>
+<strong>PROGRAM BRANDED</strong> — Full sublimation school graphics. Your program's identity, not a blank hoodie with a small logo.<br>
+<strong>LOCK-FIT</strong> — Reinforced seams at hood, cuffs, and pockets. Built for bus rides, locker rooms, and years of wear.<br>
+<strong>TEAM STORE READY</strong> — Same design sold to parents through your team store. Consistent look from athletes to fans.
+</div>
+<span class="ps-stat">$45-60</span><span class="ps-stat">HEAVYWEIGHT</span><span class="ps-stat">MIDWEST BUILT</span>
+</div>
 <table>
 <thead><tr>
 <th>Attribute</th>
@@ -1935,6 +2036,19 @@ CONDITION CHECK
 </tbody>
 </table>
 <h3>10.4 TUF vs. BSN / Local Vendors</h3>
+<p>BSN doesn't manufacture anything. They're a distributor. When a coach buys from BSN, they're buying a brand (Nike/UA/Adidas) through a middleman who adds a markup and limited service. TUF designs, manufactures, and delivers direct.</p>
+<div class="product-spotlight">
+<div class="ps-label">PRODUCT SPOTLIGHT</div>
+<div class="ps-name">LEGACY LETTERMAN JACKET</div>
+<div class="ps-collection">COLLECTION: LEGACY // LANE: LETTERMAN // TRADITION PIECE</div>
+<div class="ps-features">
+<strong>WOOL BODY / LEATHER SLEEVES</strong> — Traditional construction. Melton wool with genuine leather sleeves. Built to last a lifetime.<br>
+<strong>FULLY CUSTOM</strong> — Program colors, chenille patches, graduation year embroidery. Each jacket tells a story.<br>
+<strong>ANNUAL PROGRAM</strong> — We manage the entire senior letterman program. Sizing, ordering, delivery. Coach does nothing.<br>
+<strong>BSN CAN'T DO THIS</strong> — BSN doesn't offer letterman programs. This is TUF-exclusive. Four years in TUF gear, this is the capstone.
+</div>
+<span class="ps-stat">$175-250</span><span class="ps-stat">WOOL/LEATHER</span><span class="ps-stat">TUF EXCLUSIVE</span>
+</div>
 <table>
 <thead><tr>
 <th>Attribute</th>
