@@ -297,7 +297,81 @@ pre strong, .script-block strong { color:#ffffff;font-weight:700; }
 
 /* ── Footer ── */
 .footer { position:absolute;bottom:0.25in;right:0.65in;font-size:0.7rem;color:var(--muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase; }
-.page { position:relative; }
+
+/* ── Product Spotlight Cards ── */
+.product-spotlight {
+  background: linear-gradient(135deg, var(--black) 0%, #0a0a0a 60%, #151515 100%);
+  color: var(--paper);
+  padding: 0.3in 0.35in;
+  margin: 0.25in 0;
+  border-radius: 3px;
+  border: 1px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+.product-spotlight::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 2.5in; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
+  pointer-events: none;
+}
+.product-spotlight .ps-label {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-name {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  color: var(--paper);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-collection {
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  color: var(--steel);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.15in;
+}
+.product-spotlight .ps-features {
+  font-size: 0.85rem;
+  color: #cccccc;
+  line-height: 1.55;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-stat {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  padding: 0.06in 0.12in;
+  margin: 0.04in 0.04in 0 0;
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+}
+.product-spotlight strong { color: #ffffff; }
+
+/* ── Midwest Callout ── */
+.midwest-callout {
+  background: var(--soft);
+  border-left: 4px solid var(--black);
+  padding: 0.2in 0.25in;
+  margin: 0.2in 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--charcoal);
+}
+.midwest-callout strong { color: var(--black); }
+
+/* ── Ensure no z-index overlap ── */
+.rail { z-index: 1; }
+.content { z-index: 2; position: relative; }
 
 /* ── Print ── */
 @media print {
@@ -348,24 +422,23 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
     <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
 </div>
 
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <hr class="rule">
-<div class="quote"><strong>"**"Closing the deal is not the finish line. It's the starting line of the relationship."**"</strong></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
+
 
 <div class="page">
     <div class="rail">
         <div class="rail-brand">TUF</div>
     </div>
     <div class="content">
-        <h3>1.1 Why It Matters</h3>
+        <h3>BSN CAN'T DO WHAT WE DO POST-ORDER</h3>
+<p>After the order is placed, BSN disappears until the next buying cycle. Here's what TUF does differently:</p>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;">
+<li style="margin-bottom:0.04in;"><strong>In-person sizing sessions</strong> — BSN ships a size run. We show up.</li>
+<li style="margin-bottom:0.04in;"><strong>IRONCLAD follow-through</strong> — If something is wrong, we fix it. BSN routes you to a brand warranty claim.</li>
+<li style="margin-bottom:0.04in;"><strong>Season check-ins</strong> — We call mid-season to make sure the gear is holding up. BSN calls when it's time to reorder.</li>
+<li style="margin-bottom:0.04in;"><strong>4-lane expansion</strong> — After uniforms, we introduce travel gear, team store, letterman. Each order is a relationship milestone.</li>
+</ul>
+<div class="midwest-callout"><strong>MIDWEST HANDOFF EDGE:</strong> Minnesota programs deal with extreme weather — from August heat to November snow. Our ISSUE travel gear is built for that. Hoodies that hold up in 20°F sidelines. Duffles that survive bus trips to Bemidji and back. We don't just deliver product — we deliver gear built for where you play.</div>
+<h3>1.1 Why It Matters</h3>
 <p>Most salespeople think the job is done when the contract is signed. They're wrong.</p>
 <p><strong>The deal isn't closed when the coach signs. It's closed when the uniforms are on the athletes, the coach is thrilled, and the next conversation — travel gear, team store, multi-sport expansion — has already begun.</strong></p>
 <p>A smooth handoff creates:</p>

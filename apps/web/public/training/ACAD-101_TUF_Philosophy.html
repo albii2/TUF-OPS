@@ -297,7 +297,81 @@ pre strong, .script-block strong { color:#ffffff;font-weight:700; }
 
 /* ── Footer ── */
 .footer { position:absolute;bottom:0.25in;right:0.65in;font-size:0.7rem;color:var(--muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase; }
-.page { position:relative; }
+
+/* ── Product Spotlight Cards ── */
+.product-spotlight {
+  background: linear-gradient(135deg, var(--black) 0%, #0a0a0a 60%, #151515 100%);
+  color: var(--paper);
+  padding: 0.3in 0.35in;
+  margin: 0.25in 0;
+  border-radius: 3px;
+  border: 1px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+.product-spotlight::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 2.5in; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
+  pointer-events: none;
+}
+.product-spotlight .ps-label {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-name {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  color: var(--paper);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-collection {
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  color: var(--steel);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.15in;
+}
+.product-spotlight .ps-features {
+  font-size: 0.85rem;
+  color: #cccccc;
+  line-height: 1.55;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-stat {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  padding: 0.06in 0.12in;
+  margin: 0.04in 0.04in 0 0;
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+}
+.product-spotlight strong { color: #ffffff; }
+
+/* ── Midwest Callout ── */
+.midwest-callout {
+  background: var(--soft);
+  border-left: 4px solid var(--black);
+  padding: 0.2in 0.25in;
+  margin: 0.2in 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--charcoal);
+}
+.midwest-callout strong { color: var(--black); }
+
+/* ── Ensure no z-index overlap ── */
+.rail { z-index: 1; }
+.content { z-index: 2; position: relative; }
 
 /* ── Print ── */
 @media print {
@@ -348,17 +422,7 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
     <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
 </div>
 
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <hr class="rule">
-<div class="quote"><strong>"**"You're not selling jerseys. You're building program identity."**"</strong></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
+
 
 <div class="page">
     <div class="rail">
@@ -393,6 +457,7 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 <p>Establishment brands (Nike, Adidas, UA) treat high school programs like they're lucky to be on the list. Local vendors treat uniforms like a print job — logos on blanks, next invoice please.</p>
 <p>Nobody looks at a high school athletic department and says: "We outfit the whole thing — not just the uniforms."</p>
 <p><strong>That's the gap. TUF fills it.</strong></p>
+<div class="midwest-callout"><strong>BUILT IN THE MIDWEST, FOR THE MIDWEST:</strong> TUF isn't a national conglomerate. We're built in the Midwest — we understand Minnesota football culture, Iowa wrestling tradition, Wisconsin basketball loyalty, Illinois multi-sport programs. We know that Friday Night Lights means something different in Edina than it does in Eden Prairie, that hockey in Warroad isn't the same as basketball in Minneapolis. Our gear is built for Midwest weather — from August two-a-days to November playoff runs in 20°F. We don't just sell to the Midwest. We are the Midwest.</div>
 <h3>2.3 The Market Reality</h3>
 <table>
 <thead><tr>
@@ -407,9 +472,9 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 <td>Don't think about the whole athletic department. No 4-lane. No personal attention.</td>
 </tr>
 <tr>
-<td><strong>Local Vendors / BSN</strong></td>
-<td>Print logos on stock blanks. Compete on price.</td>
-<td>Don't think about fit standards. Don't build program identity across sports and lanes.</td>
+<td><strong>BSN Sports</strong></td>
+<td>National distributor. Resells Nike/UA/Adidas with markup. Bulk volume, transactional service.</td>
+<td>No 4-lane system. No IRONCLAD guarantee. Limited post-sale support. Doesn't manufacture — resells.</td>
 </tr>
 <tr>
 <td><strong>TUF Sports</strong></td>
@@ -629,11 +694,11 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 <p><strong>Weaknesses:</strong> High school pricing ($110–$180/set), bureaucratic service, no 4-lane system.</p>
 <p><strong>TUF's Kill Position:</strong></p>
 <div class="quote"><em>"Coach, Nike makes great gear. Our founders wore it, know the standard. We built TUF to deliver that same fit spec — PRO CUT — at a price your budget can handle. With an IRONCLAD GUARANTEE they won't offer. And four lanes they don't do. They'll sell you uniforms. We'll outfit your whole program."</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Category 2: Local Vendors / BSN</h4>
-<p><strong>Strengths:</strong> Lowest price ($40–$80/set), convenience, multi-year relationships.</p>
-<p><strong>Weaknesses:</strong> Stock blanks (boxy), no quality standards, print-job mentality, can't do 4 lanes.</p>
+<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Category 2: BSN Sports — The Volume Distributor</h4>
+<p><strong>Strengths:</strong> Deep relationships (20+ years in some programs), broad catalog, one-stop ordering.</p>
+<p><strong>Weaknesses:</strong> Doesn't manufacture — resells with markup. No 4-lane system. Transactional service. Limited post-sale accountability.</p>
 <p><strong>TUF's Kill Position:</strong></p>
-<div class="quote"><em>"Coach, there's a difference between printing logos on generic jerseys and building uniforms to a fit standard. PRO CUT — athletic taper, articulated sleeves. LOCK-FIT — triple-stitched. IRONCLAD GUARANTEE — we fix it, period. And four lanes — one system. They sell products. We build program identity. Different category."</em></div>
+<div class="quote"><em>"Coach, BSN is a distributor — they sell you someone else's product with a markup. TUF designs and manufactures our own gear. PRO CUT fit. LOCK-FIT construction. IRONCLAD GUARANTEE — we stand behind what we build. And four lanes — uniforms, travel, fans, tradition — one system, one relationship. BSN can't match that because they're a middleman, not a manufacturer. Different category entirely."</em></div>
 <h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Category 3: Inertia — The "Same Old Vendor"</h4>
 <p><strong>Strengths:</strong> Comfort. Habit. "It's fine."</p>
 <p><strong>Weaknesses:</strong> "Fine" isn't "good." The coach has normalized problems.</p>
@@ -647,15 +712,17 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 <h3>6.2 Competitive Positioning Rules</h3>
 <ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Never lead with the competitor's name.</strong> Lead with the coach's program.</li><li style="margin-bottom:0.04in;"><strong>Acknowledge before you attack.</strong> "Nike makes great gear." Then pivot.</li><li style="margin-bottom:0.04in;"><strong>Deploy the founder credential once.</strong> Then move to the product.</li><li style="margin-bottom:0.04in;"><strong>Always end on the 4-lane system.</strong> It's what nobody else does.</li><li style="margin-bottom:0.04in;"><strong>The IRONCLAD GUARANTEE is the closer.</strong> Every competitive conversation ends there.</li></ul>
 <hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>7.1 How We Talk — Four Dimensions</h3>
+
+<h3>6.3 BSN SPORTS — THE REAL COMPETITOR</h3>
+<p>BSN Sports is the 800-pound gorilla in the room. They're the largest distributor of team sports apparel in the US — a bulk middleman that licenses Nike, Under Armour, and Adidas gear and resells it to schools. BSN is national, corporate, and transactional. TUF is regional, personal, and built for programs.</p>
+<div class="midwest-callout"><strong>MIDWEST REALITY:</strong> BSN doesn't understand Minnesota football culture. They don't know that Edina vs. Eden Prairie is a rivalry that matters. They don't know that hockey programs in Warroad and Roseau need different travel gear than basketball programs in the Twin Cities. We're built here. We know the programs, the weather, the budgets, the communities.</div>
+<p><strong>BSN Objection Handler 1: "We've been with BSN for years."</strong></p>
+<div class="quote"><em>"Coach, BSN is great at what they do — moving volume. But here's what they don't do: integrated team stores that fund your program, issue travel gear designed as a system, and annual letterman programs for your seniors. We can start with uniforms — better fit, better price, IRONCLAD guarantee. Then add the other lanes when you're ready."</em></div>
+<p><strong>BSN Objection Handler 2: "BSN gives us Nike/UA gear — our kids want the brand."</strong></p>
+<div class="quote"><em>"Coach, we deliver the same fit spec and quality standard as Nike/UA — PRO CUT fit, POWER-STRETCH fabric, LOCK-FIT construction. Your athletes won't know the difference in fit. But your budget will — we're 30-40% less per uniform set. And we back it with a guarantee BSN doesn't offer as a reseller."</em></div>
+<p><strong>BSN Objection Handler 3: "BSN's pricing is fine — their bid came in lower."</strong></p>
+<div class="quote"><em>"Coach, price isn't just the uniform cost. It's the four vendors you're managing. The late deliveries. The wrong sizes. The peeling graphics from stock blanks. Our IRONCLAD GUARANTEE means if anything goes wrong — anything — we fix it. Period. BSN resells someone else's gear. We stand behind ours. Different model. Different outcome."</em></div>
+<p><strong>THE CRITICAL PITCH:</strong> "Coach, even if you don't change uniforms, we can outfit your team travel, your parent fan gear, your letterman program, your sideline apparel — three lanes without touching your uniform contract with BSN."</p>
 <p><strong>1. FRESH, NOT CORPORATE</strong></p>
 <p><em>Corporate:</em> "Our premium moisture-management technology utilizes advanced hydrophobic microfiber construction."</p>
 <p><em>TUF:</em> "Your athletes stay dry. The fabric pulls sweat off the body. Fourth quarter, your kids aren't wearing jerseys that weigh 10 pounds."</p>
@@ -1017,10 +1084,10 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 <td>"They were the disruptor. Same fit. Better system."</td>
 </tr>
 <tr>
-<td><strong>BSN / Local</strong></td>
+<td><strong>BSN Sports</strong></td>
 <td>Price, convenience, relationships</td>
 <td>Stock blanks, no fit, no guarantee</td>
-    </div>
+<td>"BSN distributes other brands. We build TUF product. Better fit, better price, better guarantee. Different category entirely."</td>
     <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
 </div>
 <div class="page">
@@ -1028,7 +1095,6 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
         <div class="rail-brand">TUF</div>
     </div>
     <div class="content">
-        <td>"They print logos. We build uniforms. Different category."</td>
 </tr>
 <tr>
 <td><strong>Inertia</strong></td>
