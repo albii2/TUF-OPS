@@ -189,7 +189,7 @@ const seedRows: StoredManagedUser[] = [
     directorSignedOff: false,
     isCertified: false,
     credentialSalt: 'seed-shayla',
-    credentialHash: '8ae1c70277f42bfb6192f01e7e4f2843c32dfec93ca80c3123e91d663d807676',
+    credentialHash: 'ed31f3fa0be958f5c966697a15e4c19ec8975ad249b6d4fc436d2048cb394386',
   },
   {
     id: 'u-rep-josh-hoffman',
