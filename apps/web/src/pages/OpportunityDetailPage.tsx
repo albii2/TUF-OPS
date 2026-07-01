@@ -9,7 +9,7 @@ import { submitCreativeRequest, useCreativeRequests } from '../hooks/useCreative
 import { neededItemOptions, type CreativePriority, type CreativeRequestType, type DesignTeam } from '../services/creativeRequestsService';
 import { SPORT_OPTIONS, REVENUE_LANES } from '../config/business';
 import { getLaneLabel } from '../utils/naming';
-import { deleteOpportunity, logOpportunityActivity, addOpportunityLane, removeOpportunityLane, updateOpportunityStage } from '../services/opportunitiesService';
+import { deleteOpportunity, logOpportunityActivity, addOpportunityLane, removeOpportunityLane, updateOpportunityStage, updateOpportunity } from '../services/opportunitiesService';
 import type { Opportunity, OpportunityStage, RevenueLane } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
@@ -81,6 +81,8 @@ export function OpportunityDetailPage() {
   const [showFollowUpModal, setShowFollowUpModal] = useState(false);
   const [followUpForm, setFollowUpForm] = useState({ date: '', notes: '' });
   const [inlineLaneEditing, setInlineLaneEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({ title: '', sport: '', value: '', season: '' });
   const creativeSectionRef = useRef<HTMLDivElement>(null);
   const activeOpp = localOpp ?? opp;
   const creativeRequests = useCreativeRequests(id, refreshTick);
@@ -138,14 +140,81 @@ export function OpportunityDetailPage() {
     navigate('/opportunities');
   };
 
+  const startEditing = () => {
+    setEditForm({
+      title: activeOpp.title,
+      sport: activeOpp.sport,
+      value: String(activeOpp.value),
+      season: activeOpp.season || '',
+    });
+    setIsEditing(true);
+  };
+
+  const saveEdits = () => {
+    const updates: { title?: string; sport?: string; value?: number; season?: string } = {};
+    if (editForm.title.trim() && editForm.title !== activeOpp.title) updates.title = editForm.title.trim();
+    if (editForm.sport && editForm.sport !== activeOpp.sport) updates.sport = editForm.sport;
+    const newValue = Number(editForm.value.replace(/[^\d]/g, ''));
+    if (newValue && newValue !== activeOpp.value) updates.value = newValue;
+    if (editForm.season && editForm.season !== activeOpp.season) updates.season = editForm.season;
+
+    if (Object.keys(updates).length === 0) {
+      setIsEditing(false);
+      return;
+    }
+
+    const result = updateOpportunity(activeOpp.id, updates);
+    if (result) {
+      setLocalOpp(result);
+      notify('Opportunity updated.', 'success');
+    }
+    setIsEditing(false);
+  };
+
+  const cancelEditing = () => {
+    setIsEditing(false);
+  };
+
   return (
     <div className="space-y-3">
       <Card title="Deal Command Center">
         <div className="grid gap-2 lg:grid-cols-2">
           <div className="space-y-1">
-            <p className="text-lg font-semibold">{activeOpp.title}</p>
-            <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
-            <p className="text-xs text-slate-400">Sport: {activeOpp.sport} · Zone: {zoneLabel}</p>
+            {isEditing ? (
+              <>
+                <input
+                  className="w-full rounded border border-slate-600 bg-slate-900 px-2 py-1 text-lg font-semibold text-slate-100"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))}
+                  placeholder="Opportunity title"
+                />
+                <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-slate-400">Sport:</span>
+                  <select
+                    className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-xs text-slate-100"
+                    value={editForm.sport}
+                    onChange={(e) => setEditForm((f) => ({ ...f, sport: e.target.value }))}
+                  >
+                    {SPORT_OPTIONS.map((s) => (<option key={s} value={s}>{s}</option>))}
+                  </select>
+                  <span className="text-slate-400">Season:</span>
+                  <input
+                    className="w-20 rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-xs text-slate-100"
+                    value={editForm.season}
+                    onChange={(e) => setEditForm((f) => ({ ...f, season: e.target.value }))}
+                    placeholder="Season"
+                  />
+                  <span className="text-slate-400">Zone: {zoneLabel}</span>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-lg font-semibold">{activeOpp.title}</p>
+                <Link to={`/organizations/${activeOpp.organizationId}`} className="text-sm text-cyan-300">{activeOpp.organizationName}</Link>
+                <p className="text-xs text-slate-400">Sport: {activeOpp.sport} · Season: {activeOpp.season || '—'} · Zone: {zoneLabel}</p>
+              </>
+            )}
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <span>Lanes:</span>
               <span className="inline-flex flex-wrap gap-1">
@@ -189,10 +258,34 @@ export function OpportunityDetailPage() {
               </span>
             </div>
             <p className="text-xs text-slate-400">Assigned Rep: {activeOpp.assignedRep}</p>
-            <Button className="mt-2 border-rose-500/50 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20" onClick={removeOpportunity}>Remove Opportunity</Button>
+            <div className="mt-2 flex items-center gap-2">
+              {isEditing ? (
+                <>
+                  <Button className="border-emerald-500/50 bg-emerald-500/10 text-emerald-100 hover:bg-emerald-500/20" onClick={saveEdits}>Save Changes</Button>
+                  <Button className="border-slate-600 bg-slate-800/60 text-slate-200" onClick={cancelEditing}>Cancel</Button>
+                </>
+              ) : (
+                <>
+                  <Button className="border-cyan-500/50 bg-cyan-500/10 text-cyan-100 hover:bg-cyan-500/20" onClick={startEditing}>Edit Opportunity</Button>
+                  <Button className="border-rose-500/50 bg-rose-500/10 text-rose-100 hover:bg-rose-500/20" onClick={removeOpportunity}>Remove</Button>
+                </>
+              )}
+            </div>
           </div>
           <div className="text-left lg:text-right">
-            <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
+            {isEditing ? (
+              <div className="flex items-center justify-end gap-2">
+                <span className="text-xs text-slate-400">$</span>
+                <input
+                  className="w-32 rounded border border-slate-600 bg-slate-900 px-2 py-1 text-xl font-semibold text-cyan-300 text-right"
+                  value={editForm.value}
+                  onChange={(e) => setEditForm((f) => ({ ...f, value: e.target.value.replace(/[^\d]/g, '') }))}
+                  placeholder="Value"
+                />
+              </div>
+            ) : (
+              <p className="text-xl font-semibold text-cyan-300">{formatCurrency(activeOpp.value)}</p>
+            )}
             <p className="text-xs text-slate-400">Current Stage: {activeOpp.stage.replace(/_/g, ' ')}</p>
             <p className={`text-xs font-semibold ${followupTone === 'AT RISK' ? 'text-amber-300' : 'text-emerald-200'}`}>Follow-up: {followupTone}</p>
           </div>

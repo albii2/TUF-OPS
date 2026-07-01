@@ -265,3 +265,29 @@ export function deleteOpportunity(id: string) {
   window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: { id, deleted: true } }));
   return true;
 }
+
+export function updateOpportunity(
+  id: string,
+  patch: { title?: string; sport?: string; value?: number; season?: string }
+) {
+  const existing = getAllOpportunities().find((opp) => opp.id === id);
+  if (!existing) return undefined;
+  const updated: Opportunity = {
+    ...existing,
+    ...(patch.title !== undefined ? { title: patch.title } : {}),
+    ...(patch.sport !== undefined ? { sport: patch.sport } : {}),
+    ...(patch.value !== undefined ? { value: patch.value } : {}),
+    ...(patch.season !== undefined ? { season: patch.season } : {}),
+    lastActivity: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  writeLocalOpportunities([updated, ...readLocalOpportunities().filter((opp) => opp.id !== id)]);
+  removeLegacyOpportunity(id);
+  createActivity({
+    entityType: 'OPPORTUNITY',
+    entityId: id,
+    message: `Opportunity updated: ${Object.keys(patch).join(', ')}.`,
+  });
+  window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: updated }));
+  return updated;
+}

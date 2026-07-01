@@ -22,6 +22,7 @@ import { listOrganizations } from '../services/organizationsService';
 import { listOpportunities } from '../services/opportunitiesService';
 import { listActivities } from '../services/activitiesService';
 import { getStoredUser } from '../auth';
+import { toggleUserDirectorSignoff } from '../services/usersService';
 
 // ─── Module Definitions ─────────────────────────────────────────────────────
 
@@ -1420,13 +1421,13 @@ export function directorApproveRep(
 
   saveCertificationRecord(record);
 
-  // Update the user record so the front-end reflects certification
+  // Update both isCertified AND directorSignedOff in the user record
   updateUserCertificationStatus(repUserId, true);
 
   // Clear the submission after approval
   clearSubmission(repUserId);
 
-  // Also update the server-side is_certified flag via API
+  // Sync to the server-side is_certified flag via API
   callCertifyApi(repUserId).catch((err) => {
     console.warn('[TUF Academy] Failed to sync certification to server:', err);
   });
@@ -1451,26 +1452,37 @@ function updateUserCertificationStatus(
   isCertified: boolean
 ): void {
   try {
+    // Update the current session (tuf_ops_user_v3)
     const raw = localStorage.getItem('tuf_ops_user_v3');
     if (raw) {
       const current = JSON.parse(raw);
       if (current.id === userId) {
         current.isCertified = isCertified;
+        current.directorSignedOff = isCertified;
         localStorage.setItem('tuf_ops_user_v3', JSON.stringify(current));
         window.dispatchEvent(
           new CustomEvent('tuf:user-updated', { detail: current })
         );
       }
     }
-    // Also update in tuf_ops_users_v7
+    // Update in the persistent users store (tuf_ops_users_v7)
     const usersRaw = localStorage.getItem('tuf_ops_users_v7');
     if (usersRaw) {
       const users = JSON.parse(usersRaw);
       const updated = users.map((u: any) =>
-        u.id === userId ? { ...u, isCertified } : u
+        u.id === userId ? { ...u, isCertified, directorSignedOff: isCertified } : u
       );
       localStorage.setItem('tuf_ops_users_v7', JSON.stringify(updated));
     }
+    // Also sync via the usersService to ensure consistent state
+    toggleUserDirectorSignoff(userId, isCertified).catch(() => {
+      // Non-critical sync — fail silently
+    });
+    // Force all tabs to re-sync their user sessions (rep may need to refresh)
+    try {
+      window.dispatchEvent(new Event('storage'));
+      window.dispatchEvent(new CustomEvent('tuf:certification-updated', { detail: { userId, isCertified } }));
+    } catch { /* ignore */ }
   } catch {
     // fail silently
   }

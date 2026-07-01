@@ -213,9 +213,9 @@ const seedRows: StoredManagedUser[] = [
     failedCredentialAttempts: 0,
     lockedUntil: null,
     loginCount: 0,
-    hrDocsCompleted: false,
-    directorSignedOff: false,
-    isCertified: false,
+    hrDocsCompleted: true,
+    directorSignedOff: true,
+    isCertified: true,
     credentialSalt: 'seed-josh',
     credentialHash: '5b8880ceb089c547b15bb8b1144dca8e2b4c09164e54e28325f1c7137415a5e2',
   }

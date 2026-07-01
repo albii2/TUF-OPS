@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getStoredUser } from '../auth';
-import { listUsers } from '../services/usersService';
+import { listUsers, toggleUserDirectorSignoff } from '../services/usersService';
 import {
   MODULE_ORDER,
   LEVEL_1_MODULES,
@@ -155,6 +155,7 @@ export default function AdminCertificationPage() {
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
   const [sendingBulkReminder, setSendingBulkReminder] = useState(false);
   const [reminderSent, setReminderSent] = useState<string | null>(null);
+  const [quickCertifying, setQuickCertifying] = useState<string | null>(null);
 
   useEffect(() => {
     refreshData();
@@ -182,6 +183,17 @@ export default function AdminCertificationPage() {
       refreshData();
     } finally {
       setApproving(null);
+    }
+  };
+
+  const handleQuickCertify = async (repUser: ManagedUser) => {
+    if (!user) return;
+    setQuickCertifying(repUser.id);
+    try {
+      await toggleUserDirectorSignoff(repUser.id, true);
+      refreshData();
+    } finally {
+      setQuickCertifying(null);
     }
   };
 
@@ -581,17 +593,37 @@ export default function AdminCertificationPage() {
                               Certified ✓
                             </span>
                           ) : hasSubmission && !isAlreadyCertified ? (
-                            <button
-                              onClick={() => handleApprove(rep)}
-                              disabled={approving === rep.id}
-                              className="rounded-lg border border-purple-400/40 bg-purple-400/10 px-3 py-1.5 text-[10px] font-bold text-purple-200 hover:bg-purple-400/20 hover:border-purple-400/60 transition-colors disabled:opacity-50"
-                            >
-                              {approving === rep.id ? '...' : 'Approve'}
-                            </button>
+                            <div className="flex flex-col gap-1 items-center">
+                              <button
+                                onClick={() => handleApprove(rep)}
+                                disabled={approving === rep.id}
+                                className="rounded-lg border border-purple-400/40 bg-purple-400/10 px-3 py-1.5 text-[10px] font-bold text-purple-200 hover:bg-purple-400/20 hover:border-purple-400/60 transition-colors disabled:opacity-50"
+                              >
+                                {approving === rep.id ? '...' : 'Approve'}
+                              </button>
+                              <button
+                                onClick={() => handleQuickCertify(rep)}
+                                disabled={quickCertifying === rep.id}
+                                className="rounded-lg border border-amber-400/40 bg-amber-400/5 px-3 py-1.5 text-[10px] font-bold text-amber-200 hover:bg-amber-400/10 transition-colors disabled:opacity-50"
+                                title="Immediately certify this rep (bypass submission check)"
+                              >
+                                {quickCertifying === rep.id ? '...' : 'Ungate'}
+                              </button>
+                            </div>
                           ) : (
-                            <span className="text-[10px] text-slate-600">
-                              {record ? 'Not submitted' : '—'}
-                            </span>
+                            <div className="flex flex-col gap-1 items-center">
+                              <span className="text-[10px] text-slate-600">
+                                {record ? 'Not submitted' : '—'}
+                              </span>
+                              <button
+                                onClick={() => handleQuickCertify(rep)}
+                                disabled={quickCertifying === rep.id}
+                                className="rounded-lg border border-emerald-400/40 bg-emerald-400/5 px-3 py-1.5 text-[10px] font-bold text-emerald-200 hover:bg-emerald-400/10 transition-colors disabled:opacity-50"
+                                title="Immediately certify this rep and grant CRM access"
+                              >
+                                {quickCertifying === rep.id ? '...' : 'Certify'}
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>

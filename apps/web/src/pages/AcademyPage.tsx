@@ -436,7 +436,7 @@ export default function AcademyPage() {
     : isRep
       ? approvalSubmitted
         ? 'Submitted for Director Review — Pending'
-        : `Academy Progress: ${completeCount}/5 Modules Complete — Coach Review Required`
+        : `Academy Progress: ${completeCount}/6 Modules Complete — Coach Review Required`
       : 'Director/Admin — Full CRM Access';
 
   const statusColor = isCertified

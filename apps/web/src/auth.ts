@@ -26,6 +26,21 @@ export function getStoredUser(): AppUser | null {
       localStorage.removeItem(USER_KEY);
       return null;
     }
+    // Reconcile certification status from the authoritative users store
+    try {
+      const usersRaw = localStorage.getItem('tuf_ops_users_v7');
+      if (usersRaw) {
+        const users = JSON.parse(usersRaw);
+        const latestUser = users.find((u: any) => u.id === parsed.id);
+        if (latestUser) {
+          if (latestUser.isCertified !== parsed.isCertified) {
+            parsed.isCertified = latestUser.isCertified;
+            parsed.directorSignedOff = latestUser.directorSignedOff;
+            persistUser(parsed);
+          }
+        }
+      }
+    } catch { /* ignore reconciliation errors */ }
     return parsed;
   } catch {
     return null;

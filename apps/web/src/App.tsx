@@ -97,9 +97,11 @@ export default function App() {
     const syncUser = () => setUser(getStoredUser());
     window.addEventListener('tuf:user-updated', syncUser);
     window.addEventListener('storage', syncUser);
+    window.addEventListener('tuf:certification-updated', syncUser);
     return () => {
       window.removeEventListener('tuf:user-updated', syncUser);
       window.removeEventListener('storage', syncUser);
+      window.removeEventListener('tuf:certification-updated', syncUser);
     };
   }, []);
 
