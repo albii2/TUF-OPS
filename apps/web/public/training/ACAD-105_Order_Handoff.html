@@ -3,464 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TUF Academy // ACAD-105 // ORDER HANDOFF</title>
-<meta name="description" content="TUF Academy Training Manual — ACAD-105: ORDER HANDOFF. Premium sales training publication for Territory Account Executives.">
-<meta name="author" content="TUF Sports — TUF Academy">
+<title>ACAD-105 — ORDER HANDOFF | TUF Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
-
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
-
-:root {
-  --black: #050505;
-  --ink: #111111;
-  --charcoal: #1a1a1a;
-  --steel: #6f6f6f;
-  --line: #d0d0d0;
-  --paper: #ffffff;
-  --soft: #f4f4f2;
-  --muted: #8a8a8a;
-  --font-head: "Bebas Neue", "Oswald", "Arial Narrow", Impact, sans-serif;
-  --font-body: Inter, "Helvetica Neue", Arial, sans-serif;
-}
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html {
-  font-size: 11px;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-
-body {
-  font-family: var(--font-body);
-  color: var(--ink);
-  background: var(--soft);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-
-.page {
-  width: 8.5in;
-  min-height: 11in;
-  margin: 0 auto 0 auto;
-  background: var(--paper);
-  display: grid;
-  grid-template-columns: 0.82in 1fr;
-  position: relative;
-  overflow: hidden;
-  page-break-after: always;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.page:last-child { page-break-after: auto; }
-
-.rail {
-  background: var(--black);
-  color: var(--paper);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.35in 0;
-  position: relative;
-}
-
-.rail-brand {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: var(--font-head);
-  font-size: 2.4rem;
-  letter-spacing: 0.25em;
-  color: var(--paper);
-  text-transform: uppercase;
-  user-select: none;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-
-.rail-footer {
-  font-family: var(--font-head);
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  writing-mode: vertical-rl;
-  color: var(--muted);
-  margin-top: auto;
-}
-
-.content {
-  padding: 0.55in 0.65in 0.55in 0.65in;
-  overflow: hidden;
-}
-
-/* ── Cover Page ── */
-.cover {
-  display: grid;
-  grid-template-columns: 0.82in 1fr;
-  width: 8.5in;
-  min-height: 11in;
-  margin: 0 auto;
-  background: var(--paper);
-  overflow: hidden;
-  page-break-after: always;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.cover .rail { background: var(--black); }
-
-.cover-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 11in;
-}
-
-.cover-text {
-  padding: 0.7in 0.5in 0.7in 0.7in;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.cover-label {
-  font-family: var(--font-head);
-  font-size: 0.9rem;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 0.25in;
-}
-
-.cover-number {
-  font-family: var(--font-head);
-  font-size: 5.5rem;
-  line-height: 0.85;
-  color: var(--black);
-  letter-spacing: -0.02em;
-}
-
-.cover-title {
-  font-family: var(--font-head);
-  font-size: 3.2rem;
-  line-height: 0.9;
-  color: var(--black);
-  letter-spacing: 0.01em;
-  margin-top: 0.1in;
-}
-
-.cover-quote {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--charcoal);
-  margin-top: 0.5in;
-  padding-left: 0.2in;
-  border-left: 3px solid var(--black);
-  line-height: 1.5;
-  font-style: italic;
-}
-
-.cover-meta {
-  margin-top: 0.6in;
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.cover-meta span { display: block; }
-
-.cover-meta .label {
-  font-weight: 600;
-  color: var(--steel);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.7rem;
-}
-
-.cover-photo {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #0f0f0f 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.cover-photo::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px);
-}
-
-.cover-photo-text {
-  font-family: var(--font-head);
-  font-size: 3.5rem;
-  color: rgba(255,255,255,0.06);
-  letter-spacing: 0.3em;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-/* ── Section Divider ── */
-.section-dark {
-  min-height: 11in;
-  width: 8.5in;
-  margin: 0 auto;
-  background: var(--black);
-  color: var(--paper);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 1in 1.2in;
-  page-break-after: always;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-}
-
-.section-dark .section-number {
-  font-family: var(--font-head);
-  font-size: 7rem;
-  line-height: 0.8;
-  color: var(--paper);
-  letter-spacing: -0.02em;
-}
-
-.section-dark .section-title {
-  font-family: var(--font-head);
-  font-size: 3.5rem;
-  line-height: 0.9;
-  color: var(--paper);
-  margin-top: 0.15in;
-  letter-spacing: 0.01em;
-}
-
-.section-dark .section-doctrine {
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  color: var(--muted);
-  margin-top: 0.5in;
-  line-height: 1.6;
-  max-width: 80%;
-}
-
-.section-dark .section-divider-line {
-  width: 2in;
-  height: 2px;
-  background: rgba(255,255,255,0.2);
-  margin: 0.4in 0;
-}
-
-/* ── Typography ── */
-h1 { font-family:var(--font-head);font-size:2.8rem;color:var(--black);letter-spacing:0.01em;line-height:1;margin-bottom:0.25in; }
-h2 { font-family:var(--font-head);font-size:2rem;color:var(--black);letter-spacing:0.02em;line-height:1.1;margin:0.45in 0 0.15in; }
-h3 { font-family:var(--font-head);font-size:1.4rem;color:var(--charcoal);letter-spacing:0.03em;margin:0.3in 0 0.1in;text-transform:uppercase; }
-p { font-size:0.95rem;line-height:1.6;color:var(--ink);margin-bottom:0.15in; }
-strong { font-weight:700;color:var(--black); }
-em { font-style:italic; }
-
-/* ── TOC ── */
-.toc-title { font-family:var(--font-head);font-size:2.6rem;color:var(--black);letter-spacing:0.03em;margin-bottom:0.4in; }
-.toc-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.15in 0.4in; }
-.toc-item { display:flex;align-items:baseline;padding:0.08in 0;border-bottom:1px solid var(--line); }
-.toc-num { font-family:var(--font-head);font-size:1.1rem;color:var(--black);min-width:0.35in; }
-.toc-text { font-size:0.85rem;color:var(--charcoal);font-weight:500; }
-
-/* ── Components ── */
-.rule { border:none;height:1px;background:var(--line);margin:0.25in 0; }
-.rule-thick { height:3px;background:var(--black);margin:0.3in 0; }
-.quote { margin:0.25in 0;padding:0.2in 0.25in;border-left:4px solid var(--black);background:var(--soft);font-style:italic;font-size:1.05rem;line-height:1.55;color:var(--charcoal); }
-.quote strong { font-style:normal; }
-.callout { background:var(--black);color:var(--paper);padding:0.3in 0.35in;margin:0.25in 0;border-radius:2px; }
-.callout p { color:var(--paper);font-weight:500;font-size:0.95rem;margin-bottom:0.08in; }
-.callout strong { color:var(--paper); }
-
-table { width:100%;border-collapse:collapse;margin:0.2in 0;font-size:0.85rem; }
-thead th { background:var(--black);color:var(--paper);font-family:var(--font-head);font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.1in 0.15in;text-align:left;font-weight:400; }
-tbody td { padding:0.08in 0.15in;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45; }
-tbody tr:nth-child(even) { background:var(--soft); }
-
-pre, .script-block { background:var(--charcoal);color:#e0e0e0;padding:0.25in 0.3in;margin:0.2in 0;font-family:"SF Mono","Fira Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;overflow-x:auto;white-space:pre-wrap;word-break:break-word;border-left:4px solid var(--black); }
-pre strong, .script-block strong { color:#ffffff;font-weight:700; }
-
-.field-card { background:var(--charcoal);color:#e0e0e0;padding:0.3in 0.35in;margin:0.2in 0;font-family:"SF Mono","Fira Code","Consolas",monospace;font-size:0.78rem;line-height:1.55;white-space:pre-wrap;border:1px solid #333; }
-.field-card strong { color:#ffffff; }
-
-/* ── Footer ── */
-.footer { position:absolute;bottom:0.25in;right:0.65in;font-size:0.7rem;color:var(--muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase; }
-
-/* ── Product Spotlight Cards ── */
-.product-spotlight {
-  background: linear-gradient(135deg, var(--black) 0%, #0a0a0a 60%, #151515 100%);
-  color: var(--paper);
-  padding: 0.3in 0.35in;
-  margin: 0.25in 0;
-  border-radius: 3px;
-  border: 1px solid #2a2a2a;
-  position: relative;
-  overflow: hidden;
-}
-.product-spotlight::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 2.5in; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
-  pointer-events: none;
-}
-.product-spotlight .ps-label {
-  font-family: var(--font-head);
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 0.1in;
-}
-.product-spotlight .ps-name {
-  font-family: var(--font-head);
-  font-size: 1.6rem;
-  color: var(--paper);
-  letter-spacing: 0.03em;
-  margin-bottom: 0.1in;
-}
-.product-spotlight .ps-collection {
-  font-family: var(--font-head);
-  font-size: 0.85rem;
-  color: var(--steel);
-  letter-spacing: 0.08em;
-  margin-bottom: 0.15in;
-}
-.product-spotlight .ps-features {
-  font-size: 0.85rem;
-  color: #cccccc;
-  line-height: 1.55;
-  margin-bottom: 0.1in;
-}
-.product-spotlight .ps-stat {
-  display: inline-block;
-  background: rgba(255,255,255,0.08);
-  padding: 0.06in 0.12in;
-  margin: 0.04in 0.04in 0 0;
-  font-family: var(--font-head);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  border-radius: 2px;
-}
-.product-spotlight strong { color: #ffffff; }
-
-/* ── Midwest Callout ── */
-.midwest-callout {
-  background: var(--soft);
-  border-left: 4px solid var(--black);
-  padding: 0.2in 0.25in;
-  margin: 0.2in 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--charcoal);
-}
-.midwest-callout strong { color: var(--black); }
-
-/* ── Ensure no z-index overlap ── */
-.rail { z-index: 1; }
-.content { z-index: 2; position: relative; }
-
-/* ── Print ── */
-@media print {
-  body { background:white; }
-  .page, .cover, .section-dark { box-shadow:none;margin:0;page-break-after:always; }
-  .page:last-child, .cover:last-child, .section-dark:last-child { page-break-after:auto; }
-}
-
-@page { size:letter;margin:0; }
-
-
+:root{--bg:#0a0a0f;--bg-card:#14141f;--bg-table-head:#1a1a2e;--bg-table-row:#12121c;--bg-table-alt:#181825;--bg-code:#0d0d18;--border:#2a2a3e;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--accent:#f0b90b;--green:#22c55e;--blue:#60a5fa;--max-width:900px;--font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;--font-mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;--lh:1.75}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{font-size:16px;scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:var(--lh);-webkit-font-smoothing:antialiased}.container{max-width:var(--max-width);margin:0 auto;padding:2.5rem 1.5rem 4rem}.manual-header{text-align:center;padding:3rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2.5rem}.manual-header .module-code{font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}.manual-header h1{font-size:2.2rem;font-weight:700;color:#fff;line-height:1.25;margin-bottom:1rem}.manual-header .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.5rem;font-size:.8rem;color:var(--text-muted)}.toc{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1.5rem 2rem;margin-bottom:3rem}.toc h2{font-size:.85rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}.toc ol{list-style:none;counter-reset:toc-counter;padding:0}.toc ol li{counter-increment:toc-counter;padding:.3rem 0;font-size:.92rem}.toc ol li::before{content:counter(toc-counter)". ";color:var(--text-dim);font-weight:600}.toc a{color:var(--text);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}.toc a:hover{border-bottom-color:var(--accent);color:#fff}main h2{font-size:1.55rem;font-weight:700;color:#fff;margin:3rem 0 1rem;padding-top:1.5rem;border-top:1px solid var(--border)}main h2:first-of-type{border-top:none;margin-top:0;padding-top:0}main h3{font-size:1.15rem;font-weight:600;color:#f1f5f9;margin:2rem 0 .75rem}main h4{font-size:1rem;font-weight:600;color:var(--text-muted);margin:1.5rem 0 .5rem}main p{margin:0 0 1rem}main a{color:var(--blue);text-decoration:none;border-bottom:1px solid transparent}main a:hover{border-bottom-color:var(--blue)}strong,b{color:#fff;font-weight:600}blockquote{background:var(--bg-card);border-left:4px solid var(--accent);margin:1.5rem 0;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;font-style:italic;color:#f1f5f9}blockquote p{margin:0}blockquote p strong{font-style:normal}hr{border:none;border-top:1px solid var(--border);margin:2rem 0}table{width:100%;border-collapse:separate;border-spacing:0;margin:1.25rem 0 1.75rem;font-size:.88rem;border-radius:8px;overflow:hidden;border:1px solid var(--border)}thead th{background:var(--bg-table-head);color:var(--accent);font-weight:600;text-align:left;padding:.7rem 1rem;font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}tbody td{padding:.6rem 1rem;border-top:1px solid var(--border);vertical-align:top}tbody tr{background:var(--bg-table-row)}tbody tr:nth-child(even){background:var(--bg-table-alt)}pre{background:var(--bg-code);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin:1.25rem 0;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:#e2e8f0;white-space:pre-wrap}code{font-family:var(--font-mono);font-size:.85em;background:rgba(255,255,255,.06);padding:.15em .4em;border-radius:4px;color:#f1f5f9}pre code{background:none;padding:0;border-radius:0;font-size:inherit}main ul,main ol{margin:.75rem 0 1.25rem;padding-left:1.5rem}main li{margin-bottom:.35rem}main li>ul,main li>ol{margin:.25rem 0}@media print{body{background:#fff;color:#111;font-size:11pt}.container{max-width:100%;padding:0 1in}.manual-header{border-bottom-color:#ccc}.manual-header h1{color:#111}.toc{background:#f5f5f5;border-color:#ddd}.toc a{color:#111}table{border-color:#ccc}thead th{background:#e5e5e5;color:#111}tbody td{border-top-color:#ccc}tbody tr{background:#fff}tbody tr:nth-child(even){background:#f9f9f9}blockquote{background:#f5f5f5;border-left-color:#999}pre{background:#f5f5f5;border-color:#ddd;color:#111}code{background:#eee;color:#111}main h2{color:#111;border-top-color:#ccc}main h3{color:#222}strong,b{color:#111}hr{border-top-color:#ccc}}
 </style>
 </head>
-<body>
+<body><div class="container">
+<header class="manual-header"><div class="module-code">ACAD-105 — Module 05</div><h1>ORDER HANDOFF</h1><div class="meta"><span>TUF Academy</span> <span>•</span> <span>Training Manual</span> <span>•</span> <span>Pre-Certification</span> <span>•</span> <span>3–5 Hours</span></div></header>
 
-<div class="cover">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-        
-        <div class="rail-footer">ACADEMY</div>
-    </div>
-    <div class="cover-content">
-        <div class="cover-text">
-            <div class="cover-label">TUF ACADEMY // TRAINING MANUAL</div>
-            <div class="cover-number">ACAD-105</div>
-            <div class="cover-title">ORDER HANDOFF</div>
-            <div class="cover-quote">**"Closing the deal is not the finish line. It's the starting line of the relationship."**</div>
-            <div class="cover-meta"><span class="label">Classification</span><span>SALES TRAINING — COMPREHENSIVE MANUAL
-Audience: Territory Account Executives — Pre-Certification
-Status: AUTHORITATIVE — Required Study Before First Contact
-Estimated Study Time: 3–5 Hours (Self-Study + Role-Play)
-Manual Version: 3.0 — Field-Ready Edition</span></div>
-        </div>
-        <div class="cover-photo">
-            <div class="cover-photo-text">DELIVER<br>THE PROGRAM</div>
-        </div>
-    </div>
-</div>
+<div class="toc"><h2>Table of Contents</h2><ol>
+<li><a href="#part-1-the-order-handoff-mindset">The Order Handoff Mindset</a></li>
+<li><a href="#part-2-order-to-production-workflow">Order to Production Workflow</a></li>
+<li><a href="#part-3-the-handoff-checklist">The Handoff Checklist</a></li>
+<li><a href="#part-4-timeline-management">Timeline Management</a></li>
+<li><a href="#part-5-customer-communication-during-production">Customer Communication During Production</a></li>
+<li><a href="#part-6-quality-assurance">Quality Assurance</a></li>
+<li><a href="#part-7-delivery-and-unboxing">Delivery and Unboxing</a></li>
+<li><a href="#part-8-post-delivery-follow-up">Post-Delivery Follow-Up</a></li>
+<li><a href="#part-9-issue-resolution">Issue Resolution — IRONCLAD in Action</a></li>
+<li><a href="#part-10-upsell-during-delivery">Upsell During Delivery — The Next Lane</a></li>
+<li><a href="#part-11-referral-requests">Referral Requests</a></li>
+<li><a href="#part-12-order-handoff-scenarios">10 Order Handoff Scenarios</a></li>
+<li><a href="#knowledge-assessment-module-05">Knowledge Assessment</a></li>
+<li><a href="#using-this-manual-beyond-certification">Beyond Certification</a></li>
+</ol></div>
+<main>
 
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <div class="toc-title">TABLE OF CONTENTS</div>
-<div class="toc-grid"><div class="toc-item"><span class="toc-num">1</span><span class="toc-text">The Order Handoff Mindset</span></div><div class="toc-item"><span class="toc-num">2</span><span class="toc-text">Order to Production Workflow</span></div><div class="toc-item"><span class="toc-num">3</span><span class="toc-text">The Handoff Checklist</span></div><div class="toc-item"><span class="toc-num">4</span><span class="toc-text">Timeline Management</span></div><div class="toc-item"><span class="toc-num">5</span><span class="toc-text">Customer Communication During Production</span></div><div class="toc-item"><span class="toc-num">6</span><span class="toc-text">Quality Assurance</span></div><div class="toc-item"><span class="toc-num">7</span><span class="toc-text">Delivery and Unboxing</span></div><div class="toc-item"><span class="toc-num">8</span><span class="toc-text">Post-Delivery Follow-Up</span></div><div class="toc-item"><span class="toc-num">9</span><span class="toc-text">Issue Resolution — IRONCLAD in Action</span></div><div class="toc-item"><span class="toc-num">10</span><span class="toc-text">Upsell During Delivery — The Next Lane</span></div><div class="toc-item"><span class="toc-num">11</span><span class="toc-text">Referral Requests</span></div><div class="toc-item"><span class="toc-num">12</span><span class="toc-text">10 Order Handoff Scenarios</span></div></div>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
+<p><strong>Classification:</strong> SALES TRAINING — COMPREHENSIVE MANUAL<br><strong>Audience:</strong> Territory Account Executives — Pre-Certification<br><strong>Status:</strong> AUTHORITATIVE<br><strong>Estimated Study Time:</strong> 3–5 Hours<br><strong>Manual Version:</strong> 3.0 — Field-Ready Edition</p>
+<hr>
+<blockquote><p><strong>"Closing the deal is not the finish line. It's the starting line of the relationship."</strong></p></blockquote>
+<hr>
 
+<h2 id="part-1-the-order-handoff-mindset">PART 1: THE ORDER HANDOFF MINDSET</h2>
 
-
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>BSN CAN'T DO WHAT WE DO POST-ORDER</h3>
-<p>After the order is placed, BSN disappears until the next buying cycle. Here's what TUF does differently:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;">
-<li style="margin-bottom:0.04in;"><strong>In-person sizing sessions</strong> — BSN ships a size run. We show up.</li>
-<li style="margin-bottom:0.04in;"><strong>IRONCLAD follow-through</strong> — If something is wrong, we fix it. BSN routes you to a brand warranty claim.</li>
-<li style="margin-bottom:0.04in;"><strong>Season check-ins</strong> — We call mid-season to make sure the gear is holding up. BSN calls when it's time to reorder.</li>
-<li style="margin-bottom:0.04in;"><strong>4-lane expansion</strong> — After uniforms, we introduce travel gear, team store, letterman. Each order is a relationship milestone.</li>
-</ul>
-<div class="midwest-callout"><strong>MIDWEST HANDOFF EDGE:</strong> Minnesota programs deal with extreme weather — from August heat to November snow. Our ISSUE travel gear is built for that. Hoodies that hold up in 20°F sidelines. Duffles that survive bus trips to Bemidji and back. We don't just deliver product — we deliver gear built for where you play.</div>
 <h3>1.1 Why It Matters</h3>
 <p>Most salespeople think the job is done when the contract is signed. They're wrong.</p>
 <p><strong>The deal isn't closed when the coach signs. It's closed when the uniforms are on the athletes, the coach is thrilled, and the next conversation — travel gear, team store, multi-sport expansion — has already begun.</strong></p>
-<p>A smooth handoff creates:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">A delighted coach who becomes a referral source</li><li style="margin-bottom:0.04in;">A program that expands into multiple lanes</li><li style="margin-bottom:0.04in;">A relationship that lasts years</li></ul>
-<p>A botched handoff creates:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">An angry coach who tells every coach in the conference</li><li style="margin-bottom:0.04in;">A one-and-done transaction</li><li style="margin-bottom:0.04in;">A damaged TUF brand in the community</li></ul>
+<p>A smooth handoff creates a delighted coach who becomes a referral source, a program that expands into multiple lanes, and a relationship that lasts years. A botched handoff creates an angry coach who tells every coach in the conference, a one-and-done transaction, and a damaged TUF brand.</p>
+
 <h3>1.2 The Handoff Principles</h3>
-<p><strong>Principle 1: The Rep Owns the Handoff</strong></p>
-<p>You sold the deal. You own the relationship. Production executes the order, but YOU are the face of TUF. If something goes wrong, the coach calls you.</p>
-<p><strong>Principle 2: Communication Is Oxygen</strong></p>
-<p>The #1 complaint: "I never know what's happening with my order." Over-communicate. Proactive updates beat reactive apologies.</p>
-<p><strong>Principle 3: The IRONCLAD GUARANTEE Is Tested Here</strong></p>
-<p>Anyone can promise a guarantee during the pitch. The handoff is where you prove it. When something goes wrong, how you handle it defines the relationship.</p>
-<p><strong>Principle 4: Delivery Is an Event, Not a Transaction</strong></p>
-<p>When uniforms arrive, make it a moment. The unboxing is the first time the coach sees their program's new identity in physical form.</p>
-<p><strong>Principle 5: The Handoff Begins the Next Sale</strong></p>
-<p>A successful uniform delivery opens travel gear. Travel gear delivery opens team stores. The handoff isn't the end — it's the beginning of the next one.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <pre>┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+<p><strong>Principle 1: The Rep Owns the Handoff</strong> — You sold the deal. You own the relationship. Production executes the order, but YOU are the face of TUF.</p>
+<p><strong>Principle 2: Communication Is Oxygen</strong> — The #1 complaint: "I never know what's happening with my order." Over-communicate.</p>
+<p><strong>Principle 3: The IRONCLAD GUARANTEE Is Tested Here</strong> — Anyone can promise a guarantee during the pitch. The handoff is where you prove it.</p>
+<p><strong>Principle 4: Delivery Is an Event, Not a Transaction</strong> — When uniforms arrive, make it a moment.</p>
+<p><strong>Principle 5: The Handoff Begins the Next Sale</strong> — A successful uniform delivery opens travel gear. Travel gear delivery opens team stores.</p>
+
+<hr>
+
+<h2 id="part-2-order-to-production-workflow">PART 2: ORDER TO PRODUCTION WORKFLOW</h2>
+<pre><code>┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │  CLOSED WON  │───▶│  ORDER       │───▶│  PRODUCTION  │───▶│  DELIVERY    │
 │  (You)       │    │  HANDOFF     │    │  (Vendor)    │    │  (You)       │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
@@ -468,429 +60,166 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
        ▼                   ▼                   ▼                   ▼
   Coach signs       Complete checklist   Status updates       Unbox event
   Deposit paid      Send to Ops          You communicate      Lane expansion
-                    48-hour window                             Referrals</pre>
-<h3>2.1 Step-by-Step Workflow</h3>
+                    48-hour window                             Referrals</code></pre>
+
+<h3>Step-by-Step Workflow</h3>
 <table>
-<thead><tr>
-<th>Step</th>
-<th>Owner</th>
-<th>Action</th>
-<th>Timeline</th>
-</tr></thead>
+<thead><tr><th>Step</th><th>Owner</th><th>Action</th><th>Timeline</th></tr></thead>
 <tbody>
-<tr>
-<td>1</td>
-<td><strong>Rep</strong></td>
-<td>Coach signs order + pays 50% deposit</td>
-<td>Day 0</td>
-</tr>
-<tr>
-<td>2</td>
-<td><strong>Rep</strong></td>
-<td>Complete Handoff Checklist</td>
-<td>Within 24 hours</td>
-</tr>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <tr>
-<td>3</td>
-<td><strong>Rep</strong></td>
-<td>Submit complete order to Operations</td>
-<td>Within 48 hours</td>
-</tr>
-<tr>
-<td>4</td>
-<td><strong>Ops</strong></td>
-<td>Artwork finalized. Production begins.</td>
-<td>Days 2–7</td>
-</tr>
-<tr>
-<td>5</td>
-<td><strong>Rep</strong></td>
-<td>Send "Order Confirmed" email to coach</td>
-<td>Day 3</td>
-</tr>
-<tr>
-<td>6</td>
-<td><strong>Ops/Vendor</strong></td>
-<td>Production in progress</td>
-<td>Weeks 1–[X]</td>
-</tr>
-<tr>
-<td>7</td>
-<td><strong>Rep</strong></td>
-<td>Send mid-production update + lane expansion seed</td>
-<td>Midpoint</td>
-</tr>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <tr>
-<td>8</td>
-<td><strong>Ops/Vendor</strong></td>
-<td>Production complete. Quality check.</td>
-<td>Week [X]</td>
-</tr>
-<tr>
-<td>9</td>
-<td><strong>Rep</strong></td>
-<td>Notify coach: "Uniforms are shipping!"</td>
-<td>Week [X]</td>
-</tr>
-<tr>
-<td>10</td>
-<td><strong>Rep</strong></td>
-<td>Delivery/unboxing — in person or coordinated</td>
-<td>Week [X+1]</td>
-</tr>
-<tr>
-<td>11</td>
-<td><strong>Rep</strong></td>
-<td>Satisfaction check + lane expansion conversation</td>
-<td>Day +7</td>
-</tr>
-<tr>
-<td>12</td>
-<td><strong>Rep</strong></td>
-<td>Referral request</td>
-<td>Day +14</td>
-</tr>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        </tbody>
+<tr><td>1</td><td><strong>Rep</strong></td><td>Coach signs order + pays 50% deposit</td><td>Day 0</td></tr>
+<tr><td>2</td><td><strong>Rep</strong></td><td>Complete Handoff Checklist</td><td>Within 24 hours</td></tr>
+<tr><td>3</td><td><strong>Rep</strong></td><td>Submit complete order to Operations</td><td>Within 48 hours</td></tr>
+<tr><td>4</td><td><strong>Ops</strong></td><td>Artwork finalized. Production begins.</td><td>Days 2–7</td></tr>
+<tr><td>5</td><td><strong>Rep</strong></td><td>Send "Order Confirmed" email to coach</td><td>Day 3</td></tr>
+<tr><td>6</td><td><strong>Ops/Vendor</strong></td><td>Production in progress</td><td>Weeks 1–[X]</td></tr>
+<tr><td>7</td><td><strong>Rep</strong></td><td>Send mid-production update + lane expansion seed</td><td>Midpoint</td></tr>
+<tr><td>8</td><td><strong>Ops/Vendor</strong></td><td>Production complete. Quality check.</td><td>Week [X]</td></tr>
+<tr><td>9</td><td><strong>Rep</strong></td><td>Notify coach: "Uniforms are shipping!"</td><td>Week [X]</td></tr>
+<tr><td>10</td><td><strong>Rep</strong></td><td>Delivery/unboxing — in person or coordinated</td><td>Week [X+1]</td></tr>
+<tr><td>11</td><td><strong>Rep</strong></td><td>Satisfaction check + lane expansion conversation</td><td>Day +7</td></tr>
+<tr><td>12</td><td><strong>Rep</strong></td><td>Referral request</td><td>Day +14</td></tr>
+</tbody>
 </table>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <p>Complete within 24 hours of signed order. Nothing goes to Operations until every field is complete.</p>
-<h3>3.1 The Complete Checklist</h3>
-<pre>═══════════════════════════════════════════════════════════════
+
+<hr>
+
+<h2 id="part-3-the-handoff-checklist">PART 3: THE HANDOFF CHECKLIST</h2>
+<p>Complete within 24 hours of signed order. Nothing goes to Operations until every field is complete.</p>
+
+<pre><code>═══════════════════════════════════════════════════════════════
 ORDER HANDOFF CHECKLIST
 ═══════════════════════════════════════════════════════════════
+
 SCHOOL INFORMATION
 ☐ School Name: ________________________
 ☐ Sport: ________________________
 ☐ Collection: ☐ GRIND  ☐ DIAMOND  ☐ SHIFT  ☐ OVERTIME
               ☐ ISSUE  ☐ CAMP    ☐ SIDELINE  ☐ LEGACY
 ☐ Season: ☐ Fall  ☐ Winter  ☐ Spring  Year: ______
+
 COACH / CONTACT
 ☐ Primary Contact: ________________________
-☐ Role: ☐ Head Coach  ☐ AD  ☐ Booster Club  ☐ Other: ______
 ☐ Phone: ________________________  Email: ________________________
-☐ Secondary Contact: ________________________  Phone: ________________________
+☐ Secondary Contact: ________________________
+
 ORDER DETAILS
-☐ PO Number (if applicable): ________________________
 ☐ Order Form Signed: ☐ Yes  Date: ______
 ☐ Deposit Paid (50%): ☐ Yes  Amount: $______  Date: ______
 ☐ Final Payment Due Date: ________________________
-ROSTER &amp; SIZES
+
+ROSTER & SIZES
 ☐ Complete roster attached: ☐ Yes  ☐ Sizing session needed
 ☐ Number of athletes: ______
-☐ Size breakdown attached: ☐ Yes
+
 ARTWORK
 ☐ Logo file received: ☐ Yes  Format: ☐ AI  ☐ EPS  ☐ PDF  ☐ PNG (300dpi+)
 ☐ Colors specified: ☐ Yes  ☐ PMS colors
 ☐ Number style specified: ☐ Yes
-☐ Special artwork notes: __________________________________
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        UNIFORM SPECIFICATIONS
+
+UNIFORM SPECIFICATIONS
 ☐ Home Jersey — Color: ______  Qty: ______
 ☐ Away Jersey — Color: ______  Qty: ______
 ☐ Home Pants/Shorts — Color: ______  Qty: ______
 ☐ Away Pants/Shorts — Color: ______  Qty: ______
-☐ Additional items: ______________________________________________
+
 DELIVERY
 ☐ Target delivery date: ________________________
 ☐ Delivery address: ________________________
-☐ Delivery contact: ________________________  Phone: _______________
+☐ Delivery contact: ________________________
 ☐ Unboxing event planned: ☐ Yes  ☐ No  Date: ______
+
 PRICING
 ☐ Total order value: $______    Per-unit price: $______
 ☐ Deposit paid: $______         Balance due: $______
-☐ Balance due date: ________________________
+
 REP SIGN-OFF
 ☐ I have verified all information above is complete and accurate.
 Rep: ________________________  Date: ______
+
 DIRECTOR QA CHECK
 ☐ Order reviewed. All fields complete. Pricing and timeline confirmed.
 Director: ________________________  Date: ______
-═══════════════════════════════════════════════════════════════</pre>
-<h3>3.2 The Director QA Question</h3>
-<div class="quote"><strong>"If this order arrives wrong, what's the cost — in dollars, trust, reputation — and have we done everything possible to prevent that?"</strong></div>
-<h3>3.3 Common Handoff Mistakes</h3>
+═══════════════════════════════════════════════════════════════</code></pre>
+
+<h3>Common Handoff Mistakes</h3>
 <table>
-<thead><tr>
-<th>Mistake</th>
-<th>Consequence</th>
-<th>Prevention</th>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        </tr></thead>
+<thead><tr><th>Mistake</th><th>Consequence</th><th>Prevention</th></tr></thead>
 <tbody>
-<tr>
-<td>Missing/wrong sizes</td>
-<td>Athletes can't wear. Reorder costs time and money.</td>
-<td>Verify roster. Offer sizing session.</td>
-</tr>
-<tr>
-<td>Low-resolution logo</td>
-<td>Blurry graphics. Coach rejects order.</td>
-<td>Request vector files (AI, EPS) or 300dpi+ PNG.</td>
-</tr>
-<tr>
-<td>Unspecified colors</td>
-<td>"That's not our blue."</td>
-<td>Get PMS color codes.</td>
-</tr>
-<tr>
-<td>Wrong delivery address</td>
-<td>Delayed delivery. Angry coach.</td>
-<td>Verify during handoff.</td>
-</tr>
-<tr>
-<td>Missing deposit</td>
-<td>Production doesn't start.</td>
-<td>Confirm before submitting.</td>
-</tr>
-<tr>
-<td>No secondary contact</td>
-<td>Can't confirm details if primary unavailable.</td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>Always get backup.</td>
-</tr>
+<tr><td>Missing/wrong sizes</td><td>Athletes can't wear. Reorder costs time and money.</td><td>Verify roster. Offer sizing session.</td></tr>
+<tr><td>Low-resolution logo</td><td>Blurry graphics. Coach rejects order.</td><td>Request vector files (AI, EPS) or 300dpi+ PNG.</td></tr>
+<tr><td>Unspecified colors</td><td>"That's not our blue."</td><td>Get PMS color codes.</td></tr>
+<tr><td>Wrong delivery address</td><td>Delayed delivery. Angry coach.</td><td>Verify during handoff.</td></tr>
+<tr><td>Missing deposit</td><td>Production doesn't start.</td><td>Confirm before submitting.</td></tr>
+<tr><td>No secondary contact</td><td>Can't confirm details if primary unavailable.</td><td>Always get backup.</td></tr>
 </tbody>
 </table>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>4.1 Production Timelines</h3>
+
+<hr>
+
+<h2 id="part-4-timeline-management">PART 4: TIMELINE MANAGEMENT</h2>
+
+<h3>4.1 Production Timelines</h3>
 <table>
-<thead><tr>
-<th>Product Type</th>
-<th>Standard Lead Time</th>
-<th>Rush</th>
-</tr></thead>
+<thead><tr><th>Product Type</th><th>Standard Lead Time</th><th>Rush</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>Sublimated Uniforms</strong></td>
-<td>6–8 weeks</td>
-<td>4–5 weeks</td>
-</tr>
-<tr>
-<td><strong>Screen-Printed Uniforms</strong></td>
-<td>4–6 weeks</td>
-<td>3–4 weeks</td>
-</tr>
-<tr>
-<td><strong>Tackle Twill Uniforms</strong></td>
-<td>8–10 weeks</td>
-<td>6–7 weeks</td>
-</tr>
-<tr>
-<td><strong>Travel Gear (ISSUE)</strong></td>
-<td>6–8 weeks</td>
-<td>4–5 weeks</td>
-</tr>
-<tr>
-<td><strong>Team Store Items</strong></td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>2–4 weeks per order</td>
-<td>N/A</td>
-</tr>
-<tr>
-<td><strong>Letterman Jackets (LEGACY)</strong></td>
-<td>8–12 weeks</td>
-<td>6–8 weeks</td>
-</tr>
+<tr><td><strong>Sublimated Uniforms</strong></td><td>6–8 weeks</td><td>4–5 weeks</td></tr>
+<tr><td><strong>Screen-Printed Uniforms</strong></td><td>4–6 weeks</td><td>3–4 weeks</td></tr>
+<tr><td><strong>Tackle Twill Uniforms</strong></td><td>8–10 weeks</td><td>6–7 weeks</td></tr>
+<tr><td><strong>Travel Gear (ISSUE)</strong></td><td>6–8 weeks</td><td>4–5 weeks</td></tr>
+<tr><td><strong>Team Store Items</strong></td><td>2–4 weeks per order</td><td>N/A</td></tr>
+<tr><td><strong>Letterman Jackets (LEGACY)</strong></td><td>8–12 weeks</td><td>6–8 weeks</td></tr>
 </tbody>
 </table>
+
 <h3>4.2 Managing Coach Expectations</h3>
-<p><strong>During proposal:</strong></p>
-<div class="quote"><em>"Coach, production takes [X] weeks from artwork finalization. If we lock this in by [date], you'll have uniforms by [delivery date] — [X weeks] before your first game."</em></div>
-<p><strong>During handoff:</strong></p>
-<div class="quote"><em>"Coach, submitting your order today. Production is [X] weeks. Delivery around [date]. I'll send updates at the midpoint and when it ships."</em></div>
-<p><strong>If there's a delay:</strong></p>
-<div class="quote"><em>"Coach, I need to be upfront — we've hit a [specific issue]. New delivery estimate: [date]. I know that's not ideal. Here's what we're doing to minimize the impact: [action]. I'll keep you posted."</em></div>
+<p><strong>During proposal:</strong> "Coach, production takes [X] weeks from artwork finalization. If we lock this in by [date], you'll have uniforms by [delivery date]."</p>
+<p><strong>During handoff:</strong> "Coach, submitting your order today. Production is [X] weeks. Delivery around [date]. I'll send updates."</p>
+<p><strong>If there's a delay:</strong> "Coach, I need to be upfront — we've hit a [specific issue]. New delivery estimate: [date]. Here's what we're doing: [action]."</p>
+
 <h3>4.3 The Timeline Buffer Rule</h3>
 <p><strong>Always add 1–2 weeks to the production estimate.</strong> If production says 6 weeks, tell the coach 7–8. Arrives early = hero. Arrives on real timeline = on time. Arrives late = never.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>5.1 The Communication Cadence</h3>
+
+<hr>
+
+<h2 id="part-5-customer-communication-during-production">PART 5: CUSTOMER COMMUNICATION DURING PRODUCTION</h2>
+
+<h3>5.1 The Communication Cadence</h3>
 <table>
-<thead><tr>
-<th>Milestone</th>
-<th>Communication</th>
-<th>Channel</th>
-<th>Timing</th>
-</tr></thead>
+<thead><tr><th>Milestone</th><th>Communication</th><th>Channel</th><th>Timing</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>Order Submitted</strong></td>
-<td>"Your order is in production!"</td>
-<td>Email</td>
-<td>Day 2–3</td>
-</tr>
-<tr>
-<td><strong>Artwork Approved</strong></td>
-<td>"Artwork locked in. Final proof attached."</td>
-<td>Email</td>
-<td>Day 5–7</td>
-</tr>
-<tr>
-<td><strong>Mid-Production</strong></td>
-<td>"Everything on track. Your uniforms are being built." (+ lane seed)</td>
-<td>Email</td>
-<td>Midpoint</td>
-</tr>
-<tr>
-<td><strong>Production Complete</strong></td>
-<td>"Uniforms are done! Quality check next."</td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>Email</td>
-<td>~1 week before ship</td>
-</tr>
-<tr>
-<td><strong>Shipped</strong></td>
-<td>"They're on the way! Tracking: [number]"</td>
-<td>Email + Text</td>
-<td>Ship day</td>
-</tr>
-<tr>
-<td><strong>Delivered</strong></td>
-<td>"They're here! When can we unbox?"</td>
-<td>Call/Text</td>
-<td>Delivery day</td>
-</tr>
+<tr><td><strong>Order Submitted</strong></td><td>"Your order is in production!"</td><td>Email</td><td>Day 2–3</td></tr>
+<tr><td><strong>Artwork Approved</strong></td><td>"Artwork locked in. Final proof attached."</td><td>Email</td><td>Day 5–7</td></tr>
+<tr><td><strong>Mid-Production</strong></td><td>"Everything on track." (+ lane seed)</td><td>Email</td><td>Midpoint</td></tr>
+<tr><td><strong>Production Complete</strong></td><td>"Uniforms are done! Quality check next."</td><td>Email</td><td>~1 week before ship</td></tr>
+<tr><td><strong>Shipped</strong></td><td>"They're on the way! Tracking: [number]"</td><td>Email + Text</td><td>Ship day</td></tr>
+<tr><td><strong>Delivered</strong></td><td>"They're here! When can we unbox?"</td><td>Call/Text</td><td>Delivery day</td></tr>
 </tbody>
 </table>
+
 <h3>5.2 Status Update Templates</h3>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Template 1: Order Confirmation</h4>
+
+<h4>Template 1: Order Confirmation</h4>
 <p><strong>Subject:</strong> [School] [Sport] — Your TUF order is confirmed!</p>
-<div class="quote"><em>Coach [Name],</em></div>
-<p>></p>
-<div class="quote"><em>Your [Collection] uniform order is officially in production.</em><br><em>• Order confirmed: [Date]</em><br><em>• Estimated delivery: [Date range]</em><br><em>• What's being built: [Summary]</em></div>
-<p>></p>
-<div class="quote"><em>Next steps:</em><br><em>1. Artwork finalization (this week)</em><br><em>2. Production ([X] weeks) — I'll send a midpoint update</em><br><em>3. Quality check — every item inspected</em><br><em>4. Delivery to [School]</em></div>
-<p>></p>
-<div class="quote"><em>I'll keep you posted every step. Questions? Call me directly — [Phone].</em></div>
-<p>></p>
-<div class="quote"><em>Built for the program.</em><br><em>[Your Name]</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Template 2: Mid-Production Update (with Lane Seed)</h4>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <p><strong>Subject:</strong> [School] [Sport] — On track + one thing to think about</p>
-<div class="quote"><em>Coach [Name],</em></div>
-<p>></p>
-<div class="quote"><em>Quick update: your [Collection] uniforms are halfway through production. Everything on schedule. Tracking for delivery around [date range].</em></div>
-<p>></p>
-<div class="quote"><em>One thing to think about in the meantime: how does your program travel to away games? Our ISSUE travel gear — tech suits, duffles, backpacks — is built to the same quality standard as your uniforms. One system. PACKSYSTEM integration. When you're ready, I'd love to show you.</em></div>
-<p>></p>
-<div class="quote"><em>Built for the program.</em><br><em>[Your Name]</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Template 3: Shipping Notification</h4>
+<blockquote><p>Coach [Name], Your [Collection] uniform order is officially in production. • Order confirmed: [Date] • Estimated delivery: [Date range]. Next steps: Artwork finalization → Production → Quality check → Delivery. I'll keep you posted every step. Questions? Call me directly — [Phone]. Built for the program. [Your Name]</p></blockquote>
+
+<h4>Template 2: Mid-Production Update (with Lane Seed)</h4>
+<p><strong>Subject:</strong> [School] [Sport] — On track + one thing to think about</p>
+<blockquote><p>Coach [Name], Quick update: your [Collection] uniforms are halfway through production. Everything on schedule. One thing to think about: how does your program travel to away games? Our ISSUE travel gear — tech suits, duffles, backpacks — same quality standard as your uniforms. One system. When you're ready, I'd love to show you. Built for the program. [Your Name]</p></blockquote>
+
+<h4>Template 3: Shipping Notification</h4>
 <p><strong>Subject:</strong> 🚚 [School] [Sport] uniforms are on the way!</p>
-<div class="quote"><em>Coach [Name],</em></div>
-<p>></p>
-<div class="quote"><em>They're on the truck!</em><br><em>• Carrier: [Carrier]</em><br><em>• Tracking: [Tracking number]</em><br><em>• Estimated arrival: [Date]</em></div>
-<p>></p>
-<div class="quote"><em>I'd love to be there when you open the boxes. When's a good time for the unboxing? It's a moment worth celebrating — and I want to make sure everything is perfect.</em></div>
-<p>></p>
-<div class="quote"><em>Built for the program.</em><br><em>[Your Name]</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Template 4: Delivery Confirmation</h4>
+<blockquote><p>Coach [Name], They're on the truck! • Carrier: [Carrier] • Tracking: [Tracking number] • Estimated arrival: [Date]. I'd love to be there when you open the boxes. When's a good time for the unboxing? Built for the program. [Your Name]</p></blockquote>
+
+<h4>Template 4: Delivery Confirmation</h4>
 <p><strong>Subject:</strong> ✅ [School] [Sport] — Delivered!</p>
-<div class="quote"><em>Coach [Name],</em></div>
-<p>></p>
-<div class="quote"><em>Tracking shows your uniforms were delivered today. I'll call tomorrow to schedule the unboxing — or text me when you're ready.</em></div>
-<p>></p>
-<div class="quote"><em>Remember: IRONCLAD GUARANTEE. If anything's not right, we fix it. Period.</em></div>
-<p>></p>
-<div class="quote"><em>Built for the program.</em><br><em>[Your Name]</em></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>6.1 QA Inspection Checklist</h3>
-<pre>☐ COUNT: Total items received matches order quantity
+<blockquote><p>Coach [Name], Tracking shows your uniforms were delivered today. I'll call tomorrow to schedule the unboxing — or text me when you're ready. Remember: IRONCLAD GUARANTEE. If anything's not right, we fix it. Period. Built for the program. [Your Name]</p></blockquote>
+
+<hr>
+
+<h2 id="part-6-quality-assurance">PART 6: QUALITY ASSURANCE</h2>
+
+<h3>6.1 QA Inspection Checklist</h3>
+<pre><code>☐ COUNT: Total items received matches order quantity
 ☐ SIZES: Spot check 5–10 items against roster
 ☐ COLORS: Compare against approved artwork. Natural light.
 ☐ LOGOS: Check clarity, placement, alignment
@@ -898,361 +227,170 @@ Director: ________________________  Date: ______
 ☐ STITCHING: Shoulder seams, side seams, neck — no loose threads
 ☐ FABRIC: No pulls, snags, discoloration, uneven dye
 ☐ GRAPHICS: Sublimation sharp. No cracking, peeling, ghosting.
-☐ FLEX-WAIST (if applicable): Waistband flips clean. No bunching.</pre>
+☐ FLEX-WAIST (if applicable): Waistband flips clean. No bunching.</code></pre>
+
 <h3>6.2 The QA Conversation</h3>
-<div class="quote"><em>"Coach, before the big unboxing with the team, let's open one box together and do a quick quality check. I want to make sure every uniform is perfect before your athletes see them."</em></div>
+<blockquote><p>"Coach, before the big unboxing with the team, let's open one box together and do a quick quality check. I want to make sure every uniform is perfect before your athletes see them."</p></blockquote>
+
 <h3>6.3 What to Do If You Find a Problem</h3>
 <table>
-<thead><tr>
-<th>Problem</th>
-<th>Action</th>
-</tr></thead>
+<thead><tr><th>Problem</th><th>Action</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>Wrong size, 1–2 items</strong></td>
-<td>Reorder immediately. Expedite. "Two jerseys wrong size. Already reordered. Here in [X] days."</td>
-</tr>
-<tr>
-<td><strong>Wrong size, multiple items</strong></td>
-<td>Full assessment. Call immediately. Expedite replacement.</td>
-</tr>
-<tr>
-<td><strong>Color doesn't match</strong></td>
-<td>Photos to Operations. Determine root cause. Production error = full reorder at TUF's expense.</td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        </tr>
-<tr>
-<td><strong>Logo placement off</strong></td>
-<td>Minor: offer discount on next order. Major: reorder.</td>
-</tr>
-<tr>
-<td><strong>Fabric flaw / stitching</strong></td>
-<td>IRONCLAD GUARANTEE: replace immediately. No questions.</td>
-</tr>
-<tr>
-<td><strong>Missing items</strong></td>
-<td>Determine if separate shipment or missed in production. Expedite.</td>
-</tr>
+<tr><td><strong>Wrong size, 1–2 items</strong></td><td>Reorder immediately. Expedite.</td></tr>
+<tr><td><strong>Wrong size, multiple items</strong></td><td>Full assessment. Call immediately. Expedite replacement.</td></tr>
+<tr><td><strong>Color doesn't match</strong></td><td>Photos to Operations. Production error = full reorder at TUF's expense.</td></tr>
+<tr><td><strong>Logo placement off</strong></td><td>Minor: offer discount on next order. Major: reorder.</td></tr>
+<tr><td><strong>Fabric flaw / stitching</strong></td><td>IRONCLAD GUARANTEE: replace immediately. No questions.</td></tr>
+<tr><td><strong>Missing items</strong></td><td>Determine if separate shipment or missed in production. Expedite.</td></tr>
 </tbody>
 </table>
+
 <h3>6.4 The QA Rule</h3>
-<div class="quote"><strong>If you find a problem, you tell the coach before they find it themselves.</strong></div>
-<p>Discovering an issue proactively builds trust. The coach discovering it themselves erodes it.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>7.1 Making It an Event</h3>
+<blockquote><p><strong>If you find a problem, you tell the coach before they find it themselves.</strong></p></blockquote>
+
+<hr>
+
+<h2 id="part-7-delivery-and-unboxing">PART 7: DELIVERY AND UNBOXING</h2>
+
+<h3>7.1 Making It an Event</h3>
 <p>Uniform delivery shouldn't be a box left at the front office. It should be a moment.</p>
-<p><strong>In-Person Unboxing (Ideal):</strong></p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">Schedule when coach and key athletes can be present</li><li style="margin-bottom:0.04in;">Open boxes together</li><li style="margin-bottom:0.04in;">Pull out first jersey — watch the reaction</li><li style="margin-bottom:0.04in;">Have athletes try them on immediately</li><li style="margin-bottom:0.04in;">Take photos (with permission)</li><li style="margin-bottom:0.04in;">Celebrate — this is "Built for the Program" in physical form</li></ul>
+<p><strong>In-Person Unboxing (Ideal):</strong> Schedule when coach and key athletes can be present. Open boxes together. Pull out first jersey — watch the reaction. Have athletes try them on immediately. Take photos (with permission). Celebrate.</p>
+
 <h3>7.2 The Unboxing Script</h3>
-<div class="quote"><em>"Coach, this is the moment. [X] weeks ago, we sat down and talked about what [School] [sport] could look like. Today, it's real. Let's open these boxes."</em></div>
-<p><em>[Open box. Pull out first jersey. Hold it up.]</em></p>
-<div class="quote"><em>"Coach — PRO CUT fit. See the taper? See the sleeves? This is what college programs wear. And now it's what [School] wears."</em></div>
-<p><em>[Hand jersey to coach. Let them feel it. Let athletes try it on.]</em></p>
-<div class="quote"><em>"How does it feel? How does it look?"</em></div>
-<p><em>[Take photos. Celebrate.]</em></p>
-<div class="quote"><em>"Coach — IRONCLAD GUARANTEE. If anything's not right, you call me. We fix it. Period. But looking at this — I think we got it right."</em></div>
-<h3>7.3 Remote Unboxing Guide</h3>
-<div class="quote"><strong>TUF UNBOXING GUIDE</strong></div>
-<p>></p>
-<div class="quote">Coach — your uniforms are arriving [date]. Here's how to make the most of it:</div>
-<p>></p>
-<div class="quote">1. <strong>Open one box first</strong> — quick quality check before full reveal<br>2. <strong>Gather your captains/seniors</strong> — let them see it first<br>3. <strong>Try them on immediately</strong> — fit is everything<br>4. <strong>Take photos</strong> — we'd love to see the reveal<br>5. <strong>Call me</strong> — I want to hear your reaction. [Phone]</div>
-<p>></p>
-<div class="quote">Remember: IRONCLAD GUARANTEE. If anything's not right, we fix it. Period.</div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>8.1 The Satisfaction Check (Day +7)</h3>
-<div class="quote"><em>"Coach, [Your Name] with TUF. Your athletes have been in the [Collection] uniforms for a week now. How's the fit? Any issues? What are the kids saying?"</em></div>
+<blockquote><p>"Coach, this is the moment. [X] weeks ago, we sat down and talked about what [School] [sport] could look like. Today, it's real. Let's open these boxes."<br><em>[Open box. Pull out first jersey. Hold it up.]</em><br>"Coach — PRO CUT fit. See the taper? See the sleeves? This is what college programs wear. And now it's what [School] wears."<br><em>[Hand jersey to coach. Let them feel it. Let athletes try it on.]</em><br>"How does it feel? How does it look?"<br><em>[Take photos. Celebrate.]</em><br>"Coach — IRONCLAD GUARANTEE. If anything's not right, you call me. We fix it. Period. But looking at this — I think we got it right."</p></blockquote>
+
+<hr>
+
+<h2 id="part-8-post-delivery-follow-up">PART 8: POST-DELIVERY FOLLOW-UP</h2>
+
+<h3>8.1 The Satisfaction Check (Day +7)</h3>
+<blockquote><p>"Coach, [Your Name] with TUF. Your athletes have been in the [Collection] uniforms for a week now. How's the fit? Any issues? What are the kids saying?"</p></blockquote>
+
 <h3>8.2 Satisfaction Check Outcomes</h3>
 <table>
-<thead><tr>
-<th>Coach Says</th>
-<th>Your Move</th>
-</tr></thead>
+<thead><tr><th>Coach Says</th><th>Your Move</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>"They're great. Kids love them."</strong></td>
-<td>Celebrate. Testimonial. Plant Lane 2 seed.</td>
-</tr>
-<tr>
-<td><strong>"Mostly good, but one kid's tight."</strong></td>
-<td>"Let me send a replacement in the next size. IRONCLAD — we fix it."</td>
-</tr>
-<tr>
-<td><strong>"They're fine."</strong> (lukewarm)</td>
-<td>"What would make them great? I want to earn your excitement."</td>
-</tr>
-<tr>
-<td><strong>"Actually, there's an issue..."</strong></td>
-<td>Listen. Diagnose. Fix. IRONCLAD in action.</td>
-</tr>
+<tr><td><strong>"They're great. Kids love them."</strong></td><td>Celebrate. Testimonial. Plant Lane 2 seed.</td></tr>
+<tr><td><strong>"Mostly good, but one kid's tight."</strong></td><td>"IRONCLAD — we fix it." Send replacement.</td></tr>
+<tr><td><strong>"They're fine."</strong> (lukewarm)</td><td>"What would make them great? I want to earn your excitement."</td></tr>
+<tr><td><strong>"Actually, there's an issue…"</strong></td><td>Listen. Diagnose. Fix. IRONCLAD in action.</td></tr>
 </tbody>
 </table>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>8.3 The Testimonial Ask</h3>
-<div class="quote"><em>"Coach, I'm glad you're happy. Would you be open to a quick quote I can share? Other coaches trust other coaches more than they trust me. Your word means a lot."</em></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>9.1 The Promise</h3>
-<div class="quote"><strong>"If anything goes wrong with the product, TUF fixes it. Period. Not pro-rated. Not 'within reason.' Fixed."</strong></div>
+
+<h3>8.3 The Testimonial Ask</h3>
+<blockquote><p>"Coach, I'm glad you're happy. Would you be open to a quick quote I can share? Other coaches trust other coaches more than they trust me."</p></blockquote>
+
+<hr>
+
+<h2 id="part-9-issue-resolution">PART 9: ISSUE RESOLUTION — IRONCLAD IN ACTION</h2>
+
+<h3>9.1 The Promise</h3>
+<blockquote><p><strong>"If anything goes wrong with the product, TUF fixes it. Period. Not pro-rated. Not 'within reason.' Fixed."</strong></p></blockquote>
+
 <h3>9.2 Issue Resolution Protocol</h3>
 <table>
-<thead><tr>
-<th>Step</th>
-<th>Action</th>
-<th>Timeline</th>
-</tr></thead>
+<thead><tr><th>Step</th><th>Action</th><th>Timeline</th></tr></thead>
 <tbody>
-<tr>
-<td>1</td>
-<td><strong>Acknowledge immediately.</strong> "Coach, I'm on it."</td>
-<td>< 2 hours</td>
-</tr>
-<tr>
-<td>2</td>
-<td><strong>Own the problem.</strong> Never say "the vendor messed up." YOU are TUF.</td>
-<td>Immediate</td>
-</tr>
-<tr>
-<td>3</td>
-<td><strong>Diagnose.</strong> What exactly is wrong? How many items? Impact?</td>
-<td>< 24 hours</td>
-</tr>
-<tr>
-<td>4</td>
-<td><strong>Present the solution.</strong> "Coach, here's what we're doing: [fix]. Timeline: [date]."</td>
-<td>< 24 hours</td>
-</tr>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <tr>
-<td>5</td>
-<td><strong>Execute the fix.</strong> Replace, repair, refund. Whatever it takes.</td>
-<td>ASAP</td>
-</tr>
-<tr>
-<td>6</td>
-<td><strong>Follow up.</strong> "Coach, is everything resolved to your satisfaction?"</td>
-<td>< 48 hours after fix</td>
-</tr>
+<tr><td>1</td><td><strong>Acknowledge immediately.</strong> "Coach, I'm on it."</td><td>&lt; 2 hours</td></tr>
+<tr><td>2</td><td><strong>Own the problem.</strong> Never say "the vendor messed up."</td><td>Immediate</td></tr>
+<tr><td>3</td><td><strong>Diagnose.</strong> What exactly is wrong? How many items? Impact?</td><td>&lt; 24 hours</td></tr>
+<tr><td>4</td><td><strong>Present the solution.</strong> "Coach, here's what we're doing: [fix]. Timeline: [date]."</td><td>&lt; 24 hours</td></tr>
+<tr><td>5</td><td><strong>Execute the fix.</strong> Replace, repair, refund.</td><td>ASAP</td></tr>
+<tr><td>6</td><td><strong>Follow up.</strong> "Coach, is everything resolved to your satisfaction?"</td><td>&lt; 48 hours after fix</td></tr>
 </tbody>
 </table>
+
 <h3>9.3 Issue Resolution Scripts</h3>
 <p><strong>Coach reports a problem:</strong></p>
-<div class="quote"><em>"Coach, thank you for telling me. I'm going to take care of this. Let me get the details — exactly what's wrong, which items, how many — and I'll have a solution by [end of day / tomorrow morning]. You have my word."</em></div>
+<blockquote><p>"Coach, thank you for telling me. I'm going to take care of this. Let me get the details — exactly what's wrong, which items, how many — and I'll have a solution by [end of day / tomorrow morning]. You have my word."</p></blockquote>
 <p><strong>Presenting the solution:</strong></p>
-<div class="quote"><em>"Coach, here's the plan: we're replacing [items] at no cost. Expedited — you'll have them by [date]. This is exactly what the IRONCLAD GUARANTEE is for. I'm sorry it happened, and we're fixing it."</em></div>
+<blockquote><p>"Coach, here's the plan: we're replacing [items] at no cost. Expedited — you'll have them by [date]. This is exactly what the IRONCLAD GUARANTEE is for. I'm sorry it happened, and we're fixing it."</p></blockquote>
 <p><strong>After the fix:</strong></p>
-<div class="quote"><em>"Coach, the replacement [items] should have arrived. Everything right now? I want to make sure you're 100% satisfied."</em></div>
+<blockquote><p>"Coach, the replacement [items] should have arrived. Everything right now? I want to make sure you're 100% satisfied."</p></blockquote>
+
 <h3>9.4 Issue Categories</h3>
 <table>
-<thead><tr>
-<th>Issue</th>
-<th>Standard Response</th>
-</tr></thead>
+<thead><tr><th>Issue</th><th>Standard Response</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>Wrong size (1–3 items)</strong></td>
-<td>Reorder correct sizes. Expedite. No charge.</td>
-</tr>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <tr>
-<td><strong>Wrong size (many)</strong></td>
-<td>Full assessment. Replace all. Expedite.</td>
-</tr>
-<tr>
-<td><strong>Color doesn't match</strong></td>
-<td>Production error: full reorder at TUF's expense.</td>
-</tr>
-<tr>
-<td><strong>Peeling graphics</strong></td>
-<td>Replace immediately. Investigate root cause.</td>
-</tr>
-<tr>
-<td><strong>Stitching failure</strong></td>
-<td>Replace or repair. LOCK-FIT is a promise.</td>
-</tr>
-<tr>
-<td><strong>Missing items</strong></td>
-<td>Ship immediately. Verify if production or transit.</td>
-</tr>
-<tr>
-<td><strong>Late delivery</strong></td>
-<td>Proactive communication. Apologize. Make it right.</td>
-</tr>
-<tr>
-<td><strong>Defective fabric</strong></td>
-<td>Replace all affected. Return to vendor for analysis.</td>
-</tr>
+<tr><td><strong>Wrong size (1–3 items)</strong></td><td>Reorder correct sizes. Expedite. No charge.</td></tr>
+<tr><td><strong>Wrong size (many)</strong></td><td>Full assessment. Replace all. Expedite.</td></tr>
+<tr><td><strong>Color doesn't match</strong></td><td>Production error: full reorder at TUF's expense.</td></tr>
+<tr><td><strong>Peeling graphics</strong></td><td>Replace immediately. Investigate root cause.</td></tr>
+<tr><td><strong>Stitching failure</strong></td><td>Replace or repair. LOCK-FIT is a promise.</td></tr>
+<tr><td><strong>Missing items</strong></td><td>Ship immediately. Verify if production or transit.</td></tr>
+<tr><td><strong>Late delivery</strong></td><td>Proactive communication. Apologize. Make it right.</td></tr>
+<tr><td><strong>Defective fabric</strong></td><td>Replace all affected. Return to vendor for analysis.</td></tr>
 </tbody>
 </table>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>9.5 The IRONCLAD Rule</h3>
-<div class="quote"><strong>The cost of fixing a problem is the cost of keeping a customer. The cost of NOT fixing a problem is losing a customer — and every coach they talk to.</strong></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>10.1 When to Upsell</h3>
-<p>The best time is when the coach is most excited:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">At the unboxing, seeing uniforms for the first time</li><li style="margin-bottom:0.04in;">One week after delivery, when athletes have worn them and feedback is positive</li><li style="margin-bottom:0.04in;">After the first game, when the program looks sharp and the coach is proud</li></ul>
+
+<h3>9.5 The IRONCLAD Rule</h3>
+<blockquote><p><strong>The cost of fixing a problem is the cost of keeping a customer. The cost of NOT fixing a problem is losing a customer — and every coach they talk to.</strong></p></blockquote>
+
+<hr>
+
+<h2 id="part-10-upsell-during-delivery">PART 10: UPSELL DURING DELIVERY — THE NEXT LANE</h2>
+
+<h3>10.1 When to Upsell</h3>
+<p>The best time is when the coach is most excited: at the unboxing, one week after delivery, after the first game.</p>
+
 <h3>10.2 Lane Expansion Scripts</h3>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Lane 1 → Lane 2: ISSUE Travel Gear</h4>
-<div class="quote"><em>"Coach, your athletes look sharp in GRIND on Friday nights. Here's my question: what are they wearing when they get off the bus at an away game? Our ISSUE travel gear — tech suits, duffles, backpacks — same quality standard, same design language. PACKSYSTEM integration. Your team competes in a system. They should travel in a system. Want me to put together a travel package?"</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Lane 1 → Lane 3: Team Stores</h4>
-<div class="quote"><em>"Coach, I was at your game last Friday. The stands were packed. Your fans were wearing random school T-shirts. Imagine if they could buy gear that matches what your athletes wear — same quality, same design. Online storefront. Your program earns 15–25% on every sale. That's revenue you're leaving on the table. Want to see how it works?"</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Lane 2 → Lane 4: LEGACY Letterman Jackets</h4>
-<div class="quote"><em>"Coach, your seniors have been in the TUF system — competing in GRIND, traveling in ISSUE. They've earned LEGACY. Premium wool, leather sleeves, custom chenille patches. The jacket that carries your program's history. Let's make sure your seniors get what they've earned."</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Single Sport → Multi-Sport</h4>
-<div class="quote"><em>"Coach, you're TUF in football. What about basketball? OVERTIME collection. FLEX-WAIST shorts — solves the waistband problem nobody else has solved. Your basketball coach is going to see what your football team looks like and ask why they don't have it. Let's get ahead of that conversation."</em></div>
+
+<h4>Lane 1 → Lane 2: ISSUE Travel Gear</h4>
+<blockquote><p>"Coach, your athletes look sharp in GRIND on Friday nights. Here's my question: what are they wearing when they get off the bus at an away game? Our ISSUE travel gear — tech suits, duffles, backpacks — same quality standard, same design language. PACKSYSTEM integration. Your team competes in a system. They should travel in a system."</p></blockquote>
+
+<h4>Lane 1 → Lane 3: Team Stores</h4>
+<blockquote><p>"Coach, I was at your game last Friday. The stands were packed. Your fans were wearing random school T-shirts. Imagine if they could buy gear that matches what your athletes wear — same quality, same design. Online storefront. Your program earns 15–25% on every sale. Want to see how it works?"</p></blockquote>
+
+<h4>Lane 2 → Lane 4: LEGACY Letterman Jackets</h4>
+<blockquote><p>"Coach, your seniors have been in the TUF system — competing in GRIND, traveling in ISSUE. They've earned LEGACY. Premium wool, leather sleeves, custom chenille patches. The jacket that carries your program's history."</p></blockquote>
+
+<h4>Single Sport → Multi-Sport</h4>
+<blockquote><p>"Coach, you're TUF in football. What about basketball? OVERTIME collection. FLEX-WAIST shorts — solves the waistband problem nobody else has solved."</p></blockquote>
+
 <h3>10.3 The Upsell Rule</h3>
-<div class="quote"><strong>Never pitch the next lane until the current lane is delivered and the coach is happy. Upsell from satisfaction, not anticipation.</strong></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>11.1 When to Ask</h3>
-<p>The ideal referral window opens when the coach is happiest:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">After successful delivery and unboxing</li><li style="margin-bottom:0.04in;">After first game in new uniforms (if coach is excited)</li><li style="margin-bottom:0.04in;">After you've resolved an issue exceptionally well</li><li style="margin-bottom:0.04in;">When coach unprompted says something positive</li></ul>
+<blockquote><p><strong>Never pitch the next lane until the current lane is delivered and the coach is happy. Upsell from satisfaction, not anticipation.</strong></p></blockquote>
+
+<hr>
+
+<h2 id="part-11-referral-requests">PART 11: REFERRAL REQUESTS</h2>
+
+<h3>11.1 When to Ask</h3>
+<p>The ideal referral window opens when the coach is happiest: after successful delivery and unboxing, after first game in new uniforms, after you've resolved an issue exceptionally well.</p>
+
 <h3>11.2 Referral Scripts</h3>
 <p><strong>The Direct Ask:</strong></p>
-<div class="quote"><em>"Coach, I'm glad you're happy. Is there another coach in your conference dealing with the same frustrations you had before TUF? I'd love an introduction."</em></div>
+<blockquote><p>"Coach, I'm glad you're happy. Is there another coach in your conference dealing with the same frustrations you had before TUF? I'd love an introduction."</p></blockquote>
 <p><strong>The Soft Ask:</strong></p>
-<div class="quote"><em>"Coach, I'm not asking you to sell. But if you're at a clinic and someone complains about boxy fit, late delivery, peeling graphics — mention our name. That's all."</em></div>
+<blockquote><p>"Coach, I'm not asking you to sell. But if you're at a clinic and someone complains about boxy fit, late delivery, peeling graphics — mention our name. That's all."</p></blockquote>
 <p><strong>The Conference Play:</strong></p>
-<div class="quote"><em>"Coach, you're in the [Conference]. That's [X] schools. I'd bet half are dealing with vendor frustrations. If there's one coach you'd feel good about introducing me to, I'd be grateful."</em></div>
-<h3>11.3 Referral Follow-Up</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">Thank immediately — handwritten note</li><li style="margin-bottom:0.04in;">Ask for context: "What should I know about Coach [Name]?"</li><li style="margin-bottom:0.04in;">Contact within 48 hours</li><li style="margin-bottom:0.04in;">Mention the referring coach</li><li style="margin-bottom:0.04in;">Update the referring coach after connecting</li></ul>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>Scenario 1: The Smooth Handoff</h3>
-<p><strong>Situation:</strong> All info complete. Ready for Operations.</p>
-<p><strong>Task:</strong> Walk through checklist. Set timeline. Send confirmation email.</p>
-<h3>Scenario 2: Missing Logo Files</h3>
-<p><strong>Situation:</strong> Coach signed but hasn't sent logos.</p>
-<p><strong>Script:</strong></p>
-<div class="quote"><em>"Coach, one more thing before I submit — your logo files. Vector (AI, EPS) or high-res PNG (300dpi+). Who at the school handles that? Once I have them, we're in production."</em></div>
-<h3>Scenario 3: Incomplete Roster</h3>
-<p><strong>Situation:</strong> 5 athletes missing sizes.</p>
-<p><strong>Task:</strong> Get missing sizes. Offer sizing session.</p>
-<h3>Scenario 4: Production Delay</h3>
-<p><strong>Situation:</strong> Operations says 2 weeks behind.</p>
-<p><strong>Script:</strong></p>
-<div class="quote"><em>"Coach, I need to be straight with you. Production delay — [reason]. New delivery: [date] — [X weeks] later than planned. I'm sorry. Here's what I'm doing: flagged as priority, checking in weekly. I'll keep you posted every step."</em></div>
-<h3>Scenario 5: Wrong Size Arrives</h3>
-<p><strong>Situation:</strong> 3 jerseys wrong size.</p>
-<p><strong>Script:</strong></p>
-<div class="quote"><em>"Coach, I'm sorry. Those three — reordering right now, correct sizes, expedited. Here in [X] days. IRONCLAD GUARANTEE. We fix it. Period."</em></div>
-<h3>Scenario 6: Missing Box</h3>
-<p><strong>Situation:</strong> Half the away jerseys missing.</p>
-<p><strong>Task:</strong> Track the box. Determine if production or shipping. Communicate clearly.</p>
-<h3>Scenario 7: Color Issue</h3>
-<p><strong>Situation:</strong> Coach says red is "too orange."</p>
-<p><strong>Task:</strong> Determine root cause — artwork error or production error. Resolve based on cause.</p>
-<h3>Scenario 8: The Unboxing Event</h3>
-<p><strong>Situation:</strong> You're at the school. Coach excited. Captains there.</p>
-<p><strong>Task:</strong> Make it a moment. Demo the fit. Photos. Plant travel gear seed.</p>
-<h3>Scenario 9: Lane Expansion Conversation</h3>
-<p><strong>Situation:</strong> One week after delivery. Coach happy. Satisfaction check.</p>
-<p><strong>Task:</strong> Confirm satisfaction. Transition to Lane 2 (ISSUE travel gear).</p>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>Scenario 10: Referral Request</h3>
-<p><strong>Situation:</strong> Delivery perfect. Coach loves uniforms.</p>
-<p><strong>Task:</strong> Ask for referral. Get a name. Get context.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <pre>┌──────────────────────────────────────────────────────────────────┐
+<blockquote><p>"Coach, you're in the [Conference]. That's [X] schools. I'd bet half are dealing with vendor frustrations. If there's one coach you'd feel good about introducing me to, I'd be grateful."</p></blockquote>
+
+<hr>
+
+<h2 id="part-12-order-handoff-scenarios">PART 12: 10 ORDER HANDOFF SCENARIOS</h2>
+<table>
+<thead><tr><th>#</th><th>Scenario</th><th>Key Action</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>The Smooth Handoff</td><td>Walk through checklist. Set timeline. Send confirmation email.</td></tr>
+<tr><td>2</td><td>Missing Logo Files</td><td>"Who at the school handles that? Once I have them, we're in production."</td></tr>
+<tr><td>3</td><td>Incomplete Roster</td><td>Get missing sizes. Offer sizing session.</td></tr>
+<tr><td>4</td><td>Production Delay</td><td>"Coach, I need to be straight with you. New delivery: [date]. Flagged as priority."</td></tr>
+<tr><td>5</td><td>Wrong Size Arrives</td><td>"Reordering right now, correct sizes, expedited. IRONCLAD GUARANTEE."</td></tr>
+<tr><td>6</td><td>Missing Box</td><td>Track the box. Determine if production or shipping. Communicate clearly.</td></tr>
+<tr><td>7</td><td>Color Issue</td><td>Determine root cause — artwork error or production error. Resolve.</td></tr>
+<tr><td>8</td><td>The Unboxing Event</td><td>Make it a moment. Demo the fit. Photos. Plant travel gear seed.</td></tr>
+<tr><td>9</td><td>Lane Expansion Conversation</td><td>Confirm satisfaction. Transition to Lane 2 (ISSUE travel gear).</td></tr>
+<tr><td>10</td><td>Referral Request</td><td>Delivery perfect. Coach loves uniforms. Ask for referral.</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="appendix-a-order-handoff-field-card">APPENDIX A: ORDER HANDOFF FIELD CARD</h2>
+<pre><code>┌──────────────────────────────────────────────────────────────────┐
 │                  TUF ORDER HANDOFF FIELD CARD                    │
 │                  BUILT FOR THE PROGRAM                           │
 ├──────────────────────────────────────────────────────────────────┤
-│                                                                  │
 │  HANDOFF CHECKLIST (24 hours after signed order):                │
 │  ☐ Signed order form    ☐ Deposit paid (50%)                    │
 │  ☐ Complete roster      ☐ Sizes confirmed                       │
@@ -1260,194 +398,120 @@ Director: ________________________  Date: ______
 │  ☐ Delivery address     ☐ Timeline confirmed                    │
 │                                                                  │
 │  COMMUNICATION CADENCE:                                          │
-│  Day 2–3:   "Your order is confirmed!"                           │
-│  Day 5–7:   Artwork proof approval                               │
-│  Midpoint:  "On track" + Lane 2 seed                             │
-│  Ship day:  "On the way! Tracking: [number]"                     │
-│  Delivery:  Unboxing event. Photos. Celebrate.                   │
-│  Day +7:    Satisfaction check + Lane expansion                  │
-│  Day +14:   Referral request                                     │
+│  Day 2–3: "Order confirmed!"   Day 5–7: Artwork proof          │
+│  Midpoint: "On track" + Lane 2 seed                             │
+│  Ship day: "On the way!"   Delivery: Unboxing. Celebrate.       │
+│  Day +7: Satisfaction check + Lane expansion                    │
+│  Day +14: Referral request                                      │
 │                                                                  │
 │  IRONCLAD ISSUE RESOLUTION:                                      │
-│  1. Acknowledge < 2 hours    4. Present solution < 24 hours      │
-│  2. Own the problem          5. Execute fix ASAP                 │
-│  3. Diagnose < 24 hours      6. Follow up < 48 hours after       │
+│  1. Acknowledge < 2 hours   4. Present solution < 24 hours      │
+│  2. Own the problem         5. Execute fix ASAP                 │
+│  3. Diagnose < 24 hours     6. Follow up < 48 hours after       │
 │                                                                  │
-│  LANE EXPANSION TRIGGERS:                                        │
-│  • Uniform delivery → Travel Gear (ISSUE)                        │
-│  • Travel delivery → Team Stores                                 │
-│  • 6+ months in system → Letterman Jackets (LEGACY)              │
-│  • Any close → Multi-sport expansion                             │
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        │                                                                  │
-│  RULE: Find problems before the coach does.                      │
-│  RULE: Proactive updates > reactive apologies.                   │
-│  RULE: The handoff isn't the end. It's the next beginning.       │
-└──────────────────────────────────────────────────────────────────┘</pre>
-<hr class="rule">
-<p><em>The order handoff is where TUF proves what it promised. Every smooth delivery, every resolved issue, every delighted coach — that's how reputations are built and territories are won. Close the deal. Then build the relationship.</em></p>
-<hr class="rule">
-<p>## KNOWLEDGE ASSESSMENT — MODULE 05</p>
+│  GOLDEN RULE: Find problems before the coach does.              │
+│  GOLDEN RULE: Proactive beats reactive. Every time.             │
+└──────────────────────────────────────────────────────────────────┘</code></pre>
+
+<hr>
+<p><em>The order handoff is where TUF proves what it promised. Every smooth delivery, every resolved issue, every delighted coach — that's how reputations are built and territories are won.</em></p>
+<hr>
+
+<h2 id="knowledge-assessment-module-05">KNOWLEDGE ASSESSMENT — MODULE 05</h2>
+
 <h3>Scenario-Based Questions</h3>
-<p>The handoff isn't theory. When uniforms arrive with problems, a coach is on the phone, and the IRONCLAD GUARANTEE is being tested — there's no time to look things up. These scenarios test whether you're ready for that moment.</p>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 1: The Missing Half-Order</h4>
-<p><strong>Situation:</strong> A volleyball coach's uniforms just arrived. She calls you, and you can hear the frustration in her voice: <em>"We got the jerseys. But there are no shorts. Half my order is missing. Our first tournament is in 10 days. What happened?"</em> You check with Operations — the shorts shipped separately and are delayed 5 more days. They'll arrive 3 days before the tournament. Tight, but doable.</p>
-<p><strong>Question:</strong> What's your verbatim response to the coach that (a) owns the problem immediately, (b) presents the specific solution and timeline, and (c) deploys the IRONCLAD GUARANTEE in a way that turns this from "TUF messed up" to "TUF handled it"? Write exactly what you say on the call.</p>
-<hr class="rule">
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 2: The Color Disaster</h4>
-<p><strong>Situation:</strong> You're at an unboxing event with the head football coach and three team captains. You open the first box. The jerseys are beautiful — but the red is clearly too orange. It doesn't match the helmets. The coach looks at you: <em>"That's not our red. That's not even close. Our school color is cardinal. This is... orange. What are we supposed to do?"</em> The captains are watching. This moment defines whether you keep or lose this program.</p>
-<p><strong>Question:</strong> What's your immediate response — in front of the captains — that (a) acknowledges the problem honestly (you don't know yet whose fault it is), (b) presents the IRONCLAD GUARANTEE as the safety net that makes this problem solvable, and (c) preserves the coach's confidence in TUF while you investigate?</p>
-<hr class="rule">
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 3: The Product Application — Lane Expansion Question</h4>
-<p><strong>Situation:</strong> One week after delivering GRIND football uniforms, you're on the satisfaction check call. The coach is thrilled: <em>"The kids love them. We've gotten more compliments in one game than we got all last season."</em> The timing is perfect — he's happy, the athletes are excited, and the visibility is high.</p>
-<p><strong>Question:</strong> Which lane do you expand to next, what's the specific TUF collection you pitch, and what's the verbatim script you use that connects this moment of satisfaction to the next logical purchase? Reference the Lane Expansion Scripts from Section 10.2.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 4: The Objection — "I'm Not Paying for Someone Else's Mistake"</h4>
-<p><strong>Situation:</strong> Three weeks after delivery, a baseball coach finds that the graphics on five jerseys are starting to crack. He's frustrated: <em>"These are already falling apart. I'm not paying the balance on this order until every single jersey is replaced. And I want to talk to someone above you."</em> He's angry and escalating.</p>
-<p><strong>Question:</strong> What's your response that (a) doesn't argue about the balance — IRONCLAD GUARANTEE means you fix it regardless, (b) takes ownership without throwing Operations under the bus, and (c) turns an angry coach into a potential referral by handling this so well he tells other coaches about it?</p>
-<hr class="rule">
+
+<h4>SCENARIO 1: The Missing Half-Order</h4>
+<p><strong>Situation:</strong> A volleyball coach's uniforms just arrived. She calls: "We got the jerseys. But there are no shorts. Half my order is missing. Our first tournament is in 10 days. What happened?" The shorts shipped separately and are delayed 5 more days.</p>
+<p><strong>Question:</strong> What's your verbatim response that (a) owns the problem immediately, (b) presents the specific solution and timeline, and (c) deploys the IRONCLAD GUARANTEE to turn this from "TUF messed up" to "TUF handled it"?</p>
+<hr>
+
+<h4>SCENARIO 2: The Color Disaster</h4>
+<p><strong>Situation:</strong> You're at an unboxing event with the head football coach and three team captains. The red is clearly too orange. It doesn't match the helmets. The coach looks at you: "That's not our red. That's not even close. Our school color is cardinal. This is... orange. What are we supposed to do?"</p>
+<p><strong>Question:</strong> What's your immediate response — in front of the captains — that acknowledges the problem honestly and preserves the coach's confidence in TUF?</p>
+<hr>
+
+<h4>SCENARIO 3: Lane Expansion Question</h4>
+<p><strong>Situation:</strong> One week after delivering GRIND football uniforms, the coach is thrilled: "The kids love them. We've gotten more compliments in one game than we got all last season."</p>
+<p><strong>Question:</strong> Which lane do you expand to next, what's the specific TUF collection you pitch, and what's the verbatim script?</p>
+<hr>
+
+<h4>SCENARIO 4: "I'm Not Paying for Someone Else's Mistake"</h4>
+<p><strong>Situation:</strong> Three weeks after delivery, a baseball coach finds that graphics on five jerseys are cracking. He's angry: "These are already falling apart. I'm not paying the balance until every single jersey is replaced. And I want to talk to someone above you."</p>
+<p><strong>Question:</strong> What's your response that takes ownership without throwing Operations under the bus and turns an angry coach into a potential referral?</p>
+
 <h3>Recall Foundation</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Handoff Checklist:</strong> Name the five most common handoff mistakes and their prevention.</li><li style="margin-bottom:0.04in;"><strong>Communication Cadence:</strong> What are the six coach communications during production, and what's the timing for each?</li><li style="margin-bottom:0.04in;"><strong>Issue Resolution Protocol:</strong> What are the six steps, and what's the timeline for Step 1?</li></ul>
+<ol>
+<li><strong>Handoff Checklist:</strong> Name the five most common handoff mistakes and their prevention.</li>
+<li><strong>Communication Cadence:</strong> What are the six coach communications during production?</li>
+<li><strong>Issue Resolution Protocol:</strong> What are the six steps, and what's the timeline for Step 1?</li>
+</ol>
+
 <h3>Director Checkpoint</h3>
-<p>Complete a 10-minute role-play with your Director:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>The Delay Call:</strong> Director plays a coach whose order is 2 weeks late. You deliver the proactive delay notification (Section 4.3). Director pushes: "This is unacceptable." You hold. You don't blame Ops.</li><li style="margin-bottom:0.04in;"><strong>The QA Walkthrough:</strong> Director plays a coach at an unboxing. You walk through the QA Inspection Checklist together. Director points out a problem. You respond.</li><li style="margin-bottom:0.04in;"><strong>The Lane Expansion Pivot:</strong> Director is a happy coach on a satisfaction check call. You confirm satisfaction, then transition to Lane 2 (ISSUE travel gear). Director evaluates: timing, script choice, natural flow.</li></ul>
-<hr class="rule">
-<p>## USING THIS MANUAL BEYOND CERTIFICATION</p>
-<p>The handoff is where trust is either cemented or shattered. This manual protects your relationships and grows your accounts — every week, not just during onboarding.</p>
-<h3>When to Reference This Manual During Your Sales Week</h3>
+<ul>
+<li><strong>The Delay Call:</strong> Director plays a coach whose order is 2 weeks late. You deliver the proactive delay notification.</li>
+<li><strong>The QA Walkthrough:</strong> Director plays a coach at an unboxing. You walk through the QA checklist.</li>
+<li><strong>The Lane Expansion Pivot:</strong> Director is a happy coach. You transition to Lane 2 (ISSUE travel gear).</li>
+</ul>
+
+<hr>
+
+<h2 id="using-this-manual-beyond-certification">USING THIS MANUAL BEYOND CERTIFICATION</h2>
+<p>The handoff is where trust is either cemented or shattered. This manual protects your relationships and grows your accounts — every week.</p>
+
+<h3>When to Reference This Manual</h3>
 <table>
-<thead><tr>
-<th>Moment</th>
-<th>What to Pull Up</th>
-<th>Why</th>
-</tr></thead>
+<thead><tr><th>Moment</th><th>What to Pull Up</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>When a Deal Closes</strong></td>
-<td>Part 3: The Handoff Checklist</td>
-<td>Complete within 24 hours. Every field. Nothing goes to Operations incomplete.</td>
-</tr>
-<tr>
-<td><strong>Before Submitting to Operations</strong></td>
-<td>Section 3.2: The Director QA Question</td>
-<td>Ask yourself: "If this order arrives wrong, what's the cost — and have I done everything to prevent that?"</td>
-</tr>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <tr>
-<td><strong>During Production</strong></td>
-<td>Part 5: Customer Communication Cadence</td>
-<td>Where are you in the timeline? Send the right template at the right milestone.</td>
-</tr>
-<tr>
-<td><strong>When Tracking Shows Delivery</strong></td>
-<td>Part 7: Delivery and Unboxing</td>
-<td>Are you doing an in-person unboxing? If not, send the Unboxing Guide. Make it a moment.</td>
-</tr>
-<tr>
-<td><strong>7 Days After Delivery</strong></td>
-<td>Part 8: Post-Delivery Follow-Up</td>
-<td>Satisfaction check script. Don't skip this call — it's where lane expansion and referrals are born.</td>
-</tr>
-<tr>
-<td><strong>When Something Goes Wrong</strong></td>
-<td>Part 9: Issue Resolution Protocol</td>
-<td>Six steps. Start at Step 1: Acknowledge within 2 hours. Never delay the first response.</td>
-</tr>
+<tr><td><strong>When a Deal Closes</strong></td><td>Part 3: The Handoff Checklist — complete within 24 hours</td></tr>
+<tr><td><strong>Before Submitting to Operations</strong></td><td>Section 3.2: The Director QA Question</td></tr>
+<tr><td><strong>During Production</strong></td><td>Part 5: Customer Communication Cadence</td></tr>
+<tr><td><strong>When Tracking Shows Delivery</strong></td><td>Part 7: Delivery and Unboxing</td></tr>
+<tr><td><strong>7 Days After Delivery</strong></td><td>Part 8: Post-Delivery Follow-Up</td></tr>
+<tr><td><strong>When Something Goes Wrong</strong></td><td>Part 9: Issue Resolution Protocol — start at Step 1</td></tr>
 </tbody>
 </table>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>Scripts to Keep Open on Your Phone During Handoff</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Proactive Delay Notification</strong> (Section 4.3) — "Coach, I need to be upfront — we've hit a delay..." This script saves relationships.</li><li style="margin-bottom:0.04in;"><strong>Issue Resolution Scripts</strong> (Section 9.3) — All three: Report → Solution → Follow-Up. Have them accessible. You don't want to improvise during a crisis.</li><li style="margin-bottom:0.04in;"><strong>Lane Expansion Scripts</strong> (Section 10.2) — All four expansion scripts. Know which one to deploy based on which lane the coach is currently in.</li></ul>
-<h3>Reference Tables to Bookmark</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Handoff Checklist</strong> (Section 3.1) — Your order submission bible. Print a blank copy. Fill it out for every deal.</li><li style="margin-bottom:0.04in;"><strong>Production Timelines</strong> (Section 4.1) — Know lead times. Always add the 1–2 week buffer when communicating to coaches.</li><li style="margin-bottom:0.04in;"><strong>Issue Categories and Standard Responses</strong> (Section 9.4) — When a coach calls with a problem, scan this table to match issue to response.</li><li style="margin-bottom:0.04in;"><strong>Lane Sequencing</strong> (Module 04, Section 4.4) — Which lane comes next? This table tells you based on current state.</li><li style="margin-bottom:0.04in;"><strong>QA Inspection Checklist</strong> (Section 6.1) — Open during every unboxing. Find problems before the coach does.</li></ul>
-<h3>Weekly Ritual: The Monday Morning 10-Minute Review</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Minutes 0–3:</strong> Check the status of every order in production. Are you behind on any communication milestones? Send any overdue updates immediately.</li><li style="margin-bottom:0.04in;"><strong>Minutes 3–6:</strong> Review deliveries from the past 2 weeks. Have you completed satisfaction checks for all of them? If not, schedule those calls now.</li><li style="margin-bottom:0.04in;"><strong>Minutes 6–8:</strong> Check for any open issues. Is there an unresolved IRONCLAD situation? Where are you in the 6-step protocol? Don't let issues stall.</li><li style="margin-bottom:0.04in;"><strong>Minutes 8–10:</strong> Identify one delivered account that's ready for lane expansion. Write down the specific script you'll use. Schedule the call.</li></ul>
-<h3>Coaching Guide: How Your Director Will Use This Manual to Coach You</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>"Show me your handoff checklists for this month's closed deals."</strong> — Director audits your checklists against Section 3.1. Missing fields? Incomplete rosters? Director QA question not answered? The order doesn't move.</li><li style="margin-bottom:0.04in;"><strong>"A coach just called. The uniforms are the wrong color. What do you say?"</strong> — Director role-plays an angry coach. You execute the Issue Resolution Protocol. Director evaluates: ownership language, IRONCLAD deployment, solution specificity.</li><li style="margin-bottom:0.04in;"><strong>"That delivery was two weeks ago. Did you do the satisfaction check?"</strong> — Director checks your post-delivery cadence against Part 8. Missed satisfaction checks are missed referral and expansion opportunities.</li><li style="margin-bottom:0.04in;"><strong>"Your football coach is thrilled with GRIND. What's your next move?"</strong> — Director tests your lane expansion reflex. You should immediately pivot to ISSUE travel gear using the script from Section 10.2.</li></ul>
+
+<h3>Scripts to Keep Open</h3>
+<ul>
+<li><strong>Proactive Delay Notification</strong> (Section 4.3)</li>
+<li><strong>Issue Resolution Scripts</strong> (Section 9.3)</li>
+<li><strong>Lane Expansion Scripts</strong> (Section 10.2)</li>
+</ul>
+
+<h3>Weekly Ritual</h3>
+<ol>
+<li><strong>Minutes 0–3:</strong> Check the status of every order in production. Send overdue updates.</li>
+<li><strong>Minutes 3–6:</strong> Review deliveries from the past 2 weeks. Schedule satisfaction checks.</li>
+<li><strong>Minutes 6–8:</strong> Check for any open issues. Don't let issues stall.</li>
+<li><strong>Minutes 8–10:</strong> Identify one delivered account ready for lane expansion. Schedule the call.</li>
+</ol>
+
 <h3>Quick Reference Card — Module 05</h3>
-<p><strong>Print this page. Keep it in your sample kit. It's your handoff cockpit.</strong></p>
-<pre>┌──────────────────────────────────────────────────────────────────┐
+<pre><code>┌──────────────────────────────────────────────────────────────────┐
 │             TUF ORDER HANDOFF — QUICK REFERENCE CARD              │
 │             BUILT FOR THE PROGRAM                                 │
 ├──────────────────────────────────────────────────────────────────┤
-│                                                                  │
 │  HANDOFF CHECKLIST (24 hours):                                    │
 │  ☐ Signed order form    ☐ Deposit paid (50%)                    │
 │  ☐ Complete roster      ☐ Sizes confirmed                       │
 │  ☐ Logo files (vector)  ☐ Colors (PMS codes)                    │
 │  ☐ Delivery address     ☐ Timeline confirmed                    │
 │                                                                  │
-│  COACH COMMUNICATIONS (never let them wonder):                   │
-│  Day 2–3:   "Order confirmed!"                                   │
-│  Day 5–7:   Artwork proof approval                               │
-│  Midpoint:  "On track" update                                    │
-│  Ship day:  "On the way! Tracking: [number]"                     │
-│  Delivery:  Unboxing event                                       │
-│  Day +7:    Satisfaction check → Lane expansion                  │
-│  Day +14:   Referral request                                     │
+│  COACH COMMUNICATIONS:                                            │
+│  Day 2–3: "Order confirmed!"   Day 5–7: Artwork proof           │
+│  Midpoint: "On track" update   Ship day: "On the way!"           │
+│  Delivery: Unboxing event      Day +7: Satisfaction → Lane exp  │
+│  Day +14: Referral request                                       │
 │                                                                  │
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        │  IRONCLAD IN ACTION (when something goes wrong):                 │
-│  1. Acknowledge < 2 hours ("Coach, I'm on it.")                  │
-│  2. Own the problem (never blame Ops)                            │
-│  3. Diagnose < 24 hours                                           │
-│  4. Present solution < 24 hours                                   │
-│  5. Execute fix ASAP                                              │
-│  6. Follow up < 48 hours after fix                               │
-│                                                                  │
-│  QA SPOT CHECK (before coach sees):                              │
-│  ☐ Count  ☐ Sizes (5-10 items)  ☐ Colors (natural light)       │
-│  ☐ Logos  ☐ Numbers  ☐ Stitching  ☐ Fabric  ☐ Graphics         │
-│                                                                  │
-│  LANE EXPANSION TRIGGERS:                                         │
-│  Uniform delivery → ISSUE Travel Gear ("You compete in TUF.      │
-│    Now travel in a system.")                                     │
-│  Travel delivery → Team Stores ("Your fans want to rep too.      │
-│    Let them — and your program earns on every sale.")            │
-│  6+ months → LEGACY ("Your seniors have earned it.")             │
+│  IRONCLAD IN ACTION:                                              │
+│  1. Acknowledge < 2 hours    4. Present solution < 24 hours      │
+│  2. Own the problem          5. Execute fix ASAP                 │
+│  3. Diagnose < 24 hours      6. Follow up < 48 hours after       │
 │                                                                  │
 │  GOLDEN RULE: Find problems before the coach does.               │
 │  GOLDEN RULE: Proactive beats reactive. Every time.              │
-└──────────────────────────────────────────────────────────────────┘</pre>
+└──────────────────────────────────────────────────────────────────┘</code></pre>
+
 <p><strong>BUILT FOR THE PROGRAM.</strong></p>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-105 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-</body>
-</html>
+</main></div></body></html>
