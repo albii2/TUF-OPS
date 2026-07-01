@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Card, EmptyState, Input, LaneBadge, Pagination } from '../components/primitives';
+import { Button, Card, EmptyState, Input, Pagination } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
 import { createMockOrderFromOpportunity } from '../services/ordersService';
@@ -9,9 +9,6 @@ import { notify } from '../services/feedbackService';
 import {
   canSeeOrderValue,
   getOrderDueDate,
-  getOrderNextAction,
-  getOrderOwner,
-  getOrderRisk,
   getOrderStageLabel,
   getOrderTitle,
   matchesOrderQueueFilter,
@@ -19,7 +16,7 @@ import {
   type OrderQueueFilter,
 } from '../services/orderWorkflow';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 10;
 
 const filters: { key: OrderQueueFilter; label: string }[] = [
   { key: 'ACTION_NEEDED', label: 'Action Needed' },
@@ -29,10 +26,25 @@ const filters: { key: OrderQueueFilter; label: string }[] = [
   { key: 'ALL', label: 'All Orders' },
 ];
 
+function StatusBadge({ stage }: { stage: string }) {
+  const config: Record<string, { label: string; className: string }> = {
+    'COMPLETED': { label: 'Complete', className: 'bg-emerald-900/40 text-emerald-300 border-emerald-600/40' },
+    'IN_PRODUCTION': { label: 'In Production', className: 'bg-blue-900/40 text-blue-300 border-blue-600/40' },
+    'ACTION_NEEDED': { label: 'Pending', className: 'bg-amber-900/40 text-amber-300 border-amber-600/40' },
+    'BLOCKED': { label: 'Blocked', className: 'bg-red-900/40 text-red-300 border-red-600/40' },
+  };
+  const cfg = config[stage] ?? { label: stage, className: 'bg-slate-800/40 text-slate-400 border-slate-600/40' };
+  return (
+    <span className={`inline-flex items-center rounded border px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider ${cfg.className}`}>
+      {cfg.label}
+    </span>
+  );
+}
+
 export function OrdersPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
-  const [queueFilter, setQueueFilter] = useState<OrderQueueFilter>('ACTION_NEEDED');
+  const [queueFilter, setQueueFilter] = useState<OrderQueueFilter>('ALL');
   const [page, setPage] = useState(1);
   const [message, setMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -43,7 +55,9 @@ export function OrdersPage() {
   const canShowValue = canSeeOrderValue();
 
   const filtered = useMemo(
-    () => searchedOrders.filter((order) => matchesOrderQueueFilter(order, queueFilter)).sort(sortOrdersForExecution),
+    () => searchedOrders
+      .filter((order) => matchesOrderQueueFilter(order, queueFilter))
+      .sort((a, b) => (b.createdAt ?? '').localeCompare(a.createdAt ?? '')), // newest first
     [queueFilter, searchedOrders],
   );
 
@@ -74,67 +88,107 @@ export function OrdersPage() {
 
   return (
     <div className="space-y-3 min-w-0">
-      <Card title="Order Execution Queue" className="min-w-0">
-        <div className="mb-3 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {filters.map((filter) => (
-              <button
-                key={filter.key}
-                onClick={() => { setQueueFilter(filter.key); setPage(1); }}
-                className={`rounded-full border px-3 py-1.5 text-xs font-bold transition ${queueFilter === filter.key ? 'border-cyan-300 bg-cyan-400/15 text-cyan-100' : 'border-slate-700 bg-slate-900/50 text-slate-300 hover:border-slate-500'}`}
-              >
-                {filter.label} <span className="text-slate-400">{counts[filter.key]}</span>
-              </button>
-            ))}
+      <Card title="Orders" className="min-w-0">
+        {/* Filter Pills */}
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          {filters.map((filter) => (
+            <button
+              key={filter.key}
+              onClick={() => { setQueueFilter(filter.key); setPage(1); }}
+              className={`rounded-lg border px-3 py-1.5 text-xs font-bold transition ${
+                queueFilter === filter.key
+                  ? 'border-slate-400 bg-slate-700/50 text-slate-100'
+                  : 'border-slate-700 bg-slate-900/30 text-slate-400 hover:border-slate-500 hover:text-slate-200'
+              }`}
+            >
+              {filter.label}
+              <span className="ml-1.5 text-slate-500">{counts[filter.key]}</span>
+            </button>
+          ))}
+          <div className="flex-1" />
+          <button
+            onClick={() => { setSearch(''); setQueueFilter('ALL'); setPage(1); }}
+            className="text-xs font-semibold text-slate-400 hover:text-slate-200"
+          >
+            Reset
+          </button>
+        </div>
+
+        {/* Search + Create */}
+        <div className="mb-4 grid gap-2 md:grid-cols-[1fr_auto]">
+          <Input placeholder="Search orders by organization or vendor" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          <Button onClick={createOrder}>Create Order From Closed-Won</Button>
+        </div>
+
+        {message ? (
+          <p className="mb-4 rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-sm text-slate-200">{message}</p>
+        ) : null}
+
+        {/* Summary Bar */}
+        <div className="mb-3 flex items-center justify-between border-b border-slate-800 pb-2 text-xs text-slate-500">
+          <span>{filtered.length} orders in {filters.find((f) => f.key === queueFilter)?.label}</span>
+          <span>Newest first</span>
+        </div>
+
+        {/* Table */}
+        {paged.length ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-500">
+                  <th className="py-2 pr-3">Order ID</th>
+                  <th className="py-2 pr-3">School</th>
+                  <th className="py-2 pr-3">Items</th>
+                  <th className="py-2 pr-3 text-right">Value</th>
+                  <th className="py-2 pr-3">Status</th>
+                  <th className="py-2">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/50">
+                {paged.map((order) => {
+                  const linkedOpportunity = opportunities.find((o) => o.id === order.opportunityId);
+                  return (
+                    <tr
+                      key={order.id}
+                      onClick={() => navigate(`/orders/${order.id}`)}
+                      className="cursor-pointer transition-colors hover:bg-slate-800/30"
+                    >
+                      <td className="py-3 pr-3">
+                        <span className="font-mono text-xs text-slate-300">{order.id}</span>
+                      </td>
+                      <td className="py-3 pr-3">
+                        <p className="font-semibold text-slate-100">{order.organizationName}</p>
+                        <p className="text-xs text-slate-500">{getOrderTitle(order, linkedOpportunity)}</p>
+                      </td>
+                      <td className="py-3 pr-3 text-xs text-slate-400">
+                        {order.lane ?? '—'}
+                      </td>
+                      <td className="py-3 pr-3 text-right">
+                        {canShowValue ? (
+                          <span className="font-semibold text-slate-200">{formatCurrency(order.value)}</span>
+                        ) : (
+                          <span className="text-slate-600">—</span>
+                        )}
+                      </td>
+                      <td className="py-3 pr-3">
+                        <StatusBadge stage={order.productionStatus ?? 'ACTION_NEEDED'} />
+                      </td>
+                      <td className="py-3 text-xs text-slate-500">
+                        {formatDate(getOrderDueDate(order))}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          <button onClick={() => { setSearch(''); setQueueFilter('ACTION_NEEDED'); setPage(1); }} className="text-left text-xs font-semibold text-cyan-300 md:text-right">Reset</button>
-        </div>
-        <div className="mb-3 grid gap-2 md:grid-cols-[1fr_auto]">
-          <Input placeholder="Search order, organization, vendor, or stage" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
-          <Button onClick={createOrder}>Create Closed-Won Handoff</Button>
-        </div>
-        {message ? <p className="mb-3 rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-sm text-cyan-100">{message}</p> : null}
-        <div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span>{filtered.length} orders in {filters.find((filter) => filter.key === queueFilter)?.label}</span><span>Sorted by blockers, due date, production, completed</span></div>
-        <div className="space-y-2">
-          {paged.length ? paged.map((order) => {
-            const linkedOpportunity = opportunities.find((opportunity) => opportunity.id === order.opportunityId);
-            const risk = getOrderRisk(order);
-            return (
-              <button key={order.id} onClick={() => navigate(`/orders/${order.id}`)} className="w-full rounded-xl border border-slate-800 bg-slate-950/50 p-3 text-left transition hover:border-cyan-500/50 hover:bg-slate-900/70">
-                <div className="grid gap-3 lg:grid-cols-[1.2fr_.9fr_.9fr_.8fr_.7fr_auto] lg:items-center">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-white">{order.organizationName}</p>
-                    <p className="truncate text-xs text-slate-400">{getOrderTitle(order, linkedOpportunity)}</p>
-                    <div className="mt-1 flex flex-wrap gap-1"><LaneBadge lane={order.lane} /><span className="rounded-full border border-slate-700 px-2 py-0.5 text-[10px] text-slate-300">{order.id}</span></div>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Current stage</p>
-                    <p className="text-sm font-semibold text-slate-100">{getOrderStageLabel(order)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Next action</p>
-                    <p className="text-sm text-slate-200">{getOrderNextAction(order)}</p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Owner / due</p>
-                    <p className="text-sm text-slate-200">{getOrderOwner(order, linkedOpportunity)}</p>
-                    <p className="text-xs text-slate-400">{formatDate(getOrderDueDate(order))}</p>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2 lg:block">
-                    <span className={`rounded-full border px-2.5 py-1 text-xs font-bold ${risk.tone}`}>{risk.label}</span>
-                    {canShowValue ? <p className="mt-1 text-sm font-semibold text-cyan-200">{formatCurrency(order.value)}</p> : null}
-                  </div>
-                  <span className="rounded-lg border border-cyan-500/50 px-3 py-2 text-center text-xs font-bold text-cyan-200">Open</span>
-                </div>
-              </button>
-            );
-          }) : (
-            <div className="space-y-2">
-              <EmptyState title={allOrders.length ? 'No orders match this filter' : 'No orders in this queue'} description={allOrders.length ? 'Switch to All Orders to see every order.' : 'Create a closed-won handoff to start the queue.'} />
-              {allOrders.length ? <Button onClick={() => { setQueueFilter('ALL'); setPage(1); }}>Show All Orders</Button> : null}
-            </div>
-          )}
-        </div>
+        ) : (
+          <EmptyState
+            title={allOrders.length ? 'No orders match this filter' : 'No orders yet'}
+            description={allOrders.length ? 'Try switching to All Orders.' : 'Create an order from a closed-won opportunity to get started.'}
+          />
+        )}
+
         <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
       </Card>
     </div>

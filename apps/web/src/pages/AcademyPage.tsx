@@ -526,27 +526,28 @@ export default function AcademyPage() {
     <div className="min-h-screen text-slate-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto space-y-6">
         {/* ── Header ── */}
-        <div className="relative overflow-hidden rounded-2xl border border-slate-700 bg-[#070c13] p-5 md:p-7">
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-slate-500/30 to-transparent" />
-          <div className="flex flex-col items-center gap-6 text-center">
+        <div className="rounded-2xl border border-slate-700 bg-[#0a0a0a] p-6 md:p-8">
+          <div className="flex flex-col items-center text-center">
             <div className="mx-auto max-w-3xl">
-              <img
-                src={TufAcademyLogo}
-                alt="TUF Academy"
-                className="mx-auto h-14 w-auto object-contain sm:h-16"
-              />
-              <h1 className="mt-3 text-2xl font-black leading-tight text-white md:text-4xl">
-                TUF Sales System Certification
+              <h1 className="text-2xl font-black leading-tight tracking-wider text-white md:text-3xl">
+                TUF SALES SYSTEM — CERTIFICATION
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-                Master the TUF Sales System through six modules: Philosophy, Prospecting, Discovery,
-                Proposal, Order Handoff, and Product Knowledge. Learn → Demonstrate → Coach Review → Deploy.
+              <p className="mt-4 max-w-xl mx-auto text-sm leading-6 text-slate-400">
+                Complete all six modules. Pass the assessments. Get Director approval. Start selling.
               </p>
 
               {/* Certification Status — Professional badge */}
               <div className="mt-4">
                 <span
-                  className={`inline-flex items-center gap-2 rounded border px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${statusColor}`}
+                  className={`inline-flex items-center gap-2 rounded border px-4 py-1.5 text-xs font-bold uppercase tracking-wider ${
+                    isCertified
+                      ? 'border-slate-500 bg-slate-800/50 text-slate-200'
+                      : approvalSubmitted
+                        ? 'border-slate-500 bg-slate-800/50 text-slate-300'
+                        : isRep
+                          ? 'border-slate-600 bg-slate-900/50 text-slate-400'
+                          : 'border-slate-500 bg-slate-800/50 text-slate-200'
+                  }`}
                 >
                   {isCertified ? '' : approvalSubmitted ? '' : isRep ? '' : ''}
                   {certificationLabel}
@@ -569,8 +570,8 @@ export default function AcademyPage() {
                         (phase as string) === 'demonstrate' || phase === 'quiz_passed' || phase === 'awaiting_coach' || phase === 'coach_review' ? 'IN PROGRESS' :
                         'LOCKED';
                       const statusColor =
-                        phase === 'certified' || phase === 'acknowledged' ? 'text-emerald-400' :
-                        phase !== 'locked' ? 'text-amber-400' :
+                        phase === 'certified' || phase === 'acknowledged' ? 'text-slate-200' :
+                        phase !== 'locked' ? 'text-slate-400' :
                         'text-slate-600';
                       return (
                         <div key={code} className="flex items-center justify-between text-xs">
@@ -581,7 +582,7 @@ export default function AcademyPage() {
                     })}
                     <div className="border-t border-slate-700/50 pt-1.5 mt-1.5 flex items-center justify-between text-xs">
                       <span className="text-slate-400 font-bold">Director Review</span>
-                      <span className={isCertified ? 'text-emerald-400 font-bold' : approvalSubmitted ? 'text-purple-400 font-bold' : 'text-amber-400 font-bold'}>
+                      <span className={isCertified ? 'text-slate-200 font-bold' : approvalSubmitted ? 'text-slate-400 font-bold' : 'text-slate-500 font-bold'}>
                         {isCertified ? 'APPROVED' : approvalSubmitted ? 'PENDING' : 'NOT SUBMITTED'}
                       </span>
                     </div>
@@ -615,8 +616,8 @@ export default function AcademyPage() {
 
         {/* ── Module Cards ── */}
         <div>
-          <h2 className="text-xl font-black text-white mb-4 flex items-center gap-2">
-            TUF Sales System — Certification Modules
+          <h2 className="text-lg font-black text-white mb-4 uppercase tracking-wider">
+            CERTIFICATION MODULES
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {LEVEL_1_MODULES.map((module, idx) => {
@@ -626,10 +627,10 @@ export default function AcademyPage() {
               const coachReview = progress?.coachReview ?? getCoachReview(module.code) ?? null;
 
               const phaseColors: Record<string, string> = {
-                certified: 'border-slate-500/40 bg-slate-800/40',
-                acknowledged: 'border-slate-500/40 bg-slate-800/40',
-                coach_review: 'border-purple-400/30 bg-purple-400/5',
-                awaiting_coach: 'border-amber-400/30 bg-amber-400/5',
+                certified: 'border-slate-600/50 bg-slate-900/50',
+                acknowledged: 'border-slate-600/50 bg-slate-900/50',
+                coach_review: 'border-slate-500/40 bg-slate-900/30',
+                awaiting_coach: 'border-slate-600/40 bg-slate-900/30',
                 demonstrate: 'border-slate-600/40 bg-slate-900/30',
                 quiz_passed: 'border-slate-600/40 bg-slate-900/30',
                 learn: 'border-slate-600/40 bg-slate-900/30',
@@ -674,18 +675,18 @@ export default function AcademyPage() {
                 >
                   {/* Module Header */}
                   <div className="flex items-start justify-between mb-2">
-                    <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                       {module.code}
                     </span>
                     <span
                       className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                         phase === 'certified' || phase === 'acknowledged'
-                          ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
+                          ? 'bg-slate-700/40 text-slate-200 border-slate-500/40'
                           : phase === 'coach_review'
-                            ? 'bg-purple-400/20 text-purple-200 border-purple-400/30'
+                            ? 'bg-slate-700/40 text-slate-300 border-slate-500/40'
                             : phase === 'awaiting_coach'
-                              ? 'bg-amber-400/20 text-amber-200 border-amber-400/30'
-                              : 'bg-slate-700/50 text-slate-400 border-slate-600/40'
+                              ? 'bg-slate-800/30 text-slate-400 border-slate-600/40'
+                              : 'bg-slate-800/30 text-slate-500 border-slate-600/40'
                       }`}
                     >
                       {phaseLabel[phase] || phaseLabel['locked']}
@@ -718,24 +719,13 @@ export default function AcademyPage() {
                     </details>
                   )}
 
-                  {/* Exercise Progress Bar */}
+                  {/* Exercise Status */}
                   {showExerciseBar && progress && (
                     <div className="mb-3 rounded-lg bg-slate-950/50 border border-slate-800/60 p-2.5">
-                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                        Demonstrate Progress
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                        Exercise Status
                       </p>
-                      <p className="text-xs text-slate-300">{module.completionCriteria}</p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all bg-cyan-400"
-                            style={{ width: `${exerciseProgressPercent}%` }}
-                          />
-                        </div>
-                        <span className="text-[10px] font-mono text-slate-500 whitespace-nowrap">
-                          {progress?.currentValue ?? 0}/{progress?.targetValue ?? '?'}
-                        </span>
-                      </div>
+                      <p className="text-xs text-slate-500">{module.completionCriteria}</p>
                     </div>
                   )}
 
@@ -761,12 +751,12 @@ export default function AcademyPage() {
                   {(phase === 'quiz_passed' || phase === 'demonstrate') && (
                     <div className="mb-3 space-y-2">
                       {quizResult && (
-                        <div className="rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5 flex items-center justify-between">
+                        <div className="rounded-lg bg-slate-950/50 border border-slate-800/40 p-2.5 flex items-center justify-between">
                           <span
                             className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-bold uppercase ${
                               quizResult.passed
-                                ? 'bg-emerald-400/20 text-emerald-200 border-emerald-400/30'
-                                : 'bg-amber-400/20 text-amber-200 border-amber-400/30'
+                                ? 'bg-slate-700/40 text-slate-200 border-slate-500/40'
+                                : 'bg-slate-800/40 text-slate-400 border-slate-600/40'
                             }`}
                           >
                             {quizResult.passed ? 'PASSED' : 'NOT PASSED'}: {quizResult.score}%
@@ -839,9 +829,9 @@ export default function AcademyPage() {
 
                   {/* Awaiting Coach */}
                   {phase === 'awaiting_coach' && (
-                    <div className="mb-3 rounded-lg border border-amber-400/20 bg-amber-400/5 p-3">
-                      <p className="text-xs font-bold text-amber-300 mb-1">Awaiting Coach Review</p>
-                      <p className="text-xs text-slate-400">
+                    <div className="mb-3 rounded-lg border border-slate-700/40 bg-slate-900/30 p-3">
+                      <p className="text-xs font-bold text-slate-300 mb-1">Awaiting Coach Review</p>
+                      <p className="text-xs text-slate-500">
                         Your work has been submitted. Your Director will review and provide feedback.
                       </p>
                     </div>
@@ -850,11 +840,11 @@ export default function AcademyPage() {
                   {/* Coach Review Ready */}
                   {phase === 'coach_review' && coachReview && (
                     <div className="mb-3 space-y-2">
-                      <div className="rounded-lg border border-purple-400/20 bg-purple-400/5 p-3">
-                        <p className="text-xs font-bold text-purple-300 mb-1">
+                      <div className="rounded-lg border border-slate-600/40 bg-slate-900/30 p-3">
+                        <p className="text-xs font-bold text-slate-300 mb-1">
                           Coach Review Ready
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-500">
                           Reviewed by {coachReview.reviewedBy}. Open to view feedback and acknowledge.
                         </p>
                       </div>
@@ -869,9 +859,9 @@ export default function AcademyPage() {
 
                   {/* Acknowledged */}
                   {phase === 'acknowledged' && (
-                    <div className="mb-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3">
-                      <p className="text-xs font-bold text-emerald-300 mb-1">Acknowledged</p>
-                      <p className="text-xs text-slate-400">
+                    <div className="mb-3 rounded-lg border border-slate-600/40 bg-slate-900/30 p-3">
+                      <p className="text-xs font-bold text-slate-300 mb-1">Acknowledged</p>
+                      <p className="text-xs text-slate-500">
                         Coach Review acknowledged. Module complete.
                       </p>
                     </div>
@@ -879,8 +869,8 @@ export default function AcademyPage() {
 
                   {/* Certified */}
                   {(phase === 'certified') && (
-                    <div className="mb-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3">
-                      <p className="text-xs font-bold text-emerald-300 mb-1">Certified</p>
+                    <div className="mb-3 rounded-lg border border-slate-600/40 bg-slate-900/30 p-3">
+                      <p className="text-xs font-bold text-slate-300 mb-1">Certified</p>
                       <p className="text-xs text-slate-400">
                         {CERTIFICATION_TITLE}
                       </p>
@@ -897,8 +887,8 @@ export default function AcademyPage() {
                   )}
 
                   {/* Philosophy Principle */}
-                  <div className="rounded-lg bg-[#0d1520] border border-slate-800/40 p-2.5">
-                    <p className="text-[10px] font-bold text-amber-400/80 uppercase tracking-wider mb-0.5">
+                  <div className="rounded-lg bg-slate-950/50 border border-slate-800/40 p-2.5">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
                       Philosophy #{philosophy.number}
                     </p>
                     <p className="text-xs text-slate-300 font-medium italic">
@@ -912,11 +902,11 @@ export default function AcademyPage() {
         </div>
 
         {/* ── Resources / Sales Enablement ── */}
-        <div>
-          <h2 className="text-xl font-black text-white mb-4">
-            Sales Enablement Resources
+        <div className="border-t border-slate-800 pt-6">
+          <h2 className="text-lg font-black text-white mb-1 uppercase tracking-wider">
+            SALES ENABLEMENT RESOURCES
           </h2>
-          <p className="text-xs text-slate-400 mb-4 -mt-2">
+          <p className="text-xs text-slate-500 mb-4">
             Training manuals, templates, and reference materials — available to all roles.
           </p>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -970,21 +960,21 @@ export default function AcademyPage() {
                 href={`/training/${resource.file}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-xl border border-slate-700/60 bg-slate-900/30 p-5 hover:border-cyan-400/30 hover:bg-slate-800/40 transition-all group"
+                className="rounded-xl border border-slate-700/50 bg-slate-900/30 p-5 hover:border-slate-500/50 hover:bg-slate-800/30 transition-all group"
               >
                 <div className="flex items-start gap-3">
-                  <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-lg">
+                  <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-600/30 flex items-center justify-center text-lg">
                     {resource.icon}
                   </span>
                   <div className="min-w-0">
-                    <h3 className="text-sm font-black text-white mb-1 group-hover:text-cyan-200 transition-colors">
+                    <h3 className="text-sm font-black text-white mb-1 group-hover:text-slate-200 transition-colors">
                       {resource.name}
                     </h3>
-                    <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                    <p className="text-xs text-slate-500 leading-relaxed mb-2">
                       {resource.desc}
                     </p>
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-cyan-400 uppercase tracking-wider">
-                      📥 Download
+                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Open
                     </span>
                   </div>
                 </div>
@@ -996,21 +986,21 @@ export default function AcademyPage() {
               href="/training/FIRST_CONTACT_EMAIL_TEMPLATE.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-xl border border-amber-400/15 bg-amber-400/5 p-5 hover:border-amber-400/30 hover:bg-amber-400/10 transition-all group"
+              className="rounded-xl border border-slate-700/50 bg-slate-900/30 p-5 hover:border-slate-500/50 hover:bg-slate-800/30 transition-all group"
             >
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-lg">
+                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-600/30 flex items-center justify-center text-lg">
                   ✉️
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-amber-200 transition-colors">
+                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-slate-200 transition-colors">
                     First Contact Email Template
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                  <p className="text-xs text-slate-500 leading-relaxed mb-2">
                     Proven email template for initial outreach to coaches and ADs.
                   </p>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-400 uppercase tracking-wider">
-                    📥 Download
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Open
                   </span>
                 </div>
               </div>
@@ -1021,21 +1011,21 @@ export default function AcademyPage() {
               href="/training/product-cheat-sheets.md"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-xl border border-emerald-400/15 bg-emerald-400/5 p-5 hover:border-emerald-400/30 hover:bg-emerald-400/10 transition-all group"
+              className="rounded-xl border border-slate-700/50 bg-slate-900/30 p-5 hover:border-slate-500/50 hover:bg-slate-800/30 transition-all group"
             >
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center text-lg">
+                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-600/30 flex items-center justify-center text-lg">
                   🏷️
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-emerald-200 transition-colors">
+                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-slate-200 transition-colors">
                     Product Cheat Sheet
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                  <p className="text-xs text-slate-500 leading-relaxed mb-2">
                     Quick reference for TUF products, pricing tiers, and fabric options.
                   </p>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 uppercase tracking-wider">
-                    📥 Download
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Open
                   </span>
                 </div>
               </div>
@@ -1046,21 +1036,21 @@ export default function AcademyPage() {
               href="/training/territorymap_tuf_2026.png"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-xl border border-purple-400/15 bg-purple-400/5 p-5 hover:border-purple-400/30 hover:bg-purple-400/10 transition-all group"
+              className="rounded-xl border border-slate-700/50 bg-slate-900/30 p-5 hover:border-slate-500/50 hover:bg-slate-800/30 transition-all group"
             >
               <div className="flex items-start gap-3">
-                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-purple-400/10 border border-purple-400/20 flex items-center justify-center text-lg">
+                <span className="flex-shrink-0 w-9 h-9 rounded-lg bg-slate-800/50 border border-slate-600/30 flex items-center justify-center text-lg">
                   🗺️
                 </span>
                 <div className="min-w-0">
-                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-purple-200 transition-colors">
+                  <h3 className="text-sm font-black text-white mb-1 group-hover:text-slate-200 transition-colors">
                     Territory Map (2026)
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed mb-2">
+                  <p className="text-xs text-slate-500 leading-relaxed mb-2">
                     Visual reference for TUF territory coverage across Minnesota.
                   </p>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-400 uppercase tracking-wider">
-                    📥 Download / View
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    Open
                   </span>
                 </div>
               </div>
@@ -1112,13 +1102,13 @@ export default function AcademyPage() {
 
         {/* ── Submit for Certification Section ── */}
         {isRep && completeCount === 5 && !approvalSubmitted && !isCertified && (
-          <div className="rounded-2xl border border-purple-400/25 bg-purple-500/5 p-6 backdrop-blur-md mt-6">
+          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/30 p-6 mt-6">
             <div className="flex items-start gap-3">
               <div>
-                <h2 className="text-lg font-black text-white">
+                <h2 className="text-lg font-black text-white uppercase tracking-wider">
                   Submit for {CERTIFICATION_TITLE}
                 </h2>
-                <p className="mt-2 text-sm text-slate-300 leading-relaxed">
+                <p className="mt-2 text-sm text-slate-400 leading-relaxed">
                   All modules have been reviewed and acknowledged. Submit for Director certification.
                 </p>
                 {approvalError && (
@@ -1140,11 +1130,11 @@ export default function AcademyPage() {
 
         {/* ── Submitted State ── */}
         {approvalSubmitted && !isCertified && (
-          <div className="rounded-2xl border border-purple-400/25 bg-purple-500/5 p-6 backdrop-blur-md mb-6">
+          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/30 p-6 mb-6">
             <div className="flex items-start gap-3">
               <div>
-                <h2 className="text-lg font-black text-white">Submitted for Director Certification</h2>
-                <p className="mt-2 text-sm text-slate-300 leading-relaxed">
+                <h2 className="text-lg font-black text-white uppercase tracking-wider">Submitted for Director Certification</h2>
+                <p className="mt-2 text-sm text-slate-400 leading-relaxed">
                   Your certification submission is under review. The Director will review your completed
                   modules, Coach Reviews, and decide: &ldquo;Would I trust you with one of our schools?&rdquo;
                 </p>
@@ -1157,10 +1147,10 @@ export default function AcademyPage() {
         <div>
           <button
             onClick={() => setShowPhilosophy(!showPhilosophy)}
-            className="w-full flex items-center justify-between rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 hover:border-amber-400/40 transition-colors"
+            className="w-full flex items-center justify-between rounded-xl border border-slate-700/50 bg-slate-900/30 p-4 hover:border-slate-500/50 transition-colors"
           >
-            <h2 className="text-xl font-black text-white">The 7 Sales Philosophy Principles</h2>
-            <span className="text-amber-400 text-lg">{showPhilosophy ? '▲' : '▼'}</span>
+            <h2 className="text-lg font-black text-white uppercase tracking-wider">The 7 Sales Philosophy Principles</h2>
+            <span className="text-slate-400 text-lg">{showPhilosophy ? '▲' : '▼'}</span>
           </button>
 
           {showPhilosophy && (
@@ -1168,10 +1158,10 @@ export default function AcademyPage() {
               {SALES_PHILOSOPHY.map((principle) => (
                 <div
                   key={principle.number}
-                  className="rounded-xl border border-amber-400/15 bg-[#0d1520] p-4 hover:border-amber-400/30 transition-colors"
+                  className="rounded-xl border border-slate-700/50 bg-slate-900/30 p-4 hover:border-slate-600/50 transition-colors"
                 >
                   <div className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-amber-400/20 border border-amber-400/30 flex items-center justify-center text-xs font-black text-amber-300">
+                    <span className="flex-shrink-0 w-7 h-7 rounded-full bg-slate-800 border border-slate-600/40 flex items-center justify-center text-xs font-black text-slate-300">
                       {principle.number}
                     </span>
                     <div>
@@ -1191,15 +1181,15 @@ export default function AcademyPage() {
 
         {/* ── Footer Status Boxes ── */}
         {isRep && !isCertified && !approvalSubmitted && completeCount < 5 && (
-          <div className="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-6 backdrop-blur-md">
+          <div className="rounded-2xl border border-slate-700/50 bg-slate-900/30 p-6">
             <div className="flex items-start gap-3">
               <div>
-                <h2 className="text-lg font-black text-white">CRM Access is Gated</h2>
-                <p className="mt-2 text-sm text-slate-300 leading-relaxed">
+                <h2 className="text-lg font-black text-white uppercase tracking-wider">CRM Access is Gated</h2>
+                <p className="mt-2 text-sm text-slate-400 leading-relaxed">
                   Complete all modules (Learn → Demonstrate → Coach Review → Acknowledge),
                   then submit for Director certification to access the full CRM.
                 </p>
-                <p className="mt-3 text-xs text-amber-300 font-medium">
+                <p className="mt-3 text-xs text-slate-500 font-medium">
                   {5 - completeCount} module{5 - completeCount !== 1 ? 's' : ''} remaining before
                   you can submit for {CERTIFICATION_TITLE}.
                 </p>
