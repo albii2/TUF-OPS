@@ -38,6 +38,11 @@ const UNCERTIFIED_ACCESSIBLE_PATHS = new Set([
   '/login',
   '/change-credential',
   '/admin/certification',
+  '/organizations',
+  '/opportunities',
+  '/my-opportunities',
+  '/dashboard',
+  '/settings',
 ]);
 
 function Protected({ user, children }: { user: AppUser | null; children: JSX.Element }) {
@@ -71,8 +76,12 @@ function CertificationProtected({ user, path, children }: { user: AppUser | null
   // ADMIN bypasses certification gate
   if (user.role === 'ADMIN') return children;
 
-  // Allow access to Academy and cert review
+  // Allow access to Academy, cert review, and practical exercise paths
   if (UNCERTIFIED_ACCESSIBLE_PATHS.has(path)) return children;
+  // Also allow dynamic paths under accessible routes (e.g. /organizations/123)
+  for (const allowed of UNCERTIFIED_ACCESSIBLE_PATHS) {
+    if (path.startsWith(allowed + '/')) return children;
+  }
 
   // REP and DIRECTOR: gate CRM access behind full certification + Director approval
   if (!user.isCertified) return <Navigate to="/academy" replace />;
