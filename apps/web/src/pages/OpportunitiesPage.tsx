@@ -21,6 +21,9 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'close-prob', label: 'Best Chance to Close' },
 ];
 
+/** Stages to hide when showing active pipeline only */
+const CLOSED_STAGES: OpportunityStage[] = ['CLOSED_WON', 'CLOSED_LOST'];
+
 function sortOpportunities(opps: Opportunity[], sort: SortOption): Opportunity[] {
   return [...opps].sort((a, b) => {
     switch (sort) {
@@ -43,6 +46,7 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const [sport, setSport] = useState('ALL');
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<SortOption>('latest');
+  const [showClosed, setShowClosed] = useState(false);
 
   const allOpportunities = useOpportunities({});
   const filtered = useOpportunities({
@@ -58,7 +62,10 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const reps = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.assignedRep))), [allOpportunities]);
   const sports = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.sport))), [allOpportunities]);
 
-  const sorted = useMemo(() => sortOpportunities(filtered, sort), [filtered, sort]);
+  const sorted = useMemo(() => {
+    const base = showClosed ? filtered : filtered.filter((o) => !CLOSED_STAGES.includes(o.stage as OpportunityStage));
+    return sortOpportunities(base, sort);
+  }, [filtered, sort, showClosed]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);
@@ -101,12 +108,27 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
     setLane('ALL');
     setRep('ALL');
     setSport('ALL');
+    setShowClosed(false);
     setPage(1);
   };
 
   return (
     <Card title={title} className="min-w-0">
-      <div className="mb-2 flex items-center justify-between text-xs text-slate-400"><span>{filtered.length} opportunities</span><button onClick={clearFilters} className="text-cyan-300">Reset filters</button></div>
+      <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center gap-3">
+          <span>{sorted.length} opportunities{!showClosed ? ' (Active Pipeline)' : ''}</span>
+          <label className="flex items-center gap-1.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={showClosed}
+              onChange={(e) => { setShowClosed(e.target.checked); setPage(1); }}
+              className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-800 accent-slate-500"
+            />
+            <span className="text-slate-400 hover:text-slate-300">Show Closed</span>
+          </label>
+        </div>
+        <button onClick={clearFilters} className="text-cyan-300">Reset filters</button>
+      </div>
       <div className="safe-grid mb-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-6">
         <Input placeholder="Search opportunities" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         <Select value={stage} onChange={(e) => { setStage(e.target.value); setPage(1); }}><option value="ALL">All Stages</option>{opportunityStages.map((s: string) => <option key={s}>{s}</option>)}</Select>
