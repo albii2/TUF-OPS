@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TUF Academy // ACAD-104 // PROPOSAL</title>
+<meta name="description" content="TUF Academy Training Manual — ACAD-104: PROPOSAL. Premium sales training publication for Territory Account Executives.">
+<meta name="author" content="TUF Sports — TUF Academy">
+<style>
+
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --black: #050505;
+  --ink: #111111;
+  --charcoal: #1a1a1a;
+  --steel: #6f6f6f;
+  --line: #d0d0d0;
+  --paper: #ffffff;
+  --soft: #f4f4f2;
+  --muted: #8a8a8a;
+  --font-head: "Bebas Neue", "Oswald", "Arial Narrow", Impact, sans-serif;
+  --font-body: Inter, "Helvetica Neue", Arial, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 11px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--soft);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  width: 8.5in;
+  min-height: 11in;
+  margin: 0 auto 0 auto;
+  background: var(--paper);
+  display: grid;
+  grid-template-columns: 0.82in 1fr;
+  position: relative;
+  overflow: hidden;
+  page-break-after: always;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.page:last-child { page-break-after: auto; }
+
+.rail {
+  background: var(--black);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35in 0;
+  position: relative;
+}
+
+.rail-brand {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-family: var(--font-head);
+  font-size: 2.4rem;
+  letter-spacing: 0.25em;
+  color: var(--paper);
+  text-transform: uppercase;
+  user-select: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+
+.rail-footer {
+  font-family: var(--font-head);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  writing-mode: vertical-rl;
+  color: var(--muted);
+  margin-top: auto;
+}
+
+.content {
+  padding: 0.55in 0.65in 0.55in 0.65in;
+  overflow: hidden;
+}
+
+/* ── Cover Page ── */
+.cover {
+  display: grid;
+  grid-template-columns: 0.82in 1fr;
+  width: 8.5in;
+  min-height: 11in;
+  margin: 0 auto;
+  background: var(--paper);
+  overflow: hidden;
+  page-break-after: always;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.cover .rail { background: var(--black); }
+
+.cover-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 11in;
+}
+
+.cover-text {
+  padding: 0.7in 0.5in 0.7in 0.7in;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cover-label {
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.25in;
+}
+
+.cover-number {
+  font-family: var(--font-head);
+  font-size: 5.5rem;
+  line-height: 0.85;
+  color: var(--black);
+  letter-spacing: -0.02em;
+}
+
+.cover-title {
+  font-family: var(--font-head);
+  font-size: 3.2rem;
+  line-height: 0.9;
+  color: var(--black);
+  letter-spacing: 0.01em;
+  margin-top: 0.1in;
+}
+
+.cover-quote {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--charcoal);
+  margin-top: 0.5in;
+  padding-left: 0.2in;
+  border-left: 3px solid var(--black);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.cover-meta {
+  margin-top: 0.6in;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.cover-meta span { display: block; }
+
+.cover-meta .label {
+  font-weight: 600;
+  color: var(--steel);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+}
+
+.cover-photo {
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #0f0f0f 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-photo::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px);
+}
+
+.cover-photo-text {
+  font-family: var(--font-head);
+  font-size: 3.5rem;
+  color: rgba(255,255,255,0.06);
+  letter-spacing: 0.3em;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Section Divider ── */
+.section-dark {
+  min-height: 11in;
+  width: 8.5in;
+  margin: 0 auto;
+  background: var(--black);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1in 1.2in;
+  page-break-after: always;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.section-dark .section-number {
+  font-family: var(--font-head);
+  font-size: 7rem;
+  line-height: 0.8;
+  color: var(--paper);
+  letter-spacing: -0.02em;
+}
+
+.section-dark .section-title {
+  font-family: var(--font-head);
+  font-size: 3.5rem;
+  line-height: 0.9;
+  color: var(--paper);
+  margin-top: 0.15in;
+  letter-spacing: 0.01em;
+}
+
+.section-dark .section-doctrine {
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--muted);
+  margin-top: 0.5in;
+  line-height: 1.6;
+  max-width: 80%;
+}
+
+.section-dark .section-divider-line {
+  width: 2in;
+  height: 2px;
+  background: rgba(255,255,255,0.2);
+  margin: 0.4in 0;
+}
+
+/* ── Typography ── */
+h1 { font-family:var(--font-head);font-size:2.8rem;color:var(--black);letter-spacing:0.01em;line-height:1;margin-bottom:0.25in; }
+h2 { font-family:var(--font-head);font-size:2rem;color:var(--black);letter-spacing:0.02em;line-height:1.1;margin:0.45in 0 0.15in; }
+h3 { font-family:var(--font-head);font-size:1.4rem;color:var(--charcoal);letter-spacing:0.03em;margin:0.3in 0 0.1in;text-transform:uppercase; }
+p { font-size:0.95rem;line-height:1.6;color:var(--ink);margin-bottom:0.15in; }
+strong { font-weight:700;color:var(--black); }
+em { font-style:italic; }
+
+/* ── TOC ── */
+.toc-title { font-family:var(--font-head);font-size:2.6rem;color:var(--black);letter-spacing:0.03em;margin-bottom:0.4in; }
+.toc-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.15in 0.4in; }
+.toc-item { display:flex;align-items:baseline;padding:0.08in 0;border-bottom:1px solid var(--line); }
+.toc-num { font-family:var(--font-head);font-size:1.1rem;color:var(--black);min-width:0.35in; }
+.toc-text { font-size:0.85rem;color:var(--charcoal);font-weight:500; }
+
+/* ── Components ── */
+.rule { border:none;height:1px;background:var(--line);margin:0.25in 0; }
+.rule-thick { height:3px;background:var(--black);margin:0.3in 0; }
+.quote { margin:0.25in 0;padding:0.2in 0.25in;border-left:4px solid var(--black);background:var(--soft);font-style:italic;font-size:1.05rem;line-height:1.55;color:var(--charcoal); }
+.quote strong { font-style:normal; }
+.callout { background:var(--black);color:var(--paper);padding:0.3in 0.35in;margin:0.25in 0;border-radius:2px; }
+.callout p { color:var(--paper);font-weight:500;font-size:0.95rem;margin-bottom:0.08in; }
+.callout strong { color:var(--paper); }
+
+table { width:100%;border-collapse:collapse;margin:0.2in 0;font-size:0.85rem; }
+thead th { background:var(--black);color:var(--paper);font-family:var(--font-head);font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.1in 0.15in;text-align:left;font-weight:400; }
+tbody td { padding:0.08in 0.15in;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45; }
+tbody tr:nth-child(even) { background:var(--soft); }
+
+pre, .script-block { background:var(--charcoal);color:#e0e0e0;padding:0.25in 0.3in;margin:0.2in 0;font-family:"SF Mono","Fira Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;overflow-x:auto;white-space:pre-wrap;word-break:break-word;border-left:4px solid var(--black); }
+pre strong, .script-block strong { color:#ffffff;font-weight:700; }
+
+.field-card { background:var(--charcoal);color:#e0e0e0;padding:0.3in 0.35in;margin:0.2in 0;font-family:"SF Mono","Fira Code","Consolas",monospace;font-size:0.78rem;line-height:1.55;white-space:pre-wrap;border:1px solid #333; }
+.field-card strong { color:#ffffff; }
+
+/* ── Footer ── */
+.footer { position:absolute;bottom:0.25in;right:0.65in;font-size:0.7rem;color:var(--muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase; }
+
+/* ── Product Spotlight Cards ── */
+.product-spotlight {
+  background: linear-gradient(135deg, var(--black) 0%, #0a0a0a 60%, #151515 100%);
+  color: var(--paper);
+  padding: 0.3in 0.35in;
+  margin: 0.25in 0;
+  border-radius: 3px;
+  border: 1px solid #2a2a2a;
+  position: relative;
+  overflow: hidden;
+}
+.product-spotlight::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 2.5in; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
+  pointer-events: none;
+}
+.product-spotlight .ps-label {
+  font-family: var(--font-head);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-name {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  color: var(--paper);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-collection {
+  font-family: var(--font-head);
+  font-size: 0.85rem;
+  color: var(--steel);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.15in;
+}
+.product-spotlight .ps-features {
+  font-size: 0.85rem;
+  color: #cccccc;
+  line-height: 1.55;
+  margin-bottom: 0.1in;
+}
+.product-spotlight .ps-stat {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  padding: 0.06in 0.12in;
+  margin: 0.04in 0.04in 0 0;
+  font-family: var(--font-head);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+}
+.product-spotlight strong { color: #ffffff; }
+
+/* ── Midwest Callout ── */
+.midwest-callout {
+  background: var(--soft);
+  border-left: 4px solid var(--black);
+  padding: 0.2in 0.25in;
+  margin: 0.2in 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--charcoal);
+}
+.midwest-callout strong { color: var(--black); }
+
+/* ── Ensure no z-index overlap ── */
+.rail { z-index: 1; }
+.content { z-index: 2; position: relative; }
+
+/* ── Print ── */
+@media print {
+  body { background:white; }
+  .page, .cover, .section-dark { box-shadow:none;margin:0;page-break-after:always; }
+  .page:last-child, .cover:last-child, .section-dark:last-child { page-break-after:auto; }
+}
+
+@page { size:letter;margin:0; }
+
+
+</style>
+</head>
+<body>
+
+<div class="cover">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+        
+        <div class="rail-footer">ACADEMY</div>
+    </div>
+    <div class="cover-content">
+        <div class="cover-text">
+            <div class="cover-label">TUF ACADEMY // TRAINING MANUAL</div>
+            <div class="cover-number">ACAD-104</div>
+            <div class="cover-title">PROPOSAL</div>
+            <div class="cover-quote">**"The proposal is not a price quote. It's the visual representation of your program's future identity."**</div>
+            <div class="cover-meta"><span class="label">Classification</span><span>SALES TRAINING — COMPREHENSIVE MANUAL
+Audience: Territory Account Executives — Pre-Certification
+Status: AUTHORITATIVE — Required Study Before First Contact
+Estimated Study Time: 4–6 Hours (Self-Study + Role-Play + Mock Proposal)
+Manual Version: 3.0 — Field-Ready Edition</span></div>
+        </div>
+        <div class="cover-photo">
+            <div class="cover-photo-text">BUILD<br>THE PROGRAM</div>
+        </div>
+    </div>
+</div>
+
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <div class="toc-title">TABLE OF CONTENTS</div>
+<div class="toc-grid"><div class="toc-item"><span class="toc-num">1</span><span class="toc-text">The Proposal Mindset</span></div><div class="toc-item"><span class="toc-num">2</span><span class="toc-text">Proposal Structure — The 7 Components</span></div><div class="toc-item"><span class="toc-num">3</span><span class="toc-text">Pricing Presentation — Investment, Not Expense</span></div><div class="toc-item"><span class="toc-num">4</span><span class="toc-text">The 4-Lane Expansion Proposal</span></div><div class="toc-item"><span class="toc-num">5</span><span class="toc-text">Product Selection Guide — Tier Mapping</span></div><div class="toc-item"><span class="toc-num">6</span><span class="toc-text">Visual Presentation Standards</span></div><div class="toc-item"><span class="toc-num">7</span><span class="toc-text">The 3-Call Close Sequence</span></div><div class="toc-item"><span class="toc-num">8</span><span class="toc-text">The Physical Demo</span></div><div class="toc-item"><span class="toc-num">9</span><span class="toc-text">Handling the "We Need to Think About It" Stall</span></div><div class="toc-item"><span class="toc-num">10</span><span class="toc-text">Competitive Proposal Comparison</span></div><div class="toc-item"><span class="toc-num">11</span><span class="toc-text">Bundle and Package Pricing</span></div><div class="toc-item"><span class="toc-num">12</span><span class="toc-text">Proposal Follow-Up Cadence</span></div><div class="toc-item"><span class="toc-num">13</span><span class="toc-text">15 Proposal Role-Plays</span></div></div>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+
+
+
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>1.1 What a TUF Proposal Is</h3>
+<p>A TUF proposal is NOT a price quote with logos, a catalog page, or something you email and hope they read.</p>
+<p>A TUF proposal IS:</p>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>The visual representation of their program's future identity</strong></li><li style="margin-bottom:0.04in;"><strong>A carefully constructed presentation that shows them what they COULD look like</strong></li><li style="margin-bottom:0.04in;"><strong>A document that leads with vision, anchors with standards, closes on the guarantee</strong></li><li style="margin-bottom:0.04in;"><strong>A conversation tool — not a document meant to stand alone</strong></li></ul>
+<h3>BSN OBJECTIONS AT PROPOSAL TIME</h3>
+<p>The proposal stage is where BSN's dominance shows up hardest. Here's how to win:</p>
+<div class="quote"><em>"Coach, here's the difference between BSN's proposal and ours: BSN is showing you a Nike catalog with their markup. We're showing you TUF-built product — same quality standard, 30-40% less cost, with an IRONCLAD GUARANTEE they can't offer because they're a reseller. And they're showing you one lane — uniforms. We're showing you four lanes that build your program's identity."</em></div>
+<div class="midwest-callout"><strong>MIDWEST PROPOSAL EDGE:</strong> Mention Minnesota-specific examples: "Coach, Edina football just switched — their kids feel the difference in PRO CUT fit. Minnetonka basketball uses OVERTIME — FLEX-WAIST solved their girls' reversible issue. Wayzata's whole program travels in ISSUE gear. These are programs like yours, in your conference, making the switch."</div>
+<p><strong>The 3-Proposal Comparison — Always Show:</strong></p>
+<table><thead><tr><th>Element</th><th>TUF</th><th>BSN (Nike/UA)</th><th>Current Vendor</th></tr></thead><tbody>
+<tr><td><strong>Uniform Price/Set</strong></td><td>$25–$60</td><td>$90-130</td><td>? (ask coach)</td></tr>
+<tr><td><strong>Fit Standard</strong></td><td>PRO CUT (college spec)</td><td>Standard (school spec)</td><td>? </td></tr>
+<tr><td><strong>Guarantee</strong></td><td>IRONCLAD (we fix it)</td><td>Limited (brand warranty)</td><td>? </td></tr>
+<tr><td><strong>4-Lane System</strong></td><td>All four</td><td>Uniforms only</td><td>? </td></tr>
+<tr><td><strong>Team Store Revenue</strong></td><td>15-25% to program</td><td>None</td><td>? </td></tr>
+</tbody></table>
+<h3>1.1 The Proposal Mindset</h3>
+<p><strong>Principle 1: The Proposal Validates the Discovery</strong></p>
+<p>Every element connects back to what the coach told you. "Coach, you mentioned the waistbands on your shorts bunch up. That's why OVERTIME features FLEX-WAIST." The proposal should feel like you were listening — because you were.</p>
+<p><strong>Principle 2: Vision Before Numbers</strong></p>
+<p>Never lead with price. Never put price on page 1. The coach needs to see what their program looks like and understand what they're getting before they see what it costs.</p>
+<p><strong>Principle 3: Three Standards, Not Seven — THE 3-THING CLOSE</strong></p>
+<p>In every proposal, deploy exactly three quality standards: <strong>PRO CUT</strong> (lead), the <strong>sport-specific standard</strong>, and <strong>IRONCLAD GUARANTEE</strong> (close). More than three and the coach stops listening.</p>
+<p><strong>Principle 4: The Mockup Is the Star</strong></p>
+<p>The coach should spend 80% of the proposal conversation looking at the mockup — not the price sheet.</p>
+<p><strong>Principle 5: End with a Question, Not a Price</strong></p>
+<p>The closing line: <strong>"Coach, if your athletes walked out in these on Friday night, would you be proud of how they look?"</strong> Not "So what do you think about the numbers?"</p>
+<h3>1.3 The Golden Rule</h3>
+<p><strong>Never send a proposal without scheduling the conversation to walk through it.</strong> A proposal sent by email without a conversation is a document that gets filed and forgotten.</p>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <table>
+<thead><tr>
+<th>#</th>
+<th>Component</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Program Vision</strong></td>
+<td>Paints the picture of their program in TUF</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>The Mockup</strong></td>
+<td>Visual representation of their uniforms</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>The 3 Standards</strong></td>
+<td>PRO CUT + Sport Standard + IRONCLAD GUARANTEE</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>What's Included</strong></td>
+<td>Detailed breakdown of the order</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>The Investment</strong></td>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>Pricing presented as value</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Timeline &amp; Process</strong></td>
+<td>What happens next, when they'll receive</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>The Closing Vision</strong></td>
+<td>Full program across all 4 lanes</td>
+</tr>
+</tbody>
+</table>
+<h3>2.1 Component 1: Program Vision</h3>
+<div class="quote"><strong>[School Name] [Mascot] — [Sport] Program</strong></div>
+<p>></p>
+<div class="quote"><em>Built for the Program.</em></div>
+<p>></p>
+<div class="quote">Coach [Name], this proposal outlines the [Collection Name] uniform system for the [School Name] [Mascot] [Sport] program. Every element — PRO CUT fit, [sport standard], IRONCLAD GUARANTEE — is built to the standard of what college programs wear, at a price your budget can handle.</div>
+<p>></p>
+<div class="quote">We built this based on our conversation about [specific discovery point].</div>
+<p>></p>
+<div class="quote"><strong>This is what [School] looks like in TUF.</strong></div>
+<h3>2.2 Component 2: The Mockup</h3>
+<p><strong>Requirements:</strong></p>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">School colors accurately represented</li><li style="margin-bottom:0.04in;">Logo/mascot prominently displayed</li><li style="margin-bottom:0.04in;">Multiple views (front, back)</li><li style="margin-bottom:0.04in;">Player numbers shown</li><li style="margin-bottom:0.04in;">Clean, professional presentation</li><li style="margin-bottom:0.04in;">Sport-specific collection branding (GRIND, DIAMOND, OVERTIME, etc.)</li></ul>
+<p><strong>Best Practices:</strong></p>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">Show the uniform ON an athlete body, not flat on white</li><li style="margin-bottom:0.04in;">Include close-ups of key features (stitching, waistband, ventilation)</li><li style="margin-bottom:0.04in;">Never use competitor logos — even as "current state" comparison</li><li style="margin-bottom:0.04in;">TUF brand mark visible but not dominant — the SCHOOL is the star</li></ul>
+<h3>2.3 Component 3: The 3 Standards (THE 3-THING CLOSE)</h3>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <pre>┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  1. PRO CUT™ FIT                                            │
+│     Athletic-tapered pattern built to college specifications│
+│     → Articulated sleeves, reduced seam volume              │
+│     → Your athletes feel the difference immediately         │
+│                                                             │
+│  2. [SPORT-SPECIFIC STANDARD]                               │
+│     [FLEX-WAIST / POWER-STRETCH / AIR-FORGE / LOCK-FIT]     │
+│     → [Specific benefit for this sport]                     │
+│     → [Physical demo to prove the claim]                    │
+│                                                             │
+│  3. IRONCLAD GUARANTEE™                                     │
+│     If anything goes wrong, we fix it. Period.              │
+│     → No pro-rating. No "within reason." Fixed.             │
+│     → One call. One relationship. Done.                     │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘</pre>
+<h3>2.4 Component 4: What's Included</h3>
+<table>
+<thead><tr>
+<th>Item</th>
+<th>Specification</th>
+<th>Qty</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Home Jersey</td>
+<td>[Collection], [Color], Full Sublimation</td>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>[Qty]</td>
+<td>PRO CUT fit, POWER-STRETCH</td>
+</tr>
+<tr>
+<td>Away Jersey</td>
+<td>[Collection], [Color], Full Sublimation</td>
+<td>[Qty]</td>
+<td>PRO CUT fit, POWER-STRETCH</td>
+</tr>
+<tr>
+<td>Home Pants/Shorts</td>
+<td>[Collection], [Color]</td>
+<td>[Qty]</td>
+<td>LOCK-FIT construction</td>
+</tr>
+<tr>
+<td>Away Pants/Shorts</td>
+<td>[Collection], [Color]</td>
+<td>[Qty]</td>
+<td>LOCK-FIT construction</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>2.5 Component 5: The Investment</h3>
+<div class="quote"><strong>INVESTMENT SUMMARY</strong></div>
+<p>></p>
+<div class="quote">Total Program Investment: <strong>[Total Price]</strong></div>
+<p>></p>
+<div class="quote">This covers:<br>- [Qty] home jerseys at [per-unit price]<br>- [Qty] away jerseys at [per-unit price]<br>- [Qty] home pants/shorts at [per-unit price]<br>- [Qty] away pants/shorts at [per-unit price]</div>
+<p>></p>
+<div class="quote"><strong>Per-athlete investment: [Total ÷ Athletes]</strong><br><strong>Per-season investment (3-year lifespan): [Total ÷ 3 seasons]</strong></div>
+<p>></p>
+<div class="quote">All pricing includes: Full sublimation, in-person sizing, IRONCLAD GUARANTEE.</div>
+<h3>2.6 Component 6: Timeline &amp; Process</h3>
+<table>
+<thead><tr>
+<th>Step</th>
+<th>Timeline</th>
+<th>What Happens</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1. Order Confirmation</td>
+<td>Day 1</td>
+<td>Signed order form + 50% deposit</td>
+</tr>
+<tr>
+<td>2. Artwork Finalization</td>
+<td>Days 1–7</td>
+<td>Final design proof for approval</td>
+</tr>
+<tr>
+<td>3. Sizing Session</td>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>Days 7–14</td>
+<td>In-person sizing at your facility</td>
+</tr>
+<tr>
+<td>4. Production</td>
+<td>Days 14–[X]</td>
+<td>Manufacturing — [X] weeks</td>
+</tr>
+<tr>
+<td>5. Quality Check</td>
+<td>Day [X]</td>
+<td>TUF inspects every item</td>
+</tr>
+<tr>
+<td>6. Delivery</td>
+<td>Day [Y]</td>
+<td>Uniforms delivered to [School]</td>
+</tr>
+<tr>
+<td>7. Follow-Up</td>
+<td>Day [Y+7]</td>
+<td>Satisfaction check + lane expansion</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>2.7 Component 7: The Closing Vision</h3>
+<div class="quote"><strong>THE FULL PROGRAM VISION</strong></div>
+<p>></p>
+<div class="quote">When [School] runs on TUF:</div>
+<p>></p>
+<div class="quote">🏈 <strong>Football</strong> — GRIND™. PRO CUT fit. POWER-STRETCH fabric.<br>🏀 <strong>Basketball</strong> — OVERTIME™. FLEX-WAIST shorts.<br>⚾ <strong>Baseball/Softball</strong> — DIAMOND™. Clean. Sharp. Timeless.<br>🧳 <strong>Travel</strong> — ISSUE™. Tech suits, duffles, backpacks. One system.<br>👕 <strong>Fans</strong> — Team Stores. Program earns revenue.<br>🧥 <strong>Tradition</strong> — LEGACY™ letterman jackets.</div>
+<p>></p>
+<div class="quote"><strong>One system. One look. One relationship. Nobody else does this.</strong></div>
+<p>></p>
+<div class="quote"><em>Let's build it.</em></div>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>3.1 The Pricing Conversation Sequence</h3>
+<p><strong>Step 1: Recap Value (Before Numbers)</strong></p>
+<div class="quote"><em>"Coach, before I show you numbers, let me recap what we're building. PRO CUT fit — college spec. [Sport standard] — so your athletes [benefit]. IRONCLAD GUARANTEE — if anything goes wrong, we fix it. Period. [Qty] uniforms for [number] athletes. That's what we're building."</em></div>
+<p><strong>Step 2: Present the Number (Clean and Direct)</strong></p>
+<div class="quote"><em>"The investment for this program is [Total Price]."</em></div>
+<p><strong>Then stop talking.</strong> Let the number land. Don't rush to justify. Don't apologize. Don't say "but we can work with you on that." Present it and wait.</p>
+<p><strong>Step 3: Frame the Value (After They React)</strong></p>
+<p>If they react with concern:</p>
+<div class="quote"><em>"Coach, let me break that down. [Qty] uniforms for [number] athletes — that's [per-athlete price] per athlete. Built to last 3 seasons — about [per-season price] per season. Includes IRONCLAD GUARANTEE. The question isn't whether it's the cheapest option. It's whether the value — sharp fit, guaranteed delivery, uniform still sharp in Year 3 — is worth the difference."</em></div>
+<h3>3.2 Pricing Frames</h3>
+<table>
+<thead><tr>
+<th>Frame</th>
+<th>Language</th>
+<th>When to Use</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Per-Athlete</strong></td>
+<td>"That's $[X] per athlete. Less than a pair of cleats."</td>
+<td>Budget-sensitive coaches.</td>
+</tr>
+<tr>
+<td><strong>Per-Season</strong></td>
+<td>"Over 3 years, that's $[X] per season."</td>
+<td>When comparing to annual replacements.</td>
+</tr>
+<tr>
+<td><strong>Vs. College</strong></td>
+<td>"Same fit standard at [College] costs $[X] per uniform."</td>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>Against Nike/Adidas.</td>
+</tr>
+<tr>
+<td><strong>Vs. Current Spend</strong></td>
+<td>"You're paying $[X] now and dealing with [pain]. Worth $[difference] to eliminate that?"</td>
+<td>Coach mentions current vendor price.</td>
+</tr>
+<tr>
+<td><strong>Revenue Offset</strong></td>
+<td>"Your team store can generate $[X]/year — offsetting a significant portion."</td>
+<td>Budget is primary objection.</td>
+</tr>
+</tbody>
+</table>
+<h3>3.3 Pricing Rules</h3>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Never discount.</strong> Discounting signals the price was inflated. Demonstrate value.</li><li style="margin-bottom:0.04in;"><strong>Never apologize for the price.</strong> "I know it's a lot" undermines everything. Own it.</li><li style="margin-bottom:0.04in;"><strong>Never rush through pricing.</strong> The price deserves the same confidence as the product.</li><li style="margin-bottom:0.04in;"><strong>Never negotiate against yourself.</strong> If the coach says "that's high," ask: "Compared to what?"</li><li style="margin-bottom:0.04in;"><strong>The team store is your pricing ally.</strong> It transforms "we can't afford it" into "let's figure out how to fund it."</li></ul>
+<p style="margin-top:0.15in;font-weight:700;font-size:0.95rem;">COMPETITIVE PRICE REFERENCE — FULL TABLE IN ACAD-106</p>
+<p>Nobody beats TUF on price. Nike Team: $160-$400/set. Under Armour: $140-$350. Adidas: $140-$350. BSN house brand: $160/set (Walmart/Great Value model — they price below the brands they distribute). <strong>TUF uniforms: $25–$60/set. Apparel: $8–$65. Outerwear: $200.</strong> Uniform sets starting at $25 for baseball jerseys to $60 for tackle twill football — every price point far below BSN's $160 minimum. BSN's cheapest uniform is $160. Our most expensive (tackle twill football 2-set) is $110. Nobody touches these prices at this quality. Never apologize for this price. It is your best opener.</p>
+
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>4.1 Why Propose Multiple Lanes</h3>
+<p>A football coach who only buys GRIND can leave TUF next season. A coach whose entire program runs on TUF — uniforms, travel, team store, letterman jackets — is locked into a system no other vendor can replicate.</p>
+<h3>4.2 The Lane Expansion Conversation</h3>
+<p><strong>During uniform proposal:</strong></p>
+<div class="quote"><em>"Coach, while we're building GRIND uniforms — how does your program travel to away games? ISSUE travel gear — tech suits, duffles, backpacks — same quality standard, same design language. One system. Your kids compete in TUF and travel in TUF."</em></div>
+<p><strong>After uniform close:</strong></p>
+<div class="quote"><em>"Coach, one more thing. Your community sees your athletes in GRIND on Friday nights. They want to rep the program too. Our team store — online storefront — lets them do that, and your program earns 15–25% on every sale. That's revenue you're leaving on the table."</em></div>
+<h3>4.3 Lane Sequencing</h3>
+<table>
+<thead><tr>
+<th>Current State</th>
+<th>Next Lane to Pitch</th>
+<th>Timing</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Uniform order in production</td>
+<td>Lane 2: ISSUE Travel Gear</td>
+<td>"Your athletes compete in TUF. They should travel in a system."</td>
+</tr>
+<tr>
+<td>Travel gear delivered</td>
+<td>Lane 3: Team Stores</td>
+<td>"Your community sees the program. They want to rep too."</td>
+</tr>
+<tr>
+<td>Team store active 3+ months</td>
+<td>Lane 4: LEGACY Letterman</td>
+<td>"Your seniors have earned LEGACY."</td>
+</tr>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <tr>
+<td>Any Closed Won deal</td>
+<td>Multi-sport expansion</td>
+<td>"You're TUF in football. What about basketball? OVERTIME."</td>
+</tr>
+</tbody>
+</table>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <table>
+<thead><tr>
+<th>Tier</th>
+<th>Collections</th>
+<th>Price Range (per set)</th>
+<th>Best For</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>PREMIUM</strong></td>
+<td>GRIND, OVERTIME, DIAMOND</td>
+<td>$25–$60/set</td>
+<td>Tier 1 schools, competitive programs</td>
+</tr>
+<tr>
+<td><strong>PERFORMANCE</strong></td>
+<td>SHIFT</td>
+<td>$55–$85</td>
+<td>7v7/Flag, budget-conscious, youth</td>
+</tr>
+<tr>
+<td><strong>VALUE</strong></td>
+<td>CAMP</td>
+<td>$35–$65/piece</td>
+<td>Training gear, warmups, practice, volume</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <table>
+<thead><tr>
+<th>Program Profile</th>
+<th>Recommended Tier</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Large suburban, 1500+, competitive</td>
+<td>PREMIUM</td>
+</tr>
+<tr>
+<td>Mid-size suburban, 700–1500</td>
+<td>PREMIUM or PERFORMANCE (show both)</td>
+</tr>
+<tr>
+<td>Small rural, under 700</td>
+<td>PERFORMANCE or VALUE</td>
+</tr>
+<tr>
+<td>Private school</td>
+<td>PREMIUM</td>
+</tr>
+<tr>
+<td>Charter (new program)</td>
+<td>PERFORMANCE</td>
+</tr>
+<tr>
+<td>Youth / feeder program</td>
+<td>VALUE or SHIFT</td>
+</tr>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        </tbody>
+</table>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <table>
+<thead><tr>
+<th>Element</th>
+<th>Standard</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Layout</strong></td>
+<td>Clean. High contrast. Mockup dominates.</td>
+</tr>
+<tr>
+<td><strong>Typography</strong></td>
+<td>Bold headers. Clean body. Max 2 typefaces.</td>
+</tr>
+<tr>
+<td><strong>Color</strong></td>
+<td>Dark foundation. TUF Gold accents. School colors pop in mockup.</td>
+</tr>
+<tr>
+<td><strong>Imagery</strong></td>
+<td>Mockup is the hero. Real TUF product photography.</td>
+</tr>
+<tr>
+<td><strong>Branding</strong></td>
+<td>"BUILT FOR THE PROGRAM" on every page footer.</td>
+</tr>
+<tr>
+<td><strong>Length</strong></td>
+<td>Single-sport: 4–6 pages. Multi-lane: 8–12 pages. Max 12.</td>
+</tr>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <tr>
+<td><strong>Format</strong></td>
+<td>PDF. Not Word. Not Google Doc. Clean, designed PDF.</td>
+</tr>
+</tbody>
+</table>
+<h3>Proposal No-Nos</h3>
+<table>
+<thead><tr>
+<th>Don't</th>
+<th>Do Instead</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>Competitor logos or names</td>
+<td>Compare generically: "vs. stock blanks"</td>
+</tr>
+<tr>
+<td>Cluttered layouts</td>
+<td>Negative space. Visuals carry the message.</td>
+</tr>
+<tr>
+<td>Stock photography of generic athletes</td>
+<td>TUF product photography. Real athletes.</td>
+</tr>
+<tr>
+<td>Pricing on page 1</td>
+<td>Vision first. Mockup first. Pricing page 3–4.</td>
+</tr>
+<tr>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>More than 3 quality standards</td>
+<td>PRO CUT + Sport Standard + IRONCLAD. Three. Always.</td>
+</tr>
+<tr>
+<td>Generic "Dear Coach"</td>
+<td>Coach's name. Specific details from discovery.</td>
+</tr>
+</tbody>
+</table>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <table>
+<thead><tr>
+<th>Call</th>
+<th>Timing</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Call 1: The Presentation</strong></td>
+<td>Scheduled, 20–30 min</td>
+<td>Walk through proposal. Show mockup. Deploy 3 standards. Present investment. Ask closing question.</td>
+</tr>
+<tr>
+<td><strong>Call 2: The Follow-Up</strong></td>
+<td>24–48 hours after Call 1</td>
+<td>Answer questions. Address objections. Reinforce value.</td>
+</tr>
+<tr>
+<td><strong>Call 3: The Close</strong></td>
+<td>3–7 days after Call 1</td>
+<td>Resolve final concerns. Ask for decision.</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>7.1 Call 1: The Presentation — Minute-by-Minute</h3>
+<pre>MINUTE 0–2      OPENING + CONTEXT
+                "Coach, you should have the proposal. Let me walk you
+                through what we built for [School] [sport]."
+MINUTE 2–5      THE MOCKUP
+                Share screen or hold up printed mockup.
+                "This is [School] in [Collection]. This is what your
+                program looks like in TUF."
+MINUTE 5–10     THE DEMO + 3 STANDARDS (THE 3-THING CLOSE)
+                1. PRO CUT — "See the taper? See the sleeves?"
+                2. [Sport standard] — "Feel this. Stretch it. See it?"
+                3. IRONCLAD GUARANTEE — "If anything goes wrong, we fix
+                   it. Period." (Eye contact. Pause. Mean it.)
+MINUTE 10–12    THE INVESTMENT
+                "Coach, the investment is [Total Price]. That covers
+                [breakdown]. Per athlete: [per-athlete price]."
+                (Stop talking. Let the number land.)
+MINUTE 12–15    THE CLOSING QUESTION
+                "Coach, if your athletes walked out in these on Friday
+                night, would you be proud of how they look?"
+                (Stop talking. Wait. Silence is your ally.)</pre>
+<h3>7.2 After the Closing Question — Response Map</h3>
+<table>
+<thead><tr>
+<th>Coach Says</th>
+<th>Your Move</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>"Yes" / "These look great"</strong></td>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>"Let's build it. I need roster, sizes, artwork, and 50% deposit. Order packet today."</td>
+</tr>
+<tr>
+<td><strong>"I need to think about it"</strong></td>
+<td>"What specifically do you need to think through — price, fit, timeline, or something else?" (Diagnose the real objection.)</td>
+</tr>
+<tr>
+<td><strong>"I need to talk to the AD"</strong></td>
+<td>"Absolutely. Let me send a one-page summary — PRO CUT, [standard], IRONCLAD, numbers. When's that conversation?"</td>
+</tr>
+<tr>
+<td><strong>"Price is higher than expected"</strong></td>
+<td>"What were you expecting? Let me walk through the value again — and let's talk about the team store model."</td>
+</tr>
+<tr>
+<td><strong>"We need to compare to [competitor]"</strong></td>
+<td>"Fair. Compare: PRO CUT vs. stock blanks. IRONCLAD vs. standard warranty. One system vs. four vendors."</td>
+</tr>
+<tr>
+<td><strong>Silence</strong></td>
+<td>WAIT. Don't fill it. The coach is processing. Let them.</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>7.3 Call 2: The Follow-Up (Day 3)</h3>
+<div class="quote"><em>"Coach, [Your Name] with TUF. Following up on the proposal. What questions came up after you looked at it? Anything I can clarify?"</em></div>
+<p><strong>Purpose:</strong> Remove obstacles. Not pushing for a decision. Clarifying.</p>
+<p><strong>If coach hasn't looked:</strong> <em>"No worries. Is there a better time this week to walk through it together? It's worth 10 minutes."</em></p>
+<h3>7.4 Call 3: The Close (Day 7)</h3>
+<div class="quote"><em>"Coach, [Your Name]. Where are you leaning on the [Collection] proposal? I want to respect your timeline but also make sure you don't miss the production window."</em></div>
+<p><strong>Ready to move:</strong> → Order handoff (Module 5).</p>
+<p><strong>Still uncertain:</strong> <em>"On a scale of 1–10, where are you? What would make it a 10?"</em></p>
+<p><strong>Says no:</strong> <em>"Coach, I appreciate your honesty. Can I ask what tipped the decision? I want to learn from it. If anything changes, I'm here."</em></p>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>8.1 What Every Rep Carries</h3>
+<table>
+<thead><tr>
+<th>Item</th>
+<th>Purpose</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Sample jersey</strong></td>
+<td>PRO CUT fit demo</td>
+</tr>
+<tr>
+<td><strong>Sample shorts</strong></td>
+<td>FLEX-WAIST demo (basketball)</td>
+</tr>
+<tr>
+<td><strong>Fabric swatch</strong></td>
+<td>POWER-STRETCH stretch demo</td>
+</tr>
+<tr>
+<td><strong>Competitor jersey (optional)</strong></td>
+<td>Side-by-side fit comparison</td>
+</tr>
+<tr>
+<td><strong>AIR-FORGE fabric</strong></td>
+<td>Ventilation demo</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>8.2 The Demo Sequence</h3>
+<pre>1. PRO CUT FIT (Lead — every demo)
+   → Hold TUF jersey. Show taper through torso.
+   → Point to articulated sleeves.
+   → If competitor jersey: hold side-by-side. "See the difference?"
+   → Script: "PRO CUT fit. Built to what college programs wear.
+     Athletic taper. Articulated sleeves. Not a stock blank."
+2. SPORT-SPECIFIC STANDARD
+   → Basketball: Flip FLEX-WAIST waistband. Clean. 2 seconds.
+     "FLEX-WAIST. Engineered to stay flat. The waistband your
+     athletes won't think about."
+   → Football: Stretch POWER-STRETCH in 4 directions.
+     "POWER-STRETCH. Moves with the athlete. Snaps back."
+   → Heat sports: Hold AIR-FORGE to light. Show perforations.
+     "AIR-FORGE. Laser-cut micro-perforations mapped to heat zones."
+3. IRONCLAD GUARANTEE (Close — always last)
+   → No prop needed. The guarantee IS the prop.
+   → Eye contact. Deliberate pause.
+   → "IRONCLAD GUARANTEE. If anything goes wrong, we fix it.
+     Period. Not pro-rated. Not 'within reason.' Fixed."</pre>
+<h3>8.3 Demo Rules</h3>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Always hand the sample to the coach.</strong> Ownership begins in the hands.</li><li style="margin-bottom:0.04in;"><strong>60% action, 40% words.</strong> Let the product speak.</li><li style="margin-bottom:0.04in;"><strong>Mirror interest.</strong> Coach leans in → go deeper. Distracted → keep it moving.</li><li style="margin-bottom:0.04in;"><strong>Never more than 3 standards.</strong> More than 3 and absorption stops.</li><li style="margin-bottom:0.04in;"><strong>End every demo with IRONCLAD GUARANTEE.</strong> It's the lasting impression.</li></ul>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>9.1 What It Really Means</h3>
+<table>
+<thead><tr>
+<th>Translation</th>
+<th>Your Move</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>"Price scared me."</td>
+<td>Reframe per-athlete, per-season. Introduce team store offset.</td>
+</tr>
+<tr>
+<td>"I don't have authority."</td>
+<td>Offer to present to decision-maker. Arm them with a summary.</td>
+</tr>
+<tr>
+<td>"I'm comparing vendors."</td>
+<td>Give comparison criteria: PRO CUT vs. stock blank.</td>
+</tr>
+<tr>
+<td>"Something felt off."</td>
+<td>"What specifically do you need to think through?"</td>
+</tr>
+<tr>
+<td>"Timing isn't right."</td>
+<td>"When's the right time? Let's put it on the calendar."</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>9.2 The Diagnostic Response</h3>
+<div class="quote"><em>"Coach, I completely understand — this is an important decision. What specifically do you need to think through? Price, fit, timeline — or something else? I want to make sure I've answered everything."</em></div>
+<p><strong>Then LISTEN.</strong> Don't fill the silence. The coach will tell you the real objection.</p>
+<h3>9.3 The Graceful Exit</h3>
+<div class="quote"><em>"Coach, it sounds like the timing isn't right — I respect that. The proposal doesn't expire. If anything changes — budget frees up, vendor lets you down — I'm here. I'll check in with you [specific timeframe]. In the meantime, best of luck with the season."</em></div>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>10.1 The Comparison Framework</h3>
+<div class="quote"><em>"Coach, that's smart — you should compare. Here are four things to look at side by side:</em></div>
+<p>></p>
+<div class="quote"><em>1. <strong>Fit</strong> — PRO CUT (athletic-tapered) or stock blank (boxy)? Hold samples next to each other.</em><br><em>2. <strong>Construction</strong> — LOCK-FIT triple-stitched or basic stitching? Look at shoulders, neck, side seams.</em><br><em>3. <strong>Guarantee</strong> — IRONCLAD (we fix it, period) or standard warranty (pro-rated, 6 levels of customer service)? Ask them: 'If a jersey rips in week 3, what happens?'</em><br><em>4. <strong>Program System</strong> — One vendor for all four lanes or four different vendors? Count the relationships. Count the problems.</em></div>
+<p>></p>
+<div class="quote"><em>When you do that comparison, I'm confident in what you'll find."</em></div>
+<h3>10.2 TUF vs. Competitor Comparison</h3>
+<table>
+<thead><tr>
+<th>Element</th>
+<th>TUF</th>
+<th>Nike Team</th>
+<th>Adidas Team</th>
+<th>BSN / Local</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Fit Standard</strong></td>
+<td>PRO CUT — college spec</td>
+<td>College spec (premium price)</td>
+<td>College spec (premium price)</td>
+<td>Stock blank — generic</td>
+</tr>
+<tr>
+<td><strong>Price per Set</strong></td>
+<td>$25–$60</td>
+<td>$125–$180</td>
+<td>$110–$160</td>
+<td>$40–$80</td>
+</tr>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <tr>
+<td><strong>Construction</strong></td>
+<td>LOCK-FIT triple-stitched</td>
+<td>Quality construction</td>
+<td>Quality construction</td>
+<td>Basic stitching</td>
+</tr>
+<tr>
+<td><strong>Basketball Waistband</strong></td>
+<td>FLEX-WAIST</td>
+<td>Standard reversible</td>
+<td>Standard reversible</td>
+<td>Standard reversible</td>
+</tr>
+<tr>
+<td><strong>Guarantee</strong></td>
+<td>IRONCLAD — fix it, period</td>
+<td>Standard warranty</td>
+<td>Standard warranty</td>
+<td>Limited or none</td>
+</tr>
+<tr>
+<td><strong>4-Lane System</strong></td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>Program Attention</strong></td>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>You're the priority</td>
+<td>You're an account number</td>
+<td>You're an account number</td>
+<td>You're a SKU</td>
+</tr>
+<tr>
+<td><strong>Team Store Revenue</strong></td>
+<td>Yes — 15–25%</td>
+<td>No</td>
+<td>No</td>
+<td>Limited</td>
+</tr>
+</tbody>
+</table>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>11.1 The Bundle Philosophy</h3>
+<p>Bundling isn't discounting. It's showing the total program vision and making it easy to say yes to a larger relationship.</p>
+<h3>11.2 Bundle Examples</h3>
+<table>
+<thead><tr>
+<th>Bundle</th>
+<th>Contents</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Game Day Package</strong></td>
+<td>Home + Away uniforms for varsity</td>
+</tr>
+<tr>
+<td><strong>Full Program Package</strong></td>
+<td>Varsity + JV + Freshman uniforms</td>
+</tr>
+<tr>
+<td><strong>Travel Package</strong></td>
+<td>Tech suit + Duffle + Backpack per athlete</td>
+</tr>
+<tr>
+<td><strong>Coach Package</strong></td>
+<td>SIDELINE polos + quarter-zips for staff</td>
+</tr>
+<tr>
+<td><strong>Program Builder</strong></td>
+<td>Uniforms (Lane 1) + Travel (Lane 2)</td>
+</tr>
+<tr>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td><strong>Full Identity Package</strong></td>
+<td>Uniforms + Travel + Team Store setup</td>
+</tr>
+</tbody>
+</table>
+<h3>11.3 Presenting Bundle Pricing</h3>
+<div class="quote"><em>"Coach, I've put together three options based on what you told me:</em></div>
+<p>></p>
+<div class="quote"><em>Option 1: Core — Varsity uniforms only. [Price].</em><br><em>Option 2: Full Program — Varsity, JV, Freshman. Same quality across all levels. [Price].</em><br><em>Option 3: Program Identity — Full uniforms plus ISSUE travel gear for varsity. Complete the look. [Price].</em></div>
+<p>></p>
+<div class="quote"><em>Which fits where your program is right now?"</em></div>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <table>
+<thead><tr>
+<th>Day</th>
+<th>Action</th>
+<th>Method</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Day 0</strong></td>
+<td>Presentation call + send proposal PDF + summary</td>
+<td>Phone + Email</td>
+</tr>
+<tr>
+<td><strong>Day 1</strong></td>
+<td>Thank you + key points recap</td>
+<td>Email</td>
+</tr>
+<tr>
+<td><strong>Day 3</strong></td>
+<td>Follow-up call: "What questions came up?"</td>
+<td>Phone</td>
+</tr>
+<tr>
+<td><strong>Day 5</strong></td>
+<td>Value reinforcement (photo, testimonial)</td>
+<td>Email</td>
+</tr>
+<tr>
+<td><strong>Day 7</strong></td>
+<td>Decision check-in: "Where are you leaning?"</td>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <td>Phone</td>
+</tr>
+<tr>
+<td><strong>Day 14</strong></td>
+<td>Final push (if no decision)</td>
+<td>Phone/Email</td>
+</tr>
+<tr>
+<td><strong>Day 30</strong></td>
+<td>Stay-warm: "Hope the season's going well. I'm here."</td>
+<td>Email/Social</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Follow-Up Rules:</strong></p>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">Always have a reason — never "just checking in."</li><li style="margin-bottom:0.04in;">Vary the channel — phone, email, social, mail.</li><li style="margin-bottom:0.04in;">After 3–4 follow-ups with no response, shift to stay-warm.</li><li style="margin-bottom:0.04in;">Track everything in CRM.</li></ul>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>Scenario 1: The Enthusiastic Yes</h3>
+<p><strong>Coach:</strong> Loves mockup. Loves demo. Ready to move.</p>
+<div class="quote">"These look incredible. The kids will lose their minds. What do I need to do?"</div>
+<p><strong>Rep's Task:</strong> Don't oversell. Move smoothly to order handoff. Set expectations.</p>
+<h3>Scenario 2: The Price Shock</h3>
+<p><strong>Coach:</strong> Likes proposal. Gasps at price.</p>
+<div class="quote">"That's double what we're paying. I can't justify that to my AD."</div>
+<p><strong>Rep's Task:</strong> Don't discount. Reframe as investment. Per-athlete. Per-season. Team store offset.</p>
+<h3>Scenario 3: The AD Blocker</h3>
+<p><strong>Coach:</strong> "I love it. But my AD has final say, and she's been with BSN for 10 years."</p>
+<p><strong>Rep's Task:</strong> Offer to co-present. Arm coach with one-page summary. Don't go around the coach.</p>
+<h3>Scenario 4: The Comparison Shopper</h3>
+<p><strong>Coach:</strong> "Nike sent me a proposal too. It's a little more, but... it's Nike."</p>
+<p><strong>Rep's Task:</strong> Acknowledge respectfully. Compare specific elements (fit, guarantee, 4-lane).</p>
+<h3>Scenario 5: The Silent Coach</h3>
+<p><strong>Coach:</strong> Says almost nothing. Hard to read. One-word answers.</p>
+<p><strong>Rep's Task:</strong> Open-ended questions. Use silence strategically. Don't fill the void with chatter.</p>
+<h3>Scenario 6: "I Need to Think About It"</h3>
+<p><strong>Coach:</strong> "This is a lot. Let me think about it and get back to you."</p>
+<p><strong>Rep's Task:</strong> Diagnose the real objection. "What specifically do you need to think through?"</p>
+<h3>Scenario 7: The Booster Club Barrier</h3>
+<p><strong>Coach:</strong> "Boosters control the budget. They meet next month."</p>
+<p><strong>Rep's Task:</strong> Offer to present at booster meeting. Provide materials.</p>
+<h3>Scenario 8: Multi-Sport Opportunity</h3>
+<p><strong>Coach:</strong> (Football coach) "These GRIND uniforms are great. You know, our basketball coach has been complaining too."</p>
+<p><strong>Rep's Task:</strong> Ask for introduction to basketball coach. Don't let it pass.</p>
+<h3>Scenario 9: Last-Minute Objection</h3>
+<p><strong>Coach:</strong> Ready to close. Then: "Wait — what if the colors don't match our helmets?"</p>
+<p><strong>Rep's Task:</strong> Address specific concern. PMS color matching. Reassure.</p>
+<h3>Scenario 10: Timeline Concern</h3>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <p><strong>Coach:</strong> "We need these by August 1. Can you guarantee that?"</p>
+<p><strong>Rep's Task:</strong> Be honest about production timelines. Don't overpromise.</p>
+<h3>Scenario 11: Bundled Proposal</h3>
+<p><strong>Coach:</strong> Considering 3 options. Leaning toward middle.</p>
+<p><strong>Rep's Task:</strong> Guide to best option. Show value of each tier.</p>
+<h3>Scenario 12: Competitor Trash Talk</h3>
+<p><strong>Coach:</strong> "Your competitor says TUF is just rebranded Chinese imports."</p>
+<p><strong>Rep's Task:</strong> Don't get defensive. Don't trash back. Focus on TUF standards and guarantee.</p>
+<h3>Scenario 13: The Ghost</h3>
+<p><strong>Coach:</strong> Was interested. Now 2 weeks of silence. Follow-up call #3.</p>
+<p><strong>Rep's Task:</strong> Break through without being annoying. Try different approach.</p>
+<h3>Scenario 14: Lapsed Proposal</h3>
+<p><strong>Coach:</strong> 3 months ago. No decision. New season approaching.</p>
+<p><strong>Rep's Task:</strong> Acknowledge the gap. Re-introduce value. Update proposal.</p>
+<h3>Scenario 15: Full 4-Lane Presentation</h3>
+<p><strong>Coach:</strong> AD, big program. Presenting all 4 lanes.</p>
+<p><strong>Rep's Task:</strong> Keep it organized. Lead with system, not individual products. Close with: "One system. One look. One relationship. Nobody else does this."</p>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <pre>┌──────────────────────────────────────────────────────────────────┐
+│                    TUF PROPOSAL FIELD CARD                       │
+│                    BUILT FOR THE PROGRAM                         │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  PROPOSAL STRUCTURE (7 components):                              │
+│  1. Program Vision    2. Mockup       3. 3 Standards             │
+│  4. What's Included   5. Investment   6. Timeline &amp; Process      │
+│  7. Closing Vision                                               │
+│                                                                  │
+│  THE 3-THING CLOSE:                                              │
+│  PRO CUT + [Sport Standard] + IRONCLAD GUARANTEE                │
+│                                                                  │
+│  PRESENTATION CALL (15 min):                                     │
+│  0–2:  Opening + context                                         │
+│  2–5:  Mockup walkthrough                                        │
+│  5–10: Demo + 3 Standards                                        │
+│  10–12: Investment. STOP. Let it land.                          │
+│  12–15: "Would you be proud?" (WAIT for answer)                 │
+│                                                                  │
+│  THE 3-CALL CLOSE:                                               │
+│  Call 1 (Day 0):  Present + Demo + Question                      │
+│  Call 2 (Day 3):  Follow-up. Answer questions.                   │
+│  Call 3 (Day 7):  Decision. "Where are you leaning?"             │
+│                                                                  │
+│  PRICING FRAMES:                                                 │
+│  "Per athlete: $___."  "Per season: $___."                       │
+│  "Team store can generate $___ to offset."                       │
+│                                                                  │
+│  AFTER STALL: "What specifically do you need to think through?"  │
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        │  → LISTEN. The coach will tell you the real objection.          │
+│                                                                  │
+│  NEVER: Discount. Apologize for price. Send proposal without     │
+│         scheduling the conversation. Put price on page 1.        │
+└──────────────────────────────────────────────────────────────────┘</pre>
+<hr class="rule">
+<p><em>The proposal is where vision meets value. A great proposal doesn't just show a coach what TUF looks like — it makes them feel what their program could be. Build every proposal like it's the one that defines your territory.</em></p>
+<hr class="rule">
+<p>## KNOWLEDGE ASSESSMENT — MODULE 04</p>
+<h3>Scenario-Based Questions</h3>
+<p>A proposal isn't a document — it's a conversation. These scenarios test whether you can navigate that conversation when it gets real.</p>
+<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 1: The Price Shock — Reframe in Real Time</h4>
+<p><strong>Situation:</strong> You've just presented the investment amount to a football coach: $7,800 for a full varsity GRIND uniform set. He stares at the number. Then: <em>"That's almost double what we're paying now. I can't take that to my AD. She'd laugh me out of the office."</em> He's not saying no. He's saying the number scares him — and he doesn't know how to sell it internally.</p>
+<p><strong>Question:</strong> What's your verbatim response that (a) acknowledges the sticker shock without apologizing, (b) deploys at least two different pricing frames (per-athlete, per-season, vs. competitor, revenue offset), and (c) equips him to present this to his AD — not you presenting, HIM presenting?</p>
+<hr class="rule">
+<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 2: The "I Need to Think About It" Stall — Diagnose the Real Objection</h4>
+<p><strong>Situation:</strong> You've walked through the full proposal with a basketball coach. The mockup looked great. The FLEX-WAIST demo landed. She's nodding. Then: <em>"This is a lot to process. Let me think about it and get back to you."</em> You know "I need to think about it" is rarely about needing more time — it's a cover for an unspoken objection.</p>
+<p><strong>Question:</strong> What's your diagnostic response that (a) validates her need to think, (b) asks the specific question that surfaces the REAL objection, and (c) keeps the conversation moving forward regardless of what she reveals? Write the exact words, including what you do after she answers.</p>
+<hr class="rule">
+<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 3: The Product Application Question</h4>
+<p><strong>Situation:</strong> You're building a proposal for a multi-sport AD at a Tier 1 suburban school with 14 sports. Your discovery revealed: football is the flagship program (needs premium), basketball has waistband complaints (FLEX-WAIST opportunity), the travel gear is a mess of random bags, and there's no team store. Budget is decent but not unlimited.</p>
+<p><strong>Question:</strong> Design the proposal strategy. Which lane do you lead with? Which option from the bundle pricing (Section 11.2) do you recommend as the first proposal — and what's the specific language you'd use to present three options (Core, Full Program, Program Identity) to this AD?</p>
+<hr class="rule">
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 4: The Objection — "Nike Sent Me a Proposal Too"</h4>
+<p><strong>Situation:</strong> You've presented. The coach nods, then says: <em>"I appreciate this. But Nike sent me a proposal too. It's a little more expensive, but... it's Nike. The kids know the brand. The parents trust it. How do I justify going with a company nobody's heard of?"</em></p>
+<p><strong>Question:</strong> You can't trash Nike — Principle 1. What's your response that (a) acknowledges Nike's brand strength, (b) gives the coach specific, side-by-side comparison criteria from Section 10.2, and (c) ends on the TUF differentiators Nike literally cannot match?</p>
+<hr class="rule">
+<h3>Recall Foundation</h3>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>The 7 Proposal Components:</strong> Name all seven in order.</li><li style="margin-bottom:0.04in;"><strong>The 3-Call Close:</strong> What happens on each call, and what's the timing between them?</li><li style="margin-bottom:0.04in;"><strong>Pricing Rules:</strong> What are the five pricing rules — and why is "never discount" Rule #1?</li></ul>
+<h3>Director Checkpoint</h3>
+<p>Complete a 15-minute mock proposal presentation with your Director:</p>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Full Proposal Walkthrough:</strong> You deliver a proposal for a football coach (Director provides a real school profile). You must include: Program Vision, Mockup presentation, the 3 Standards demo (physical), Investment presentation, and the Closing Question. Director evaluates: flow, confidence during the pricing moment, physical demo quality.</li><li style="margin-bottom:0.04in;"><strong>Price Objection Drill:</strong> Director throws a price objection mid-proposal. You respond with framing, not discounting. Director pushes twice — "But it's still a lot." You hold.</li><li style="margin-bottom:0.04in;"><strong>The Closing Question:</strong> You deliver "If your athletes walked out in these on Friday night, would you be proud of how they look?" Then Director stays silent for 10+ seconds. You must NOT fill the silence.</li></ul>
+<hr class="rule">
+<p>## USING THIS MANUAL BEYOND CERTIFICATION</p>
+<p>The proposal is where deals are won or lost. This manual is your proposal-building playbook — not just a study guide.</p>
+<h3>When to Reference This Manual During Your Sales Week</h3>
+<table>
+<thead><tr>
+<th>Moment</th>
+<th>What to Pull Up</th>
+<th>Why</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><strong>Pre-Proposal Building</strong></td>
+<td>Part 2: Proposal Structure</td>
+<td>Use the 7-component checklist as your build template. Never skip Component 7 (Closing Vision).</td>
+</tr>
+<tr>
+<td><strong>Before a Proposal Presentation Call</strong></td>
+<td>Part 7: Proposal Delivery — Minute-by-Minute</td>
+<td>Refresh the 15-minute presentation flow. Know exactly when to demo, when to price, when to ask the question.</td>
+</tr>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <tr>
+<td><strong>After a Price Objection</strong></td>
+<td>Part 3: Pricing Presentation — Pricing Frames</td>
+<td>Review the five pricing frames (Section 3.3). Which one should you have used? Prep it for the follow-up call.</td>
+</tr>
+<tr>
+<td><strong>Building a Multi-Lane Proposal</strong></td>
+<td>Part 4: The 4-Lane Expansion Proposal</td>
+<td>Use the 4-Lane Proposal Template. Sequence lanes correctly — don't propose everything at once (Section 4.4).</td>
+</tr>
+<tr>
+<td><strong>Facing a Competitor Comparison</strong></td>
+<td>Part 10: Competitive Proposal Comparison</td>
+<td>Open the comparison chart (Section 10.3). Know the four criteria to give the coach: fit, construction, guarantee, program system.</td>
+</tr>
+<tr>
+<td><strong>Following Up After a Proposal</strong></td>
+<td>Part 12: Proposal Follow-Up Cadence</td>
+<td>What day are you on? Follow the cadence. Day 3 = follow-up call. Day 7 = decision check-in. Don't skip days.</td>
+</tr>
+</tbody>
+</table>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        <h3>Scripts to Keep Open on Your Phone During Proposal Calls</h3>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Investment Presentation Script</strong> (Section 3.2, Step 1–3) — Value recap → Number → STOP. Don't rush. Don't apologize.</li><li style="margin-bottom:0.04in;"><strong>The Comparison Framework</strong> (Section 10.2) — When the coach mentions a competitor's proposal, deploy the four criteria verbatim.</li><li style="margin-bottom:0.04in;"><strong>The Diagnostic Response</strong> (Section 9.2) — "What specifically do you need to think through?" Have it ready for every stall.</li><li style="margin-bottom:0.04in;"><strong>The Graceful Exit</strong> (Section 9.4) — When the coach genuinely isn't buying, this preserves the relationship.</li></ul>
+<h3>Reference Tables to Bookmark</h3>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>7 Essential Components</strong> (Section 2.1) — Your proposal building checklist. Never submit without all seven.</li><li style="margin-bottom:0.04in;"><strong>Pricing Frames and Anchors</strong> (Section 3.3) — Open when preparing for the investment conversation. Pick 2–3 frames based on the coach's profile.</li><li style="margin-bottom:0.04in;"><strong>The 3-Call Close Sequence</strong> (Section 7.1) — Your follow-up calendar. What day is it? What's the action?</li><li style="margin-bottom:0.04in;"><strong>TUF vs. Competitor Comparison Chart</strong> (Section 10.3) — Your competitive reference. Know it cold, but keep it bookmarked for specific data.</li><li style="margin-bottom:0.04in;"><strong>Product Selection Guide — Tier Mapping</strong> (Part 5) — Which tier for which program? Reference this before building any proposal.</li></ul>
+<h3>Weekly Ritual: The Monday Morning 10-Minute Review</h3>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Minutes 0–3:</strong> Review all outstanding proposals. Where is each one in the 3-call sequence? Are you behind on any follow-ups? Plan your outreach for the week.</li><li style="margin-bottom:0.04in;"><strong>Minutes 3–6:</strong> Pick one proposal that stalled. Re-read Part 9: Handling the Stall. Did you diagnose the real objection? What's your move this week?</li><li style="margin-bottom:0.04in;"><strong>Minutes 6–8:</strong> Practice the Investment Presentation out loud. "The investment for this program is [number]." Stop. Let silence sit. Count to five. Feel the discomfort. Get comfortable with it.</li><li style="margin-bottom:0.04in;"><strong>Minutes 8–10:</strong> Re-read the 4-Lane Expansion Proposal (Section 4.4). Which of your current deals is ready for the next lane? Write down one lane expansion you'll pitch this week.</li></ul>
+<h3>Coaching Guide: How Your Director Will Use This Manual to Coach You</h3>
+<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>"Walk me through your last proposal."</strong> — Director reviews a real proposal you delivered. They check: all 7 components present? Mockup quality? Pricing framed as investment? Closing vision included?</li><li style="margin-bottom:0.04in;"><strong>"I'm a coach. Give me the investment number."</strong> — Director role-plays. You present the price. Director says "That's high." You frame. Director pushes: "Still high." You hold. Director evaluates: did you discount? Did you apologize? Did you rush?</li><li style="margin-bottom:0.04in;"><strong>"Here's a competitor's proposal. Compare them."</strong> — Director hands you a real (or mock) competitor quote. You walk through the four comparison criteria from Section 10.2.</li><li style="margin-bottom:0.04in;"><strong>"Your proposal has been out for 10 days. What's your move?"</strong> — Director checks your follow-up cadence against Section 12.1. Are you on track? Did you skip Day 5 value reinforcement?</li></ul>
+<h3>Quick Reference Card — Module 04</h3>
+<p><strong>Print this page. Keep it open during every proposal call.</strong></p>
+<pre>┌──────────────────────────────────────────────────────────────────┐
+│             TUF PROPOSAL — QUICK REFERENCE CARD                   │
+│             BUILT FOR THE PROGRAM                                 │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  THE 7 COMPONENTS (every proposal):                              │
+│  1. Program Vision   2. Mockup       3. 3 Standards               │
+│  4. What's Included  5. Investment   6. Timeline &amp; Process       │
+│  7. Closing Vision                                                │
+│                                                                  │
+│  PRESENTATION CALL (15 min):                                      │
+│  0–2 min:  Opening + context (reference discovery)               │
+│  2–5 min:  Mockup walkthrough (they look at this, not price)     │
+│  5–10 min: Demo + 3 Standards (PRO CUT → Sport → IRONCLAD)      │
+│  10–12 min: Investment. State it. STOP. Let it land.             │
+│  12–15 min: Closing question. Then WAIT. Silence is your ally.   │
+│                                                                  │
+│  THE 3-CALL CLOSE:                                               │
+│  Call 1 (Day 0):   Present + Demo + Closing Question             │
+│  Call 2 (Day 3):   Follow-up. Answer questions. Diagnose.        │
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+<div class="page">
+    <div class="rail">
+        <div class="rail-brand">TUF</div>
+    </div>
+    <div class="content">
+        │  Call 3 (Day 7):   Decision. "Where are you leaning?"            │
+│                                                                  │
+│  PRICING FRAMES:                                                 │
+│  "Per athlete, that's $____."                                    │
+│  "Over 3 seasons, that's $____/season."                          │
+│  "Your team store can generate $____ to offset this."            │
+│  "You're paying $____ now for [pain]. Is $____ worth fixing it?" │
+│                                                                  │
+│  AFTER "I NEED TO THINK ABOUT IT":                               │
+│  "What specifically do you need to think through?"               │
+│  → Then LISTEN. Don't fill the silence.                          │
+│                                                                  │
+│  PRICING RULES:                                                  │
+│  1. Never discount.   2. Never apologize for the price.          │
+│  3. Never rush through pricing.  4. Never negotiate vs yourself. │
+│  5. Team store is your pricing ally.                             │
+│                                                                  │
+│  COMPETITIVE COMPARISON (4 criteria to give the coach):          │
+│  1. Fit (PRO CUT vs. stock blank)                                │
+│  2. Construction (LOCK-FIT vs. basic stitching)                  │
+│  3. Guarantee (IRONCLAD vs. standard warranty)                   │
+│  4. Program System (4-lane vs. products only)                    │
+└──────────────────────────────────────────────────────────────────┘</pre>
+<p><strong>BUILT FOR THE PROGRAM.</strong></p>
+    </div>
+    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-104 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+</div>
+</body>
+</html>
