@@ -37,7 +37,7 @@ const UNCERTIFIED_ACCESSIBLE_PATHS = new Set([
   '/academy',
   '/login',
   '/change-credential',
-  '/dashboard',
+  '/admin/certification',
 ]);
 
 function Protected({ user, children }: { user: AppUser | null; children: JSX.Element }) {
@@ -68,13 +68,13 @@ function CertificationProtected({ user, path, children }: { user: AppUser | null
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
 
-  // Non-REP roles are not gated by certification
-  if (user.role !== 'REP') return children;
+  // ADMIN bypasses certification gate
+  if (user.role === 'ADMIN') return children;
 
-  // REP users: allow access to training portal and essential paths
+  // Allow access to Academy and cert review
   if (UNCERTIFIED_ACCESSIBLE_PATHS.has(path)) return children;
 
-  // REP users: gate CRM access behind certification
+  // REP and DIRECTOR: gate CRM access behind full certification + Director approval
   if (!user.isCertified) return <Navigate to="/academy" replace />;
 
   return children;
