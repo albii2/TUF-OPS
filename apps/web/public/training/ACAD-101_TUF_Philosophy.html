@@ -3,1001 +3,711 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TUF Academy // ACAD-101 // THE TUF PHILOSOPHY</title>
-<meta name="description" content="TUF Academy Training Manual — ACAD-101: THE TUF PHILOSOPHY. Premium sales training publication for Territory Account Executives.">
-<meta name="author" content="TUF Sports — TUF Academy">
+<title>ACAD-101 — THE TUF PHILOSOPHY | TUF Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-
-
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap');
-
+/* ═══════════════════════════════════════════════════════════════════
+   TUF TRAINING MANUAL — STYLES
+   Single-scrolling document. Dark, readable, professional.
+   ═══════════════════════════════════════════════════════════════════ */
 :root {
-  --black: #050505;
-  --ink: #111111;
-  --charcoal: #1a1a1a;
-  --steel: #6f6f6f;
-  --line: #d0d0d0;
-  --paper: #ffffff;
-  --soft: #f4f4f2;
-  --muted: #8a8a8a;
-  --font-head: "Bebas Neue", "Oswald", "Arial Narrow", Impact, sans-serif;
-  --font-body: Inter, "Helvetica Neue", Arial, sans-serif;
+    --bg:           #0a0a0f;
+    --bg-card:      #14141f;
+    --bg-table-head:#1a1a2e;
+    --bg-table-row: #12121c;
+    --bg-table-alt: #181825;
+    --bg-code:      #0d0d18;
+    --border:       #2a2a3e;
+    --text:         #e2e8f0;
+    --text-muted:   #94a3b8;
+    --text-dim:     #64748b;
+    --accent:       #f0b90b;
+    --green:        #22c55e;
+    --red:          #ef4444;
+    --blue:         #60a5fa;
+    --max-width:    900px;
+    --font:         'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono:    'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    --lh:           1.75;
 }
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html {
-  font-size: 11px;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-
-body {
-  font-family: var(--font-body);
-  color: var(--ink);
-  background: var(--soft);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-
-.page {
-  width: 8.5in;
-  min-height: 11in;
-  margin: 0 auto 0 auto;
-  background: var(--paper);
-  display: grid;
-  grid-template-columns: 0.82in 1fr;
-  position: relative;
-  overflow: hidden;
-  page-break-after: always;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.page:last-child { page-break-after: auto; }
-
-.rail {
-  background: var(--black);
-  color: var(--paper);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0.35in 0;
-  position: relative;
-}
-
-.rail-brand {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  font-family: var(--font-head);
-  font-size: 2.4rem;
-  letter-spacing: 0.25em;
-  color: var(--paper);
-  text-transform: uppercase;
-  user-select: none;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-
-
-.rail-footer {
-  font-family: var(--font-head);
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
-  writing-mode: vertical-rl;
-  color: var(--muted);
-  margin-top: auto;
-}
-
-.content {
-  padding: 0.55in 0.65in 0.55in 0.65in;
-  overflow: hidden;
-}
-
-/* ── Cover Page ── */
-.cover {
-  display: grid;
-  grid-template-columns: 0.82in 1fr;
-  width: 8.5in;
-  min-height: 11in;
-  margin: 0 auto;
-  background: var(--paper);
-  overflow: hidden;
-  page-break-after: always;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-}
-
-.cover .rail { background: var(--black); }
-
-.cover-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 11in;
-}
-
-.cover-text {
-  padding: 0.7in 0.5in 0.7in 0.7in;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.cover-label {
-  font-family: var(--font-head);
-  font-size: 0.9rem;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 0.25in;
-}
-
-.cover-number {
-  font-family: var(--font-head);
-  font-size: 5.5rem;
-  line-height: 0.85;
-  color: var(--black);
-  letter-spacing: -0.02em;
-}
-
-.cover-title {
-  font-family: var(--font-head);
-  font-size: 3.2rem;
-  line-height: 0.9;
-  color: var(--black);
-  letter-spacing: 0.01em;
-  margin-top: 0.1in;
-}
-
-.cover-quote {
-  font-family: var(--font-body);
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--charcoal);
-  margin-top: 0.5in;
-  padding-left: 0.2in;
-  border-left: 3px solid var(--black);
-  line-height: 1.5;
-  font-style: italic;
-}
-
-.cover-meta {
-  margin-top: 0.6in;
-  font-family: var(--font-body);
-  font-size: 0.75rem;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.cover-meta span { display: block; }
-
-.cover-meta .label {
-  font-weight: 600;
-  color: var(--steel);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.7rem;
-}
-
-.cover-photo {
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #0f0f0f 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.cover-photo::before {
-  content: '';
-  position: absolute;
-  top: -50%; left: -50%;
-  width: 200%; height: 200%;
-  background: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.015) 2px, rgba(255,255,255,0.015) 4px);
-}
-
-.cover-photo-text {
-  font-family: var(--font-head);
-  font-size: 3.5rem;
-  color: rgba(255,255,255,0.06);
-  letter-spacing: 0.3em;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-/* ── Section Divider ── */
-.section-dark {
-  min-height: 11in;
-  width: 8.5in;
-  margin: 0 auto;
-  background: var(--black);
-  color: var(--paper);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 1in 1.2in;
-  page-break-after: always;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-}
-
-.section-dark .section-number {
-  font-family: var(--font-head);
-  font-size: 7rem;
-  line-height: 0.8;
-  color: var(--paper);
-  letter-spacing: -0.02em;
-}
-
-.section-dark .section-title {
-  font-family: var(--font-head);
-  font-size: 3.5rem;
-  line-height: 0.9;
-  color: var(--paper);
-  margin-top: 0.15in;
-  letter-spacing: 0.01em;
-}
-
-.section-dark .section-doctrine {
-  font-family: var(--font-body);
-  font-size: 1.1rem;
-  color: var(--muted);
-  margin-top: 0.5in;
-  line-height: 1.6;
-  max-width: 80%;
-}
-
-.section-dark .section-divider-line {
-  width: 2in;
-  height: 2px;
-  background: rgba(255,255,255,0.2);
-  margin: 0.4in 0;
-}
-
-/* ── Typography ── */
-h1 { font-family:var(--font-head);font-size:2.8rem;color:var(--black);letter-spacing:0.01em;line-height:1;margin-bottom:0.25in; }
-h2 { font-family:var(--font-head);font-size:2rem;color:var(--black);letter-spacing:0.02em;line-height:1.1;margin:0.45in 0 0.15in; }
-h3 { font-family:var(--font-head);font-size:1.4rem;color:var(--charcoal);letter-spacing:0.03em;margin:0.3in 0 0.1in;text-transform:uppercase; }
-p { font-size:0.95rem;line-height:1.6;color:var(--ink);margin-bottom:0.15in; }
-strong { font-weight:700;color:var(--black); }
-em { font-style:italic; }
-
-/* ── TOC ── */
-.toc-title { font-family:var(--font-head);font-size:2.6rem;color:var(--black);letter-spacing:0.03em;margin-bottom:0.4in; }
-.toc-grid { display:grid;grid-template-columns:1fr 1fr;gap:0.15in 0.4in; }
-.toc-item { display:flex;align-items:baseline;padding:0.08in 0;border-bottom:1px solid var(--line); }
-.toc-num { font-family:var(--font-head);font-size:1.1rem;color:var(--black);min-width:0.35in; }
-.toc-text { font-size:0.85rem;color:var(--charcoal);font-weight:500; }
-
-/* ── Components ── */
-.rule { border:none;height:1px;background:var(--line);margin:0.25in 0; }
-.rule-thick { height:3px;background:var(--black);margin:0.3in 0; }
-.quote { margin:0.25in 0;padding:0.2in 0.25in;border-left:4px solid var(--black);background:var(--soft);font-style:italic;font-size:1.05rem;line-height:1.55;color:var(--charcoal); }
-.quote strong { font-style:normal; }
-.callout { background:var(--black);color:var(--paper);padding:0.3in 0.35in;margin:0.25in 0;border-radius:2px; }
-.callout p { color:var(--paper);font-weight:500;font-size:0.95rem;margin-bottom:0.08in; }
-.callout strong { color:var(--paper); }
-
-table { width:100%;border-collapse:collapse;margin:0.2in 0;font-size:0.85rem; }
-thead th { background:var(--black);color:var(--paper);font-family:var(--font-head);font-size:0.8rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.1in 0.15in;text-align:left;font-weight:400; }
-tbody td { padding:0.08in 0.15in;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.45; }
-tbody tr:nth-child(even) { background:var(--soft); }
-
-pre, .script-block { background:var(--charcoal);color:#e0e0e0;padding:0.25in 0.3in;margin:0.2in 0;font-family:"SF Mono","Fira Code","Consolas",monospace;font-size:0.82rem;line-height:1.65;overflow-x:auto;white-space:pre-wrap;word-break:break-word;border-left:4px solid var(--black); }
-pre strong, .script-block strong { color:#ffffff;font-weight:700; }
-
-.field-card { background:var(--charcoal);color:#e0e0e0;padding:0.3in 0.35in;margin:0.2in 0;font-family:"SF Mono","Fira Code","Consolas",monospace;font-size:0.78rem;line-height:1.55;white-space:pre-wrap;border:1px solid #333; }
-.field-card strong { color:#ffffff; }
-
-/* ── Footer ── */
-.footer { position:absolute;bottom:0.25in;right:0.65in;font-size:0.7rem;color:var(--muted);font-weight:500;letter-spacing:0.04em;text-transform:uppercase; }
-
-/* ── Product Spotlight Cards ── */
-.product-spotlight {
-  background: linear-gradient(135deg, var(--black) 0%, #0a0a0a 60%, #151515 100%);
-  color: var(--paper);
-  padding: 0.3in 0.35in;
-  margin: 0.25in 0;
-  border-radius: 3px;
-  border: 1px solid #2a2a2a;
-  position: relative;
-  overflow: hidden;
-}
-.product-spotlight::before {
-  content: '';
-  position: absolute;
-  top: 0; right: 0;
-  width: 2.5in; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.02));
-  pointer-events: none;
-}
-.product-spotlight .ps-label {
-  font-family: var(--font-head);
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 0.1in;
-}
-.product-spotlight .ps-name {
-  font-family: var(--font-head);
-  font-size: 1.6rem;
-  color: var(--paper);
-  letter-spacing: 0.03em;
-  margin-bottom: 0.1in;
-}
-.product-spotlight .ps-collection {
-  font-family: var(--font-head);
-  font-size: 0.85rem;
-  color: var(--steel);
-  letter-spacing: 0.08em;
-  margin-bottom: 0.15in;
-}
-.product-spotlight .ps-features {
-  font-size: 0.85rem;
-  color: #cccccc;
-  line-height: 1.55;
-  margin-bottom: 0.1in;
-}
-.product-spotlight .ps-stat {
-  display: inline-block;
-  background: rgba(255,255,255,0.08);
-  padding: 0.06in 0.12in;
-  margin: 0.04in 0.04in 0 0;
-  font-family: var(--font-head);
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  border-radius: 2px;
-}
-.product-spotlight strong { color: #ffffff; }
-
-/* ── Midwest Callout ── */
-.midwest-callout {
-  background: var(--soft);
-  border-left: 4px solid var(--black);
-  padding: 0.2in 0.25in;
-  margin: 0.2in 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--charcoal);
-}
-.midwest-callout strong { color: var(--black); }
-
-/* ── Ensure no z-index overlap ── */
-.rail { z-index: 1; }
-.content { z-index: 2; position: relative; }
-
-/* ── Print ── */
+html { font-size: 16px; scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: var(--lh); -webkit-font-smoothing: antialiased; }
+.container { max-width: var(--max-width); margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+.manual-header { text-align: center; padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2.5rem; }
+.manual-header .module-code { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+.manual-header h1 { font-size: 2.2rem; font-weight: 700; color: #fff; line-height: 1.25; margin-bottom: 1rem; }
+.manual-header .meta { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.5rem; font-size: 0.8rem; color: var(--text-muted); }
+.toc { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem 2rem; margin-bottom: 3rem; }
+.toc h2 { font-size: 0.85rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 1rem; }
+.toc ol { list-style: none; counter-reset: toc-counter; padding: 0; }
+.toc ol li { counter-increment: toc-counter; padding: 0.3rem 0; font-size: 0.92rem; }
+.toc ol li::before { content: counter(toc-counter) ". "; color: var(--text-dim); font-weight: 600; }
+.toc a { color: var(--text); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+.toc a:hover { border-bottom-color: var(--accent); color: #fff; }
+main h2 { font-size: 1.55rem; font-weight: 700; color: #fff; margin: 3rem 0 1rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+main h2:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+main h3 { font-size: 1.15rem; font-weight: 600; color: #f1f5f9; margin: 2rem 0 0.75rem; }
+main h4 { font-size: 1rem; font-weight: 600; color: var(--text-muted); margin: 1.5rem 0 0.5rem; }
+main p { margin: 0 0 1rem; }
+main a { color: var(--blue); text-decoration: none; border-bottom: 1px solid transparent; }
+main a:hover { border-bottom-color: var(--blue); }
+strong, b { color: #fff; font-weight: 600; }
+blockquote { background: var(--bg-card); border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: 1.25rem 1.5rem; border-radius: 0 8px 8px 0; font-style: italic; color: #f1f5f9; }
+blockquote p { margin: 0; }
+blockquote p strong { font-style: normal; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1.25rem 0 1.75rem; font-size: 0.88rem; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+thead th { background: var(--bg-table-head); color: var(--accent); font-weight: 600; text-align: left; padding: 0.7rem 1rem; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; }
+tbody td { padding: 0.6rem 1rem; border-top: 1px solid var(--border); vertical-align: top; }
+tbody tr { background: var(--bg-table-row); }
+tbody tr:nth-child(even) { background: var(--bg-table-alt); }
+pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem 1.5rem; margin: 1.25rem 0; overflow-x: auto; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6; color: #e2e8f0; white-space: pre-wrap; }
+code { font-family: var(--font-mono); font-size: 0.85em; background: rgba(255,255,255,0.06); padding: 0.15em 0.4em; border-radius: 4px; color: #f1f5f9; }
+pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; }
+main ul, main ol { margin: 0.75rem 0 1.25rem; padding-left: 1.5rem; }
+main li { margin-bottom: 0.35rem; }
+main li > ul, main li > ol { margin: 0.25rem 0 0.25rem; }
 @media print {
-  body { background:white; }
-  .page, .cover, .section-dark { box-shadow:none;margin:0;page-break-after:always; }
-  .page:last-child, .cover:last-child, .section-dark:last-child { page-break-after:auto; }
+    body { background: #fff; color: #111; font-size: 11pt; }
+    .container { max-width: 100%; padding: 0 1in; }
+    .manual-header { border-bottom-color: #ccc; }
+    .manual-header h1 { color: #111; }
+    .toc { background: #f5f5f5; border-color: #ddd; }
+    .toc a { color: #111; }
+    table { border-color: #ccc; }
+    thead th { background: #e5e5e5; color: #111; }
+    tbody td { border-top-color: #ccc; }
+    tbody tr { background: #fff; }
+    tbody tr:nth-child(even) { background: #f9f9f9; }
+    blockquote { background: #f5f5f5; border-left-color: #999; }
+    pre { background: #f5f5f5; border-color: #ddd; color: #111; }
+    code { background: #eee; color: #111; }
+    main h2 { color: #111; border-top-color: #ccc; }
+    main h3 { color: #222; }
+    strong, b { color: #111; }
+    hr { border-top-color: #ccc; }
 }
-
-@page { size:letter;margin:0; }
-
-
 </style>
 </head>
 <body>
+<div class="container">
 
-<div class="cover">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-        
-        <div class="rail-footer">ACADEMY</div>
-    </div>
-    <div class="cover-content">
-        <div class="cover-text">
-            <div class="cover-label">TUF ACADEMY // TRAINING MANUAL</div>
-            <div class="cover-number">ACAD-101</div>
-            <div class="cover-title">THE TUF PHILOSOPHY</div>
-            <div class="cover-quote">**"You're not selling jerseys. You're building program identity."**</div>
-            <div class="cover-meta"><span class="label">Classification</span><span>SALES TRAINING — COMPREHENSIVE MANUAL
-Audience: Territory Account Executives — Pre-Certification
-Status: AUTHORITATIVE — Required Study Before First Contact
-Estimated Study Time: 3–5 Hours (Self-Study + Role-Play)
-Manual Version: 3.0 — Field-Ready Edition</span></div>
-        </div>
-        <div class="cover-photo">
-            <div class="cover-photo-text">BUILT FOR<br>THE PROGRAM</div>
-        </div>
-    </div>
+<header class="manual-header">
+  <div class="module-code">ACAD-101 — Module 01</div>
+  <h1>THE TUF PHILOSOPHY</h1>
+  <div class="meta">
+    <span>TUF Academy</span> <span>•</span>
+    <span>Training Manual</span> <span>•</span>
+    <span>Pre-Certification</span> <span>•</span>
+    <span>Estimated Study Time: 3–5 Hours</span>
+  </div>
+</header>
+
+<div class="toc">
+<h2>Table of Contents</h2>
+<ol>
+<li><a href="#part-1-welcome">Welcome: Why This Manual Exists</a></li>
+<li><a href="#part-2-the-tuf-story">The TUF Story</a></li>
+<li><a href="#part-3-built-for-the-program">BUILT FOR THE PROGRAM</a></li>
+<li><a href="#part-4-the-7-principles">The 7 Principles of TUF Sales</a></li>
+<li><a href="#part-5-the-4-lane-moat-tufs-competitive-advantage">The 4-Lane Moat</a></li>
+<li><a href="#part-6-the-competitor-landscape">The Competitor Landscape</a></li>
+<li><a href="#part-7-the-tuf-brand-voice">The TUF Brand Voice</a></li>
+<li><a href="#part-8-core-values-and-ethics">Core Values &amp; Ethical Situations</a></li>
+<li><a href="#part-9-role-play-scenarios">Role-Play Scenarios</a></li>
+<li><a href="#part-10-knowledge-assessment">Knowledge Assessment</a></li>
+<li><a href="#appendix-a-tuf-sales-philosophy-field-card">Appendix A: Field Card</a></li>
+<li><a href="#appendix-b-competitive-positioning-quick-reference">Appendix B: Competitive Positioning</a></li>
+<li><a href="#using-this-manual-beyond-certification">Beyond Certification</a></li>
+</ol>
 </div>
 
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <div class="toc-title">TABLE OF CONTENTS</div>
-<div class="toc-grid"><div class="toc-item"><span class="toc-num">1</span><span class="toc-text">Welcome: Why This Manual Exists</span></div><div class="toc-item"><span class="toc-num">2</span><span class="toc-text">The TUF Story</span></div><div class="toc-item"><span class="toc-num">3</span><span class="toc-text">BUILT FOR THE PROGRAM</span></div><div class="toc-item"><span class="toc-num">4</span><span class="toc-text">The 7 Principles of TUF Sales</span></div><div class="toc-item"><span class="toc-num">5</span><span class="toc-text">The 4-Lane Moat — TUF's Competitive Advantage</span></div><div class="toc-item"><span class="toc-num">6</span><span class="toc-text">The Competitor Landscape</span></div><div class="toc-item"><span class="toc-num">7</span><span class="toc-text">The TUF Brand Voice</span></div><div class="toc-item"><span class="toc-num">8</span><span class="toc-text">Core Values &amp; Ethical Situations</span></div><div class="toc-item"><span class="toc-num">9</span><span class="toc-text">Role-Play Scenarios</span></div><div class="toc-item"><span class="toc-num">10</span><span class="toc-text">Knowledge Assessment</span></div></div>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
+<main>
 
+<p><strong>Classification:</strong> SALES TRAINING — COMPREHENSIVE MANUAL<br>
+<strong>Audience:</strong> Territory Account Executives — Pre-Certification<br>
+<strong>Status:</strong> AUTHORITATIVE — Required Study Before First Contact<br>
+<strong>Estimated Study Time:</strong> 3–5 Hours (Self-Study + Role-Play)<br>
+<strong>Manual Version:</strong> 3.0 — Field-Ready Edition</p>
 
+<hr>
 
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>1.1 Why This Manual Exists</h3>
+<blockquote><p><strong>"You're not selling jerseys. You're building program identity."</strong></p></blockquote>
+
+<hr>
+
+<h2 id="part-1-welcome">PART 1: WELCOME</h2>
+
+<h3 id="why-this-manual-exists">1.1 Why This Manual Exists</h3>
+
 <p>Before you dial a single number, before you send a single email, before you walk into a single coach's office — you need to understand <strong>why TUF exists</strong> and <strong>what we believe.</strong></p>
-<p>This manual is the foundation of your career at TUF Sports. Every skill you build — prospecting, discovery, closing, handoff, product knowledge — is built on the philosophy in these pages.</p>
-<p><strong>The 2-hour Academy module gives you the outline. This manual gives you the weapons.</strong></p>
-<h3>1.2 What You'll Be Able to Do After This Manual</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">Articulate why TUF exists in 30 seconds</li><li style="margin-bottom:0.04in;">Deploy the 4-Lane system as your opening differentiator</li><li style="margin-bottom:0.04in;">Navigate competitor conversations without trashing anyone</li><li style="margin-bottom:0.04in;">Handle ethical situations with integrity</li><li style="margin-bottom:0.04in;">Make a skeptical coach feel seen within 5 minutes</li><li style="margin-bottom:0.04in;"><strong>Close with the IRONCLAD GUARANTEE as your final word</strong></li></ul>
-<h3>1.3 The Academy Standard</h3>
-<p>TUF Academy is the operating system for how TUF builds reps, culture, and scale. Every rep learns the same philosophy. Every Director coaches from the same standard. Every territory produces the same quality.</p>
-<p><strong>The Academy builds TUF professionals. Not order-takers.</strong></p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>2.1 Who Built TUF</h3>
-<p>TUF was built by a group who knows locker rooms from every angle:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>A former college football player</strong> — who wore the gear and knew what fit, finish, and fabric should feel like.</li><li style="margin-bottom:0.04in;"><strong>A current NFL referee</strong> — who sees programs every week and understands what separates the programs that look the part from the ones that don't.</li><li style="margin-bottom:0.04in;"><strong>A former All-Pro NFL player</strong> — who wore the best gear at the highest level and knows exactly what that standard is.</li></ul>
-<p>They built TUF to give high school programs the same quality standard they experienced — without the price tag that comes with establishment brands.</p>
-<p><strong>That's the story. It's real. Now let the product sell itself.</strong></p>
-<h3>2.2 Why TUF Exists</h3>
-<p>Custom team uniforms are sold the same way they were sold 15 years ago. A catalog. A price sheet. A handshake with the guy who's done it forever.</p>
-<p>Establishment brands (Nike, Adidas, UA) treat high school programs like they're lucky to be on the list. Local vendors treat uniforms like a print job — logos on blanks, next invoice please.</p>
-<p>Nobody looks at a high school athletic department and says: "We outfit the whole thing — not just the uniforms."</p>
-<p><strong>That's the gap. TUF fills it.</strong></p>
-<div class="midwest-callout"><strong>BUILT IN THE MIDWEST, FOR THE MIDWEST:</strong> TUF isn't a national conglomerate. We're built in the Midwest — we understand Minnesota football culture, Iowa wrestling tradition, Wisconsin basketball loyalty, Illinois multi-sport programs. We know that Friday Night Lights means something different in Edina than it does in Eden Prairie, that hockey in Warroad isn't the same as basketball in Minneapolis. Our gear is built for Midwest weather — from August two-a-days to November playoff runs in 20°F. We don't just sell to the Midwest. We are the Midwest.</div>
-<h3>2.3 The Market Reality</h3>
-<table>
-<thead><tr>
-<th>Competitor Type</th>
-<th>What They Do</th>
-<th>What They Don't Do</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>Nike / Adidas / UA</strong></td>
-<td>Premium uniforms for college/pro. High schools are afterthoughts.</td>
-<td>Don't think about the whole athletic department. No 4-lane. No personal attention.</td>
-</tr>
-<tr>
-<td><strong>BSN Sports</strong></td>
-<td>National distributor. Resells Nike/UA/Adidas with markup. Bulk volume, transactional service.</td>
-<td>No 4-lane system. No IRONCLAD guarantee. Limited post-sale support. Doesn't manufacture — resells.</td>
-</tr>
-<tr>
-<td><strong>TUF Sports</strong></td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>Outfit entire athletic departments across 4 lanes. Built by people who know the standard.</td>
-<td>Don't treat high schools as afterthoughts. Don't compete on cheap. Build program identity.</td>
-</tr>
-</tbody>
-</table>
-<h3>2.4 The Founder Rule</h3>
-<div class="quote"><strong>Deploy the founder group story once. Make it count. Then let the product do the rest.</strong></div>
-<p>Coaches don't buy the founders. They buy what the founders built. Use the story to establish trust, then show the product that trust is based on. Here's your one script:</p>
-<div class="quote"><em>"Coach, TUF was built by a group who's been in every part of the game — a college player, an NFL ref, an All-Pro. They built this to deliver the pro standard to programs like yours, at a price you can handle. Let me show you what that looks like."</em></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>3.1 What TUF Stands For</h3>
-<div class="quote"><strong>TUF isn't a uniform vendor. TUF is a program brand.</strong></div>
-<p>Every other company sells products. Jerseys. Shorts. Bags. Here's the catalog, Coach.</p>
-<p>TUF outfits an entire athletic department across four lanes. Football wears GRIND. Basketball wears OVERTIME. They travel in ISSUE. Coaches wear SIDELINE. Seniors wear LEGACY letterman jackets. One system, one brand, one look — across every sport, every level, every touchpoint.</p>
-<p><strong>That's not a catalog. That's a program's identity.</strong></p>
-<h3>3.2 What "BUILT FOR THE PROGRAM" Means</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Built for the <em>whole</em> program</strong> — not just varsity. JV, freshman, youth. Same quality standard.</li><li style="margin-bottom:0.04in;"><strong>Built <em>by</em> people who were in programs</strong> — not corporate executives.</li><li style="margin-bottom:0.04in;"><strong>Built <em>for</em> the program's identity</strong> — a connected system across all four lanes.</li><li style="margin-bottom:0.04in;"><strong>Built to <em>last</em> for the program</strong> — backed by the IRONCLAD GUARANTEE. If something goes wrong, we fix it.</li></ul>
-<p>This goes on your phone lock screen. In your email signature. In your voice.</p>
-<p><strong>BUILT FOR THE PROGRAM.</strong></p>
-<h3>3.3 Why It Works</h3>
-<p>"Built for the Program" is not a tagline about TUF. It centers the coach. It says: "This exists because of what YOU'RE building."</p>
-<table>
-<thead><tr>
-<th>Brand</th>
-<th>Tagline</th>
-<th>Energy</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>Nike</strong></td>
-<td>"Just Do It"</td>
-<td>Universal. Corporate.</td>
-</tr>
-<tr>
-<td><strong>Adidas</strong></td>
-<td>"Impossible Is Nothing"</td>
-<td>Aspirational. Global.</td>
-</tr>
-<tr>
-<td><strong>TUF</strong></td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>"Built for the Program"</td>
-<td>Specific. Direct. Says who it's for.</td>
-</tr>
-</tbody>
-</table>
-<h3>3.4 The Feeling</h3>
-<p>If a coach walks away from a TUF conversation feeling one thing:</p>
-<div class="quote"><strong>"These people actually see my program. All of it. Not just the varsity uniform order."</strong></div>
-<p>That's the emotion. Everything — quality standards, collections, pricing — exists to deliver that feeling.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <p>These seven principles define how TUF sells — and how TUF doesn't sell. They're your operating system.</p>
-<h3>Principle 1: WE SELL TRUST BEFORE APPAREL</h3>
-<p>A coach will never buy uniforms from someone they don't trust. Trust is built by how you show up — not by what you promise.</p>
-<p><strong>Coach Conversation:</strong></p>
-<div class="quote"><em>"Coach Thompson, thanks for taking my call. I checked out Edina's football program — 8-3 last season, made it to sections. Your QB put up 2,400 yards and 28 TDs. Your freshman team went undefeated. That's a program building something. Tell me — what are you building toward?"</em></div>
-<p>Why it works: You opened with THEIR program. Not TUF. You did your homework.</p>
-<p><strong>Trust Through Honesty:</strong></p>
-<div class="quote"><em>"Coach, if your current vendor is delivering sharp fit, reliable delivery, and the right price — stick with them. But if you've ever looked at a team photo and thought 'those jerseys look boxy' — let me show you the difference. If you don't see it, no hard feelings."</em></div>
-<p>Why it works: You just told a coach NOT to switch. That honest moment builds more trust than any pitch.</p>
-<h3>Principle 2: THE REP IS THE PRODUCT</h3>
-<p>Before a coach touches a fabric sample, they've decided whether they trust TUF — based entirely on you.</p>
-<p>You embody "Built for the Program" in every question, every demo, every follow-up. The product validates what you've already made them feel.</p>
-<div class="quote"><em>"Coach, I'm not going to read you features. I'm going to ask about your program, then show you — physically — the difference between what you're wearing now and PRO CUT fit. If you see it, we talk. If you don't, I won't waste your time. Fair?"</em></div>
-<h3>Principle 3: THE PROGRAM IS THE HERO — TUF IS THE TOOL</h3>
-<p>Every conversation centers the coach's program. TUF is the tool. The program is the point.</p>
-<table>
-<thead><tr>
-<th>Product-First (Don't Say)</th>
-<th>Program-First (Say This)</th>
-</tr></thead>
-<tbody>
-<tr>
-<td>"Our GRIND collection features PRO CUT fit."</td>
-<td>"Your football program deserves a uniform that looks and fits like a college program. GRIND delivers that."</td>
-</tr>
-<tr>
-<td>"We offer eight collections across four lanes."</td>
-<td>"We outfit every part of your athletic department — game day, travel, fans, tradition. One system."</td>
-</tr>
-<tr>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>"TUF was founded by a college player, NFL ref, and All-Pro."</td>
-<td>"Our founders were in your shoes and at the highest level. They know what your program needs."</td>
-</tr>
-</tbody>
-</table>
-<h3>Principle 4: THE 4-LANE SYSTEM LEADS AND CLOSES</h3>
-<p>The 4-lane system — Uniforms, Travel Gear, Team Stores, Letterman Jackets — is TUF's competitive moat. It appears in your first statement and your closing vision.</p>
-<p><strong>Lead with it:</strong> "Coach, we outfit your whole program — uniforms, travel, fans, tradition. One system. One relationship. Nobody else does that."</p>
-<p><strong>Close with it:</strong> "Coach, imagine your football team in GRIND, basketball in OVERTIME, whole program traveling in ISSUE, fans in team store gear, seniors in LEGACY jackets. One system. One look. That's what we build."</p>
-<h3>Principle 5: THE DEMO PROVES THE CLAIM</h3>
-<p>Never say a standard name without showing it. When you say "PRO CUT fit," hold up a jersey and show the taper. When you say "FLEX-WAIST," flip the waistband.</p>
-<p><strong>Words anchor the memory. Action proves the claim. Together, they're the TUF brand in action.</strong></p>
-<h3>Principle 6: CONFIDENCE COMES FROM KNOWLEDGE — SWAGGER COMES FROM CARING</h3>
-<p>Know your product cold. But the energy that makes a coach lean in comes from genuinely caring about their program.</p>
-<p>Coaches have built-in BS detectors. If you don't actually care, they'll know. If you do, they'll feel it — and remember you.</p>
-<p><strong>Before every call:</strong> Spend 5 minutes researching that school. Find something to genuinely appreciate. When you open with real knowledge and real interest, the coach hears the difference.</p>
-<h3>Principle 7: WE BACK IT. PERIOD.</h3>
-<p>The IRONCLAD GUARANTEE is the closer. Every TUF conversation ends on this promise:</p>
-<div class="quote"><em>"Coach, here's the bottom line: if anything goes wrong with the product — anything — we fix it. Period. Not pro-rated. Not 'within reason.' Fixed. That's the IRONCLAD GUARANTEE. That's how we're built."</em></div>
-<p>Deliver it with eye contact. With a pause. With conviction.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>5.1 The Four Lanes</h3>
-<table>
-<thead><tr>
-<th>Lane</th>
-<th>What It Is</th>
-<th>Collections</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>1. UNIFORMS</strong></td>
-<td>Game-day uniforms. Varsity, JV, freshman.</td>
-<td>GRIND, DIAMOND, SHIFT, OVERTIME</td>
-</tr>
-<tr>
-<td><strong>2. TRAVEL GEAR</strong></td>
-<td>Tech suits, duffles, backpacks. What programs wear on the road.</td>
-<td>ISSUE</td>
-</tr>
-<tr>
-<td><strong>3. TEAM STORES</strong></td>
-<td>Fan gear, spirit wear. Online storefront. Program earns revenue.</td>
-<td>CAMP-based fan gear</td>
-</tr>
-<tr>
-<td><strong>4. LETTERMAN JACKETS</strong></td>
-<td>Varsity jackets. Senior awards. Tradition pieces.</td>
-<td>LEGACY</td>
-</tr>
-</tbody>
-</table>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>5.2 Why Nobody Else Does This</h3>
-<p><strong>Nike/Adidas/UA:</strong> Could do it. Don't. High school programs aren't worth the operational complexity to them.</p>
-<p><strong>Local vendors:</strong> Do uniforms (Lane 1). Maybe some spirit wear (piece of Lane 3). Travel gear? Letterman jackets? They don't have the supply chain or the program-level thinking.</p>
-<p><strong>TUF does all four. That's the moat.</strong></p>
-<h3>5.3 How to Talk About the 4-Lane System</h3>
-<p><strong>Don't say:</strong> "TUF offers a comprehensive four-lane system encompassing uniforms, travel gear, team stores, and letterman jackets."</p>
-<p><strong>Say this:</strong></p>
-<div class="quote"><em>"Coach, most vendors sell you uniforms and that's it. You find somebody else for travel bags. A third vendor for spirit wear. A fourth for letterman jackets. That's four relationships. Four problem points. We do all four. One system. One look. One relationship. One call if anything goes wrong."</em></div>
-<h3>5.4 The Moat in One Sentence (Memorize)</h3>
-<div class="quote"><strong>"We outfit the whole program — uniforms, travel, fans, tradition. One system. One look. One relationship. Nobody else does that."</strong></div>
-<h3>5.5 The Flywheel</h3>
-<p>The 4-lane system is a value multiplier. Every lane you add makes every other lane more valuable:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;">Football in GRIND → one conversation away from ISSUE travel gear</li><li style="margin-bottom:0.04in;">Travel in ISSUE → visibility drives team store demand</li><li style="margin-bottom:0.04in;">4 years in TUF → seniors demand LEGACY jackets</li></ul>
-<p><strong>12 sports × 4 lanes = 48 revenue opportunities per school.</strong> Most vendors see 1. TUF sees 48.</p>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>6.1 The Four Competitor Categories</h3>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Category 1: Establishment Brands (Nike, Adidas, UA)</h4>
-<p><strong>Strengths:</strong> Brand prestige, college-spec fit, athlete recognition.</p>
-<p><strong>Weaknesses:</strong> High school pricing ($110–$180/set), bureaucratic service, no 4-lane system.</p>
-<p><strong>TUF's Kill Position:</strong></p>
-<div class="quote"><em>"Coach, Nike makes great gear. Our founders wore it, know the standard. We built TUF to deliver that same fit spec — PRO CUT — at a price your budget can handle. With an IRONCLAD GUARANTEE they won't offer. And four lanes they don't do. They'll sell you uniforms. We'll outfit your whole program."</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Category 2: BSN Sports — The Volume Distributor</h4>
-<p><strong>Strengths:</strong> Deep relationships (20+ years in some programs), broad catalog, one-stop ordering.</p>
-<p><strong>Weaknesses:</strong> Doesn't manufacture — resells with markup. No 4-lane system. Transactional service. Limited post-sale accountability.</p>
-<p><strong>TUF's Kill Position:</strong></p>
-<div class="quote"><em>"Coach, BSN is a distributor — they sell you someone else's product with a markup. TUF designs and manufactures our own gear. PRO CUT fit. LOCK-FIT construction. IRONCLAD GUARANTEE — we stand behind what we build. And four lanes — uniforms, travel, fans, tradition — one system, one relationship. BSN can't match that because they're a middleman, not a manufacturer. Different category entirely."</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Category 3: Inertia — The "Same Old Vendor"</h4>
-<p><strong>Strengths:</strong> Comfort. Habit. "It's fine."</p>
-<p><strong>Weaknesses:</strong> "Fine" isn't "good." The coach has normalized problems.</p>
-<p><strong>TUF's Kill Position:</strong></p>
-<div class="quote"><em>"Coach, if your athletes love the fit, delivery is on time, and price is right — stick with it. But if you've ever thought 'those jerseys look boxy' or you're tired of managing four vendors — let me leave you a sample. Try it on one athlete. If you don't see the difference, no hard feelings."</em></div>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">Category 4: The Budget Blocker</h4>
-<p><strong>Strengths:</strong> Stops conversations cold.</p>
-<p><strong>Weaknesses:</strong> "Can't afford" usually means "haven't seen the value."</p>
-<p><strong>TUF's Response:</strong></p>
-<div class="quote"><em>"Coach, if price is the only thing that matters, they win. But here's what I'd ask: what does your program look like when athletes walk out? Is the fit sharp? Do you have one vendor or four? The cheapest option saves money today. The right option builds your program's identity for years. And our team store model — your program earns 15–25% on every sale. It can offset the investment. Which matters more?"</em></div>
-<h3>6.2 Competitive Positioning Rules</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Never lead with the competitor's name.</strong> Lead with the coach's program.</li><li style="margin-bottom:0.04in;"><strong>Acknowledge before you attack.</strong> "Nike makes great gear." Then pivot.</li><li style="margin-bottom:0.04in;"><strong>Deploy the founder credential once.</strong> Then move to the product.</li><li style="margin-bottom:0.04in;"><strong>Always end on the 4-lane system.</strong> It's what nobody else does.</li><li style="margin-bottom:0.04in;"><strong>The IRONCLAD GUARANTEE is the closer.</strong> Every competitive conversation ends there.</li></ul>
-<hr class="rule">
 
-<h3>6.3 BSN SPORTS — THE REAL COMPETITOR</h3>
-<p>BSN Sports is the 800-pound gorilla in the room. They're the largest distributor of team sports apparel in the US — a bulk middleman that licenses Nike, Under Armour, and Adidas gear and resells it to schools. BSN is national, corporate, and transactional. TUF is regional, personal, and built for programs.</p>
-<div class="midwest-callout"><strong>MIDWEST REALITY:</strong> BSN doesn't understand Minnesota football culture. They don't know that Edina vs. Eden Prairie is a rivalry that matters. They don't know that hockey programs in Warroad and Roseau need different travel gear than basketball programs in the Twin Cities. We're built here. We know the programs, the weather, the budgets, the communities.</div>
-<p><strong>BSN Objection Handler 1: "We've been with BSN for years."</strong></p>
-<div class="quote"><em>"Coach, BSN is great at what they do — moving volume. But here's what they don't do: integrated team stores that fund your program, issue travel gear designed as a system, and annual letterman programs for your seniors. We can start with uniforms — better fit, better price, IRONCLAD guarantee. Then add the other lanes when you're ready."</em></div>
-<p><strong>BSN Objection Handler 2: "BSN gives us Nike/UA gear — our kids want the brand."</strong></p>
-<div class="quote"><em>"Coach, we deliver the same fit spec and quality standard as Nike/UA — PRO CUT fit, POWER-STRETCH fabric, LOCK-FIT construction. Your athletes won't know the difference in fit. But your budget will — we're 30-40% less per uniform set. And we back it with a guarantee BSN doesn't offer as a reseller."</em></div>
-<p><strong>BSN Objection Handler 3: "BSN's pricing is fine — their bid came in lower."</strong></p>
-<div class="quote"><em>"Coach, price isn't just the uniform cost. It's the four vendors you're managing. The late deliveries. The wrong sizes. The peeling graphics from stock blanks. Our IRONCLAD GUARANTEE means if anything goes wrong — anything — we fix it. Period. BSN resells someone else's gear. We stand behind ours. Different model. Different outcome."</em></div>
-<p><strong>THE CRITICAL PITCH:</strong> "Coach, even if you don't change uniforms, we can outfit your team travel, your parent fan gear, your letterman program, your sideline apparel — three lanes without touching your uniform contract with BSN."</p>
+<p>This manual is the foundation of your career at TUF Sports. Every skill you build — prospecting, discovery, closing, handoff, product knowledge — is built on the philosophy in these pages.</p>
+
+<p><strong>The 2-hour Academy module gives you the outline. This manual gives you the weapons.</strong></p>
+
+<h3 id="what-youll-be-able-to-do-after-this-manual">1.2 What You'll Be Able to Do After This Manual</h3>
+
+<ul>
+<li>Articulate why TUF exists in 30 seconds</li>
+<li>Deploy the 4-Lane system as your opening differentiator</li>
+<li>Navigate competitor conversations without trashing anyone</li>
+<li>Handle ethical situations with integrity</li>
+<li>Make a skeptical coach feel seen within 5 minutes</li>
+<li><strong>Close with the IRONCLAD GUARANTEE as your final word</strong></li>
+</ul>
+
+<h3 id="the-academy-standard">1.3 The Academy Standard</h3>
+
+<p>TUF Academy is the operating system for how TUF builds reps, culture, and scale. Every rep learns the same philosophy. Every Director coaches from the same standard. Every territory produces the same quality.</p>
+
+<p><strong>The Academy builds TUF professionals. Not order-takers.</strong></p>
+
+<hr>
+
+<h2 id="part-2-the-tuf-story">PART 2: THE TUF STORY</h2>
+
+<h3 id="who-built-tuf">2.1 Who Built TUF</h3>
+
+<p>TUF was built by a group who knows locker rooms from every angle:</p>
+
+<ul>
+<li><strong>A former college football player</strong> — who wore the gear and knew what fit, finish, and fabric should feel like.</li>
+<li><strong>A current NFL referee</strong> — who sees programs every week and understands what separates the programs that look the part from the ones that don't.</li>
+<li><strong>A former All-Pro NFL player</strong> — who wore the best gear at the highest level and knows exactly what that standard is.</li>
+</ul>
+
+<p>They built TUF to give high school programs the same quality standard they experienced — without the price tag that comes with establishment brands.</p>
+
+<p><strong>That's the story. It's real. Now let the product sell itself.</strong></p>
+
+<h3 id="why-tuf-exists">2.2 Why TUF Exists</h3>
+
+<p>Custom team uniforms are sold the same way they were sold 15 years ago. A catalog. A price sheet. A handshake with the guy who's done it forever.</p>
+
+<p>Establishment brands (Nike, Adidas, UA) treat high school programs like they're lucky to be on the list. Local vendors treat uniforms like a print job — logos on blanks, next invoice please.</p>
+
+<p>Nobody looks at a high school athletic department and says: "We outfit the whole thing — not just the uniforms."</p>
+
+<p><strong>That's the gap. TUF fills it.</strong></p>
+
+<h3 id="the-market-reality">2.3 The Market Reality</h3>
+
+<table>
+<thead><tr><th>Competitor Type</th><th>What They Do</th><th>What They Don't Do</th></tr></thead>
+<tbody>
+<tr><td><strong>Nike / Adidas / UA</strong></td><td>Premium uniforms for college/pro. High schools are afterthoughts.</td><td>Don't think about the whole athletic department. No 4-lane. No personal attention.</td></tr>
+<tr><td><strong>Local Vendors / BSN</strong></td><td>Print logos on stock blanks. Compete on price.</td><td>Don't think about fit standards. Don't build program identity across sports and lanes.</td></tr>
+<tr><td><strong>TUF Sports</strong></td><td>Outfit entire athletic departments across 4 lanes. Built by people who know the standard.</td><td>Don't treat high schools as afterthoughts. Don't compete on cheap. Build program identity.</td></tr>
+</tbody>
+</table>
+
+<h3 id="the-founder-rule">2.4 The Founder Rule</h3>
+
+<blockquote><p><strong>Deploy the founder group story once. Make it count. Then let the product do the rest.</strong></p></blockquote>
+
+<p>Coaches don't buy the founders. They buy what the founders built. Use the story to establish trust, then show the product that trust is based on. Here's your one script:</p>
+
+<blockquote><p>"Coach, TUF was built by a group who's been in every part of the game — a college player, an NFL ref, an All-Pro. They built this to deliver the pro standard to programs like yours, at a price you can handle. Let me show you what that looks like."</p></blockquote>
+
+<hr>
+
+<h2 id="part-3-built-for-the-program">PART 3: BUILT FOR THE PROGRAM</h2>
+
+<h3 id="what-tuf-stands-for">3.1 What TUF Stands For</h3>
+
+<blockquote><p><strong>TUF isn't a uniform vendor. TUF is a program brand.</strong></p></blockquote>
+
+<p>Every other company sells products. Jerseys. Shorts. Bags. Here's the catalog, Coach.</p>
+
+<p>TUF outfits an entire athletic department across four lanes. Football wears GRIND. Basketball wears OVERTIME. They travel in ISSUE. Coaches wear SIDELINE. Seniors wear LEGACY letterman jackets. One system, one brand, one look — across every sport, every level, every touchpoint.</p>
+
+<p><strong>That's not a catalog. That's a program's identity.</strong></p>
+
+<h3 id="what-built-for-the-program-means">3.2 What "BUILT FOR THE PROGRAM" Means</h3>
+
+<ul>
+<li><strong>Built for the <em>whole</em> program</strong> — not just varsity. JV, freshman, youth. Same quality standard.</li>
+<li><strong>Built <em>by</em> people who were in programs</strong> — not corporate executives.</li>
+<li><strong>Built <em>for</em> the program's identity</strong> — a connected system across all four lanes.</li>
+<li><strong>Built to <em>last</em> for the program</strong> — backed by the IRONCLAD GUARANTEE. If something goes wrong, we fix it.</li>
+</ul>
+
+<p>This goes on your phone lock screen. In your email signature. In your voice.</p>
+
+<p><strong>BUILT FOR THE PROGRAM.</strong></p>
+
+<h3 id="why-it-works">3.3 Why It Works</h3>
+
+<p>"Built for the Program" is not a tagline about TUF. It centers the coach. It says: "This exists because of what YOU'RE building."</p>
+
+<table>
+<thead><tr><th>Brand</th><th>Tagline</th><th>Energy</th></tr></thead>
+<tbody>
+<tr><td><strong>Nike</strong></td><td>"Just Do It"</td><td>Universal. Corporate.</td></tr>
+<tr><td><strong>Adidas</strong></td><td>"Impossible Is Nothing"</td><td>Aspirational. Global.</td></tr>
+<tr><td><strong>TUF</strong></td><td>"Built for the Program"</td><td>Specific. Direct. Says who it's for.</td></tr>
+</tbody>
+</table>
+
+<h3 id="the-feeling">3.4 The Feeling</h3>
+
+<p>If a coach walks away from a TUF conversation feeling one thing:</p>
+
+<blockquote><p><strong>"These people actually see my program. All of it. Not just the varsity uniform order."</strong></p></blockquote>
+
+<p>That's the emotion. Everything — quality standards, collections, pricing — exists to deliver that feeling.</p>
+
+<hr>
+
+<h2 id="part-4-the-7-principles">PART 4: THE 7 PRINCIPLES OF TUF SALES</h2>
+
+<p>These seven principles define how TUF sells — and how TUF doesn't sell. They're your operating system.</p>
+
+<h3 id="principle-1-we-sell-trust-before-apparel">Principle 1: WE SELL TRUST BEFORE APPAREL</h3>
+
+<p>A coach will never buy uniforms from someone they don't trust. Trust is built by how you show up — not by what you promise.</p>
+
+<p><strong>Coach Conversation:</strong></p>
+
+<blockquote><p>"Coach Thompson, thanks for taking my call. I checked out Edina's football program — 8-3 last season, made it to sections. Your QB put up 2,400 yards and 28 TDs. Your freshman team went undefeated. That's a program building something. Tell me — what are you building toward?"</p></blockquote>
+
+<p>Why it works: You opened with THEIR program. Not TUF. You did your homework.</p>
+
+<p><strong>Trust Through Honesty:</strong></p>
+
+<blockquote><p>"Coach, if your current vendor is delivering sharp fit, reliable delivery, and the right price — stick with them. But if you've ever looked at a team photo and thought 'those jerseys look boxy' — let me show you the difference. If you don't see it, no hard feelings."</p></blockquote>
+
+<p>Why it works: You just told a coach NOT to switch. That honest moment builds more trust than any pitch.</p>
+
+<h3 id="principle-2-the-rep-is-the-product">Principle 2: THE REP IS THE PRODUCT</h3>
+
+<p>Before a coach touches a fabric sample, they've decided whether they trust TUF — based entirely on you.</p>
+
+<p>You embody "Built for the Program" in every question, every demo, every follow-up. The product validates what you've already made them feel.</p>
+
+<blockquote><p>"Coach, I'm not going to read you features. I'm going to ask about your program, then show you — physically — the difference between what you're wearing now and PRO CUT fit. If you see it, we talk. If you don't, I won't waste your time. Fair?"</p></blockquote>
+
+<h3 id="principle-3-the-program-is-the-hero">Principle 3: THE PROGRAM IS THE HERO — TUF IS THE TOOL</h3>
+
+<p>Every conversation centers the coach's program. TUF is the tool. The program is the point.</p>
+
+<table>
+<thead><tr><th>Product-First (Don't Say)</th><th>Program-First (Say This)</th></tr></thead>
+<tbody>
+<tr><td>"Our GRIND collection features PRO CUT fit."</td><td>"Your football program deserves a uniform that looks and fits like a college program. GRIND delivers that."</td></tr>
+<tr><td>"We offer eight collections across four lanes."</td><td>"We outfit every part of your athletic department — game day, travel, fans, tradition. One system."</td></tr>
+<tr><td>"TUF was founded by a college player, NFL ref, and All-Pro."</td><td>"Our founders were in your shoes and at the highest level. They know what your program needs."</td></tr>
+</tbody>
+</table>
+
+<h3 id="principle-4-the-4-lane-system-leads-and-closes">Principle 4: THE 4-LANE SYSTEM LEADS AND CLOSES</h3>
+
+<p>The 4-lane system — Uniforms, Travel Gear, Team Stores, Letterman Jackets — is TUF's competitive moat. It appears in your first statement and your closing vision.</p>
+
+<p><strong>Lead with it:</strong> "Coach, we outfit your whole program — uniforms, travel, fans, tradition. One system. One relationship. Nobody else does that."</p>
+
+<p><strong>Close with it:</strong> "Coach, imagine your football team in GRIND, basketball in OVERTIME, whole program traveling in ISSUE, fans in team store gear, seniors in LEGACY jackets. One system. One look. That's what we build."</p>
+
+<h3 id="principle-5-the-demo-proves-the-claim">Principle 5: THE DEMO PROVES THE CLAIM</h3>
+
+<p>Never say a standard name without showing it. When you say "PRO CUT fit," hold up a jersey and show the taper. When you say "FLEX-WAIST," flip the waistband.</p>
+
+<p><strong>Words anchor the memory. Action proves the claim. Together, they're the TUF brand in action.</strong></p>
+
+<h3 id="principle-6-confidence-comes-from-knowledge">Principle 6: CONFIDENCE COMES FROM KNOWLEDGE — SWAGGER COMES FROM CARING</h3>
+
+<p>Know your product cold. But the energy that makes a coach lean in comes from genuinely caring about their program.</p>
+
+<p>Coaches have built-in BS detectors. If you don't actually care, they'll know. If you do, they'll feel it — and remember you.</p>
+
+<p><strong>Before every call:</strong> Spend 5 minutes researching that school. Find something to genuinely appreciate. When you open with real knowledge and real interest, the coach hears the difference.</p>
+
+<h3 id="principle-7-we-back-it-period">Principle 7: WE BACK IT. PERIOD.</h3>
+
+<p>The IRONCLAD GUARANTEE is the closer. Every TUF conversation ends on this promise:</p>
+
+<blockquote><p>"Coach, here's the bottom line: if anything goes wrong with the product — anything — we fix it. Period. Not pro-rated. Not 'within reason.' Fixed. That's the IRONCLAD GUARANTEE. That's how we're built."</p></blockquote>
+
+<p>Deliver it with eye contact. With a pause. With conviction.</p>
+
+<hr>
+
+<h2 id="part-5-the-4-lane-moat-tufs-competitive-advantage">PART 5: THE 4-LANE MOAT — TUF'S COMPETITIVE ADVANTAGE</h2>
+
+<h3 id="the-four-lanes">5.1 The Four Lanes</h3>
+
+<table>
+<thead><tr><th>Lane</th><th>What It Is</th><th>Collections</th></tr></thead>
+<tbody>
+<tr><td><strong>1. UNIFORMS</strong></td><td>Game-day uniforms. Varsity, JV, freshman.</td><td>GRIND, DIAMOND, SHIFT, OVERTIME</td></tr>
+<tr><td><strong>2. TRAVEL GEAR</strong></td><td>Tech suits, duffles, backpacks. What programs wear on the road.</td><td>ISSUE</td></tr>
+<tr><td><strong>3. TEAM STORES</strong></td><td>Fan gear, spirit wear. Online storefront. Program earns revenue.</td><td>CAMP-based fan gear</td></tr>
+<tr><td><strong>4. LETTERMAN JACKETS</strong></td><td>Varsity jackets. Senior awards. Tradition pieces.</td><td>LEGACY</td></tr>
+</tbody>
+</table>
+
+<h3 id="why-nobody-else-does-this">5.2 Why Nobody Else Does This</h3>
+
+<p><strong>Nike/Adidas/UA:</strong> Could do it. Don't. High school programs aren't worth the operational complexity to them.</p>
+
+<p><strong>Local vendors:</strong> Do uniforms (Lane 1). Maybe some spirit wear (piece of Lane 3). Travel gear? Letterman jackets? They don't have the supply chain or the program-level thinking.</p>
+
+<p><strong>TUF does all four. That's the moat.</strong></p>
+
+<h3 id="how-to-talk-about-the-4-lane-system">5.3 How to Talk About the 4-Lane System</h3>
+
+<p><strong>Don't say:</strong> "TUF offers a comprehensive four-lane system encompassing uniforms, travel gear, team stores, and letterman jackets."</p>
+
+<p><strong>Say this:</strong></p>
+
+<blockquote><p>"Coach, most vendors sell you uniforms and that's it. You find somebody else for travel bags. A third vendor for spirit wear. A fourth for letterman jackets. That's four relationships. Four problem points. We do all four. One system. One look. One relationship. One call if anything goes wrong."</p></blockquote>
+
+<h3 id="the-moat-in-one-sentence">5.4 The Moat in One Sentence (Memorize)</h3>
+
+<blockquote><p><strong>"We outfit the whole program — uniforms, travel, fans, tradition. One system. One look. One relationship. Nobody else does that."</strong></p></blockquote>
+
+<h3 id="the-flywheel">5.5 The Flywheel</h3>
+
+<p>The 4-lane system is a value multiplier. Every lane you add makes every other lane more valuable:</p>
+
+<ul>
+<li>Football in GRIND → one conversation away from ISSUE travel gear</li>
+<li>Travel in ISSUE → visibility drives team store demand</li>
+<li>4 years in TUF → seniors demand LEGACY jackets</li>
+</ul>
+
+<p><strong>12 sports × 4 lanes = 48 revenue opportunities per school.</strong> Most vendors see 1. TUF sees 48.</p>
+
+<hr>
+
+<h2 id="part-6-the-competitor-landscape">PART 6: THE COMPETITOR LANDSCAPE</h2>
+
+<h3 id="the-four-competitor-categories">6.1 The Four Competitor Categories</h3>
+
+<h4>Category 1: Establishment Brands (Nike, Adidas, UA)</h4>
+
+<p><strong>Strengths:</strong> Brand prestige, college-spec fit, athlete recognition.<br>
+<strong>Weaknesses:</strong> High school pricing ($110–$180/set), bureaucratic service, no 4-lane system.</p>
+
+<p><strong>TUF's Kill Position:</strong></p>
+
+<blockquote><p>"Coach, Nike makes great gear. Our founders wore it, know the standard. We built TUF to deliver that same fit spec — PRO CUT — at a price your budget can handle. With an IRONCLAD GUARANTEE they won't offer. And four lanes they don't do. They'll sell you uniforms. We'll outfit your whole program."</p></blockquote>
+
+<h4>Category 2: Local Vendors / BSN</h4>
+
+<p><strong>Strengths:</strong> Lowest price ($40–$80/set), convenience, multi-year relationships.<br>
+<strong>Weaknesses:</strong> Stock blanks (boxy), no quality standards, print-job mentality, can't do 4 lanes.</p>
+
+<p><strong>TUF's Kill Position:</strong></p>
+
+<blockquote><p>"Coach, there's a difference between printing logos on generic jerseys and building uniforms to a fit standard. PRO CUT — athletic taper, articulated sleeves. LOCK-FIT — triple-stitched. IRONCLAD GUARANTEE — we fix it, period. And four lanes — one system. They sell products. We build program identity. Different category."</p></blockquote>
+
+<h4>Category 3: Inertia — The "Same Old Vendor"</h4>
+
+<p><strong>Strengths:</strong> Comfort. Habit. "It's fine."<br>
+<strong>Weaknesses:</strong> "Fine" isn't "good." The coach has normalized problems.</p>
+
+<p><strong>TUF's Kill Position:</strong></p>
+
+<blockquote><p>"Coach, if your athletes love the fit, delivery is on time, and price is right — stick with it. But if you've ever thought 'those jerseys look boxy' or you're tired of managing four vendors — let me leave you a sample. Try it on one athlete. If you don't see the difference, no hard feelings."</p></blockquote>
+
+<h4>Category 4: The Budget Blocker</h4>
+
+<p><strong>Strengths:</strong> Stops conversations cold.<br>
+<strong>Weaknesses:</strong> "Can't afford" usually means "haven't seen the value."</p>
+
+<p><strong>TUF's Response:</strong></p>
+
+<blockquote><p>"Coach, if price is the only thing that matters, they win. But here's what I'd ask: what does your program look like when athletes walk out? Is the fit sharp? Do you have one vendor or four? The cheapest option saves money today. The right option builds your program's identity for years. And our team store model — your program earns 15–25% on every sale. It can offset the investment. Which matters more?"</p></blockquote>
+
+<h3 id="competitive-positioning-rules">6.2 Competitive Positioning Rules</h3>
+
+<ol>
+<li><strong>Never lead with the competitor's name.</strong> Lead with the coach's program.</li>
+<li><strong>Acknowledge before you attack.</strong> "Nike makes great gear." Then pivot.</li>
+<li><strong>Deploy the founder credential once.</strong> Then move to the product.</li>
+<li><strong>Always end on the 4-lane system.</strong> It's what nobody else does.</li>
+<li><strong>The IRONCLAD GUARANTEE is the closer.</strong> Every competitive conversation ends there.</li>
+</ol>
+
+<hr>
+
+<h2 id="part-7-the-tuf-brand-voice">PART 7: THE TUF BRAND VOICE</h2>
+
+<h3 id="how-we-talk">7.1 How We Talk — Four Dimensions</h3>
+
 <p><strong>1. FRESH, NOT CORPORATE</strong></p>
+
 <p><em>Corporate:</em> "Our premium moisture-management technology utilizes advanced hydrophobic microfiber construction."</p>
+
 <p><em>TUF:</em> "Your athletes stay dry. The fabric pulls sweat off the body. Fourth quarter, your kids aren't wearing jerseys that weigh 10 pounds."</p>
+
 <p><strong>2. CONFIDENT, NOT ARROGANT</strong></p>
+
 <p><em>Arrogant:</em> "Your current vendor doesn't know what they're doing."</p>
+
 <p><em>TUF:</em> "Coach, if your current setup is working — fit is sharp, delivery reliable, price right — stick with it. But if those jerseys look boxy in the team photo, let me show you the difference."</p>
+
 <p><strong>3. BUILT FOR PROGRAMS, NOT CONTRACTS</strong></p>
+
 <p>Nike and Adidas build for college contracts. TUF was built specifically for high school athletic programs.</p>
+
 <p><strong>4. WE BACK IT. PERIOD.</strong></p>
+
 <p>Attitude without substance is noise. The IRONCLAD GUARANTEE changes the energy from "we're different" to "we're different and we'll prove it."</p>
-<h3>7.2 Voice Rules</h3>
+
+<h3 id="voice-rules">7.2 Voice Rules</h3>
+
 <p><strong>SPEAK COACH, NOT CORPORATE</strong></p>
+
 <table>
-<thead><tr>
-<th>Instead of...</th>
-<th>Say...</th>
-</tr></thead>
+<thead><tr><th>Instead of…</th><th>Say…</th></tr></thead>
 <tbody>
-<tr>
-<td>"Athletic-tapered pattern"</td>
-<td>"Cut to move like an athlete"</td>
-</tr>
-<tr>
-<td>"Moisture management technology"</td>
-<td>"Pulls sweat off, stays dry"</td>
-</tr>
-<tr>
-<td>"Program-wide brand coherence"</td>
-<td>"One look across your whole program"</td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        </tr>
-<tr>
-<td>"Value proposition"</td>
-<td>Never say this. Ever.</td>
-</tr>
+<tr><td>"Athletic-tapered pattern"</td><td>"Cut to move like an athlete"</td></tr>
+<tr><td>"Moisture management technology"</td><td>"Pulls sweat off, stays dry"</td></tr>
+<tr><td>"Program-wide brand coherence"</td><td>"One look across your whole program"</td></tr>
+<tr><td>"Value proposition"</td><td>Never say this. Ever.</td></tr>
 </tbody>
 </table>
+
 <p><strong>SPECIFIC, NOT VAGUE</strong></p>
+
 <table>
-<thead><tr>
-<th>Vague</th>
-<th>Specific (TUF)</th>
-</tr></thead>
+<thead><tr><th>Vague</th><th>Specific (TUF)</th></tr></thead>
 <tbody>
-<tr>
-<td>"Great quality"</td>
-<td>"LOCK-FIT — triple-stitched at every stress point"</td>
-</tr>
-<tr>
-<td>"Athletic fit"</td>
-<td>"PRO CUT — built to what college programs actually wear"</td>
-</tr>
-<tr>
-<td>"We stand behind our product"</td>
-<td>"IRONCLAD GUARANTEE — if something goes wrong, we fix it. Period."</td>
-</tr>
+<tr><td>"Great quality"</td><td>"LOCK-FIT — triple-stitched at every stress point"</td></tr>
+<tr><td>"Athletic fit"</td><td>"PRO CUT — built to what college programs actually wear"</td></tr>
+<tr><td>"We stand behind our product"</td><td>"IRONCLAD GUARANTEE — if something goes wrong, we fix it. Period."</td></tr>
 </tbody>
 </table>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <p><strong>CONFIDENT, NOT ARROGANT</strong></p>
+
+<p><strong>CONFIDENT, NOT ARROGANT</strong></p>
+
 <table>
-<thead><tr>
-<th>Arrogant</th>
-<th>Confident (TUF)</th>
-</tr></thead>
+<thead><tr><th>Arrogant</th><th>Confident (TUF)</th></tr></thead>
 <tbody>
-<tr>
-<td>"We're better than Nike."</td>
-<td>"Nike makes great gear. We deliver that same fit and finish at a program budget."</td>
-</tr>
-<tr>
-<td>"Nobody else can do this."</td>
-<td>"Here's what we do that's different: four lanes, one system, one relationship."</td>
-</tr>
+<tr><td>"We're better than Nike."</td><td>"Nike makes great gear. We deliver that same fit and finish at a program budget."</td></tr>
+<tr><td>"Nobody else can do this."</td><td>"Here's what we do that's different: four lanes, one system, one relationship."</td></tr>
 </tbody>
 </table>
+
 <p><strong>EMOTIONAL, NOT MANIPULATIVE</strong></p>
+
 <table>
-<thead><tr>
-<th>Manipulative</th>
-<th>Emotional (TUF)</th>
-</tr></thead>
+<thead><tr><th>Manipulative</th><th>Emotional (TUF)</th></tr></thead>
 <tbody>
-<tr>
-<td>"Your athletes deserve better."</td>
-<td>"Coach, when your team walks out, do you feel proud of how they look?"</td>
-</tr>
-<tr>
-<td>"Switch now or waste another season."</td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>"Let me leave you a sample. Try it on a kid. If you don't see it, no hard feelings."</td>
-</tr>
+<tr><td>"Your athletes deserve better."</td><td>"Coach, when your team walks out, do you feel proud of how they look?"</td></tr>
+<tr><td>"Switch now or waste another season."</td><td>"Let me leave you a sample. Try it on a kid. If you don't see it, no hard feelings."</td></tr>
 </tbody>
 </table>
-<h3>7.3 Brand Voice Examples</h3>
+
+<h3 id="brand-voice-examples">7.3 Brand Voice Examples</h3>
+
 <p><strong>The Program Introduction:</strong></p>
-<div class="quote"><em>"Coach, we don't sell uniforms. We outfit programs. Four lanes — game day, travel, fans, tradition. One system. One look. One relationship. Nobody else thinks about your program that way."</em></div>
+
+<blockquote><p>"Coach, we don't sell uniforms. We outfit programs. Four lanes — game day, travel, fans, tradition. One system. One look. One relationship. Nobody else thinks about your program that way."</p></blockquote>
+
 <p><strong>The One Sentence (36 words — memorize):</strong></p>
-<div class="quote"><strong>"TUF outfits your entire athletic program — uniforms, travel gear, team stores, letterman jackets — in one system, with the fit and look of what college programs wear, at a price your budget can handle, backed by a guarantee that actually means something."</strong></div>
+
+<blockquote><p><strong>"TUF outfits your entire athletic program — uniforms, travel gear, team stores, letterman jackets — in one system, with the fit and look of what college programs wear, at a price your budget can handle, backed by a guarantee that actually means something."</strong></p></blockquote>
+
 <p><strong>The Shorter Version (8 words):</strong></p>
-<div class="quote"><strong>"We outfit the whole program. Nobody else does that."</strong></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>8.1 TUF Core Values</h3>
+
+<blockquote><p><strong>"We outfit the whole program. Nobody else does that."</strong></p></blockquote>
+
+<hr>
+
+<h2 id="part-8-core-values-and-ethics">PART 8: CORE VALUES AND ETHICS</h2>
+
+<h3 id="tuf-core-values">8.1 TUF Core Values</h3>
+
 <table>
-<thead><tr>
-<th>Value</th>
-<th>What It Means</th>
-</tr></thead>
+<thead><tr><th>Value</th><th>What It Means</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>Program First</strong></td>
-<td>Every decision centers on what's best for the coach's program.</td>
-</tr>
-<tr>
-<td><strong>Truth Over Sale</strong></td>
-<td>Never exaggerate. Never misrepresent. Never promise what we can't deliver.</td>
-</tr>
-<tr>
-<td><strong>Built Different</strong></td>
-<td>We operate differently from every vendor in this space.</td>
-</tr>
-<tr>
-<td><strong>Back It</strong></td>
-<td>When we say we'll do something, we do it. IRONCLAD.</td>
-</tr>
-<tr>
-<td><strong>Grow the Program</strong></td>
-<td>We succeed when the coach's program succeeds.</td>
-</tr>
+<tr><td><strong>Program First</strong></td><td>Every decision centers on what's best for the coach's program.</td></tr>
+<tr><td><strong>Truth Over Sale</strong></td><td>Never exaggerate. Never misrepresent. Never promise what we can't deliver.</td></tr>
+<tr><td><strong>Built Different</strong></td><td>We operate differently from every vendor in this space.</td></tr>
+<tr><td><strong>Back It</strong></td><td>When we say we'll do something, we do it. IRONCLAD.</td></tr>
+<tr><td><strong>Grow the Program</strong></td><td>We succeed when the coach's program succeeds.</td></tr>
 </tbody>
 </table>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>8.2 Ethical Situations Exercise</h3>
+
+<h3 id="ethical-situations-exercise">8.2 Ethical Situations Exercise</h3>
+
 <p><strong>Scenario 1: The Exaggeration Temptation</strong></p>
+
 <p>Coach asks: "Is your fabric as good as Nike's?"</p>
+
 <p><em>The TUF Way:</em></p>
-<div class="quote">"Coach, I'm not going to tell you our fabric is better than Nike's — they make excellent gear. What I will tell you: our founders wore Nike. They know the standard. POWER-STRETCH meets that quality threshold — premium 4-way stretch that moves with your athletes and doesn't bag out. PRO CUT is built to the same taper spec. And we back it with the IRONCLAD GUARANTEE — which Nike won't offer your program. Same fit standard. Better guarantee. Program budget. That's the honest answer."</div>
+
+<blockquote><p>"Coach, I'm not going to tell you our fabric is better than Nike's — they make excellent gear. What I will tell you: our founders wore Nike. They know the standard. POWER-STRETCH meets that quality threshold — premium 4-way stretch that moves with your athletes and doesn't bag out. PRO CUT is built to the same taper spec. And we back it with the IRONCLAD GUARANTEE — which Nike won't offer your program. Same fit standard. Better guarantee. Program budget. That's the honest answer."</p></blockquote>
+
 <p><strong>Scenario 2: The Competitor Trash Talk</strong></p>
+
 <p>A competitor rep trashes TUF in front of a coach: "They're new, unproven, probably won't be around in two years."</p>
+
 <p><em>The TUF Way:</em></p>
-<div class="quote">"Coach, I heard that. We are new — that's true. But we're built by people who've been at every level of this game. We're backed by the IRONCLAD GUARANTEE — if anything goes wrong, we fix it. Period. And we outfit programs across four lanes in a way nobody else does. I'm not going to tell you what to think. I'm going to leave you my card and a sample. You decide."</div>
+
+<blockquote><p>"Coach, I heard that. We are new — that's true. But we're built by people who've been at every level of this game. We're backed by the IRONCLAD GUARANTEE — if anything goes wrong, we fix it. Period. And we outfit programs across four lanes in a way nobody else does. I'm not going to tell you what to think. I'm going to leave you my card and a sample. You decide."</p></blockquote>
+
 <p><strong>Scenario 3: The Delivery Date Lie</strong></p>
+
 <p>Coach needs uniforms by August 15. Production says August 22. Director is pushing for the order.</p>
+
 <p><em>The TUF Way:</em></p>
-<div class="quote">"Coach, I need to be straight with you. Production puts delivery at August 22, not August 15. I'm not promising a date we can't hit. Here's what I'll do: I'll rush it and give you a firm update in 48 hours. If we can't hit August 15, I'll help you find a short-term solution while we build your TUF order for next season. I'd rather lose the order than lose your trust."</div>
+
+<blockquote><p>"Coach, I need to be straight with you. Production puts delivery at August 22, not August 15. I'm not promising a date we can't hit. Here's what I'll do: I'll rush it and give you a firm update in 48 hours. If we can't hit August 15, I'll help you find a short-term solution while we build your TUF order for next season. I'd rather lose the order than lose your trust."</p></blockquote>
+
 <p><strong>Scenario 4: The Kickback</strong></p>
+
 <p>A local vendor offers a coach a "special discount" that's actually a kickback.</p>
+
 <p><em>The TUF Way:</em></p>
-<div class="quote">"Coach, I can't speak to how other vendors structure things. Here's what TUF does: transparent pricing. Every dollar goes into the product. And our team store model generates revenue FOR your program — legally, transparently, with full visibility. That's how we believe programs should be funded."</div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <p>Practice with your Director or a fellow rep. Debrief after each.</p>
+
+<blockquote><p>"Coach, I can't speak to how other vendors structure things. Here's what TUF does: transparent pricing. Every dollar goes into the product. And our team store model generates revenue FOR your program — legally, transparently, with full visibility. That's how we believe programs should be funded."</p></blockquote>
+
+<hr>
+
+<h2 id="part-9-role-play-scenarios">PART 9: ROLE-PLAY SCENARIOS</h2>
+
+<p>Practice with your Director or a fellow rep. Debrief after each.</p>
+
 <h3>Scenario 1: First Call with a Skeptical AD</h3>
+
 <p><strong>Coach:</strong> AD at Tier 1 suburban school. 15 years in role. Gets 5–10 vendor calls weekly.</p>
-<div class="quote">"Look, I get calls like this all the time. What makes you different?"</div>
+
+<blockquote><p>"Look, I get calls like this all the time. What makes you different?"</p></blockquote>
+
 <p><strong>Model Response:</strong></p>
-<div class="quote"><em>"I'll tell you exactly what's different — and it's not a fabric claim. We're the only company that outfits your entire athletic department across four lanes — uniforms, travel gear, team stores, letterman jackets — in one system. One look. One relationship. One call if anything goes wrong. Every other vendor sells you products. We build program identity. Our founders were in locker rooms at every level. If you've got 10 minutes next week, I'll show you — physically — the difference. If you don't see it, I won't call again. Fair?"</em></div>
+
+<blockquote><p>"I'll tell you exactly what's different — and it's not a fabric claim. We're the only company that outfits your entire athletic department across four lanes — uniforms, travel gear, team stores, letterman jackets — in one system. One look. One relationship. One call if anything goes wrong. Every other vendor sells you products. We build program identity. Our founders were in locker rooms at every level. If you've got 10 minutes next week, I'll show you — physically — the difference. If you don't see it, I won't call again. Fair?"</p></blockquote>
+
 <h3>Scenario 2: Explaining TUF to a Coach Who's Never Heard of Us</h3>
+
 <p><strong>Coach:</strong> Head Football Coach at Tier 2 rural school. 8 years with local vendor. Never heard of TUF.</p>
-<div class="quote">"TUF Sports? Never heard of you. Are you new?"</div>
+
+<blockquote><p>"TUF Sports? Never heard of you. Are you new?"</p></blockquote>
+
 <p><strong>Model Response:</strong></p>
-<div class="quote"><em>"Coach, fair question. We are new to Minnesota. TUF was built by a group who knows the game — a former college player, an NFL ref, an All-Pro. They saw what the big brands deliver to college programs and built TUF to bring that standard to high schools at a budget that works. I'd love to drop off a GRIND football jersey in your colors. Put it on one of your kids. See if the fit is different. No commitment. No pitch. Fair?"</em></div>
+
+<blockquote><p>"Coach, fair question. We are new to Minnesota. TUF was built by a group who knows the game — a former college player, an NFL ref, an All-Pro. They saw what the big brands deliver to college programs and built TUF to bring that standard to high schools at a budget that works. I'd love to drop off a GRIND football jersey in your colors. Put it on one of your kids. See if the fit is different. No commitment. No pitch. Fair?"</p></blockquote>
+
 <h3>Scenario 3: The Coach Who's Happy with Nike</h3>
+
 <p><strong>Coach:</strong> Head Basketball Coach. "Nike school." Kids love the swoosh. But pricing strains budget.</p>
-<div class="quote">"We're a Nike school. Our kids would riot if we switched."</div>
+
+<blockquote><p>"We're a Nike school. Our kids would riot if we switched."</p></blockquote>
+
 <p><strong>Model Response:</strong></p>
-<div class="quote"><em>"Coach, I get it. The swoosh means something. I'm not here to tell you to drop Nike. Here's what I want you to know: our founders wore Nike. They know the fit spec. They built TUF to deliver that same standard — PRO CUT fit, POWER-STRETCH fabric — at a price a high school basketball budget can handle. And here's something Nike doesn't offer: FLEX-WAIST shorts. Reversible waistband that stays flat, flips clean in two seconds. Your girls' program? This solves the #1 complaint female players have. Let me leave you OVERTIME shorts. Have your point guard try them. If she doesn't feel the difference, no hard feelings."</em></div>
+
+<blockquote><p>"Coach, I get it. The swoosh means something. I'm not here to tell you to drop Nike. Here's what I want you to know: our founders wore Nike. They know the fit spec. They built TUF to deliver that same standard — PRO CUT fit, POWER-STRETCH fabric — at a price a high school basketball budget can handle. And here's something Nike doesn't offer: FLEX-WAIST shorts. Reversible waistband that stays flat, flips clean in two seconds. Your girls' program? This solves the #1 complaint female players have. Let me leave you OVERTIME shorts. Have your point guard try them. If she doesn't feel the difference, no hard feelings."</p></blockquote>
+
 <h3>Scenario 4: The Gatekeeper</h3>
+
 <p><strong>Gatekeeper:</strong> AD's admin assistant. 20 years. Screens every call.</p>
-<div class="quote">"Coach Morrison doesn't take vendor calls. Send your info to the general email."</div>
+
+<blockquote><p>"Coach Morrison doesn't take vendor calls. Send your info to the general email."</p></blockquote>
+
 <p><strong>Model Response:</strong></p>
-<div class="quote"><em>"I completely understand — and I appreciate you protecting his time. Let me ask: who handles the football program's uniforms? Is that Coach Morrison directly, or does the head football coach make that call? Because if it's the coach, I'd love to reach out to him instead. And if it is Coach Morrison — what's the best time of year to catch him? I want to be respectful of his calendar."</em></div>
+
+<blockquote><p>"I completely understand — and I appreciate you protecting his time. Let me ask: who handles the football program's uniforms? Is that Coach Morrison directly, or does the head football coach make that call? Because if it's the coach, I'd love to reach out to him instead. And if it is Coach Morrison — what's the best time of year to catch him? I want to be respectful of his calendar."</p></blockquote>
+
 <h3>Scenario 5: The "We Have No Budget" Coach</h3>
+
 <p><strong>Coach:</strong> Head Softball Coach. Small rural school. Uniforms 5+ years old.</p>
-<div class="quote">"We barely have enough for softballs and bus fuel. No way we can afford custom uniforms."</div>
+
+<blockquote><p>"We barely have enough for softballs and bus fuel. No way we can afford custom uniforms."</p></blockquote>
+
 <p><strong>Model Response:</strong></p>
-<div class="quote"><em>"Coach, I hear you. And I respect the honesty. Not every program has the same resources. Here's something I want you to know about, even if it's not for right now: our team store model. Online storefront. Parents and community buy spirit wear. Your program earns 15–25% on every sale. For a lot of programs, that revenue offsets the uniform investment. The system funds itself. I'll leave you info, along with a DIAMOND softball sample. When the budget changes — and it will — you know where to find me. No pressure."</em></div>
+
+<blockquote><p>"Coach, I hear you. And I respect the honesty. Not every program has the same resources. Here's something I want you to know about, even if it's not for right now: our team store model. Online storefront. Parents and community buy spirit wear. Your program earns 15–25% on every sale. For a lot of programs, that revenue offsets the uniform investment. The system funds itself. I'll leave you info, along with a DIAMOND softball sample. When the budget changes — and it will — you know where to find me. No pressure."</p></blockquote>
+
 <h3>Scenario 6: The Angry Coach (Current Vendor Failed)</h3>
+
 <p><strong>Coach:</strong> Head Volleyball Coach. Uniforms 3 weeks late, wrong sizes, peeling graphics.</p>
-<div class="quote">"My current company is a disaster. What makes you any different?"</div>
+
+<blockquote><p>"My current company is a disaster. What makes you any different?"</p></blockquote>
+
 <p><strong>Model Response:</strong></p>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <div class="quote"><em>"Coach, first — I'm sorry you're dealing with that. That's not how a program should be treated. Here's how we're different: Full sublimation — color bonded permanently into the fiber. Won't peel, won't crack. In-person sizing sessions so you don't have wrong sizes. And the IRONCLAD GUARANTEE — if anything goes wrong, we fix it. Period. Coach, when can I bring samples?"</em></div>
+
+<blockquote><p>"Coach, first — I'm sorry you're dealing with that. That's not how a program should be treated. Here's how we're different: Full sublimation — color bonded permanently into the fiber. Won't peel, won't crack. In-person sizing sessions so you don't have wrong sizes. And the IRONCLAD GUARANTEE — if anything goes wrong, we fix it. Period. Coach, when can I bring samples?"</p></blockquote>
+
 <h3>Scenario 7: The Multi-Sport AD</h3>
+
 <p><strong>Coach:</strong> AD at large suburban school. 12 sports. Juggling 4+ vendors. Overwhelmed.</p>
-<div class="quote">"Managing all these vendors is a headache. But how can one company do everything well?"</div>
+
+<blockquote><p>"Managing all these vendors is a headache. But how can one company do everything well?"</p></blockquote>
+
 <p><strong>Model Response:</strong></p>
-<div class="quote"><em>"Coach, you named the exact problem we solve. And you're right — 'jack of all trades' usually means 'good at none.' Here's why we're different: we don't do 'everything.' We do four specific lanes, each with dedicated collections. GRIND for football — built with college-level input. OVERTIME for basketball — FLEX-WAIST solves the reversible waistband problem. DIAMOND for baseball and softball. ISSUE travel gear designed as one system. Each lane has its own expertise. But they all share the same quality standard and one relationship. One call if anything goes wrong. That's not jack-of-all-trades. That's a program system."</em></div>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>10.1 Scenario-Based Questions</h3>
+
+<blockquote><p>"Coach, you named the exact problem we solve. And you're right — 'jack of all trades' usually means 'good at none.' Here's why we're different: we don't do 'everything.' We do four specific lanes, each with dedicated collections. GRIND for football — built with college-level input. OVERTIME for basketball — FLEX-WAIST solves the reversible waistband problem. DIAMOND for baseball and softball. ISSUE travel gear designed as one system. Each lane has its own expertise. But they all share the same quality standard and one relationship. One call if anything goes wrong. That's not jack-of-all-trades. That's a program system."</p></blockquote>
+
+<hr>
+
+<h2 id="part-10-knowledge-assessment">PART 10: KNOWLEDGE ASSESSMENT</h2>
+
+<h3>10.1 Scenario-Based Questions</h3>
+
 <p>These aren't memorization tests. They're sales-readiness tests. If you can handle these situations, you can handle a real coach.</p>
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 1: The First-Impression AD</h4>
+
+<h4>SCENARIO 1: The First-Impression AD</h4>
+
 <p><strong>Situation:</strong> You're at a coaching clinic. An Athletic Director from a Tier 1 suburban school walks up to your table, glances at the TUF banner, and says: <em>"TUF Sports. Never heard of you. What makes you different from the five other uniform companies that have approached me this month?"</em></p>
+
 <p><strong>Question:</strong> What's your 30-second response — word for word — that deploys the 4-lane moat, the founder credential, and a clear next step, without trashing any competitor?</p>
-<hr class="rule">
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 2: The Budget Blocker</h4>
+
+<hr>
+
+<h4>SCENARIO 2: The Budget Blocker</h4>
+
 <p><strong>Situation:</strong> You've explained the 4-lane system. The coach nods, then says: <em>"That's a nice vision, but we can barely afford uniforms. Travel gear, team stores, letterman jackets — that's fantasy land for our budget."</em></p>
+
 <p><strong>Question:</strong> Using TUF's philosophy (not discounting, not apologizing), what do you say to reframe the conversation from "we can't afford it" to "let's figure out how to fund it"? Reference the specific principle and the specific TUF model that addresses this objection.</p>
-<hr class="rule">
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 3: The Product Application Question</h4>
+
+<hr>
+
+<h4>SCENARIO 3: The Product Application Question</h4>
+
 <p><strong>Situation:</strong> A head football coach tells you his athletes complain the jerseys are heavy by the fourth quarter — sweat-soaked and weighing them down. He also mentions that his linemen's jerseys tear at the shoulder seams by mid-season.</p>
+
 <p><strong>Question:</strong> Which TWO TUF quality standards directly solve these two problems, and what's the one-sentence claim you'd deploy for each during a demo?</p>
-<hr class="rule">
-<h4 style="font-family:var(--font-head);font-size:1.15rem;color:var(--charcoal);text-transform:uppercase;letter-spacing:0.04em;margin:0.2in 0 0.08in;">SCENARIO 4: The Competitor Loyalty Objection</h4>
+
+<hr>
+
+<h4>SCENARIO 4: The Competitor Loyalty Objection</h4>
+
 <p><strong>Situation:</strong> A basketball coach says: <em>"We're a Nike school. Our booster club loves the brand. I can't switch — the parents would lose their minds."</em></p>
+
 <p><strong>Question:</strong> What's your verbatim response that (a) acknowledges Nike respectfully, (b) deploys a sport-specific TUF differentiator Nike doesn't offer, and (c) doesn't ask the coach to "switch" — just to try?</p>
-<hr class="rule">
+
 <h3>10.2 Recall Foundation (Verify You Read the Material)</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>The 4-Lane Moat:</strong> Name all four lanes and the collection associated with each.</li><li style="margin-bottom:0.04in;"><strong>The 7 Principles:</strong> List all seven principles of TUF Sales from memory.</li><li style="margin-bottom:0.04in;"><strong>Brand Voice:</strong> Write one sentence that sounds like TUF — and one that a TUF rep should never say.</li></ul>
+
+<ol>
+<li><strong>The 4-Lane Moat:</strong> Name all four lanes and the collection associated with each.</li>
+<li><strong>The 7 Principles:</strong> List all seven principles of TUF Sales from memory.</li>
+<li><strong>Brand Voice:</strong> Write one sentence that sounds like TUF — and one that a TUF rep should never say.</li>
+</ol>
+
 <h3>10.3 Director Checkpoint</h3>
+
 <p>Before advancing to Module 2, complete a 10-minute role-play with your Director:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>30-Second Test:</strong> "A coach says 'I've never heard of TUF.' Respond. Go."</li><li style="margin-bottom:0.04in;"><strong>Competitive Response:</strong> Director plays a coach who says "We're an Under Armour school." You respond — acknowledge first, differentiate second. Do not trash UA.</li><li style="margin-bottom:0.04in;"><strong>Ethical Scenario:</strong> Director presents a kickback situation. You respond the TUF way.</li><li style="margin-bottom:0.04in;"><strong>Brand Voice Check:</strong> Director asks: "What's one thing TUF would never say to a coach — and why?"</li></ul>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <pre>┌─────────────────────────────────────────────────────────────────┐
+
+<ul>
+<li><strong>30-Second Test:</strong> "A coach says 'I've never heard of TUF.' Respond. Go."</li>
+<li><strong>Competitive Response:</strong> Director plays a coach who says "We're an Under Armour school." You respond — acknowledge first, differentiate second. Do not trash UA.</li>
+<li><strong>Ethical Scenario:</strong> Director presents a kickback situation. You respond the TUF way.</li>
+<li><strong>Brand Voice Check:</strong> Director asks: "What's one thing TUF would never say to a coach — and why?"</li>
+</ul>
+
+<hr>
+
+<h2 id="appendix-a-tuf-sales-philosophy-field-card">APPENDIX A: TUF SALES PHILOSOPHY — FIELD CARD</h2>
+
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
 │                    TUF SALES PHILOSOPHY                         │
 │                    BUILT FOR THE PROGRAM                        │
 ├─────────────────────────────────────────────────────────────────┤
@@ -1027,152 +737,101 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 │  THE ONE SENTENCE:                                              │
 │  "We outfit the whole program — uniforms, travel, fans,        │
 │   tradition. One system. One look. One relationship.            │
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        │   Nobody else does that."                                       │
+│   Nobody else does that."                                       │
 ├─────────────────────────────────────────────────────────────────┤
 │  THE 4-LANE MOAT:                                               │
 │  Lane 1 — UNIFORMS      Lane 2 — TRAVEL GEAR                   │
 │  Lane 3 — TEAM STORES   Lane 4 — LETTERMAN JACKETS             │
 │                                                                 │
 │  TUF Economics: 12 sports × 4 lanes = 48 opportunities/school  │
-└─────────────────────────────────────────────────────────────────┘</pre>
-<hr class="rule">
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <table>
-<thead><tr>
-<th>Competitor</th>
-<th>Their Strength</th>
-<th>Their Weakness</th>
-<th>TUF's Kill Position</th>
-</tr></thead>
-<tbody>
-<tr>
-<td><strong>Nike</strong></td>
-<td>Brand prestige, college spec</td>
-<td>High school price, bureaucracy, no 4-lane</td>
-<td>"Same fit standard. Better price. Better guarantee. Four lanes."</td>
-</tr>
-<tr>
-<td><strong>Adidas</strong></td>
-<td>Soccer presence, culture</td>
-<td>Price, no program-wide thinking</td>
-<td>"We know their spec. We deliver it. Plus four lanes."</td>
-</tr>
-<tr>
-<td><strong>Under Armour</strong></td>
-<td>Football, compression</td>
-<td>Establishment energy, limited lanes</td>
-<td>"They were the disruptor. Same fit. Better system."</td>
-</tr>
-<tr>
-<td><strong>BSN Sports</strong></td>
-<td>Price, convenience, relationships</td>
-<td>Stock blanks, no fit, no guarantee</td>
-<td>"BSN distributes other brands. We build TUF product. Better fit, better price, better guarantee. Different category entirely."</td>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-</tr>
-<tr>
-<td><strong>Inertia</strong></td>
-<td>Comfort, habit</td>
-<td>Settling, normalized problems</td>
-<td>"Show the difference. Leave a sample. No pressure."</td>
-</tr>
-</tbody>
-</table>
-<hr class="rule">
-<p><em>This manual is the foundation. Everything in Modules 2–6 — prospecting, discovery, proposal, order handoff, product knowledge — is built on the philosophy in these pages.</em></p>
-<hr class="rule">
-<p>## USING THIS MANUAL BEYOND CERTIFICATION</p>
-<p>The certification test is a checkpoint. The manual is a career-long weapon. Don't file it away after you pass.</p>
-<h3>When to Reference This Manual During Your Sales Week</h3>
+└─────────────────────────────────────────────────────────────────┘</code></pre>
+
+<hr>
+
+<h2 id="appendix-b-competitive-positioning-quick-reference">APPENDIX B: COMPETITIVE POSITIONING — QUICK REFERENCE</h2>
+
 <table>
-<thead><tr>
-<th>Moment</th>
-<th>What to Pull Up</th>
-<th>Why</th>
-</tr></thead>
+<thead><tr><th>Competitor</th><th>Their Strength</th><th>Their Weakness</th><th>TUF's Kill Position</th></tr></thead>
 <tbody>
-<tr>
-<td><strong>Monday Morning Prep (10 min)</strong></td>
-<td>Part 4: The 7 Principles</td>
-<td>Re-ground yourself in how TUF sells before you make a single dial. Read one principle aloud. Internalize it for the week.</td>
-</tr>
-<tr>
-<td><strong>Pre-Call Prep (2 min before dialing)</strong></td>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <td>Part 5: The 4-Lane Moat</td>
-<td>Refresh the one-sentence moat: <em>"We outfit the whole program — uniforms, travel, fans, tradition. One system. One look. One relationship. Nobody else does that."</em> Say it out loud before the coach picks up.</td>
-</tr>
-<tr>
-<td><strong>During a Discovery Call</strong></td>
-<td>Part 8: Ethical Situations</td>
-<td>If a coach pushes a boundary, you know the TUF Way response. This isn't theory — it's your shield in the moment.</td>
-</tr>
-<tr>
-<td><strong>Post-Call Review</strong></td>
-<td>Part 6: Competitor Landscape</td>
-<td>Coach mentioned a competitor? Review the kill position for that competitor. Prepare your response for the next conversation.</td>
-</tr>
-<tr>
-<td><strong>Proposal Building</strong></td>
-<td>Part 7: Brand Voice</td>
-<td>Every proposal page must sound like TUF. Cross-check your copy against the voice rules — Fresh, Confident, Program-First, Backed.</td>
-</tr>
-<tr>
-<td><strong>After a Tough Call</strong></td>
-<td>Part 3: BUILT FOR THE PROGRAM</td>
-<td>Re-read what TUF stands for. A bad call doesn't change the philosophy. You're still building program identity.</td>
-</tr>
+<tr><td><strong>Nike</strong></td><td>Brand prestige, college spec</td><td>High school price, bureaucracy, no 4-lane</td><td>"Same fit standard. Better price. Better guarantee. Four lanes."</td></tr>
+<tr><td><strong>Adidas</strong></td><td>Soccer presence, culture</td><td>Price, no program-wide thinking</td><td>"We know their spec. We deliver it. Plus four lanes."</td></tr>
+<tr><td><strong>Under Armour</strong></td><td>Football, compression</td><td>Establishment energy, limited lanes</td><td>"They were the disruptor. Same fit. Better system."</td></tr>
+<tr><td><strong>BSN / Local</strong></td><td>Price, convenience, relationships</td><td>Stock blanks, no fit, no guarantee</td><td>"They print logos. We build uniforms. Different category."</td></tr>
+<tr><td><strong>Inertia</strong></td><td>Comfort, habit</td><td>Settling, normalized problems</td><td>"Show the difference. Leave a sample. No pressure."</td></tr>
 </tbody>
 </table>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        <h3>Scripts to Keep Open on Your Phone During Calls</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>The Founder Rule Script</strong> (Section 2.4) — Deploy once. Make it count.</li><li style="margin-bottom:0.04in;"><strong>The 4-Lane Moat — One Sentence</strong> (Section 5.4) — 36 words. Have it on your lock screen.</li><li style="margin-bottom:0.04in;"><strong>The IRONCLAD GUARANTEE Close</strong> (Section 4, Principle 7) — If you stumble on this, the coach won't trust it. Read it before every closing conversation.</li></ul>
+
+<hr>
+
+<p><em>This manual is the foundation. Everything in Modules 2–6 — prospecting, discovery, proposal, order handoff, product knowledge — is built on the philosophy in these pages.</em></p>
+
+<hr>
+
+<h2 id="using-this-manual-beyond-certification"></body>
+</html>
+
+USING THIS MANUAL BEYOND CERTIFICATION</h2>
+
+<p>The certification test is a checkpoint. The manual is a career-long weapon. Don't file it away after you pass.</p>
+
+<h3>When to Reference This Manual During Your Sales Week</h3>
+
+<table>
+<thead><tr><th>Moment</th><th>What to Pull Up</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td><strong>Monday Morning Prep (10 min)</strong></td><td>Part 4: The 7 Principles</td><td>Re-ground yourself in how TUF sells before you make a single dial. Read one principle aloud. Internalize it for the week.</td></tr>
+<tr><td><strong>Pre-Call Prep (2 min before dialing)</strong></td><td>Part 5: The 4-Lane Moat</td><td>Refresh the one-sentence moat: <em>"We outfit the whole program — uniforms, travel, fans, tradition. One system. One look. One relationship. Nobody else does that."</em> Say it out loud before the coach picks up.</td></tr>
+<tr><td><strong>During a Discovery Call</strong></td><td>Part 8: Ethical Situations</td><td>If a coach pushes a boundary, you know the TUF Way response. This isn't theory — it's your shield in the moment.</td></tr>
+<tr><td><strong>Post-Call Review</strong></td><td>Part 6: Competitor Landscape</td><td>Coach mentioned a competitor? Review the kill position for that competitor. Prepare your response for the next conversation.</td></tr>
+<tr><td><strong>Proposal Building</strong></td><td>Part 7: Brand Voice</td><td>Every proposal page must sound like TUF. Cross-check your copy against the voice rules — Fresh, Confident, Program-First, Backed.</td></tr>
+<tr><td><strong>After a Tough Call</strong></td><td>Part 3: BUILT FOR THE PROGRAM</td><td>Re-read what TUF stands for. A bad call doesn't change the philosophy. You're still building program identity.</td></tr>
+</tbody>
+</table>
+
+<h3>Scripts to Keep Open on Your Phone During Calls</h3>
+
+<ul>
+<li><strong>The Founder Rule Script</strong> (Section 2.4) — Deploy once. Make it count.</li>
+<li><strong>The 4-Lane Moat — One Sentence</strong> (Section 5.4) — 36 words. Have it on your lock screen.</li>
+<li><strong>The IRONCLAD GUARANTEE Close</strong> (Section 4, Principle 7) — If you stumble on this, the coach won't trust it. Read it before every closing conversation.</li>
+</ul>
+
 <h3>Reference Tables to Bookmark</h3>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>The 4-Lane Moat Table</strong> (Section 5.1) — Know which collection goes with which lane.</li><li style="margin-bottom:0.04in;"><strong>Competitor Kill Positions</strong> (Appendix B) — Quick reference when a coach name-drops a competitor.</li><li style="margin-bottom:0.04in;"><strong>Brand Voice Rules</strong> (Section 7.2) — Before you send any email or proposal, scan this.</li><li style="margin-bottom:0.04in;"><strong>TUF Sales Philosophy Field Card</strong> (Appendix A) — Screenshot this. It's your phone wallpaper for the first 30 days.</li></ul>
+
+<ul>
+<li><strong>The 4-Lane Moat Table</strong> (Section 5.1) — Know which collection goes with which lane.</li>
+<li><strong>Competitor Kill Positions</strong> (Appendix B) — Quick reference when a coach name-drops a competitor.</li>
+<li><strong>Brand Voice Rules</strong> (Section 7.2) — Before you send any email or proposal, scan this.</li>
+<li><strong>TUF Sales Philosophy Field Card</strong> (Appendix A) — Screenshot this. It's your phone wallpaper for the first 30 days.</li>
+</ul>
+
 <h3>Weekly Ritual: The Monday Morning 10-Minute Review</h3>
+
 <p>Every Monday, before you touch the CRM, spend 10 minutes with this manual:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>Minutes 0–3:</strong> Read one of the 7 Principles aloud. Pick the one you struggled with last week.</li><li style="margin-bottom:0.04in;"><strong>Minutes 3–6:</strong> Re-read the 4-Lane Moat Section (Part 5). Say the one sentence out loud three times.</li><li style="margin-bottom:0.04in;"><strong>Minutes 6–8:</strong> Review the Competitor Landscape (Part 6). Which competitor did you hear about last week? Refresh your kill position.</li><li style="margin-bottom:0.04in;"><strong>Minutes 8–10:</strong> Read the IRONCLAD GUARANTEE language. Close your eyes and deliver it with conviction. If it doesn't feel natural, practice it again Wednesday.</li></ul>
+
+<ol>
+<li><strong>Minutes 0–3:</strong> Read one of the 7 Principles aloud. Pick the one you struggled with last week.</li>
+<li><strong>Minutes 3–6:</strong> Re-read the 4-Lane Moat Section (Part 5). Say the one sentence out loud three times.</li>
+<li><strong>Minutes 6–8:</strong> Review the Competitor Landscape (Part 6). Which competitor did you hear about last week? Refresh your kill position.</li>
+<li><strong>Minutes 8–10:</strong> Read the IRONCLAD GUARANTEE language. Close your eyes and deliver it with conviction. If it doesn't feel natural, practice it again Wednesday.</li>
+</ol>
+
 <h3>Coaching Guide: How Your Director Will Use This Manual to Coach You</h3>
+
 <p>Your Director will reference this manual during your weekly 1-on-1:</p>
-<ul style="margin:0.1in 0 0.1in 0.2in;font-size:0.9rem;line-height:1.6;"><li style="margin-bottom:0.04in;"><strong>"Show me Principle 3 in action."</strong> — The Director will ask you to replay a recent conversation and identify where you centered the program (or where you centered TUF instead). If you can't find the moment, you're pitching, not building trust.</li><li style="margin-bottom:0.04in;"><strong>"Which competitor came up this week?"</strong> — Director pulls up Appendix B. You role-play the kill position. They stress-test your response with curveballs.</li><li style="margin-bottom:0.04in;"><strong>"Give me the 4-lane moat. Now."</strong> — Impromptu drill during any check-in. If you hesitate, you drill it until it's fluid.</li><li style="margin-bottom:0.04in;"><strong>Ethical Fire Drills</strong> — Director presents a new ethical scenario not in the manual. You respond. They grade against the four Core Values (Part 8).</li></ul>
+
+<ul>
+<li><strong>"Show me Principle 3 in action."</strong> — The Director will ask you to replay a recent conversation and identify where you centered the program (or where you centered TUF instead). If you can't find the moment, you're pitching, not building trust.</li>
+<li><strong>"Which competitor came up this week?"</strong> — Director pulls up Appendix B. You role-play the kill position. They stress-test your response with curveballs.</li>
+<li><strong>"Give me the 4-lane moat. Now."</strong> — Impromptu drill during any check-in. If you hesitate, you drill it until it's fluid.</li>
+<li><strong>Ethical Fire Drills</strong> — Director presents a new ethical scenario not in the manual. You respond. They grade against the four Core Values (Part 8).</li>
+</ul>
+
 <h3>Quick Reference Card — Module 01</h3>
+
 <p><strong>Print this page. Screenshot it. Keep it in your car, on your desk, on your phone.</strong></p>
-<pre>┌──────────────────────────────────────────────────────────────────┐
+
+<pre><code>┌──────────────────────────────────────────────────────────────────┐
 │             TUF PHILOSOPHY — QUICK REFERENCE CARD                │
 │             BUILT FOR THE PROGRAM                                │
 ├──────────────────────────────────────────────────────────────────┤
@@ -1190,15 +849,7 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 │  5. THE DEMO PROVES THE CLAIM                                    │
 │  6. CONFIDENCE + CARING = SWAGGER                                │
 │  7. WE BACK IT. PERIOD.                                          │
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
-</div>
-<div class="page">
-    <div class="rail">
-        <div class="rail-brand">TUF</div>
-    </div>
-    <div class="content">
-        │                                                                  │
+│                                                                  │
 │  THE 4 LANES:                                                    │
 │  Lane 1: UNIFORMS — GRIND, DIAMOND, SHIFT, OVERTIME             │
 │  Lane 2: TRAVEL — ISSUE                                          │
@@ -1216,10 +867,11 @@ Manual Version: 3.0 — Field-Ready Edition</span></div>
 │   Not pro-rated. Not 'within reason.' Fixed."                    │
 │                                                                  │
 │  TUF Economics: 12 sports × 4 lanes = 48 opportunities/school   │
-└──────────────────────────────────────────────────────────────────┘</pre>
+└──────────────────────────────────────────────────────────────────┘</code></pre>
+
 <p><strong>BUILT FOR THE PROGRAM.</strong></p>
-    </div>
-    <div class="footer">TUF ACADEMY &nbsp;//&nbsp; ACAD-101 &nbsp;//&nbsp; BUILT FOR THE PROGRAM</div>
+
+</main>
 </div>
-</body>
-</html>
+
+
