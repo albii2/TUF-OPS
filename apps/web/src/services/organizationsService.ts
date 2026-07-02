@@ -231,6 +231,15 @@ function buildMockOrganization(input: {
   };
 }
 
+export function updateOrganization(id: string, patch: Partial<{ assignedRep: string; assignedDirector: string; priority: Organization['priority']; leadTier: Organization['leadTier']; nextAction: string }>): Organization | null {
+  const orgs = getAllOrganizations();
+  const idx = orgs.findIndex((o) => o.id === id);
+  if (idx === -1) return null;
+  orgs[idx] = { ...orgs[idx], ...patch };
+  writeLocalOrganizations(orgs);
+  return orgs[idx];
+}
+
 export function createMockOrganization(input: { name: string; accountType: string; city?: string; state?: string; assignedRep?: string; assignedDirector?: string; territory?: TerritoryId }): Organization {
   const user = getStoredUser();
   const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep || 'Unassigned';

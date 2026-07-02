@@ -68,6 +68,8 @@ export function canAdvanceOpportunity(opp: Opportunity) {
   if (!isRepCertified(user) && !isSandboxActive) return false;
   if (user.role === 'ADMIN') return true;
   if (user.role === 'REP') return opp.assignedRep === user.name;
+  // DIRECTOR can advance opportunities assigned to them (personal book) or to their reps
+  if (user.role === 'DIRECTOR') return opp.assignedRep === user.name;
   return false;
 }
 
@@ -76,7 +78,7 @@ export function getAdvanceDeniedMessage(opp: Opportunity) {
   if (!user) return 'Log in before advancing an opportunity.';
   const isSandboxActive = typeof window !== 'undefined' && localStorage.getItem('tuf_combine_sandbox_active') === 'true';
   if (!isRepCertified(user) && !isSandboxActive) return 'Onboarding and certification is required before you can perform sales actions.';
-  if (user.role === 'DIRECTOR') return 'Directors have read-only stage visibility for rep-owned opportunities in V0.8.5.';
+  if (user.role === 'DIRECTOR') return opp.assignedRep === user.name ? '' : 'You can only advance opportunities assigned to you.';
   if (user.role === 'REP' && opp.assignedRep !== user.name) return 'You can only advance opportunities assigned to you.';
   return 'You do not have permission to advance this opportunity.';
 }
