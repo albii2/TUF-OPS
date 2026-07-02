@@ -127,7 +127,7 @@ export function OrderDetailPage() {
     setShowAdvanceDrawer(true);
   };
 
-  const submitAdvance = async () => {
+  const submitAdvance = () => {
     if (!drawerTargetStage) return;
     const missing = fields.filter((field) => field.required && !(form[field.key] ?? '').trim());
     if (missing.length) {
@@ -140,7 +140,7 @@ export function OrderDetailPage() {
       return;
     }
     try {
-      const updated = await updateMockOrder(activeOrder.id, {
+      const updated = updateMockOrder(activeOrder.id, {
         ...buildPatchForStage(drawerTargetStage, form, activeOrder),
         advancementNotes: form.notes || form.resolutionNotes || form.blockerReason,
       });

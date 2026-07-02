@@ -18,11 +18,11 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
   const [search, setSearch] = useState('');
   const [searchMessage, setSearchMessage] = useState('');
 
-  const runSearch = async () => {
+  const runSearch = () => {
     const term = search.trim().toLowerCase();
     if (!term) return;
 
-    const org = (await listOrganizations({})).find((row) => [row.name, row.city, row.state, row.assignedRep, row.assignedDirector].join(' ').toLowerCase().includes(term));
+    const org = listOrganizations({}).find((row) => [row.name, row.city, row.state, row.assignedRep, row.assignedDirector].join(' ').toLowerCase().includes(term));
     if (org) {
       setSearchMessage('');
       navigate(`/organizations/${org.id}`);

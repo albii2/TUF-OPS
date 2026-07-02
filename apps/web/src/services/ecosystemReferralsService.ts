@@ -102,7 +102,7 @@ export function listEcosystemReferrals(params: ReferralPipelineParams = {}): Eco
   });
 }
 
-export async function createEcosystemReferral(input: {
+export function createEcosystemReferral(input: {
   referralSourceOrganizationId: string;
   referralSourceContact: string;
   referralSourceRole: string;
@@ -115,7 +115,7 @@ export async function createEcosystemReferral(input: {
   warmIntroductionStatus: WarmIntroductionStatus;
   linkedOpportunityId?: string;
 }) {
-  const source = (await listOrganizations({})).find((org) => org.id === input.referralSourceOrganizationId);
+  const source = listOrganizations({}).find((org) => org.id === input.referralSourceOrganizationId);
   const linkedOpportunity = input.linkedOpportunityId ? listOpportunities({}).find((opp) => opp.id === input.linkedOpportunityId) : undefined;
   const user = getStoredUser();
   const row: EcosystemReferral = {

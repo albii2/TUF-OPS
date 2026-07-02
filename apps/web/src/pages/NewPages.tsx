@@ -23,7 +23,7 @@ export function OrganizationNewPage() {
   const directors = listUsers().filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE');
   const { success, error } = useToast();
 
-  const onSubmit = async (e: FormEvent) => {
+  const onSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       error('Failed to save. Please try again.');
@@ -34,7 +34,7 @@ export function OrganizationNewPage() {
       return;
     }
     try {
-      const created = await createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
+      const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
       success('Organization saved ✓');
       navigate(`/organizations/${created.id}`);
     } catch (err) {
