@@ -299,3 +299,13 @@ export async function listActivitiesAsync(params?: {
   }
   return listActivities(params);
 }
+
+export async function listOrdersAsync(params: OrderListParams = {}): Promise<Order[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params.search) query.search = params.search;
+    if (params.productionStatus && params.productionStatus !== 'ALL') query.productionStatus = params.productionStatus;
+    return apiClient<Order[]>('/orders', { query });
+  }
+  return listOrders(params);
+}

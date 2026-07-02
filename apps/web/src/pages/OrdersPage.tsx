@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card, EmptyState, Input, Pagination } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
-import { createMockOrderFromOpportunity } from '../services/ordersService';
+import { createMockOrderFromOpportunity, createOrderAsync } from '../services/ordersService';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { notify } from '../services/feedbackService';
+import { DATA_MODE } from '../services/dataMode';
 import {
   canSeeOrderValue,
   getOrderDueDate,
@@ -70,11 +71,13 @@ export function OrdersPage() {
   const safePage = Math.min(page, totalPages);
   const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const createOrder = () => {
+  const createOrder = async () => {
     try {
       const existingOpportunityIds = new Set(allOrders.map((order) => order.opportunityId));
       const sourceOpportunity = opportunities.find((opportunity) => opportunity.stage === 'CLOSED_WON' && !existingOpportunityIds.has(opportunity.id));
-      const created = createMockOrderFromOpportunity(sourceOpportunity);
+      const created = DATA_MODE === 'api'
+        ? await createOrderAsync(sourceOpportunity!)
+        : createMockOrderFromOpportunity(sourceOpportunity);
       setMessage(`Order created from ${created.organizationName}.`);
       setRefreshKey((value) => value + 1);
       notify('Order created.', 'success');

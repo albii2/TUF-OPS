@@ -1,5 +1,7 @@
 import { activities, type Activity } from '../data/mockSalesData';
 import { getStoredUser } from '../auth';
+import { apiClient } from './apiClient';
+import { DATA_MODE } from './dataMode';
 
 export type ActivityParams = {
   entityType?: Activity['entityType'];
@@ -52,4 +54,21 @@ export function listActivities(params: ActivityParams = {}): Activity[] {
 
   const sorted = filtered.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   return params.limit ? sorted.slice(0, params.limit) : sorted;
+}
+
+// ============================================================================
+// ASYNC API WRAPPERS — use these when DATA_MODE === 'api'
+// ============================================================================
+
+export async function createActivityAsync(input: {
+  entityType: Activity['entityType'];
+  entityId: string;
+  message: string;
+  timestamp?: string;
+  user?: string;
+}): Promise<Activity> {
+  if (DATA_MODE === 'api') {
+    return apiClient<Activity>('/activities', { method: 'POST', body: input });
+  }
+  return createActivity(input);
 }

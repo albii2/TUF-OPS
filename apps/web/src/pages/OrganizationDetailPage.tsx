@@ -8,10 +8,11 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useActivities } from '../hooks/useReports';
 import { createMockOpportunity, getRevenueLanes } from '../services/opportunitiesService';
-import { updateOrganization } from '../services/organizationsService';
+import { updateOrganization, updateOrganizationAsync } from '../services/organizationsService';
 import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionStatuses, type ReferredOrganizationType, type WarmIntroductionStatus } from '../services/ecosystemReferralsService';
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
-import { createActivity } from '../services/activitiesService';
+import { createActivity, createActivityAsync } from '../services/activitiesService';
+import { DATA_MODE } from '../services/dataMode';
 import type { RevenueLane } from '../data/mockSalesData';
 
 export function OrganizationDetailPage() {
@@ -71,11 +72,12 @@ export function OrganizationDetailPage() {
     const existingActiveLaneOpportunity = activeOpportunities.find((opportunity) => opportunity.lanes.includes(lane));
     if (existingActiveLaneOpportunity) {
       setLaneMessage(`${lane.replace(/_/g, ' ')} already has an active opportunity: ${existingActiveLaneOpportunity.title}. Open it below and advance the next step.`);
-      createActivity({
-        entityType: 'ORGANIZATION',
-        entityId: id,
-        message: `Reviewed ${lane.replace(/_/g, ' ')} lane; active opportunity already exists.`,
-      });
+      const activityMsg = `Reviewed ${lane.replace(/_/g, ' ')} lane; active opportunity already exists.`;
+      if (DATA_MODE === 'api') {
+        createActivityAsync({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
+      } else {
+        createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg });
+      }
       return;
     }
 
@@ -92,11 +94,12 @@ export function OrganizationDetailPage() {
       organizationAssignedDirector: org.assignedDirector,
     });
 
-    createActivity({
-      entityType: 'ORGANIZATION',
-      entityId: id,
-      message: `Created ${lane.replace(/_/g, ' ')} lane opportunity: ${createdOpportunity.title}.`,
-    });
+    const activityMsg = `Created ${lane.replace(/_/g, ' ')} lane opportunity: ${createdOpportunity.title}.`;
+    if (DATA_MODE === 'api') {
+      createActivityAsync({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
+    } else {
+      createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg });
+    }
     setLaneMessage(`${lane.replace(/_/g, ' ')} opportunity created. Open ${createdOpportunity.title} below to contact the coach and start Discovery.`);
   };
 
@@ -150,7 +153,12 @@ export function OrganizationDetailPage() {
                   className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300"
                   value={org.assignedRep}
                   onChange={(e) => {
-                    updateOrganization(org.id, { assignedRep: e.target.value });
+                    const patch = { assignedRep: e.target.value };
+                    if (DATA_MODE === 'api') {
+                      updateOrganizationAsync(org.id, patch).catch(console.error);
+                    } else {
+                      updateOrganization(org.id, patch);
+                    }
                     window.dispatchEvent(new Event('tuf:org-updated'));
                   }}
                 >
