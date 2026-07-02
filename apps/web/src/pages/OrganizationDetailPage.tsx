@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
+import { getStoredUser } from '../auth';
 import { Button, Card, EmptyState, Input, LaneBadge, LaneStatusBadge, Select } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOrganizationById } from '../hooks/useOrganizations';
@@ -7,6 +8,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useActivities } from '../hooks/useReports';
 import { createMockOpportunity, getRevenueLanes } from '../services/opportunitiesService';
+import { updateOrganization } from '../services/organizationsService';
 import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionStatuses, type ReferredOrganizationType, type WarmIntroductionStatus } from '../services/ecosystemReferralsService';
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
 import { createActivity } from '../services/activitiesService';
@@ -15,6 +17,7 @@ import type { RevenueLane } from '../data/mockSalesData';
 export function OrganizationDetailPage() {
   const { id } = useParams();
   const org = useOrganizationById(id);
+  const user = getStoredUser();
   const allOpportunities = useOpportunities({});
   const [laneMessage, setLaneMessage] = useState('');
   const [referralMessage, setReferralMessage] = useState('');
@@ -140,6 +143,24 @@ export function OrganizationDetailPage() {
             <p className="text-lg font-semibold">{org.name}</p>
             <p className="text-sm text-slate-400">{org.city}, {org.state} · {zoneLabel}</p>
             <p className="text-xs text-slate-400">Rep {org.assignedRep} · Director {org.assignedDirector} · Lead Tier {org.leadTier ?? 'UNASSIGNED'}</p>
+            {(user && (user.role === 'DIRECTOR' || user.role === 'ADMIN')) && (
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-xs text-slate-500">Reassign Rep:</span>
+                <select
+                  className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300"
+                  value={org.assignedRep}
+                  onChange={(e) => {
+                    updateOrganization(org.id, { assignedRep: e.target.value });
+                    window.dispatchEvent(new Event('tuf:org-updated'));
+                  }}
+                >
+                  <option value="Unassigned">Unassigned</option>
+                  {['Josh Hoffman', 'Shayla Hilliard', 'Jason Mulder', 'David Lundberg', 'Primeau Hill'].map((rep) => (
+                    <option key={rep} value={rep}>{rep}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
           <p className="text-xl font-semibold text-cyan-300">{formatCurrency(org.pipelineValue)}</p>
         </div>
