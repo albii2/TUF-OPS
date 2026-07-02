@@ -6,6 +6,8 @@ import { getStaleOrganizations } from './kpiUtils';
 import tufLeadsCsvRaw from '../assets/tuf_mn_leads_final.csv?raw';
 import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
 import { canViewOrganization } from './roleScope';
+import { DATA_MODE } from './dataMode';
+import { apiClient } from './apiClient';
 
 export type OrganizationListParams = {
   search?: string;
@@ -151,7 +153,19 @@ function getRoleScopedOrganizations() {
   return allOrganizations.filter((org) => canViewOrganization(org));
 }
 
-export function listOrganizations(params: OrganizationListParams = {}): Organization[] {
+export async function listOrganizations(params: OrganizationListParams = {}): Promise<Organization[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params.search) query.search = params.search;
+    if (params.status && params.status !== 'ALL') query.status = params.status;
+    if (params.rep) query.rep = params.rep;
+    if (params.territory && params.territory !== 'ALL') query.territory = params.territory;
+    if (params.director && params.director !== 'ALL') query.director = params.director;
+    if (params.coverageStatus && params.coverageStatus !== 'ALL') query.coverageStatus = params.coverageStatus;
+    if (params.priority && params.priority !== 'ALL') query.priority = params.priority;
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Organization[]>('/organizations', { query });
+  }
   return getRoleScopedOrganizations().filter((org) => {
     const matchesSearch = !(params.search ?? '').trim() || [org.name, org.city, org.state, org.assignedRep, org.assignedDirector, org.schoolPhone, org.athleticDirectorName, org.athleticDirectorEmail, org.athleticDirectorPhone, org.headCoachName, org.headCoachEmail, org.headCoachPhone].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase());
     const matchesStatus = !params.status || params.status === 'ALL' || org.status === params.status;
@@ -164,20 +178,27 @@ export function listOrganizations(params: OrganizationListParams = {}): Organiza
   });
 }
 
-export function getOrganizationById(id: string): Organization | undefined {
+export async function getOrganizationById(id: string): Promise<Organization | undefined> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Organization>(`/organizations/${id}`);
+  }
   return getRoleScopedOrganizations().find((org) => org.id === id);
 }
 
-export function listUntouchedAccounts() {
-  return listOrganizations({}).filter((o) => o.coverageStatus === 'UNTOUCHED');
+export async function listUntouchedAccounts(): Promise<Organization[]> {
+  const orgs = await listOrganizations({});
+  return orgs.filter((o) => o.coverageStatus === 'UNTOUCHED');
 }
 
-export function listStaleAccounts() {
-  return getStaleOrganizations(listOrganizations({}), 14);
+export async function listStaleAccounts(): Promise<Organization[]> {
+  const orgs = await listOrganizations({});
+  return getStaleOrganizations(orgs, 14);
 }
 
-export function listAccountsNeedingAction() {
-  return listOrganizations({}).filter((o) => o.coverageStatus !== 'CLOSED' && o.nextAction.trim().length > 0);
+export async function listAccountsNeedingAction(): Promise<Organization[]> {
+  const orgs = await listOrganizations({});
+  return orgs.filter((o) => o.coverageStatus !== 'CLOSED' && o.nextAction.trim().length > 0);
 }
 
 function buildMockOrganization(input: {
@@ -231,7 +252,15 @@ function buildMockOrganization(input: {
   };
 }
 
-export function updateOrganization(id: string, patch: Partial<{ assignedRep: string; assignedDirector: string; priority: Organization['priority']; leadTier: Organization['leadTier']; nextAction: string }>): Organization | null {
+export async function updateOrganization(
+  id: string,
+  patch: Partial<{ assignedRep: string; assignedDirector: string; priority: Organization['priority']; leadTier: Organization['leadTier']; nextAction: string }>,
+): Promise<Organization | null> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Organization>(`/organizations/${id}`, { method: 'PUT', body: patch });
+  }
+
   const orgs = getAllOrganizations();
   const idx = orgs.findIndex((o) => o.id === id);
   if (idx === -1) return null;
@@ -240,7 +269,34 @@ export function updateOrganization(id: string, patch: Partial<{ assignedRep: str
   return orgs[idx];
 }
 
-export function createMockOrganization(input: { name: string; accountType: string; city?: string; state?: string; assignedRep?: string; assignedDirector?: string; territory?: TerritoryId }): Organization {
+export async function createMockOrganization(input: {
+  name: string;
+  accountType: string;
+  city?: string;
+  state?: string;
+  assignedRep?: string;
+  assignedDirector?: string;
+  territory?: TerritoryId;
+}): Promise<Organization> {
+  if (DATA_MODE === 'api') {
+    const user = getStoredUser();
+    const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep || 'Unassigned';
+    const assignedDirector = user?.role === 'DIRECTOR' ? user.name : input.assignedDirector || 'Unassigned';
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Organization>('/organizations', {
+      method: 'POST',
+      body: {
+        name: normalizeAccountName(input.name),
+        city: input.city || 'TBD',
+        state: (input.state || 'MN').toUpperCase(),
+        assignedRep,
+        assignedDirector,
+        territory: input.territory || 'metro',
+        priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
+      },
+    });
+  }
+
   const user = getStoredUser();
   const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep || 'Unassigned';
   const assignedDirector = user?.role === 'DIRECTOR' ? user.name : input.assignedDirector || 'Unassigned';

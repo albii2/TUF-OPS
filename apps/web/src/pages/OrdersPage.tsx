@@ -70,11 +70,11 @@ export function OrdersPage() {
   const safePage = Math.min(page, totalPages);
   const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const createOrder = () => {
+  const createOrder = async () => {
     try {
       const existingOpportunityIds = new Set(allOrders.map((order) => order.opportunityId));
       const sourceOpportunity = opportunities.find((opportunity) => opportunity.stage === 'CLOSED_WON' && !existingOpportunityIds.has(opportunity.id));
-      const created = createMockOrderFromOpportunity(sourceOpportunity);
+      if (!sourceOpportunity) return; const created = await createMockOrderFromOpportunity(sourceOpportunity);
       setMessage(`Order created from ${created.organizationName}.`);
       setRefreshKey((value) => value + 1);
       notify('Order created.', 'success');

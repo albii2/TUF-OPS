@@ -103,7 +103,9 @@ export function listOpportunities(params: OpportunityListParams = {}): Opportuni
     const matchesLane = !params.lane || params.lane === 'ALL' || opp.lanes.includes(params.lane);
     const matchesRep = !params.rep || params.rep === 'ALL' || opp.assignedRep === params.rep;
     const matchesSport = !params.sport || params.sport === 'ALL' || opp.sport === params.sport;
-    const roleScoped = canViewOpportunity(opp) || Boolean(getOrganizationById(opp.organizationId));
+    const roleScoped = DATA_MODE === 'api'
+      ? true // API mode: backend handles role scoping
+      : canViewOpportunity(opp) || Boolean(getOrganizationById(opp.organizationId));
     return matchesSearch && matchesStage && matchesLane && matchesRep && matchesSport && roleScoped;
   });
 }

@@ -103,13 +103,13 @@ export function OpportunityDetailPage() {
   };
   const requiredAdvanceFields = nextStage ? (requiredFieldsByStage[nextStage as OpportunityStage] ?? []) : [];
 
-  const setStage = (stage: OpportunityStage, message: string) => {
+  const setStage = async (stage: OpportunityStage, message: string) => {
     try {
       const updated = updateOpportunityStage(activeOpp.id, stage);
       if (!updated) throw new Error('Opportunity not found.');
       let finalMessage = message;
       if (stage === 'CLOSED_WON') {
-        const order = createMockOrderFromOpportunity(updated);
+        const order = await createMockOrderFromOpportunity(updated);
         finalMessage = `${message} Order handoff ${order.id} is ready for Ops review.`;
       }
       setLocalOpp(updated);

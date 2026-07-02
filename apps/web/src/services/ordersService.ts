@@ -1,8 +1,11 @@
 import { opportunities, orders as seededOrders, type Opportunity, type Order } from '../data/mockSalesData';
 import { getStoredUser } from '../auth';
 import { DATA_MODE } from './dataMode';
+import { apiClient } from './apiClient';
+import type { RevenueLane } from '../data/mockSalesData';
 import { canViewOrder } from './roleScope';
 import { getOrderNextAction, getOrderStage, toProductionStatus, type OrderStage } from './orderWorkflow';
+import type { Activity } from '../data/mockSalesData';
 
 export type OrderListParams = {
   search?: string;
@@ -96,6 +99,10 @@ function getInitialOrderOwner(opportunity: Opportunity) {
   return opportunity.assignedRep;
 }
 
+// ============================================================================
+// ORDER LIST / READ OPERATIONS
+// ============================================================================
+
 export function listOrders(params: OrderListParams = {}): Order[] {
   const allOpportunities = getAllOpportunities();
   return getAllOrders().filter((order) => {
@@ -135,7 +142,90 @@ export function getOpsWorkspaceQueues() {
   };
 }
 
-export function createMockOrderFromOpportunity(opportunity?: Opportunity): Order {
+// ============================================================================
+// OPPORTUNITY CRUD (API-BACKED)
+// ============================================================================
+
+export async function createOpportunity(input: {
+  organizationId: string;
+  organizationName: string;
+  programLevel: string;
+  sport: string;
+  seasonCode: string;
+  lane: RevenueLane;
+  assignedRep: string;
+  value: number;
+  organizationAssignedDirector?: string;
+}): Promise<Opportunity> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Opportunity>('/opportunities', {
+      method: 'POST',
+      body: input,
+    });
+  }
+
+  // Mock mode: delegate to the existing opportunities service
+  const { createMockOpportunity } = await import('./opportunitiesService');
+  return createMockOpportunity(input);
+}
+
+export async function updateOpportunity(
+  id: string,
+  patch: Partial<Opportunity>,
+): Promise<Opportunity> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Opportunity>(`/opportunities/${id}`, {
+      method: 'PUT',
+      body: patch,
+    });
+  }
+
+  // Mock mode: use existing update
+  const { updateOpportunityStage } = await import('./opportunitiesService');
+  if (patch.stage) {
+    const result = updateOpportunityStage(id, patch.stage);
+    if (!result) throw new Error(`Opportunity ${id} not found`);
+    return result;
+  }
+  throw new Error('Mock updateOpportunity requires stage field. Use updateOpportunityStage directly.');
+}
+
+export async function deleteOpportunity(id: string): Promise<boolean> {
+  if (DATA_MODE === 'api') {
+    await apiClient<void>(`/opportunities/${id}`, { method: 'DELETE' });
+    return true;
+  }
+
+  // Mock mode: delegate to existing
+  const { deleteOpportunity: mockDelete } = await import('./opportunitiesService');
+  return mockDelete(id);
+}
+
+// ============================================================================
+// ORDER CRUD (API-BACKED)
+// ============================================================================
+
+export async function createOrder(opportunity: Opportunity): Promise<Order> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Order>('/orders', {
+      method: 'POST',
+      body: {
+        organizationId: opportunity.organizationId,
+        organizationName: opportunity.organizationName,
+        opportunityId: opportunity.id,
+        title: opportunity.title,
+        lane: opportunity.lanes[0],
+        sport: opportunity.sport,
+        value: Math.round(opportunity.value),
+        assignedRep: opportunity.assignedRep,
+      },
+    });
+  }
+
+  // Mock mode: use existing localStorage-backed function
   if (!opportunity) throw new Error('Select a closed-won opportunity before creating an order.');
   if (opportunity.stage !== 'CLOSED_WON') throw new Error('Orders can only be created from closed-won opportunities.');
 
@@ -212,7 +302,16 @@ function buildUpdatedOrder(existing: Order, patch: AdvancementPatch): Order {
   } as Order;
 }
 
-export function updateMockOrder(id: string, patch: AdvancementPatch) {
+export async function updateOrder(id: string, patch: AdvancementPatch): Promise<Order> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Order>(`/orders/${id}`, {
+      method: 'PUT',
+      body: patch,
+    });
+  }
+
+  // Mock mode: use existing logic
   const existing = getAllOrders().find((order) => order.id === id);
   if (!existing) throw new Error('Order not found.');
   const updated = buildUpdatedOrder(existing, patch);
@@ -223,4 +322,67 @@ export function updateMockOrder(id: string, patch: AdvancementPatch) {
     writeLocalActivity({ entityType: 'ORDER', entityId: id, message: 'Order details updated.' });
   }
   return updated;
+}
+
+// Backward-compatible alias for mock mode
+export const createMockOrderFromOpportunity = createOrder;
+export const updateMockOrder = updateOrder;
+
+// ============================================================================
+// ACTIVITY CRUD (API-BACKED)
+// ============================================================================
+
+export async function createActivity(input: {
+  entityType: 'ORGANIZATION' | 'OPPORTUNITY' | 'ORDER';
+  entityId: string;
+  message: string;
+  timestamp?: string;
+  user?: string;
+}): Promise<Activity> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Activity>('/activities', {
+      method: 'POST',
+      body: input,
+    });
+  }
+
+  // Mock mode: write to localStorage
+  const user = getStoredUser();
+  const row: Activity = {
+    id: `act-local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    entityType: input.entityType,
+    entityId: input.entityId,
+    message: input.message.trim(),
+    timestamp: input.timestamp ?? new Date().toISOString(),
+    user: input.user ?? user?.name ?? 'System',
+  };
+  localStorage.setItem(LOCAL_ACTIVITIES_KEY, JSON.stringify([row, ...readLocalActivities()]));
+  return row;
+}
+
+export async function listActivities(params?: {
+  entityType?: 'ORGANIZATION' | 'OPPORTUNITY' | 'ORDER';
+  entityId?: string;
+  limit?: number;
+}): Promise<Activity[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params?.entityType) query.entityType = params.entityType;
+    if (params?.entityId) query.entityId = params.entityId;
+    if (params?.limit) query.limit = String(params.limit);
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Activity[]>('/activities', { query });
+  }
+
+  // Mock mode: read from localStorage
+  const activityRows = [...readLocalActivities()] as Activity[];
+  const filtered = activityRows.filter((activity) => {
+    const matchesType = !params?.entityType || activity.entityType === params.entityType;
+    const matchesEntityId = !params?.entityId || activity.entityId === params.entityId;
+    return matchesType && matchesEntityId;
+  });
+
+  const sorted = filtered.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+  return params?.limit ? sorted.slice(0, params.limit) : sorted;
 }

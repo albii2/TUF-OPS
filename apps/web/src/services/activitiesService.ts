@@ -1,5 +1,7 @@
 import { activities, type Activity } from '../data/mockSalesData';
 import { getStoredUser } from '../auth';
+import { DATA_MODE } from './dataMode';
+import { apiClient } from './apiClient';
 
 export type ActivityParams = {
   entityType?: Activity['entityType'];
@@ -22,13 +24,22 @@ function writeLocalActivities(rows: Activity[]) {
   window.dispatchEvent(new CustomEvent('tuf:activity-updated'));
 }
 
-export function createActivity(input: {
+export async function createActivity(input: {
   entityType: Activity['entityType'];
   entityId: string;
   message: string;
   timestamp?: string;
   user?: string;
-}): Activity {
+}): Promise<Activity> {
+  if (DATA_MODE === 'api') {
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Activity>('/activities', {
+      method: 'POST',
+      body: input,
+    });
+  }
+
+  // Mock mode: write to localStorage
   const user = getStoredUser();
   const row: Activity = {
     id: `act-local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -42,7 +53,17 @@ export function createActivity(input: {
   return row;
 }
 
-export function listActivities(params: ActivityParams = {}): Activity[] {
+export async function listActivities(params: ActivityParams = {}): Promise<Activity[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params.entityType) query.entityType = params.entityType;
+    if (params.entityId) query.entityId = params.entityId;
+    if (params.limit) query.limit = String(params.limit);
+    // THROW on failure — no silent fallback to localStorage
+    return await apiClient<Activity[]>('/activities', { query });
+  }
+
+  // Mock mode: read from localStorage and seeded data
   const activityRows = [...readLocalActivities(), ...activities];
   const filtered = activityRows.filter((activity) => {
     const matchesType = !params.entityType || activity.entityType === params.entityType;

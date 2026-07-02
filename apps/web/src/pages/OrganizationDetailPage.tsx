@@ -100,13 +100,13 @@ export function OrganizationDetailPage() {
     setLaneMessage(`${lane.replace(/_/g, ' ')} opportunity created. Open ${createdOpportunity.title} below to contact the coach and start Discovery.`);
   };
 
-  const submitReferral = () => {
+  const submitReferral = async () => {
     if (!id || !referralForm.referredOrganizationName.trim() || !referralForm.contactName.trim()) {
       setReferralMessage('Add the referred organization and contact name to save this ecosystem referral.');
       return;
     }
 
-    createEcosystemReferral({
+    await createEcosystemReferral({
       referralSourceOrganizationId: id,
       referralSourceContact: referralForm.referralSourceContact || 'Not captured',
       referralSourceRole: referralForm.referralSourceRole || 'Relationship source',
@@ -149,8 +149,8 @@ export function OrganizationDetailPage() {
                 <select
                   className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-xs text-slate-300"
                   value={org.assignedRep}
-                  onChange={(e) => {
-                    updateOrganization(org.id, { assignedRep: e.target.value });
+                  onChange={async (e) => {
+                    await updateOrganization(org.id, { assignedRep: e.target.value });
                     window.dispatchEvent(new Event('tuf:org-updated'));
                   }}
                 >
