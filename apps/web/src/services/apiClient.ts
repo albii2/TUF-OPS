@@ -35,6 +35,11 @@ export async function apiClient<T>(path: string, config: ApiRequestConfig = {}):
   });
 
   if (!response.ok) {
+    // 401/403 = auth issue — fail silently, let the UI fall back to empty state
+    if (response.status === 401 || response.status === 403) {
+      console.warn(`[apiClient] Auth required for ${path} (${response.status})`);
+      return {} as T;
+    }
     throw new Error(`API request failed: ${response.status}`);
   }
 
