@@ -163,7 +163,7 @@ export function OrganizationDetailPage() {
                   }}
                 >
                   <option value="Unassigned">Unassigned</option>
-                  {['Josh Hoffman', 'Shayla Hilliard', 'Jason Mulder', 'David Lundberg', 'Primeau Hill'].map((rep) => (
+                  {['Josh Hoffman', 'David Lundberg', 'Primeau Hill'].map((rep) => (
                     <option key={rep} value={rep}>{rep}</option>
                   ))}
                 </select>
