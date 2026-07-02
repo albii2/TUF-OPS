@@ -28,26 +28,37 @@ export async function apiClient<T>(path: string, config: ApiRequestConfig = {}):
     // fail silently — no token, no auth header
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}${queryString}`, {
-    method: config.method ?? 'GET',
-    headers,
-    body: config.body ? JSON.stringify(config.body) : undefined,
-  });
+  const maxRetries = 3;
+  const delays = [1000, 2000, 4000];
 
-  if (!response.ok) {
-    // 401/403 = auth issue — fail silently, let the UI fall back to empty state
-    if (response.status === 401 || response.status === 403) {
-      console.warn(`[apiClient] Auth required for ${path} (${response.status})`);
-      return {} as T;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(`${API_BASE_URL}${path}${queryString}`, {
+        method: config.method ?? 'GET',
+        headers,
+        body: config.body ? JSON.stringify(config.body) : undefined,
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          console.warn(`[apiClient] Auth required for ${path}`);
+          throw new Error('Authentication required');
+        }
+        throw new Error(`API request failed: ${response.status}`);
+      }
+
+      const text = await response.text();
+      try {
+        return JSON.parse(text) as T;
+      } catch {
+        console.warn(`[apiClient] Non-JSON response from ${path}:`, text.substring(0, 100));
+        return {} as T;
+      }
+    } catch (error) {
+      if (attempt === maxRetries) throw error;
+      console.warn(`[apiClient] Retry ${attempt + 1}/${maxRetries} for ${path}`);
+      await new Promise(resolve => setTimeout(resolve, delays[attempt]));
     }
-    throw new Error(`API request failed: ${response.status}`);
   }
-
-  const text = await response.text();
-  try {
-    return JSON.parse(text) as T;
-  } catch {
-    console.warn(`[apiClient] Non-JSON response from ${path}:`, text.substring(0, 100));
-    return {} as T;
-  }
+  throw new Error('Unreachable');
 }

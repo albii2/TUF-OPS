@@ -10,6 +10,8 @@ import { neededItemOptions, type CreativePriority, type CreativeRequestType, typ
 import { SPORT_OPTIONS, REVENUE_LANES } from '../config/business';
 import { getLaneLabel } from '../utils/naming';
 import { deleteOpportunity, logOpportunityActivity, addOpportunityLane, removeOpportunityLane, updateOpportunityStage } from '../services/opportunitiesService';
+import { updateOpportunityAsync } from '../services/ordersService';
+import { DATA_MODE } from '../services/dataMode';
 import type { Opportunity, OpportunityStage, RevenueLane } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
@@ -103,9 +105,14 @@ export function OpportunityDetailPage() {
   };
   const requiredAdvanceFields = nextStage ? (requiredFieldsByStage[nextStage as OpportunityStage] ?? []) : [];
 
-  const setStage = (stage: OpportunityStage, message: string) => {
+  const setStage = async (stage: OpportunityStage, message: string) => {
     try {
-      const updated = updateOpportunityStage(activeOpp.id, stage);
+      let updated: Opportunity | undefined;
+      if (DATA_MODE === 'api') {
+        updated = await updateOpportunityAsync(activeOpp.id, { stage });
+      } else {
+        updated = updateOpportunityStage(activeOpp.id, stage);
+      }
       if (!updated) throw new Error('Opportunity not found.');
       let finalMessage = message;
       if (stage === 'CLOSED_WON') {

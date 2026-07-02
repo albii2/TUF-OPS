@@ -3,6 +3,7 @@ import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';
 import { DATA_MODE } from './dataMode';
+import { apiClient } from './apiClient';
 import { getOrganizationById } from './organizationsService';
 import { canAdvanceOpportunity, canViewOpportunity, getAdvanceDeniedMessage } from './roleScope';
 import { createActivity } from './activitiesService';
@@ -264,4 +265,21 @@ export function deleteOpportunity(id: string) {
   });
   window.dispatchEvent(new CustomEvent('tuf:opportunity-updated', { detail: { id, deleted: true } }));
   return true;
+}
+
+// ============================================================================
+// ASYNC API WRAPPERS — use these when DATA_MODE === 'api'
+// ============================================================================
+
+export async function listOpportunitiesAsync(params: OpportunityListParams = {}): Promise<Opportunity[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params.search) query.search = params.search;
+    if (params.stage && params.stage !== 'ALL') query.stage = params.stage;
+    if (params.lane && params.lane !== 'ALL') query.lane = params.lane;
+    if (params.rep) query.rep = params.rep;
+    if (params.sport) query.sport = params.sport;
+    return apiClient<Opportunity[]>('/opportunities', { query });
+  }
+  return listOpportunities(params);
 }

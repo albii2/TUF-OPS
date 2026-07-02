@@ -6,6 +6,8 @@ import { getStaleOrganizations } from './kpiUtils';
 import tufLeadsCsvRaw from '../assets/tuf_mn_leads_final.csv?raw';
 import { normalizeLeadRow, parseCsvText } from '../utils/leadImport';
 import { canViewOrganization } from './roleScope';
+import { apiClient } from './apiClient';
+import { DATA_MODE } from './dataMode';
 
 export type OrganizationListParams = {
   search?: string;
@@ -347,4 +349,70 @@ export function bulkUpdateOrganizations(
   const untouchedLocalRows = readLocalOrganizations().filter((org) => !idSet.has(org.id));
   writeLocalOrganizations([...patchedRows, ...untouchedLocalRows]);
   return patchedRows.length;
+}
+
+// ============================================================================
+// ASYNC API WRAPPERS — use these when DATA_MODE === 'api'
+// Never modify existing sync function signatures; add async variants instead.
+// ============================================================================
+
+export async function listOrganizationsAsync(params: OrganizationListParams = {}): Promise<Organization[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params.search) query.search = params.search;
+    if (params.status && params.status !== 'ALL') query.status = params.status;
+    if (params.rep) query.rep = params.rep;
+    if (params.territory && params.territory !== 'ALL') query.territory = params.territory;
+    if (params.director && params.director !== 'ALL') query.director = params.director;
+    if (params.coverageStatus && params.coverageStatus !== 'ALL') query.coverageStatus = params.coverageStatus;
+    if (params.priority && params.priority !== 'ALL') query.priority = params.priority;
+    return apiClient<Organization[]>('/organizations', { query });
+  }
+  return listOrganizations(params);
+}
+
+export async function createOrganizationAsync(input: {
+  name: string;
+  accountType: string;
+  city?: string;
+  state?: string;
+  assignedRep?: string;
+  assignedDirector?: string;
+  territory?: TerritoryId;
+}): Promise<Organization> {
+  if (DATA_MODE === 'api') {
+    const user = getStoredUser();
+    const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep || 'Unassigned';
+    const assignedDirector = user?.role === 'DIRECTOR' ? user.name : input.assignedDirector || 'Unassigned';
+    return apiClient<Organization>('/organizations', {
+      method: 'POST',
+      body: {
+        name: normalizeAccountName(input.name),
+        city: input.city || 'TBD',
+        state: (input.state || 'MN').toUpperCase(),
+        assignedRep,
+        assignedDirector,
+        territory: input.territory || 'metro',
+        priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
+      },
+    });
+  }
+  return createMockOrganization(input);
+}
+
+export async function updateOrganizationAsync(
+  id: string,
+  patch: Partial<{ assignedRep: string; assignedDirector: string; priority: Organization['priority']; leadTier: Organization['leadTier']; nextAction: string }>,
+): Promise<Organization | null> {
+  if (DATA_MODE === 'api') {
+    return apiClient<Organization>(`/organizations/${id}`, { method: 'PUT', body: patch });
+  }
+  return updateOrganization(id, patch);
+}
+
+export async function getOrganizationByIdAsync(id: string): Promise<Organization | undefined> {
+  if (DATA_MODE === 'api') {
+    return apiClient<Organization>(`/organizations/${id}`);
+  }
+  return getOrganizationById(id);
 }

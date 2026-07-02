@@ -1,8 +1,10 @@
-import { opportunities, orders as seededOrders, type Opportunity, type Order } from '../data/mockSalesData';
+import { opportunities, orders as seededOrders, type Opportunity, type Order, type RevenueLane, type Activity } from '../data/mockSalesData';
 import { getStoredUser } from '../auth';
 import { DATA_MODE } from './dataMode';
+import { apiClient } from './apiClient';
 import { canViewOrder } from './roleScope';
 import { getOrderNextAction, getOrderStage, toProductionStatus, type OrderStage } from './orderWorkflow';
+import { listActivities } from './activitiesService';
 
 export type OrderListParams = {
   search?: string;
@@ -223,4 +225,87 @@ export function updateMockOrder(id: string, patch: AdvancementPatch) {
     writeLocalActivity({ entityType: 'ORDER', entityId: id, message: 'Order details updated.' });
   }
   return updated;
+}
+
+// ============================================================================
+// ASYNC API WRAPPERS — use these when DATA_MODE === 'api'
+// Never modify existing sync function signatures; add async variants instead.
+// ============================================================================
+
+export async function createOpportunityAsync(input: {
+  organizationId: string;
+  organizationName: string;
+  programLevel: string;
+  sport: string;
+  seasonCode: string;
+  lane: RevenueLane;
+  assignedRep: string;
+  value: number;
+  organizationAssignedDirector?: string;
+}): Promise<Opportunity> {
+  if (DATA_MODE === 'api') {
+    return apiClient<Opportunity>('/opportunities', { method: 'POST', body: input });
+  }
+  const { createMockOpportunity } = await import('./opportunitiesService');
+  return createMockOpportunity(input);
+}
+
+export async function updateOpportunityAsync(
+  id: string,
+  patch: Partial<Opportunity>,
+): Promise<Opportunity> {
+  if (DATA_MODE === 'api') {
+    return apiClient<Opportunity>(`/opportunities/${id}`, { method: 'PUT', body: patch });
+  }
+  const { updateOpportunityStage } = await import('./opportunitiesService');
+  if (patch.stage) {
+    const result = updateOpportunityStage(id, patch.stage);
+    if (!result) throw new Error(`Opportunity ${id} not found`);
+    return result;
+  }
+  throw new Error('Mock updateOpportunity requires stage field. Use updateOpportunityStage directly.');
+}
+
+export async function createOrderAsync(opportunity: Opportunity): Promise<Order> {
+  if (DATA_MODE === 'api') {
+    return apiClient<Order>('/orders', {
+      method: 'POST',
+      body: {
+        organizationId: opportunity.organizationId,
+        organizationName: opportunity.organizationName,
+        opportunityId: opportunity.id,
+        title: opportunity.title,
+        lane: opportunity.lanes[0],
+        sport: opportunity.sport,
+        value: Math.round(opportunity.value),
+        assignedRep: opportunity.assignedRep,
+      },
+    });
+  }
+  return createMockOrderFromOpportunity(opportunity);
+}
+
+export async function listActivitiesAsync(params?: {
+  entityType?: 'ORGANIZATION' | 'OPPORTUNITY' | 'ORDER';
+  entityId?: string;
+  limit?: number;
+}): Promise<Activity[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params?.entityType) query.entityType = params.entityType;
+    if (params?.entityId) query.entityId = params.entityId;
+    if (params?.limit) query.limit = String(params.limit);
+    return apiClient<Activity[]>('/activities', { query });
+  }
+  return listActivities(params);
+}
+
+export async function listOrdersAsync(params: OrderListParams = {}): Promise<Order[]> {
+  if (DATA_MODE === 'api') {
+    const query: Record<string, string | undefined> = {};
+    if (params.search) query.search = params.search;
+    if (params.productionStatus && params.productionStatus !== 'ALL') query.productionStatus = params.productionStatus;
+    return apiClient<Order[]>('/orders', { query });
+  }
+  return listOrders(params);
 }

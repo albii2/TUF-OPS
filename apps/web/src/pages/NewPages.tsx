@@ -4,8 +4,10 @@ import { getStoredUser } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
 import { ACCOUNT_TYPES, CLUB_PROGRAM_LEVELS, REVENUE_LANES, SCHOOL_PROGRAM_LEVELS, SEASON_CODES, SPORT_OPTIONS, YOUTH_PROGRAM_LEVELS } from '../config/business';
 import { buildOpportunityDisplayName, normalizeAccountName } from '../utils/naming';
-import { createMockOrganization } from '../services/organizationsService';
+import { createMockOrganization, createOrganizationAsync } from '../services/organizationsService';
+import { DATA_MODE } from '../services/dataMode';
 import { createMockOpportunity } from '../services/opportunitiesService';
+import { createOpportunityAsync } from '../services/ordersService';
 import { useOrganizations } from '../hooks/useOrganizations';
 import type { TerritoryId } from '../data/mockSalesData';
 import { useToast } from '../components/toast';
@@ -23,7 +25,7 @@ export function OrganizationNewPage() {
   const directors = listUsers().filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE');
   const { success, error } = useToast();
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       error('Failed to save. Please try again.');
@@ -34,7 +36,9 @@ export function OrganizationNewPage() {
       return;
     }
     try {
-      const created = createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
+      const created = DATA_MODE === 'api'
+        ? await createOrganizationAsync({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' })
+        : createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
       success('Organization saved ✓');
       navigate(`/organizations/${created.id}`);
     } catch (err) {
@@ -71,7 +75,7 @@ export function OpportunityNewPage() {
     }
   }, [organizationId, organizations, user?.role]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setMessage('');
     const missing: string[] = [];
@@ -88,17 +92,29 @@ export function OpportunityNewPage() {
       return;
     }
     try {
-      const created = createMockOpportunity({
-        organizationId: selectedOrg.id,
-        organizationName: selectedOrg.name,
-        programLevel,
-        sport,
-        seasonCode,
-        lane,
-        assignedRep: assignedRep || selectedOrg.assignedRep,
-        organizationAssignedDirector: selectedOrg.assignedDirector,
-        value: Number(value) || 0,
-      });
+      const created = DATA_MODE === 'api'
+        ? await createOpportunityAsync({
+            organizationId: selectedOrg.id,
+            organizationName: selectedOrg.name,
+            programLevel,
+            sport,
+            seasonCode,
+            lane,
+            assignedRep: assignedRep || selectedOrg.assignedRep,
+            organizationAssignedDirector: selectedOrg.assignedDirector,
+            value: Number(value) || 0,
+          })
+        : createMockOpportunity({
+            organizationId: selectedOrg.id,
+            organizationName: selectedOrg.name,
+            programLevel,
+            sport,
+            seasonCode,
+            lane,
+            assignedRep: assignedRep || selectedOrg.assignedRep,
+            organizationAssignedDirector: selectedOrg.assignedDirector,
+            value: Number(value) || 0,
+          });
       success('Opportunity created.');
       navigate(`/opportunities/${created.id}`);
     } catch (err) {
