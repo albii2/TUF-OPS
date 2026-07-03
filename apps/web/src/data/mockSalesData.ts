@@ -550,3 +550,7 @@ export const opsWorkspaceQueue = {
   BLOCKED: [] as Order[],
   COMPLETED: [] as Order[],
 };
+
+// Re-export vendor data for mock mode
+export { tufVendors } from './vendors';
+export type { Vendor, VendorAgreement, VendorPerformance, VendorPayment } from '../services/vendorsService';

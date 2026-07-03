@@ -22,3 +22,6 @@ export { EarningsPage } from './EarningsPage';
 export { UsersPage } from './UsersPage';
 export { EcosystemPipelinePage } from './EcosystemPipelinePage';
 export { ChangeCredentialPage } from './ChangeCredentialPage';
+export { VendorOpsPage } from './VendorOpsPage';
+export { VendorListPage } from './VendorListPage';
+export { VendorDetailPage } from './VendorDetailPage';

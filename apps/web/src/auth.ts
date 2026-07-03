@@ -3,7 +3,7 @@ import { authenticateWithCredential, authenticateWithPin, getActiveUserByRole } 
 import { seedExecutiveProfile } from './lib/achievements';
 
 const USER_KEY = 'tuf_ops_user_v3';
-const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'];
+const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP', 'OPS'];
 
 function persistUser(user: AppUser): AppUser {
   localStorage.setItem(USER_KEY, JSON.stringify(user));

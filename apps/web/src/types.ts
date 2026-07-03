@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP';
+export type Role = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP' | 'OPS';
 
 export type SidebarKey =
   | 'dashboard'
@@ -15,7 +15,8 @@ export type SidebarKey =
   | 'users'
   | 'academy'
   | 'certification_review'
-  | 'documents';
+  | 'documents'
+  | 'vendor_ops';
 
 export type AppUser = {
   id: string;

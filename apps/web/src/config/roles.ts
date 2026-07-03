@@ -23,14 +23,15 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   academy: { label: 'TUF Academy', route: '/academy' },
   certification_review: { label: 'Certifications', route: '/admin/certification' },
   documents: { label: 'Documents', route: '/documents' },
+  vendor_ops: { label: 'Vendor Ops', route: '/vendor-ops' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings'],
+    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'vendor_ops', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy', '/admin/certification', '/documents'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/vendor-ops', '/vendors'],
   },
   REGIONAL_DIRECTOR: {
     sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy'],
@@ -49,5 +50,11 @@ export const roleConfig: Record<Role, RoleConfig> = {
     dashboardWidgets: ['Deals Need Action', 'Near Close', 'Payments Pending', 'This Month Progress'],
     primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/academy', '/territory', '/settings'],
+  },
+  OPS: {
+    sidebarItems: ['dashboard', 'vendor_ops', 'invoices', 'ops_workspace'],
+    dashboardWidgets: ['Active Vendors', 'Orders In Production', 'Pending Assignment', 'Completed This Week'],
+    primaryActions: ['Assign Vendor', 'Review Production', 'Process Payment'],
+    visiblePages: ['/dashboard', '/vendor-ops', '/vendors', '/orders', '/ops-workspace'],
   },
 };

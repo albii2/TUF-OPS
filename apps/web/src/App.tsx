@@ -26,6 +26,9 @@ import {
   UsersPage,
   EcosystemPipelinePage,
   ChangeCredentialPage,
+  VendorOpsPage,
+  VendorListPage,
+  VendorDetailPage,
 } from './pages/CrudPages';
 import AcademyPage from './pages/AcademyPage';
 import AdminCertificationPage from './pages/AdminCertificationPage';
@@ -146,6 +149,16 @@ export default function App() {
         <Route path="/territory/static" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected></CertificationProtected>} />
         <Route path="/settings" element={<CertificationProtected user={user} path="/settings"><PageProtected user={user} path="/settings"><SettingsPage /></PageProtected></CertificationProtected>} />
         <Route path="/users" element={<CertificationProtected user={user} path="/users"><PageProtected user={user} path="/users"><UsersPage /></PageProtected></CertificationProtected>} />
+        <Route
+          path="/vendor-ops"
+          element={
+            <RoleProtected user={user} allowedRoles={['ADMIN', 'OPS']}>
+              <VendorOpsPage />
+            </RoleProtected>
+          }
+        />
+        <Route path="/vendors" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'OPS']}><VendorListPage /></RoleProtected>} />
+        <Route path="/vendors/:id" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'OPS']}><VendorDetailPage /></RoleProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

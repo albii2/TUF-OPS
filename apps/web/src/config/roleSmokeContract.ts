@@ -27,4 +27,10 @@ export const dashboardCtaContract: Record<Role, RoleCta[]> = {
     { label: 'Cash to Collect', to: '/orders' },
     { label: 'Momentum', to: '/my-opportunities' },
   ],
+  OPS: [
+    { label: 'Active Vendors', to: '/vendor-ops' },
+    { label: 'Pending Assignment', to: '/orders' },
+    { label: 'In Production', to: '/vendor-ops' },
+    { label: 'Vendor Capacity', to: '/vendors' },
+  ],
 };

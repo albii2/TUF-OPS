@@ -5,6 +5,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
 import { createMockOrderFromOpportunity } from '../services/ordersService';
 import { useOpportunities } from '../hooks/useOpportunities';
+import { listVendors, assignVendorToOrder, getVendorAssignment, type Vendor } from '../services/vendorsService';
 import { notify } from '../services/feedbackService';
 import {
   canSeeOrderValue,
@@ -48,6 +49,10 @@ export function OrdersPage() {
   const [page, setPage] = useState(1);
   const [message, setMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
+  const [assigningOrderId, setAssigningOrderId] = useState<string | null>(null);
+  const [vendorDropdown, setVendorDropdown] = useState<string>('');
+
+  const vendors = useMemo(() => listVendors(), []);
 
   const allOrders = useOrders({ refreshKey });
   const searchedOrders = useOrders({ search, refreshKey });
@@ -83,6 +88,24 @@ export function OrdersPage() {
       const detail = error instanceof Error ? error.message : 'Close an opportunity before creating an order.';
       setMessage(detail);
       notify(`Order creation failed: ${detail}`, 'error');
+    }
+  };
+
+  const handleAssignVendor = (orderId: string) => {
+    const vendorId = vendorDropdown;
+    if (!vendorId) {
+      notify('Select a vendor first.', 'error');
+      return;
+    }
+    try {
+      assignVendorToOrder(orderId, vendorId);
+      const vendor = vendors.find((v) => v.id === vendorId);
+      notify(`Order assigned to ${vendor?.name ?? vendorId}.`, 'success');
+      setAssigningOrderId(null);
+      setVendorDropdown('');
+      setRefreshKey((k) => k + 1);
+    } catch (e) {
+      notify('Failed to assign vendor.', 'error');
     }
   };
 
@@ -141,6 +164,7 @@ export function OrdersPage() {
                   <th className="py-2 pr-3">Items</th>
                   <th className="py-2 pr-3 text-right">Value</th>
                   <th className="py-2 pr-3">Status</th>
+                  <th className="py-2 pr-3">Vendor</th>
                   <th className="py-2">Date</th>
                 </tr>
               </thead>
@@ -172,6 +196,66 @@ export function OrdersPage() {
                       </td>
                       <td className="py-3 pr-3">
                         <StatusBadge stage={order.productionStatus ?? 'ACTION_NEEDED'} />
+                      </td>
+                      <td className="py-3 pr-3">
+                        {(() => {
+                          const assignedVendorId = getVendorAssignment(order.id);
+                          const assignedVendor = assignedVendorId ? vendors.find((v) => v.id === assignedVendorId) : undefined;
+                          if (assigningOrderId === order.id) {
+                            return (
+                              <div className="flex items-center gap-1">
+                                <select
+                                  className="h-7 rounded border border-slate-600 bg-slate-800 px-1 text-[10px] text-slate-200"
+                                  value={vendorDropdown}
+                                  onChange={(e) => setVendorDropdown(e.target.value)}
+                                >
+                                  <option value="">Select vendor...</option>
+                                  {vendors.filter((v) => v.active).map((v) => (
+                                    <option key={v.id} value={v.id}>{v.name} ({v.specialization})</option>
+                                  ))}
+                                </select>
+                                <button
+                                  onClick={() => handleAssignVendor(order.id)}
+                                  className="rounded border border-[#1FB6FF]/60 bg-[#10324a] px-1.5 py-0.5 text-[10px] font-bold text-[#dff5ff]"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={() => { setAssigningOrderId(null); setVendorDropdown(''); }}
+                                  className="text-[10px] text-slate-500 hover:text-slate-300"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="flex items-center gap-1">
+                              {assignedVendor ? (
+                                <span
+                                  className="cursor-pointer rounded border border-slate-600 bg-slate-800/50 px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 hover:text-slate-100"
+                                  onClick={() => navigate(`/vendors/${assignedVendor.id}`)}
+                                  title={`${assignedVendor.name} (${assignedVendor.specialization})`}
+                                >
+                                  {assignedVendor.name}
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-slate-600">Unassigned</span>
+                              )}
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAssigningOrderId(order.id);
+                                  setVendorDropdown('');
+                                }}
+                                className="rounded border border-slate-700 px-1 py-0.5 text-[10px] text-slate-500 hover:border-[#1FB6FF]/60 hover:text-[#dff5ff]"
+                                title="Assign vendor"
+                              >
+                                +Assign
+                              </button>
+                            </div>
+                          );
+                        })()}
                       </td>
                       <td className="py-3 text-xs text-slate-500">
                         {formatDate(getOrderDueDate(order))}
