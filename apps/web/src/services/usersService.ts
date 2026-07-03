@@ -1,6 +1,7 @@
 import type { AppUser, Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
 import { DATA_MODE } from './dataMode';
+import { apiClient } from './apiClient';
 
 const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training`;
 
@@ -511,6 +512,21 @@ async function recordSuccessfulLogin(user: StoredManagedUser, users: StoredManag
 }
 
 export async function authenticateWithPin(pin: string): Promise<AppUser | null> {
+  // In API mode, authenticate through the backend to get a token
+  if (DATA_MODE === 'api') {
+    try {
+      const result = await apiClient<{ user: AppUser; token: string }>('/login', {
+        method: 'POST',
+        body: { pin },
+      });
+      // Merge the token into the user object so apiClient can read it
+      (result.user as any).token = result.token;
+      return result.user;
+    } catch {
+      return null;
+    }
+  }
+  // Mock mode: local credential check
   validateTemporaryCredential(pin);
   const users = readStoredUsers();
   const now = new Date().toISOString();
