@@ -62,6 +62,7 @@ export function OpportunityNewPage() {
   const [assignedRep, setAssignedRep] = useState(user?.role === 'REP' ? user.name : organizations[0]?.assignedRep ?? '');
   const [value, setValue] = useState('15000');
   const [message, setMessage] = useState('');
+  const [orgNameInput, setOrgNameInput] = useState('');
   const { success, error } = useToast();
 
   const levels = useMemo(() => [...SCHOOL_PROGRAM_LEVELS, ...YOUTH_PROGRAM_LEVELS, ...CLUB_PROGRAM_LEVELS], []);
@@ -78,9 +79,42 @@ export function OpportunityNewPage() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setMessage('');
+
+    // Resolve organization — typed name takes priority
+    let resolvedOrg = selectedOrg;
+    if (orgNameInput.trim()) {
+      const normalizedName = normalizeAccountName(orgNameInput);
+      const existing = organizations.find((o) => o.name.toLowerCase() === normalizedName.toLowerCase());
+      if (existing) {
+        resolvedOrg = existing;
+      } else {
+        // Auto-create the org
+        const newOrg = DATA_MODE === 'api'
+          ? await createOrganizationAsync({
+              name: normalizedName,
+              accountType: 'School',
+              city: '',
+              state: 'MN',
+              territory: 'metro',
+              assignedRep: assignedRep || user?.name || 'Unassigned',
+              assignedDirector: 'Unassigned',
+            })
+          : createMockOrganization({
+              name: normalizedName,
+              accountType: 'School',
+              city: '',
+              state: 'MN',
+              territory: 'metro',
+              assignedRep: assignedRep || user?.name || 'Unassigned',
+              assignedDirector: 'Unassigned',
+            });
+        resolvedOrg = newOrg;
+      }
+    }
+
     const missing: string[] = [];
-    if (!selectedOrg) missing.push('Organization');
-    if (!((assignedRep || selectedOrg?.assignedRep || user?.name) ?? '').trim()) missing.push('Assigned Rep');
+    if (!resolvedOrg) missing.push('Organization');
+    if (!((assignedRep || resolvedOrg?.assignedRep || user?.name) ?? '').trim()) missing.push('Assigned Rep');
     if (!programLevel.trim()) missing.push('Program Level');
     if (!sport.trim()) missing.push('Sport');
     if (!seasonCode.trim()) missing.push('Season');
@@ -94,25 +128,25 @@ export function OpportunityNewPage() {
     try {
       const created = DATA_MODE === 'api'
         ? await createOpportunityAsync({
-            organizationId: selectedOrg.id,
-            organizationName: selectedOrg.name,
+            organizationId: resolvedOrg.id,
+            organizationName: resolvedOrg.name,
             programLevel,
             sport,
             seasonCode,
             lane,
-            assignedRep: assignedRep || selectedOrg.assignedRep,
-            organizationAssignedDirector: selectedOrg.assignedDirector,
+            assignedRep: assignedRep || resolvedOrg.assignedRep,
+            organizationAssignedDirector: resolvedOrg.assignedDirector,
             value: Number(value) || 0,
           })
         : createMockOpportunity({
-            organizationId: selectedOrg.id,
-            organizationName: selectedOrg.name,
+            organizationId: resolvedOrg.id,
+            organizationName: resolvedOrg.name,
             programLevel,
             sport,
             seasonCode,
             lane,
-            assignedRep: assignedRep || selectedOrg.assignedRep,
-            organizationAssignedDirector: selectedOrg.assignedDirector,
+            assignedRep: assignedRep || resolvedOrg.assignedRep,
+            organizationAssignedDirector: resolvedOrg.assignedDirector,
             value: Number(value) || 0,
           });
       success('Opportunity created.');
@@ -124,5 +158,5 @@ export function OpportunityNewPage() {
     }
   };
 
-  return <Card title="New Opportunity"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><Select value={organizationId} onChange={(e)=>{ const next = organizations.find((org) => org.id === e.target.value); setOrganizationId(e.target.value); if (next && user?.role !== 'REP') setAssignedRep(next.assignedRep); }}>{organizations.map((org)=><option key={org.id} value={org.id}>{org.name}</option>)}</Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" disabled={user?.role === 'REP'} /><Select value={programLevel} onChange={(e)=>setProgramLevel(e.target.value as typeof programLevel)}>{levels.map((l)=><option key={l}>{l}</option>)}</Select><Select value={sport} onChange={(e)=>setSport(e.target.value as typeof sport)}>{SPORT_OPTIONS.map((s)=><option key={s}>{s}</option>)}</Select><Input value={seasonCode} onChange={(e)=>setSeasonCode(e.target.value.toUpperCase())} placeholder={`Season code (${SEASON_CODES.join('/')})`} /><Select value={lane} onChange={(e)=>setLane(e.target.value as typeof lane)}>{REVENUE_LANES.map((l)=><option key={l}>{l}</option>)}</Select><Input inputMode="numeric" value={value} onChange={(e)=>setValue(e.target.value.replace(/[^\d]/g, ''))} placeholder="Estimated Value" /><p className="md:col-span-2 text-sm text-cyan-200">Display Name Preview: {preview}</p><Button type="submit" className="md:col-span-2">Create Opportunity</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;
+  return <Card title="New Opportunity"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><div><label className="text-xs text-slate-400">Organization <span className="text-rose-300">*</span></label><Input value={orgNameInput} onChange={(e)=>setOrgNameInput(e.target.value)} onBlur={()=>setOrgNameInput(normalizeAccountName(orgNameInput))} placeholder="Type or select school name..." /></div><Select value={organizationId} onChange={(e)=>{ const next = organizations.find((org) => org.id === e.target.value); setOrganizationId(e.target.value); if (next && user?.role !== 'REP') setAssignedRep(next.assignedRep); }}>{organizations.map((org)=><option key={org.id} value={org.id}>{org.name}</option>)}</Select><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" disabled={user?.role === 'REP'} /><Select value={programLevel} onChange={(e)=>setProgramLevel(e.target.value as typeof programLevel)}>{levels.map((l)=><option key={l}>{l}</option>)}</Select><Select value={sport} onChange={(e)=>setSport(e.target.value as typeof sport)}>{SPORT_OPTIONS.map((s)=><option key={s}>{s}</option>)}</Select><Input value={seasonCode} onChange={(e)=>setSeasonCode(e.target.value.toUpperCase())} placeholder={`Season code (${SEASON_CODES.join('/')})`} /><Select value={lane} onChange={(e)=>setLane(e.target.value as typeof lane)}>{REVENUE_LANES.map((l)=><option key={l}>{l}</option>)}</Select><Input inputMode="numeric" value={value} onChange={(e)=>setValue(e.target.value.replace(/[^\d]/g, ''))} placeholder="Estimated Value" /><p className="md:col-span-2 text-sm text-cyan-200">Display Name Preview: {preview}</p><Button type="submit" className="md:col-span-2">Create Opportunity</Button>{message ? <p className="text-sm text-amber-200 md:col-span-2">{message}</p> : null}</form></Card>;
 }
