@@ -62,7 +62,7 @@ const seedRows: StoredManagedUser[] = [
     firstName: 'A Bradshaw',
     lastName: 'VP',
     displayName: 'A Bradshaw VP',
-    email: 'abradshaw@tufsports.us',
+    email: 'owner@tuf.local',
     role: 'ADMIN',
     rank: 'Admin',
     region: 'National',
