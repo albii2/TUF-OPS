@@ -32,7 +32,7 @@ function resolveOrigin(origin: string | undefined, callback: (err: Error | null,
   if (!origin || corsOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
     callback(null, true);
   } else {
-    callback(new Error('Not allowed by CORS'));
+    callback(new Error('Not allowed by CORS'), false);
   }
 }
 
