@@ -118,6 +118,7 @@ server.register(productionRequestRoutes, { prefix: '/api/production-requests' })
 server.register(orderRoutes, { prefix: '/api/orders' });
 server.register(creativeRequestRoutes, { prefix: '/api' });
 server.register(userRoutes, { prefix: '/api/auth' });
+server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(organizationRoutes, { prefix: '/api/v1/organizations' });
 server.register(opportunityRoutes, { prefix: '/api/v1/opportunities' });
 server.register(activityRoutes, { prefix: '/api/v1/activities' });

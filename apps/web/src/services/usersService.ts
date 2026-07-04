@@ -3,7 +3,7 @@ import type { TerritoryId } from '../data/mockSalesData';
 import { DATA_MODE } from './dataMode';
 import { apiClient } from './apiClient';
 
-const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training`;
+const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api'}/training`;
 
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
@@ -526,7 +526,7 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
     // Try backend login for a token. If the backend is unreachable,
     // fall through to localStorage auth — user still gets logged in.
     try {
-      const result = await apiClient<{ user: AppUser; token: string }>('/login', {
+      const result = await apiClient<{ user: AppUser; token: string }>('/auth/login', {
         method: 'POST',
         body: { email: localUser.email, credential: pin },
       });

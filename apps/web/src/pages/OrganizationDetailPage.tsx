@@ -8,6 +8,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useActivities } from '../hooks/useReports';
 import { createMockOpportunity, getRevenueLanes } from '../services/opportunitiesService';
+import { createOpportunityAsync } from '../services/ordersService';
 import { updateOrganization, updateOrganizationAsync } from '../services/organizationsService';
 import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionStatuses, type ReferredOrganizationType, type WarmIntroductionStatus } from '../services/ecosystemReferralsService';
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
@@ -66,7 +67,7 @@ export function OrganizationDetailPage() {
     setReferralMessage('');
   };
 
-  const attackLane = (lane: RevenueLane) => {
+  const attackLane = async (lane: RevenueLane) => {
     if (!id || !org) return;
 
     const existingActiveLaneOpportunity = activeOpportunities.find((opportunity) => opportunity.lanes.includes(lane));
@@ -82,17 +83,29 @@ export function OrganizationDetailPage() {
     }
 
     const laneData = org.laneStatuses[lane];
-    const createdOpportunity = createMockOpportunity({
-      organizationId: id,
-      organizationName: org.name,
-      programLevel: 'Varsity',
-      sport: activeSports[0] ?? 'Football',
-      seasonCode: String(new Date().getFullYear()),
-      lane,
-      assignedRep: org.assignedRep,
-      value: laneData.estimatedValue || 5000,
-      organizationAssignedDirector: org.assignedDirector,
-    });
+    const createdOpportunity = DATA_MODE === 'api'
+      ? await createOpportunityAsync({
+          organizationId: id,
+          organizationName: org.name,
+          programLevel: 'Varsity',
+          sport: activeSports[0] ?? 'Football',
+          seasonCode: String(new Date().getFullYear()),
+          lane,
+          assignedRep: org.assignedRep,
+          value: laneData.estimatedValue || 5000,
+          organizationAssignedDirector: org.assignedDirector,
+        })
+      : createMockOpportunity({
+          organizationId: id,
+          organizationName: org.name,
+          programLevel: 'Varsity',
+          sport: activeSports[0] ?? 'Football',
+          seasonCode: String(new Date().getFullYear()),
+          lane,
+          assignedRep: org.assignedRep,
+          value: laneData.estimatedValue || 5000,
+          organizationAssignedDirector: org.assignedDirector,
+        });
 
     const activityMsg = `Created ${lane.replace(/_/g, ' ')} lane opportunity: ${createdOpportunity.title}.`;
     if (DATA_MODE === 'api') {
