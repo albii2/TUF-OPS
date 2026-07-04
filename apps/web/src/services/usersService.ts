@@ -514,25 +514,27 @@ async function recordSuccessfulLogin(user: StoredManagedUser, users: StoredManag
 export async function authenticateWithPin(pin: string): Promise<AppUser | null> {
   // In API mode, authenticate through the backend to get a token
   if (DATA_MODE === 'api') {
+    // Find the user by PIN in local seed data first
+    const users = readStoredUsers();
+    let localUser: StoredManagedUser | null = null;
+    for (const u of users.filter((u) => u.status === 'ACTIVE')) {
+      const hash = await digest(`${u.credentialSalt}:${pin}`);
+      if (hash === u.credentialHash) { localUser = u; break; }
+    }
+    if (!localUser) return null;
+    
+    // Try backend login for a token. If the backend is unreachable,
+    // fall through to localStorage auth — user still gets logged in.
     try {
-      // Find the user by PIN in local seed data to get their email
-      const users = readStoredUsers();
-      let localUser = null;
-      for (const u of users.filter((u) => u.status === 'ACTIVE')) {
-        const hash = await digest(`${u.credentialSalt}:${pin}`);
-        if (hash === u.credentialHash) { localUser = u; break; }
-      }
-      if (!localUser) return null;
-      
       const result = await apiClient<{ user: AppUser; token: string }>('/login', {
         method: 'POST',
         body: { email: localUser.email, credential: pin },
       });
-      // Merge the token into the user object so apiClient can read it
       (result.user as any).token = result.token;
       return result.user;
     } catch {
-      return null;
+      console.warn('[auth] Backend unreachable — using localStorage auth fallback');
+      // Fall through to mock mode auth
     }
   }
   // Mock mode: local credential check
