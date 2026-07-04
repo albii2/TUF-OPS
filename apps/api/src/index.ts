@@ -27,6 +27,15 @@ const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://l
   .map((origin) => origin.trim())
   .filter(Boolean);
 
+// Also allow Vercel preview deployments
+function resolveOrigin(origin: string | undefined, callback: (err: Error | null, allow: boolean) => void) {
+  if (!origin || corsOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    callback(null, true);
+  } else {
+    callback(new Error('Not allowed by CORS'));
+  }
+}
+
 const mimeTypes: Record<string, string> = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -80,7 +89,7 @@ function emptyDataHealthPayload(status: 'ok' | 'degraded', reason?: string) {
 }
 
 server.register(cors, {
-  origin: corsOrigins,
+  origin: resolveOrigin,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 });
 
