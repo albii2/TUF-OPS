@@ -16,7 +16,7 @@ import type { Opportunity, OpportunityStage, RevenueLane } from '../data/mockSal
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
 import { notify } from '../services/feedbackService';
-import { createMockOrderFromOpportunity, getAnyOrderByOpportunityId } from '../services/ordersService';
+import { createMockOrderFromOpportunity, createOrderAsync, getAnyOrderByOpportunityId } from '../services/ordersService';
 
 const stageCtas = {
   LEAD_ENGAGED: 'Mark as Contacted',
@@ -116,7 +116,9 @@ export function OpportunityDetailPage() {
       if (!updated) throw new Error('Opportunity not found.');
       let finalMessage = message;
       if (stage === 'CLOSED_WON') {
-        const order = createMockOrderFromOpportunity(updated);
+        const order = DATA_MODE === 'api'
+          ? await createOrderAsync(updated)
+          : createMockOrderFromOpportunity(updated);
         finalMessage = `${message} Order handoff ${order.id} is ready for Ops review.`;
       }
       setLocalOpp(updated);

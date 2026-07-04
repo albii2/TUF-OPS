@@ -698,7 +698,7 @@ export default function AcademyPage() {
                   </p>
 
                   {/* Learning Content — expandable study section */}
-                  {(status === 'available' || status === 'quiz_available') && module.learnContent && (
+                  {(phase === 'learn') && module.learnContent && (
                     <details className="mb-3 rounded-lg bg-slate-950/50 border border-slate-700/30 overflow-hidden group">
                       <summary className="cursor-pointer px-3 py-2 text-xs font-bold text-slate-300 uppercase tracking-wider hover:text-slate-200 select-none">
                         Study: What You Need to Learn
