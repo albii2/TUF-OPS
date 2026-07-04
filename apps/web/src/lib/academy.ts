@@ -1480,9 +1480,12 @@ function updateUserCertificationStatus(
  * Call the server-side certify endpoint to persist is_certified in the database.
  */
 async function callCertifyApi(userId: string): Promise<void> {
-  const API_BASE = typeof window !== 'undefined' && (window as any).__VITE_API_BASE_URL__
-    ? (window as any).__VITE_API_BASE_URL__
-    : '/api';
+  const API_BASE = typeof window !== 'undefined' && typeof location !== 'undefined' &&
+    (location.hostname.endsWith('.vercel.app') || location.hostname === 'ops.tufsports.us' || location.hostname === 'tufops.app')
+    ? '/api'
+    : (typeof window !== 'undefined' && (window as any).__VITE_API_BASE_URL__
+      ? (window as any).__VITE_API_BASE_URL__
+      : '/api');
   const numericId = userId.replace(/\D/g, '');
   // Auth token from localStorage for the Director performing the certification
   const rawUser = localStorage.getItem('tuf_ops_user_v3');

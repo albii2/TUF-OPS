@@ -4,7 +4,8 @@ export type ApiRequestConfig = {
   body?: unknown;
 };
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/$/, '');
+import { getApiBaseUrl } from './apiBaseUrl';
+const API_BASE_URL = getApiBaseUrl();
 
 export async function apiClient<T>(path: string, config: ApiRequestConfig = {}): Promise<T> {
   const queryString = config.query

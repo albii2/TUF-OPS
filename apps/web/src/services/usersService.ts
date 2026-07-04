@@ -2,8 +2,9 @@ import type { AppUser, Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
 import { DATA_MODE } from './dataMode';
 import { apiClient } from './apiClient';
+import { getApiBaseUrl } from './apiBaseUrl';
 
-const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api'}/training`;
+const TRAINING_API_BASE_URL = `${getApiBaseUrl()}/training`;
 
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE';

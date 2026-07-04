@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
+import { getApiBaseUrl } from '../services/apiBaseUrl';
 
 export type TrainingPhase = typeof ACADEMY_PHASES[number];
 
-const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training`;
+const TRAINING_API_BASE_URL = `${getApiBaseUrl()}/training`;
 const IS_PRODUCTION = import.meta.env.PROD || import.meta.env.VITE_APP_ENV === 'production';
 
 export interface TrainingModule {

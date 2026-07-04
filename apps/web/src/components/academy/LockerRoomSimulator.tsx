@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getApiBaseUrl } from '../../services/apiBaseUrl';
 
 export type LockerRoomScenario = {
   title: string;
@@ -48,7 +49,7 @@ export default function LockerRoomSimulator() {
       const userObj = rawUser ? JSON.parse(rawUser) : null;
       const userId = userObj?.id || 'u-rep-jason-mulder';
       
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training/assessments/evaluate-script`, {
+      const response = await fetch(`${getApiBaseUrl()}/training/assessments/evaluate-script`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -64,7 +65,7 @@ export default function LockerRoomSimulator() {
 
       if (data.passed) {
         try {
-          await fetch(`${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training/reps/${userId}/practical-exercise`, {
+          await fetch(`${getApiBaseUrl()}/training/reps/${userId}/practical-exercise`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ practicalExerciseCompleted: true })

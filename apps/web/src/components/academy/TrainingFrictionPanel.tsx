@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getApiBaseUrl } from '../../services/apiBaseUrl';
 
 interface TrainingFrictionPanelProps {
   enrollmentId: number | string;
@@ -26,7 +27,7 @@ export default function TrainingFrictionPanel({
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training/friction-point`,
+        `${getApiBaseUrl()}/training/friction-point`,
         {
           method: 'POST',
           headers: {
