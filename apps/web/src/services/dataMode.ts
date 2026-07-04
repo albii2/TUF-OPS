@@ -1,2 +1,3 @@
 export type DataMode = 'mock' | 'api';
-export const DATA_MODE: DataMode = (import.meta.env.VITE_DATA_MODE || 'mock') === 'api' ? 'api' : 'mock';
+// Forced to mock until API/CORS infrastructure is stable for 6-25 users
+export const DATA_MODE: DataMode = 'mock';
