@@ -113,7 +113,11 @@ export function OpportunityNewPage() {
     }
 
     const missing: string[] = [];
-    if (!resolvedOrg) missing.push('Organization');
+    if (!resolvedOrg) {
+      setMessage('No organization selected. Type a school name or select one from the list.');
+      error('Opportunity creation failed: No organization selected.');
+      return;
+    }
     if (!((assignedRep || resolvedOrg?.assignedRep || user?.name) ?? '').trim()) missing.push('Assigned Rep');
     if (!programLevel.trim()) missing.push('Program Level');
     if (!sport.trim()) missing.push('Sport');
