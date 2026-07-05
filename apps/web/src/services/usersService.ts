@@ -534,6 +534,8 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
       }
     }
   }
+  // v25000 — build marker: API auth active
+  console.log('[auth] TUF Ops v25000 — API mode:', DATA_MODE);
   validateTemporaryCredential(pin);
   const users = readStoredUsers();
   const now = new Date().toISOString();
