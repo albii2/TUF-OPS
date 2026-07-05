@@ -513,30 +513,7 @@ async function recordSuccessfulLogin(user: StoredManagedUser, users: StoredManag
 }
 
 export async function authenticateWithPin(pin: string): Promise<AppUser | null> {
-  // In API mode, try backend login first for a token
-  if (DATA_MODE === 'api') {
-    const users = readStoredUsers();
-    let localUser: StoredManagedUser | null = null;
-    for (const u of users.filter((u) => u.status === 'ACTIVE')) {
-      const hash = await digest(`${u.credentialSalt}:${pin}`);
-      if (hash === u.credentialHash) { localUser = u; break; }
-    }
-    if (localUser) {
-      try {
-        const result = await apiClient<{ user: AppUser; token: string }>('/auth/login', {
-          method: 'POST',
-          body: { email: localUser.email, credential: pin },
-        });
-        (result.user as any).token = result.token;
-        return result.user;
-      } catch {
-        console.warn('[auth] Backend unreachable — using localStorage fallback');
-      }
-    }
-    // Fall through to localStorage if backend is unreachable
-  }
-
-  // LocalStorage auth (always works, no CORS/token needed)
+  // LocalStorage auth — reliable, no CORS, no token, no database dependency
   validateTemporaryCredential(pin);
   const users = readStoredUsers();
   const now = new Date().toISOString();

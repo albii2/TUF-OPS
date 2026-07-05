@@ -1,2 +1,4 @@
 export type DataMode = 'mock' | 'api';
-export const DATA_MODE: DataMode = (import.meta.env.VITE_DATA_MODE || 'mock') === 'api' ? 'api' : 'mock';
+// PostgreSQL persistence deferred until migration/infrastructure stabilizes.
+// localStorage handles 6-25 users reliably. No CORS, no token, no database.
+export const DATA_MODE: DataMode = 'mock';
