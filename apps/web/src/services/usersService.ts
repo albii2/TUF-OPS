@@ -178,7 +178,6 @@ const seedRows: StoredManagedUser[] = [
     state_market: 'MN',
     division: 'General',
     territory: 'Minnesota',
-    assignedRep: '',
     assignedDirectorId: '',
     status: 'ACTIVE',
     avatarColor: COLORS[3],
