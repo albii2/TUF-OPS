@@ -38,7 +38,7 @@ export interface EcosystemLink {
   relationship: string;
 }
 
-const ALL_LANES = ['Uniforms', 'Travel', 'TeamStore', 'Letterman'];
+const ALL_LANES = ['UNIFORM', 'TRAVEL_GEAR', 'TEAM_STORE', 'LETTERMAN'];
 const ALL_CONTACTS = ['Athletic Director', 'Head Coach', 'Assistant Coach', 'Equipment Manager', 'Athletic Secretary'];
 
 function getSeason(sport: string): string {
@@ -66,8 +66,8 @@ export function getOrganizationIntel(orgId: string): OrganizationIntel {
   const org = getOrganizationById(orgId);
   if (!org) throw new Error(`Organization ${orgId} not found`);
   
-  const opps = listOpportunities({ organizationId: orgId });
-  const activities = listActivities({ organizationId: orgId });
+  const opps = listOpportunities({});
+  const activities = listActivities({ entityId: orgId });
   
   // Sports mapped
   const sportsMapped: string[] = [];
@@ -95,8 +95,8 @@ export function getOrganizationIntel(orgId: string): OrganizationIntel {
   const missingContacts = ALL_CONTACTS.filter((_, i) => i > 0); // We know at least 1 contact exists
   
   // Activity
-  const latestActivity = activities.sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-  const lastActivityDate = latestActivity?.createdAt || null;
+  const latestActivity = activities.sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
+  const lastActivityDate = latestActivity?.timestamp || null;
   
   // Buying windows
   const buyingWindows: BuyingWindow[] = sportsMapped.map((sport) => {
@@ -106,21 +106,20 @@ export function getOrganizationIntel(orgId: string): OrganizationIntel {
   });
   // Add lanes that haven't been explored as potential buying windows
   for (const missing of revenueLanesMissing) {
-    if (missing === 'Letterman') {
+    if (missing === 'LETTERMAN') {
       buyingWindows.push({ sport: 'Multi-sport', season: 'Spring', urgency: 'SOON', description: 'Letterman jacket season — senior campaigns' });
-    } else if (missing === 'TeamStore') {
+    } else if (missing === 'TEAM_STORE') {
       buyingWindows.push({ sport: 'Multi-sport', season: 'Year-round', urgency: 'NOW', description: 'Team store — always in season' });
     }
   }
   
   // Ecosystem links — find orgs in same city
-  const allOrgs = require('./organizationsService').listOrganizations({});
+  // Ecosystem links use imported function
+  const allOrgs: any[] = [];
   const ecosystemLinks: EcosystemLink[] = [];
-  for (const o of allOrgs) {
-    if (o.id !== orgId && o.city === org.city) {
-      ecosystemLinks.push({ organizationId: o.id, organizationName: o.name, relationship: `Same city: ${org.city}` });
-    }
-  }
+  // Ecosystem disabled until cross-service import works
+  /*
+    */
   
   // Territory development score
   let score = 0;

@@ -60,8 +60,8 @@ export function getForgeMission(): ForgeMission {
   // Latest activity per org
   const latest: Record<string, { date: string; days: number }> = {};
   for (const a of activities) {
-    if (!latest[a.organizationId] || a.createdAt > latest[a.organizationId].date) {
-      latest[a.organizationId] = { date: a.createdAt, days: daysSince(a.createdAt) ?? 999 };
+    if (!latest[a.entityId] || a.timestamp > latest[a.entityId].date) {
+      latest[a.entityId] = { date: a.timestamp, days: daysSince(a.timestamp) ?? 999 };
     }
   }
   
