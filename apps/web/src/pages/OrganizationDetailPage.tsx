@@ -1,6 +1,7 @@
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { getStoredUser } from '../auth';
+import { LighthousePanel } from '../components/LighthousePanel';
 import { Button, Card, EmptyState, Input, LaneBadge, LaneStatusBadge, Select } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOrganizationById } from '../hooks/useOrganizations';
@@ -316,6 +317,7 @@ export function OrganizationDetailPage() {
           )) : <p className="text-slate-400">No account activity yet.</p>}
         </div>
       </Card>
+      <LighthousePanel organizationId={id!} organizationName={org?.name || 'Unknown'} />
     </div>
   );
 }

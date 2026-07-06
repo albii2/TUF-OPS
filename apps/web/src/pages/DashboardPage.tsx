@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { GlassCard } from '../components/ui';
 import { getStoredUser } from '../auth';
 import { markPageVisited } from '../lib/academy';
+import { ForgePanel } from '../components/ForgePanel';
 import type { Role } from '../types';
 import { useActivities } from '../hooks/useReports';
 import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
@@ -208,6 +209,9 @@ export function DashboardPage({ role }: { role: Role }) {
       <div className="grid gap-3 lg:grid-cols-2">
         <GlassCard title="NEXT DEALS TO MOVE"><div className="space-y-2">{[...staleOpps, ...nearClose, ...openOpps].slice(0, 6).map((opp) => <DealRow key={opp.id} title={opp.title} meta={`${opp.organizationName} · ${opp.stage}`} value={opp.value} to={`/opportunities/${opp.id}`} nextAction={opp.nextAction} dueDate={opp.nextActionDueDate} />)}</div></GlassCard>
         <ActivityFeed title="MY RECENT ACTIVITY" activities={activities} />
+      </div>
+      <div className="mt-6">
+        <ForgePanel />
       </div>
     </div>
   );

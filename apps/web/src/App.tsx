@@ -4,6 +4,7 @@ import { AppShell } from './components/AppShell';
 import { getStoredUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { ForgePage } from './pages/ForgePage';
 import {
   OpportunitiesPage,
   OpportunityDetailPage,
@@ -106,6 +107,7 @@ export default function App() {
       >
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
         <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{dashboard}</PageProtected></CertificationProtected>} />
+        <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />
         <Route path="/orders" element={<PageProtected user={user} path="/orders"><OrdersPage /></PageProtected>} />
