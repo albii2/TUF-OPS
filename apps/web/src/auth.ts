@@ -6,10 +6,6 @@ const USER_KEY = 'tuf_ops_user_v3';
 const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'];
 
 function persistUser(user: AppUser): AppUser {
-  // FORCE: Josh Hoffman always certified on login — overrides any stale cached data
-  if (user.id === 'u-rep-josh-hoffman') {
-    user = { ...user, isCertified: true, directorSignedOff: true };
-  }
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: user }));
   return user;
@@ -29,12 +25,6 @@ export function getStoredUser(): AppUser | null {
     if (!isValidStoredUser(parsed)) {
       localStorage.removeItem(USER_KEY);
       return null;
-    }
-    // Force Josh certification on every read — fixes stale cached data
-    if (parsed.id === 'u-rep-josh-hoffman') {
-      parsed.isCertified = true;
-      parsed.directorSignedOff = true;
-      localStorage.setItem(USER_KEY, JSON.stringify(parsed));
     }
     return parsed;
   } catch {
