@@ -4,7 +4,7 @@ import { getOrganizationIntel, type OrganizationIntel } from '../services/lighth
 interface Props { organizationId: string; organizationName: string; }
 
 export const LighthousePanel: React.FC<Props> = ({ organizationId, organizationName }) => {
-  const [intel, setIntel] = useState(120);
+  const [intel, setIntel] = useState<OrganizationIntel | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useMemo(() => {

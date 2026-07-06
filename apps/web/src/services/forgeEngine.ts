@@ -4,7 +4,7 @@
  */
 
 import { listOrganizations } from './organizationsService';
-import { listOpportunities, type Opportunity } from './opportunitiesService';
+import { listOpportunities } from './opportunitiesService';
 import { listActivities } from './activitiesService';
 import { getStoredUser } from '../auth';
 
@@ -50,7 +50,7 @@ function stageOrder(stage: string): number {
 
 export function getForgeMission(): ForgeMission {
   const user = getStoredUser();
-  const repName = user?.displayName || 'Rep';
+  const repName = user?.name || 'Rep';
   const territory = user?.territory || 'Unknown';
   
   const orgs = listOrganizations({});
@@ -66,7 +66,7 @@ export function getForgeMission(): ForgeMission {
   }
   
   // Group opps by org
-  const oppMap: Record<string, Opportunity[]> = {};
+  const oppMap: Record<string, any[]> = {};
   for (const o of opps) {
     if (!oppMap[o.organizationId]) oppMap[o.organizationId] = [];
     oppMap[o.organizationId].push(o);
