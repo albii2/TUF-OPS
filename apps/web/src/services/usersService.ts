@@ -164,6 +164,60 @@ const seedRows: StoredManagedUser[] = [
     isCertified: false,
     credentialSalt: 'seed-josh',
     credentialHash: '5b8880ceb089c547b15bb8b1144dca8e2b4c09164e54e28325f1c7137415a5e2',
+  },
+  {
+    id: 'u-test-director',
+    firstName: 'Test',
+    lastName: 'Director',
+    displayName: 'Test Director',
+    email: 'test.director@tufsports.us',
+    role: 'DIRECTOR',
+    rank: 'TAE',
+    tier: 'TAE',
+    region: 'Midwest',
+    stateMarket: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    assignedRep: '',
+    assignedDirectorId: '',
+    status: 'ACTIVE',
+    avatarColor: COLORS[3],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    hrDocsCompleted: false,
+    directorSignedOff: true,
+    isCertified: true,
+    credentialSalt: 'seed-test',
+    credentialHash: 'e3043a23587faa0e84c35fb70a04d945570f17e3c5b206f97a280a3d0d06262d',
+  },
+  {
+    id: 'u-test-rep',
+    firstName: 'Test',
+    lastName: 'Rep',
+    displayName: 'Test Rep',
+    email: 'test.rep@tufsports.us',
+    role: 'REP',
+    rank: 'TAE',
+    tier: 'TAE',
+    region: 'Midwest',
+    stateMarket: 'MN',
+    division: 'General',
+    territory: 'Minnesota',
+    assignedRep: '',
+    assignedDirectorId: 'u-test-director',
+    status: 'ACTIVE',
+    avatarColor: COLORS[2],
+    mustChangeCredential: false,
+    failedCredentialAttempts: 0,
+    lockedUntil: null,
+    loginCount: 0,
+    hrDocsCompleted: false,
+    directorSignedOff: false,
+    isCertified: true,
+    credentialSalt: 'seed-test',
+    credentialHash: 'e3043a23587faa0e84c35fb70a04d945570f17e3c5b206f97a280a3d0d06262d',
   }
 ];
 
@@ -523,12 +577,35 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
     }
     if (localUser) {
       try {
-        const result = await apiClient<{ user: AppUser; token: string }>('/auth/login', {
+        const result = await apiClient<{ user: Record<string, unknown>; token: string }>('/auth/login', {
           method: 'POST',
           body: { email: localUser.email, credential: pin },
         });
-        (result.user as any).token = result.token;
-        return result.user;
+        // Transform backend SafeUser (numeric id, snake_case) to frontend AppUser (string id, camelCase)
+        const backendUser = result.user;
+        const appUser: AppUser = {
+          id: String(backendUser.id),
+          name: String(backendUser.name ?? localUser.displayName ?? ''),
+          email: String(backendUser.email ?? localUser.email ?? ''),
+          role: (backendUser.role === 'OWNER' ? 'ADMIN' : String(backendUser.role ?? localUser.role)) as AppUser['role'],
+          rank: (backendUser.rank ?? localUser.rank ?? null) as string | null,
+          tier: (backendUser.tier ?? localUser.tier ?? null) as string | null,
+          region: (backendUser.region ?? localUser.region ?? null) as string | null,
+          state_market: (backendUser.state_market ?? localUser.state_market ?? null) as string | null,
+          division: (backendUser.division ?? localUser.division ?? null) as string | null,
+          territory: (backendUser.territory ?? localUser.territory ?? null) as string | null,
+          subterritory: (backendUser.subterritory ?? localUser.subterritory ?? null) as string | null,
+          sport_focus: (backendUser.sport_focus ?? localUser.sport_focus ?? null) as string | null,
+          assigned_director_id: typeof backendUser.assigned_director_id === 'number' ? backendUser.assigned_director_id : null,
+          reports_to_user_id: typeof backendUser.reports_to_user_id === 'number' ? backendUser.reports_to_user_id : null,
+          mustChangeCredential: Boolean(backendUser.must_change_credential ?? localUser.mustChangeCredential),
+          hrDocsCompleted: Boolean(backendUser.hr_docs_completed ?? localUser.hrDocsCompleted),
+          directorSignedOff: Boolean(backendUser.director_signed_off ?? localUser.directorSignedOff),
+          practicalExerciseCompleted: Boolean(backendUser.practical_exercise_completed ?? localUser.practicalExerciseCompleted),
+          isCertified: Boolean(backendUser.is_certified ?? localUser.isCertified),
+        };
+        (appUser as any).token = result.token;
+        return appUser;
       } catch {
         console.warn('[auth] Backend unreachable, falling back to localStorage');
       }

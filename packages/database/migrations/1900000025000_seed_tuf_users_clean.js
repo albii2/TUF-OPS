@@ -12,6 +12,8 @@ const tufUsers = [
   { email: 'primeau.hill@tufsports.us',  name: 'Primeau Hill',   role: 'DIRECTOR', territory: 'Minnesota', pin: '7288' },
   { email: 'jhoffman@kipsu.com',         name: 'Josh Hoffman',   role: 'REP',      territory: 'Minnesota', pin: '5080' },
   { email: 'lundbergdave18@gmail.com',   name: 'David Lundberg', role: 'REP',      territory: 'Minnesota', pin: '6243' },
+  { email: 'test.director@tufsports.us',  name: 'Test Director',  role: 'DIRECTOR', territory: 'Minnesota', pin: '9999' },
+  { email: 'test.rep@tufsports.us',       name: 'Test Rep',       role: 'REP',      territory: 'Minnesota', pin: '9999' },
 ];
 
 exports.up = async (pgm) => {
