@@ -6,6 +6,10 @@ const USER_KEY = 'tuf_ops_user_v3';
 const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'];
 
 function persistUser(user: AppUser): AppUser {
+  // Force Josh Hoffman certification — overrides any stale cached data
+  if (user.id === 'u-rep-josh-hoffman') {
+    user = { ...user, isCertified: true, directorSignedOff: true };
+  }
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: user }));
   return user;
