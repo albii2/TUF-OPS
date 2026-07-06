@@ -205,7 +205,6 @@ const seedRows: StoredManagedUser[] = [
     state_market: 'MN',
     division: 'General',
     territory: 'Minnesota',
-    assignedRep: '',
     assignedDirectorId: 'u-test-director',
     status: 'ACTIVE',
     avatarColor: COLORS[2],
