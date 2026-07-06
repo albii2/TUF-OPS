@@ -6,7 +6,7 @@ const USER_KEY = 'tuf_ops_user_v3';
 const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'];
 
 function persistUser(user: AppUser): AppUser {
-  // Force Josh Hoffman certification — overrides any stale cached data
+  // FORCE: Josh Hoffman always certified on login — overrides any stale cached data
   if (user.id === 'u-rep-josh-hoffman') {
     user = { ...user, isCertified: true, directorSignedOff: true };
   }
