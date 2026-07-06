@@ -188,6 +188,8 @@ export function OrganizationDetailPage() {
         </div>
       </Card>
 
+      <LighthousePanel organizationId={id!} organizationName={org.name} />
+
       <Card title="Lead Contact Lockbox">
         <div className="grid gap-3 text-sm text-slate-300 md:grid-cols-3">
           <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3">
@@ -317,7 +319,6 @@ export function OrganizationDetailPage() {
           )) : <p className="text-slate-400">No account activity yet.</p>}
         </div>
       </Card>
-      <LighthousePanel organizationId={id!} organizationName={org?.name || 'Unknown'} />
     </div>
   );
 }

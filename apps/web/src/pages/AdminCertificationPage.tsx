@@ -12,6 +12,7 @@ import {
   getCoachReview,
   getQuizResults,
   getMissionStatement,
+  updateUserCertificationStatus,
   type CertificationRecord,
   type CertificationSubmission,
   type ModuleProgress,
@@ -19,6 +20,7 @@ import {
   type CoachReview,
 } from '../lib/academy';
 import type { ManagedUser } from '../services/usersService';
+import { readStoredUsers, saveStoredUsers } from '../services/usersService';
 
 // ─── Coach Review Form Component ──────────────────────────────────────────
 
@@ -183,6 +185,20 @@ export default function AdminCertificationPage() {
     } finally {
       setApproving(null);
     }
+  };
+
+  const forceCertifyRep = (repUser: ManagedUser) => {
+    // Update the current user session
+    updateUserCertificationStatus(repUser.id, true);
+    // Also update the stored users seed data
+    const users = readStoredUsers();
+    const idx = users.findIndex(u => u.id === repUser.id);
+    if (idx >= 0) {
+      users[idx].isCertified = true;
+      users[idx].directorSignedOff = true;
+      saveStoredUsers(users);
+    }
+    refreshData();
   };
 
   const handleSaveCoachReview = (review: CoachReview) => {
@@ -580,18 +596,32 @@ export default function AdminCertificationPage() {
                             <span className="text-xs text-emerald-400 font-bold">
                               Certified ✓
                             </span>
-                          ) : hasSubmission && !isAlreadyCertified ? (
-                            <button
-                              onClick={() => handleApprove(rep)}
-                              disabled={approving === rep.id}
-                              className="rounded-lg border border-purple-400/40 bg-purple-400/10 px-3 py-1.5 text-[10px] font-bold text-purple-200 hover:bg-purple-400/20 hover:border-purple-400/60 transition-colors disabled:opacity-50"
-                            >
-                              {approving === rep.id ? '...' : 'Approve'}
-                            </button>
                           ) : (
-                            <span className="text-[10px] text-slate-600">
-                              {record ? 'Not submitted' : '—'}
-                            </span>
+                            <div className="flex items-center justify-center gap-1.5">
+                              {hasSubmission && !isAlreadyCertified && (
+                                <button
+                                  onClick={() => handleApprove(rep)}
+                                  disabled={approving === rep.id}
+                                  className="rounded-lg border border-purple-400/40 bg-purple-400/10 px-3 py-1.5 text-[10px] font-bold text-purple-200 hover:bg-purple-400/20 hover:border-purple-400/60 transition-colors disabled:opacity-50"
+                                >
+                                  {approving === rep.id ? '...' : 'Approve'}
+                                </button>
+                              )}
+                              {!isAlreadyCertified && isDirectorOrAdmin && (
+                                <button
+                                  onClick={() => forceCertifyRep(rep)}
+                                  title="Bypass quiz requirements and certify immediately."
+                                  className="rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-1.5 text-[10px] font-bold text-amber-200 hover:bg-amber-400/20 hover:border-amber-400/60 transition-colors"
+                                >
+                                  Force Certify
+                                </button>
+                              )}
+                              {!hasSubmission && !isDirectorOrAdmin && (
+                                <span className="text-[10px] text-slate-600">
+                                  {record ? 'Not submitted' : '—'}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </td>
                       </tr>

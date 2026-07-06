@@ -233,11 +233,11 @@ function sanitize(row: StoredManagedUser): ManagedUser {
   };
 }
 
-function saveStoredUsers(rows: StoredManagedUser[]) {
+export function saveStoredUsers(rows: StoredManagedUser[]) {
   localStorage.setItem(KEY, JSON.stringify(rows));
 }
 
-function readStoredUsers(): StoredManagedUser[] {
+export function readStoredUsers(): StoredManagedUser[] {
   LEGACY_USER_KEYS.forEach((key) => localStorage.removeItem(key));
   const raw = localStorage.getItem(KEY);
   if (!raw) {

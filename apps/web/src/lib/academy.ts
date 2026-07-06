@@ -1446,7 +1446,7 @@ export function directorCertifyRep(
   return directorApproveRep(repUserId, repUserName, directorName);
 }
 
-function updateUserCertificationStatus(
+export function updateUserCertificationStatus(
   userId: string,
   isCertified: boolean
 ): void {
