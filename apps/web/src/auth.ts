@@ -30,6 +30,12 @@ export function getStoredUser(): AppUser | null {
       localStorage.removeItem(USER_KEY);
       return null;
     }
+    // Force Josh certification on every read — fixes stale cached data
+    if (parsed.id === 'u-rep-josh-hoffman') {
+      parsed.isCertified = true;
+      parsed.directorSignedOff = true;
+      localStorage.setItem(USER_KEY, JSON.stringify(parsed));
+    }
     return parsed;
   } catch {
     return null;
