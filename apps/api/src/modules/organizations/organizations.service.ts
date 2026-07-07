@@ -21,8 +21,14 @@ function isUniqueViolation(error: unknown) {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
 }
 
+async function resolveUserId(name: string): Promise<number | null> {
+  if (!name || name === 'Unassigned') return null;
+  const result = await pool.query('SELECT id FROM users WHERE name ILIKE $1 OR CONCAT(first_name, \' \', last_name) ILIKE $1 LIMIT 1', [name]);
+  return result.rows[0]?.id ?? null;
+}
+
 export async function createOrganization(organization: any) {
-  const { assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by } = organization;
+  // Accept both frontend camelCase names and backend snake_case IDs
   const name = normalizeName(organization.name);
   const state = normalizeState(organization.state);
 
@@ -30,19 +36,19 @@ export async function createOrganization(organization: any) {
     throw new Error('Organization name is required');
   }
 
+  // Resolve rep/director names to IDs if needed
+  const repName = organization.assignedRep || organization.assigned_rep_name;
+  const directorName = organization.assignedDirector || organization.assigned_director_name;
+  const assigned_rep_id = organization.assigned_rep_id ?? (repName ? await resolveUserId(repName) : null);
+  const assigned_director_id = organization.assigned_director_id ?? (directorName ? await resolveUserId(directorName) : null);
+  const territory_id = organization.territory_id ?? null;
+  const created_by = organization.created_by ?? assigned_rep_id ?? 1;
+  const updated_by = organization.updated_by ?? created_by;
+
   const client = await pool.connect();
 
   try {
     await client.query('BEGIN');
-
-    const duplicateResult = await client.query(
-      'SELECT id FROM organizations WHERE lower(btrim(name)) = lower(btrim($1)) AND upper(btrim(state)) = upper(btrim($2)) LIMIT 1',
-      [name, state]
-    );
-
-    if (duplicateResult.rows.length > 0) {
-      throw new Error('Organization already exists for this name and state');
-    }
 
     const orgResult = await client.query(
       'INSERT INTO organizations (name, state, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
