@@ -4,13 +4,19 @@ import { createOrganization, getOrganizations, getOrganizationById, updateOrgani
 export async function createOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
   console.log('createOrganizationHandler called with body:', request.body);
   try {
-    const organization = await createOrganization(request.body as any);
+    // Inject authenticated user as created_by/updated_by if not provided
+    const body = request.body as any;
+    const actorId = (request as any).currentUser?.id;
+    if (actorId && !body.created_by) body.created_by = actorId;
+    if (actorId && !body.updated_by) body.updated_by = actorId;
+    const organization = await createOrganization(body);
     return reply.code(201).send(organization);
   } catch (error: any) {
     if (error.message?.includes('already exists') || error.message?.includes('required')) {
       return reply.code(409).send({ message: error.message });
     }
-    return reply.code(500).send({ message: 'Error creating organization' });
+    console.error('createOrganization error:', error);
+    return reply.code(500).send({ message: 'Error creating organization', detail: error?.message || String(error), code: error?.code });
   }
 }
 
@@ -39,7 +45,8 @@ export async function updateOrganizationHandler(request: FastifyRequest, reply: 
     if (error.message?.includes('already exists') || error.message?.includes('required')) {
       return reply.code(409).send({ message: error.message });
     }
-    return reply.code(500).send({ message: 'Error updating organization' });
+    console.error('updateOrganization error:', error);
+    return reply.code(500).send({ message: error.message || 'Error updating organization' });
   }
 }
 

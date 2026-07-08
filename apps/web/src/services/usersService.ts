@@ -604,8 +604,10 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
         };
         (appUser as any).token = result.token;
         return appUser;
-      } catch {
-        console.warn('[auth] Backend unreachable, falling back to localStorage');
+      } catch (err: any) {
+        console.error('[auth] Backend login FAILED — token NOT stored. Error:', err?.message || err);
+        console.error('[auth] Check: is Railway reachable? Is AUTH_TOKEN_SECRET set?');
+        // Fall through to localStorage-only path below — API calls will 401
       }
     }
   }

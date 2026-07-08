@@ -1,6 +1,7 @@
 import { pool } from '@packages/database';
 import { OpportunityChannelType } from '../opportunities/opportunities.interface';
 import { STAGES } from '@packages/auth';
+import { resolveUserId } from '../shared/resolve-user';
 
 const REQUIRED_CHANNELS: OpportunityChannelType[] = [
   OpportunityChannelType.UNIFORM,
@@ -21,12 +22,6 @@ function isUniqueViolation(error: unknown) {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
 }
 
-async function resolveUserId(name: string): Promise<number | null> {
-  if (!name || name === 'Unassigned') return null;
-  const result = await pool.query('SELECT id FROM users WHERE name ILIKE $1 OR CONCAT(first_name, \' \', last_name) ILIKE $1 LIMIT 1', [name]);
-  return result.rows[0]?.id ?? null;
-}
-
 export async function createOrganization(organization: any) {
   // Accept both frontend camelCase names and backend snake_case IDs
   const name = normalizeName(organization.name);
@@ -41,9 +36,9 @@ export async function createOrganization(organization: any) {
   const directorName = organization.assignedDirector || organization.assigned_director_name;
   const assigned_rep_id = organization.assigned_rep_id ?? (repName ? await resolveUserId(repName) : null);
   const assigned_director_id = organization.assigned_director_id ?? (directorName ? await resolveUserId(directorName) : null);
-  const territory_id = organization.territory_id ?? null;
-  const created_by = organization.created_by ?? assigned_rep_id ?? 1;
-  const updated_by = organization.updated_by ?? created_by;
+  const territory_id = organization.territory_id ?? organization.territoryId ?? null;
+  const created_by = organization.created_by ?? organization.createdBy ?? assigned_rep_id ?? 1;
+  const updated_by = organization.updated_by ?? organization.updatedBy ?? created_by;
 
   const client = await pool.connect();
 
@@ -98,6 +93,7 @@ export async function createOrganization(organization: any) {
     return createdOrganization;
   } catch (error) {
     await client.query('ROLLBACK');
+    console.error('createOrganization DB error:', error, 'Stack:', (error as any)?.stack);
     if (isUniqueViolation(error)) {
       throw new Error('Organization already exists for this name and state');
     }
@@ -120,11 +116,19 @@ export async function getOrganizationById(id: string) {
 export async function updateOrganization(id: string, organization: any) {
   const name = normalizeName(organization.name);
   const state = normalizeState(organization.state);
-  const { assigned_rep_id, assigned_director_id, territory_id, updated_by } = organization;
 
   if (!name) {
     throw new Error('Organization name is required');
   }
+
+  // Resolve rep/director names to IDs — frontend sends camelCase names,
+  // backend expects snake_case numeric IDs
+  const repName = organization.assignedRep || organization.assigned_rep_name;
+  const directorName = organization.assignedDirector || organization.assigned_director_name;
+  const assigned_rep_id = organization.assigned_rep_id ?? (repName ? await resolveUserId(repName) : null);
+  const assigned_director_id = organization.assigned_director_id ?? (directorName ? await resolveUserId(directorName) : null);
+  const territory_id = organization.territory_id ?? organization.territoryId ?? null;
+  const updated_by = organization.updated_by ?? organization.updatedBy ?? assigned_rep_id ?? 1;
 
   try {
     const result = await pool.query(
