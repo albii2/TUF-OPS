@@ -43,53 +43,38 @@ export async function createOrganization(organization: any) {
   const client = await pool.connect();
 
   try {
+    // Insert organization immediately — don't wait for auto-opportunities
     await client.query('BEGIN');
-
     const orgResult = await client.query(
       'INSERT INTO organizations (name, state, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [name, state, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by]
     );
-
     const createdOrganization = orgResult.rows[0];
-
-    for (const channelType of REQUIRED_CHANNELS) {
-      await client.query(
-        `
-        INSERT INTO opportunities (
-          name,
-          organization_id,
-          sport,
-          season,
-          year,
-          status,
-          value,
-          created_by,
-          updated_by,
-          stage,
-          last_activity_date,
-          assigned_rep_id,
-          assigned_director_id,
-          deal_type,
-          channel_type
-        ) VALUES ($1, $2, 'FOOTBALL', 'FALL', 2026, $3, $4, $5, $6, $7, current_timestamp, $8, $9, $10, $11)
-        `,
-        [
-          `${name} - ${channelType}`,
-          createdOrganization.id,
-          'open',
-          0.00,
-          created_by,
-          updated_by,
-          STAGES.LEAD,
-          assigned_rep_id,
-          assigned_director_id,
-          channelType,
-          channelType,
-        ]
-      );
-    }
-
     await client.query('COMMIT');
+
+    // Fire-and-forget: create auto-opportunities in the background
+    // Don't block the response — org is saved, opps will populate async
+    const oppCreatedBy = created_by;
+    const oppUpdatedBy = updated_by;
+    const oppRepId = assigned_rep_id;
+    const oppDirId = assigned_director_id;
+    const oppOrgId = createdOrganization.id;
+    const oppName = name;
+    
+    setImmediate(async () => {
+      try {
+        for (const channelType of REQUIRED_CHANNELS) {
+          await pool.query(
+            `INSERT INTO opportunities (name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, last_activity_date, assigned_rep_id, assigned_director_id, deal_type, channel_type)
+             VALUES ($1, $2, 'FOOTBALL', 'FALL', 2026, $3, $4, $5, $6, $7, current_timestamp, $8, $9, $10, $11)`,
+            [`${oppName} - ${channelType}`, oppOrgId, 'open', 0.00, oppCreatedBy, oppUpdatedBy, STAGES.LEAD, oppRepId, oppDirId, channelType, channelType]
+          );
+        }
+      } catch (oppError) {
+        console.error('createOrganization: auto-opportunity creation failed:', oppError);
+      }
+    });
+
     return createdOrganization;
   } catch (error) {
     await client.query('ROLLBACK');
