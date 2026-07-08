@@ -45,6 +45,10 @@ export async function apiClient<T>(path: string, config: ApiRequestConfig = {}):
           console.warn(`[apiClient] Auth required for ${path}`);
           throw new Error('Authentication required');
         }
+        // 409 = Conflict (duplicate) — not retryable, don't flood the backend
+        if (response.status === 409) {
+          throw new Error(`Conflict: ${response.status}`);
+        }
         throw new Error(`API request failed: ${response.status}`);
       }
 
