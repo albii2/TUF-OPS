@@ -7,6 +7,7 @@ export async function createOrganizationHandler(request: FastifyRequest, reply: 
     // Inject authenticated user as created_by/updated_by if not provided
     const body = request.body as any;
     const actorId = (request as any).currentUser?.id;
+    console.log('createOrganizationHandler actorId:', actorId, 'hasUser:', !!(request as any).currentUser);
     if (actorId && !body.created_by) body.created_by = actorId;
     if (actorId && !body.updated_by) body.updated_by = actorId;
     const organization = await createOrganization(body);

@@ -394,6 +394,8 @@ export async function createOrganizationAsync(input: {
         assignedDirector,
         territory: input.territory || 'metro',
         priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
+        created_by: user ? Number(user.id) : undefined,
+        updated_by: user ? Number(user.id) : undefined,
       },
     });
   }

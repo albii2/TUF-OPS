@@ -244,7 +244,15 @@ export async function createOpportunityAsync(input: {
   organizationAssignedDirector?: string;
 }): Promise<Opportunity> {
   if (DATA_MODE === 'api') {
-    return apiClient<Opportunity>('/opportunities', { method: 'POST', body: input });
+    const user = getStoredUser();
+    return apiClient<Opportunity>('/opportunities', {
+      method: 'POST',
+      body: {
+        ...input,
+        created_by: user ? Number(user.id) : undefined,
+        updated_by: user ? Number(user.id) : undefined,
+      },
+    });
   }
   const { createMockOpportunity } = await import('./opportunitiesService');
   return createMockOpportunity(input);
