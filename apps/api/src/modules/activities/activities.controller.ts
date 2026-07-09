@@ -3,11 +3,30 @@ import { createActivity, getActivitiesByOpportunity, getActivitiesByOrganization
 import { ActivityType } from './activities.interface';
 
 export async function createActivityHandler(request: FastifyRequest, reply: FastifyReply) {
-  const { type, organization_id, opportunity_id, description, created_by, due_date, completed } = request.body as any;
+  const body = request.body as any;
+
+  // Accept both camelCase (frontend) and snake_case (backend) field names
+  const type = body.type || body.activity_type;
+  const organization_id = body.organization_id ?? body.organizationId;
+  const opportunity_id = body.opportunity_id ?? body.opportunityId;
+  const description = body.description || body.notes;
+  const created_by = body.created_by ?? body.createdBy;
+  const due_date = body.due_date ?? body.dueDate;
+  const completed = body.completed;
+
   if (!Object.values(ActivityType).includes(type)) {
     return reply.code(400).send({ message: 'Invalid activity type' });
   }
-  const activity = await createActivity({ type, organization_id, opportunity_id, description, created_by, due_date, completed });
+
+  const activity = await createActivity({
+    type,
+    organization_id,
+    opportunity_id,
+    description,
+    created_by,
+    due_date,
+    completed,
+  });
   return reply.code(201).send(activity);
 }
 
