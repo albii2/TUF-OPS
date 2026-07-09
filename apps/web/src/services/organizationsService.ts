@@ -382,6 +382,7 @@ export async function createOrganizationAsync(input: {
 }): Promise<Organization> {
   if (DATA_MODE === 'api') {
     const user = getStoredUser();
+    const numericUserId = user?.id && /^\d+$/.test(user.id) ? Number(user.id) : undefined;
     const assignedRep = user?.role === 'REP' ? user.name : input.assignedRep || 'Unassigned';
     const assignedDirector = user?.role === 'DIRECTOR' ? user.name : input.assignedDirector || 'Unassigned';
     return apiClient<Organization>('/organizations', {
@@ -394,8 +395,8 @@ export async function createOrganizationAsync(input: {
         assignedDirector,
         territory: input.territory || 'metro',
         priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
-        created_by: user ? Number(user.id) : undefined,
-        updated_by: user ? Number(user.id) : undefined,
+        created_by: numericUserId,
+        updated_by: numericUserId,
       },
     });
   }

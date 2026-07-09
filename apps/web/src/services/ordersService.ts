@@ -245,12 +245,13 @@ export async function createOpportunityAsync(input: {
 }): Promise<Opportunity> {
   if (DATA_MODE === 'api') {
     const user = getStoredUser();
+    const numericUserId = user?.id && /^\d+$/.test(user.id) ? Number(user.id) : undefined;
     return apiClient<Opportunity>('/opportunities', {
       method: 'POST',
       body: {
         ...input,
-        created_by: user ? Number(user.id) : undefined,
-        updated_by: user ? Number(user.id) : undefined,
+        created_by: numericUserId,
+        updated_by: numericUserId,
       },
     });
   }

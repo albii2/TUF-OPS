@@ -607,7 +607,10 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
       } catch (err: any) {
         console.error('[auth] Backend login FAILED — token NOT stored. Error:', err?.message || err);
         console.error('[auth] Check: is Railway reachable? Is AUTH_TOKEN_SECRET set?');
-        // Fall through to localStorage-only path below — API calls will 401
+        // DO NOT fall through to localStorage-only path — returning a user without
+        // a token leads to 401 on every API call (org create, opp create, etc.)
+        // and a NaN user ID that causes 500s. Fail loudly so the user sees the problem.
+        return null;
       }
     }
   }
