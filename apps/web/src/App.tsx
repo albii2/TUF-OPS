@@ -30,6 +30,7 @@ import {
 } from './pages/CrudPages';
 import AcademyPage from './pages/AcademyPage';
 import AdminCertificationPage from './pages/AdminCertificationPage';
+import DailyActivityCommand from './pages/DailyActivityCommand';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
 
@@ -137,6 +138,7 @@ export default function App() {
         <Route path="/territory/static" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected></CertificationProtected>} />
         <Route path="/settings" element={<CertificationProtected user={user} path="/settings"><PageProtected user={user} path="/settings"><SettingsPage /></PageProtected></CertificationProtected>} />
         <Route path="/users" element={<CertificationProtected user={user} path="/users"><PageProtected user={user} path="/users"><UsersPage /></PageProtected></CertificationProtected>} />
+        <Route path="/daily-command" element={<CertificationProtected user={user} path="/daily-command"><PageProtected user={user} path="/daily-command"><DailyActivityCommand /></PageProtected></CertificationProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

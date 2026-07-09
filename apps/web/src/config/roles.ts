@@ -23,31 +23,32 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   academy: { label: 'TUF Academy', route: '/academy' },
   certification_review: { label: 'Certifications', route: '/admin/certification' },
   documents: { label: 'Documents', route: '/documents' },
+  daily_command: { label: 'Daily Command', route: '/daily-command' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings'],
+    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings', 'daily_command'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy', '/admin/certification', '/documents'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/daily-command'],
   },
   REGIONAL_DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy', 'daily_command'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification', '/daily-command'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'invoices', 'messages', 'programs', 'academy', 'settings', 'certification_review', 'documents'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'invoices', 'messages', 'programs', 'academy', 'settings', 'certification_review', 'documents', 'daily_command'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification', '/orders', '/settings', '/documents'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification', '/orders', '/settings', '/documents', '/daily-command'],
   },
   REP: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy', 'territory', 'settings'],
+    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy', 'territory', 'settings', 'daily_command'],
     dashboardWidgets: ['Deals Need Action', 'Near Close', 'Payments Pending', 'This Month Progress'],
     primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/academy', '/territory', '/settings'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/orders', '/my-opportunities', '/earnings', '/academy', '/territory', '/settings', '/daily-command'],
   },
 };
