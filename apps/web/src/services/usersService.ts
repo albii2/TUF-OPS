@@ -539,21 +539,18 @@ async function recordSuccessfulLogin(user: StoredManagedUser, users: StoredManag
 }
 
 export async function authenticateWithPin(pin: string): Promise<AppUser | null> {
-  // In API mode, try backend login for a token; fall back to localStorage
+  // In API mode, try the backend with every known user email.
+  // No localStorage hash dependency — the backend is the source of truth.
   if (DATA_MODE === 'api') {
-    const users = readStoredUsers();
-    let localUser: StoredManagedUser | null = null;
-    for (const u of users.filter((u) => u.status === 'ACTIVE')) {
-      const hash = await digest(`${u.credentialSalt}:${pin}`);
-      if (hash === u.credentialHash) { localUser = u; break; }
-    }
-    if (localUser) {
+    const users = readStoredUsers().filter((u) => u.status === 'ACTIVE');
+    
+    // Try each known email against the backend
+    for (const localUser of users) {
       try {
         const result = await apiClient<{ user: Record<string, unknown>; token: string }>('/auth/login', {
           method: 'POST',
           body: { email: localUser.email, credential: pin },
         });
-        // Transform backend SafeUser (numeric id, snake_case) to frontend AppUser (string id, camelCase)
         const backendUser = result.user;
         const appUser: AppUser = {
           id: String(backendUser.id),
@@ -579,14 +576,14 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
         (appUser as any).token = result.token;
         return appUser;
       } catch (err: any) {
-        console.error('[auth] Backend login FAILED — token NOT stored. Error:', err?.message || err);
-        console.error('[auth] Check: is Railway reachable? Is AUTH_TOKEN_SECRET set?');
-        // DO NOT fall through to localStorage-only path — returning a user without
-        // a token leads to 401 on every API call (org create, opp create, etc.)
-        // and a NaN user ID that causes 500s. Fail loudly so the user sees the problem.
-        return null;
+        // This email didn't match — try the next one
+        continue;
       }
     }
+    
+    // No backend match — auth failed
+    console.error('[auth] Backend login FAILED for all known users with this PIN.');
+    return null;
   }
   // v25000 — build marker: API auth active
   console.log('[auth] TUF Ops v25000 — API mode:', DATA_MODE);
