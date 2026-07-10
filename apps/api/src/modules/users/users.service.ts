@@ -91,7 +91,7 @@ async function audit(action: CredentialAuditAction, targetUserId: number | null,
 }
 
 export async function getSafeUserById(id: number): Promise<SafeUser | null> {
-  const result = await pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed, created_at, updated_at FROM users WHERE id = $1', [id]);
+  const result = await pool.query('SELECT id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed, last_login_at, COALESCE(login_count, 0) as login_count, created_at, updated_at FROM users WHERE id = $1', [id]);
   return result.rows[0] ? sanitizeUser(result.rows[0]) : null;
 }
 
