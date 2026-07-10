@@ -136,7 +136,6 @@ server.register(reportingRoutes, { prefix: '/api/v1/reporting' });
 server.register(productionRequestRoutes, { prefix: '/api/v1/production-requests' });
 server.register(orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creativeRequestRoutes, { prefix: '/api/v1' });
-server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(trainingRoutes, { prefix: '/api/v1/training' });
 server.register(announcementRoutes, { prefix: '/api/v1' });
 server.register(dailyActivityRoutes, { prefix: '/api/daily-activities' });
