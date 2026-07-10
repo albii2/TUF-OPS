@@ -1,37 +1,18 @@
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo } from 'react';
 import {
   getOrganizationById,
   listAccountsNeedingAction,
   listOrganizations,
   listStaleAccounts,
   listUntouchedAccounts,
-  listOrganizationsAsync,
   type OrganizationListParams,
 } from '../services/organizationsService';
-import { DATA_MODE } from '../services/dataMode';
 
 export function useOrganizations(params: OrganizationListParams) {
-  const [apiOrgs, setApiOrgs] = useState<any[]>([]);
-
-  const refreshKey = params.refreshKey ?? 0;
-
-  useEffect(() => {
-    if (DATA_MODE === 'api') {
-      let cancelled = false;
-      listOrganizationsAsync(params).then((orgs) => {
-        if (!cancelled) setApiOrgs(orgs);
-      });
-      return () => { cancelled = true; };
-    }
-  }, [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority, refreshKey]);
-
-  // In mock mode, use sync localStorage
-  const mockOrgs = useMemo(
+  return useMemo(
     () => listOrganizations(params),
-    [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority, refreshKey],
+    [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority, params.refreshKey],
   );
-
-  return DATA_MODE === 'api' ? apiOrgs : mockOrgs;
 }
 
 export function useOrganizationById(id?: string) {
