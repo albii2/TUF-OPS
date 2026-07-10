@@ -31,6 +31,8 @@ import {
 import AcademyPage from './pages/AcademyPage';
 import AdminCertificationPage from './pages/AdminCertificationPage';
 import DailyActivityCommand from './pages/DailyActivityCommand';
+import RecruitingPage from './pages/RecruitingPage';
+import CandidateDetailPage from './pages/CandidateDetailPage';
 import type { AppUser, Role } from './types';
 import { roleConfig } from './config/roles';
 
@@ -139,6 +141,8 @@ export default function App() {
         <Route path="/settings" element={<CertificationProtected user={user} path="/settings"><PageProtected user={user} path="/settings"><SettingsPage /></PageProtected></CertificationProtected>} />
         <Route path="/users" element={<CertificationProtected user={user} path="/users"><PageProtected user={user} path="/users"><UsersPage /></PageProtected></CertificationProtected>} />
         <Route path="/daily-command" element={<CertificationProtected user={user} path="/daily-command"><PageProtected user={user} path="/daily-command"><DailyActivityCommand /></PageProtected></CertificationProtected>} />
+        <Route path="/recruiting" element={<CertificationProtected user={user} path="/recruiting"><PageProtected user={user} path="/recruiting"><RecruitingPage /></PageProtected></CertificationProtected>} />
+        <Route path="/recruiting/:id" element={<CertificationProtected user={user} path="/recruiting"><PageProtected user={user} path="/recruiting"><CandidateDetailPage /></PageProtected></CertificationProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

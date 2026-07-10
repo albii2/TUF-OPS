@@ -24,14 +24,15 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   certification_review: { label: 'Certifications', route: '/admin/certification' },
   documents: { label: 'Documents', route: '/documents' },
   daily_command: { label: 'Daily Command', route: '/daily-command' },
+  recruiting: { label: 'Recruiting', route: '/recruiting' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings', 'daily_command'],
+    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings', 'daily_command', 'recruiting'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/daily-command'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/daily-command', '/recruiting'],
   },
   REGIONAL_DIRECTOR: {
     sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy', 'daily_command'],
@@ -40,10 +41,10 @@ export const roleConfig: Record<Role, RoleConfig> = {
     visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification', '/daily-command'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'invoices', 'messages', 'programs', 'academy', 'settings', 'certification_review', 'documents', 'daily_command'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'invoices', 'messages', 'programs', 'academy', 'settings', 'certification_review', 'documents', 'daily_command', 'recruiting'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification', '/orders', '/settings', '/documents', '/daily-command'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy', '/admin/certification', '/orders', '/settings', '/documents', '/daily-command', '/recruiting'],
   },
   REP: {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy', 'territory', 'settings', 'daily_command'],

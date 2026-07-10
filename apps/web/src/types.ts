@@ -16,7 +16,8 @@ export type SidebarKey =
   | 'academy'
   | 'certification_review'
   | 'documents'
-  | 'daily_command';
+  | 'daily_command'
+  | 'recruiting';
 
 export type AppUser = {
   id: string;
