@@ -133,7 +133,7 @@ const seedRows: StoredManagedUser[] = [
     directorSignedOff: true,
     isCertified: true,
     credentialSalt: 'seed-william',
-    credentialHash: 'PLACEHOLDER',
+    credentialHash: '45ca9a4271c2013756dfedfa037e693eabb407b83fa8fb7a2a619d17ecdf2a5b',
   },
   {
     id: 'u-rep-david-lundberg',
