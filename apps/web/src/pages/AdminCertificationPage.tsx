@@ -20,7 +20,8 @@ import {
   type CoachReview,
 } from '../lib/academy';
 import type { ManagedUser } from '../services/usersService';
-import { readStoredUsers, saveStoredUsers } from '../services/usersService';
+// Note: readStoredUsers/saveStoredUsers removed — localStorage mock mode is killed.
+// Admin certification now operates via API-backed listUsers().
 
 // ─── Coach Review Form Component ──────────────────────────────────────────
 

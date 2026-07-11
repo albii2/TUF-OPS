@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { apiClient } from '../services/apiClient';
 import { getStoredUser } from '../auth';
-import { DATA_MODE } from '../services/dataMode';
 
 export interface DailyActivityEntry {
   id: number;
@@ -42,7 +41,6 @@ export function useDailyActivities() {
   const [saving, setSaving] = useState(false);
 
   const fetchToday = useCallback(async () => {
-    if (DATA_MODE !== 'api') return;
     setLoading(true);
     try {
       const data = await apiClient<{ activities: DailyActivityEntry[]; date: string }>('/daily-activities/today');
@@ -55,7 +53,6 @@ export function useDailyActivities() {
   }, []);
 
   const saveActivity = useCallback(async (input: DailyActivityInput) => {
-    if (DATA_MODE !== 'api') return null;
     setSaving(true);
     try {
       const result = await apiClient<DailyActivityEntry>('/daily-activities', {

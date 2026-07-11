@@ -8,13 +8,11 @@ import { useOrganizationById } from '../hooks/useOrganizations';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useActivities } from '../hooks/useReports';
-import { createMockOpportunity, getRevenueLanes } from '../services/opportunitiesService';
-import { createOpportunityAsync } from '../services/ordersService';
-import { updateOrganization, updateOrganizationAsync } from '../services/organizationsService';
+import { createOpportunity, getRevenueLanes } from '../services/opportunitiesService';
+import { updateOrganization } from '../services/organizationsService';
 import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionStatuses, type ReferredOrganizationType, type WarmIntroductionStatus } from '../services/ecosystemReferralsService';
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
-import { createActivity, createActivityAsync } from '../services/activitiesService';
-import { DATA_MODE } from '../services/dataMode';
+import { createActivity } from '../services/activitiesService';
 import type { RevenueLane } from '@tuf/shared';
 
 export function OrganizationDetailPage() {
@@ -75,45 +73,25 @@ export function OrganizationDetailPage() {
     if (existingActiveLaneOpportunity) {
       setLaneMessage(`${lane.replace(/_/g, ' ')} already has an active opportunity: ${existingActiveLaneOpportunity.title}. Open it below and advance the next step.`);
       const activityMsg = `Reviewed ${lane.replace(/_/g, ' ')} lane; active opportunity already exists.`;
-      if (DATA_MODE === 'api') {
-        createActivityAsync({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
-      } else {
-        createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg });
-      }
+      createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
       return;
     }
 
     const laneData = org.laneStatuses[lane];
-    const createdOpportunity = DATA_MODE === 'api'
-      ? await createOpportunityAsync({
-          organizationId: id,
-          organizationName: org.name,
-          programLevel: 'Varsity',
-          sport: activeSports[0] ?? 'Football',
-          seasonCode: String(new Date().getFullYear()),
-          lane,
-          assignedRep: org.assignedRep,
-          value: laneData.estimatedValue || 5000,
-          organizationAssignedDirector: org.assignedDirector,
-        })
-      : createMockOpportunity({
-          organizationId: id,
-          organizationName: org.name,
-          programLevel: 'Varsity',
-          sport: activeSports[0] ?? 'Football',
-          seasonCode: String(new Date().getFullYear()),
-          lane,
-          assignedRep: org.assignedRep,
-          value: laneData.estimatedValue || 5000,
-          organizationAssignedDirector: org.assignedDirector,
-        });
+    const createdOpportunity = await createOpportunity({
+      organizationId: id,
+      organizationName: org.name,
+      programLevel: 'Varsity',
+      sport: activeSports[0] ?? 'Football',
+      seasonCode: String(new Date().getFullYear()),
+      lane,
+      assignedRep: org.assignedRep,
+      value: laneData.estimatedValue || 5000,
+      organizationAssignedDirector: org.assignedDirector,
+    });
 
     const activityMsg = `Created ${lane.replace(/_/g, ' ')} lane opportunity: ${createdOpportunity.title}.`;
-    if (DATA_MODE === 'api') {
-      createActivityAsync({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
-    } else {
-      createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg });
-    }
+    createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
     setLaneMessage(`${lane.replace(/_/g, ' ')} opportunity created. Open ${createdOpportunity.title} below to contact the coach and start Discovery.`);
   };
 
@@ -168,11 +146,7 @@ export function OrganizationDetailPage() {
                   value={org.assignedRep}
                   onChange={(e) => {
                     const patch = { assignedRep: e.target.value };
-                    if (DATA_MODE === 'api') {
-                      updateOrganizationAsync(org.id, patch).catch(console.error);
-                    } else {
-                      updateOrganization(org.id, patch);
-                    }
+                    updateOrganization(org.id, patch).catch(console.error);
                     window.dispatchEvent(new Event('tuf:org-updated'));
                   }}
                 >

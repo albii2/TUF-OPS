@@ -10,13 +10,11 @@ import { neededItemOptions, type CreativePriority, type CreativeRequestType, typ
 import { SPORT_OPTIONS, REVENUE_LANES } from '../config/business';
 import { getLaneLabel } from '../utils/naming';
 import { deleteOpportunity, logOpportunityActivity, addOpportunityLane, removeOpportunityLane, updateOpportunityStage } from '../services/opportunitiesService';
-import { updateOpportunityAsync } from '../services/ordersService';
-import { DATA_MODE } from '../services/dataMode';
 import type { Opportunity, OpportunityStage, RevenueLane } from '../data/mockSalesData';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
 import { notify } from '../services/feedbackService';
-import { createMockOrderFromOpportunity, createOrderAsync, getAnyOrderByOpportunityId } from '../services/ordersService';
+import { createOrder, getAnyOrderByOpportunityId } from '../services/ordersService';
 
 const stageCtas = {
   LEAD_ENGAGED: 'Mark as Contacted',
@@ -108,17 +106,11 @@ export function OpportunityDetailPage() {
   const setStage = async (stage: OpportunityStage, message: string) => {
     try {
       let updated: Opportunity | undefined;
-      if (DATA_MODE === 'api') {
-        updated = await updateOpportunityAsync(activeOpp.id, { stage });
-      } else {
-        updated = updateOpportunityStage(activeOpp.id, stage);
-      }
+      updated = await updateOpportunityStage(activeOpp.id, stage);
       if (!updated) throw new Error('Opportunity not found.');
       let finalMessage = message;
       if (stage === 'CLOSED_WON') {
-        const order = DATA_MODE === 'api'
-          ? await createOrderAsync(updated)
-          : createMockOrderFromOpportunity(updated);
+        const order = await createOrder(updated);
         finalMessage = `${message} Order handoff ${order.id} is ready for Ops review.`;
       }
       setLocalOpp(updated);

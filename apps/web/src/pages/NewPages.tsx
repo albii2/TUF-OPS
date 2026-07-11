@@ -4,10 +4,8 @@ import { getStoredUser } from '../auth';
 import { Button, Card, Input, Select } from '../components/primitives';
 import { ACCOUNT_TYPES, CLUB_PROGRAM_LEVELS, REVENUE_LANES, SCHOOL_PROGRAM_LEVELS, SEASON_CODES, SPORT_OPTIONS, YOUTH_PROGRAM_LEVELS } from '../config/business';
 import { buildOpportunityDisplayName, normalizeAccountName } from '../utils/naming';
-import { createMockOrganization, createOrganizationAsync } from '../services/organizationsService';
-import { DATA_MODE } from '../services/dataMode';
-import { createMockOpportunity } from '../services/opportunitiesService';
-import { createOpportunityAsync } from '../services/ordersService';
+import { createOrganization } from '../services/organizationsService';
+import { createOpportunity } from '../services/opportunitiesService';
 import { useOrganizations } from '../hooks/useOrganizations';
 import type { TerritoryId } from '../data/mockSalesData';
 import { useToast } from '../components/toast';
@@ -36,9 +34,7 @@ export function OrganizationNewPage() {
       return;
     }
     try {
-      const created = DATA_MODE === 'api'
-        ? await createOrganizationAsync({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' })
-        : createMockOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
+      const created = await createOrganization({ name: normalizeAccountName(name), accountType, city, state, territory: territory as TerritoryId, assignedRep: assignedRep || 'Unassigned Rep', assignedDirector: assignedDirector || 'Unassigned' });
       success('Organization saved ✓');
       navigate(`/organizations/${created.id}`);
     } catch (err) {
@@ -47,7 +43,7 @@ export function OrganizationNewPage() {
     }
   };
 
-  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><div><label className="text-xs text-slate-400">Account Name <span className="text-rose-300">*</span></label><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /></div><div><label className="text-xs text-slate-400">Account Type <span className="text-rose-300">*</span></label><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select></div><div><label className="text-xs text-slate-400">City <span className="text-slate-500">(Optional)</span></label><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /></div><div><label className="text-xs text-slate-400">State <span className="text-slate-500">(Optional)</span></label><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /></div><div><label className="text-xs text-slate-400">Metro <span className="text-rose-300">*</span></label><p className="text-[11px] text-slate-500">Select the sales region.</p><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId | '')}><option value="">—</option><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select></div><div><label className="text-xs text-slate-400">Assigned Rep <span className="text-slate-500">(Optional)</span></label><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /></div><div><label className="text-xs text-slate-400">Assigned Director <span className="text-slate-500">(Optional)</span></label><Select value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)}><option value="">Unassigned</option>{directors.map((director)=><option key={director.id} value={director.displayName}>{director.displayName}</option>)}</Select></div><Button type="submit" className="md:col-span-2">Save Organization</Button></form></Card>;
+  return <Card title="New Organization"><form onSubmit={onSubmit} className="grid gap-2 md:grid-cols-2"><div><label className="text-xs text-slate-400">Account Name <span className="text-rose-300">*</span></label><Input value={name} onChange={(e)=>setName(e.target.value)} onBlur={()=>setName(normalizeAccountName(name))} placeholder="Account Name" /></div><div><label className="text-xs text-slate-400">Account Type <span className="text-rose-300">*</span></label><Select value={accountType} onChange={(e)=>setAccountType(e.target.value)}>{ACCOUNT_TYPES.map((t)=><option key={t}>{t}</option>)}</Select></div><div><label className="text-xs text-slate-400">City <span className="text-slate-500">(Optional)</span></label><Input value={city} onChange={(e)=>setCity(e.target.value)} placeholder="City" /></div><div><label className="text-xs text-slate-400">State <span className="text-slate-500">(Optional)</span></label><Input value={state} onChange={(e)=>setState(e.target.value.toUpperCase().slice(0, 2))} placeholder="State" /></div><div><label className="text-xs text-slate-400">Metro <span className="text-rose-300">*</span></label><p className="text-[11px] text-slate-500">Select the sales region.</p><Select value={territory} onChange={(e)=>setTerritory(e.target.value as TerritoryId | '')}><option value="">—</option><option value="metro">Metro</option><option value="north">North</option><option value="west">West</option><option value="south">South</option></Select></div><div><label className="text-xs text-slate-400">Assigned Rep <span className="text-slate-500">(Optional)</span></label><Input value={assignedRep} onChange={(e)=>setAssignedRep(e.target.value)} placeholder="Assigned Rep" /></div><div><label className="text-xs text-slate-400">Assigned Director <span className="text-slate-500">(Optional)</span></label><Select value={assignedDirector} onChange={(e)=>setAssignedDirector(e.target.value)}><option value="">Unassigned</option>{directors.map((director)=><option key={director.id} value={director.displayName}>{director.displayName}</option>)}</Select></div><Button type="submit" className="md:col-span-2">Create Organization</Button></form></Card>;
 }
 
 export function OpportunityNewPage() {
@@ -89,25 +85,15 @@ export function OpportunityNewPage() {
         resolvedOrg = existing;
       } else {
         // Auto-create the org
-        const newOrg = DATA_MODE === 'api'
-          ? await createOrganizationAsync({
-              name: normalizedName,
-              accountType: 'School',
-              city: '',
-              state: 'MN',
-              territory: 'metro',
-              assignedRep: assignedRep || user?.name || 'Unassigned',
-              assignedDirector: 'Unassigned',
-            })
-          : createMockOrganization({
-              name: normalizedName,
-              accountType: 'School',
-              city: '',
-              state: 'MN',
-              territory: 'metro',
-              assignedRep: assignedRep || user?.name || 'Unassigned',
-              assignedDirector: 'Unassigned',
-            });
+        const newOrg = await createOrganization({
+          name: normalizedName,
+          accountType: 'School',
+          city: '',
+          state: 'MN',
+          territory: 'metro',
+          assignedRep: assignedRep || user?.name || 'Unassigned',
+          assignedDirector: 'Unassigned',
+        });
         resolvedOrg = newOrg;
       }
     }
@@ -130,29 +116,17 @@ export function OpportunityNewPage() {
       return;
     }
     try {
-      const created = DATA_MODE === 'api'
-        ? await createOpportunityAsync({
-            organizationId: resolvedOrg.id,
-            organizationName: resolvedOrg.name,
-            programLevel,
-            sport,
-            seasonCode,
-            lane,
-            assignedRep: assignedRep || resolvedOrg.assignedRep,
-            organizationAssignedDirector: resolvedOrg.assignedDirector,
-            value: Number(value) || 0,
-          })
-        : createMockOpportunity({
-            organizationId: resolvedOrg.id,
-            organizationName: resolvedOrg.name,
-            programLevel,
-            sport,
-            seasonCode,
-            lane,
-            assignedRep: assignedRep || resolvedOrg.assignedRep,
-            organizationAssignedDirector: resolvedOrg.assignedDirector,
-            value: Number(value) || 0,
-          });
+      const created = await createOpportunity({
+        organizationId: resolvedOrg.id,
+        organizationName: resolvedOrg.name,
+        programLevel,
+        sport,
+        seasonCode,
+        lane,
+        assignedRep: assignedRep || resolvedOrg.assignedRep,
+        value: Number(value) || 0,
+        organizationAssignedDirector: resolvedOrg.assignedDirector,
+      });
       success('Opportunity created.');
       navigate(`/opportunities/${created.id}`);
     } catch (err) {

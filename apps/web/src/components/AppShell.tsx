@@ -5,14 +5,10 @@ import type { AppUser, Role } from '../types';
 import { logout, updateRole } from '../auth';
 import { TufLogo } from './ui';
 import { listOpportunities } from '../services/opportunitiesService';
-import { listOpportunitiesAsync } from '../services/opportunitiesService';
 import { listOrders } from '../services/ordersService';
-import { listOrdersAsync } from '../services/ordersService';
 import { listOrganizations } from '../services/organizationsService';
-import { listOrganizationsAsync } from '../services/organizationsService';
 import { SportsTicker } from './SportsTicker';
 import { listUsers } from '../services/usersService';
-import { DATA_MODE } from '../services/dataMode';
 import TufMarkSvg from '../assets/tuf-mark.svg';
 import TufAcademyLogo from '../assets/tuf-academy.png';
 
@@ -26,7 +22,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
     const term = search.trim().toLowerCase();
     if (!term) return;
 
-    const orgs = DATA_MODE === 'api' ? await listOrganizationsAsync({}) : listOrganizations({});
+    const orgs = await listOrganizations({});
     const org = orgs.find((row) => [row.name, row.city, row.state, row.assignedRep, row.assignedDirector].join(' ').toLowerCase().includes(term));
     if (org) {
       setSearchMessage('');
@@ -34,7 +30,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
       return;
     }
 
-    const opps = DATA_MODE === 'api' ? await listOpportunitiesAsync({}) : listOpportunities({});
+    const opps = await listOpportunities({});
     const opportunity = opps.find((row) => [row.title, row.organizationName, row.assignedRep, row.sport, row.season].join(' ').toLowerCase().includes(term));
     if (opportunity) {
       setSearchMessage('');
@@ -42,7 +38,7 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
       return;
     }
 
-    const orders = DATA_MODE === 'api' ? await listOrdersAsync({}) : listOrders({});
+    const orders = await listOrders({});
     const order = orders.find((row) => [row.id, row.organizationName, row.vendor, row.productionStatus].join(' ').toLowerCase().includes(term));
     if (order) {
       setSearchMessage('');

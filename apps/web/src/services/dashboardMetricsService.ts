@@ -1,5 +1,4 @@
 import { apiClient } from './apiClient';
-import { DATA_MODE } from './dataMode';
 import type { Role } from '../types';
 
 export type DashboardMetrics = {
@@ -54,7 +53,6 @@ function numericId(id?: string) {
 }
 
 export async function fetchDashboardMetrics(role: Role, userId?: string, userEmail?: string): Promise<DashboardMetrics> {
-  if (DATA_MODE !== 'api') return emptyDashboardMetrics();
   try {
     if (role === 'ADMIN') return apiClient<DashboardMetrics>('/reporting/owner-dashboard');
     if (role === 'DIRECTOR') {
