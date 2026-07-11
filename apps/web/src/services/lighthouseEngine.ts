@@ -62,12 +62,12 @@ function getSeasonUrgency(season: string): 'NOW' | 'SOON' | 'LATER' {
   return 'LATER';
 }
 
-export function getOrganizationIntel(orgId: string): OrganizationIntel {
-  const org = getOrganizationById(orgId);
+export async function getOrganizationIntel(orgId: string): Promise<OrganizationIntel> {
+  const org = await getOrganizationById(orgId);
   if (!org) throw new Error(`Organization ${orgId} not found`);
   
-  const opps = listOpportunities({});
-  const activities = listActivities({ entityId: orgId });
+  const opps = await listOpportunities({});
+  const activities = await listActivities({ entityId: orgId });
   
   // Sports mapped
   const sportsMapped: string[] = [];

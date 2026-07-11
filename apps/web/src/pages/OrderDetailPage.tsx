@@ -6,7 +6,7 @@ import { useOrderById } from '../hooks/useOrders';
 import { useOpportunityById } from '../hooks/useOpportunities';
 import { useOrganizationById } from '../hooks/useOrganizations';
 import { useActivities } from '../hooks/useReports';
-import { updateMockOrder } from '../services/ordersService';
+import { updateOrder } from '../services/ordersService';
 import type { Order } from '../data/mockSalesData';
 import { notify } from '../services/feedbackService';
 import {
@@ -127,7 +127,7 @@ export function OrderDetailPage() {
     setShowAdvanceDrawer(true);
   };
 
-  const submitAdvance = () => {
+  const submitAdvance = async () => {
     if (!drawerTargetStage) return;
     const missing = fields.filter((field) => field.required && !(form[field.key] ?? '').trim());
     if (missing.length) {
@@ -140,10 +140,10 @@ export function OrderDetailPage() {
       return;
     }
     try {
-      const updated = updateMockOrder(activeOrder.id, {
+      const updated = await updateOrder(activeOrder.id, {
         ...buildPatchForStage(drawerTargetStage, form, activeOrder),
         advancementNotes: form.notes || form.resolutionNotes || form.blockerReason,
-      });
+      } as Partial<Order>);
       setLocalOrder(updated);
       setMessage(`${blockingMode ? 'Order placed on hold' : `Advanced to ${getOrderStageLabel(drawerTargetStage)}`}.`);
       notify(blockingMode ? 'Order blocked / on hold.' : 'Order advanced.', 'success');

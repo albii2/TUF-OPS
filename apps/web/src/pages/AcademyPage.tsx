@@ -405,8 +405,8 @@ export default function AcademyPage() {
     return () => clearInterval(interval);
   }, [user]);
 
-  const refreshProgress = useCallback(() => {
-    const progress = detectAllModules();
+  const refreshProgress = useCallback(async () => {
+    const progress = await detectAllModules();
     setModuleProgress(progress);
 
     // Save certification record WITHOUT auto-certifying

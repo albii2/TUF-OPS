@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getOrganizationIntel, type OrganizationIntel } from '../services/lighthouseEngine';
 
 interface Props { organizationId: string; organizationName: string; }
@@ -7,8 +7,14 @@ export const LighthousePanel: React.FC<Props> = ({ organizationId, organizationN
   const [intel, setIntel] = useState<OrganizationIntel | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useMemo(() => {
-    try { setIntel(getOrganizationIntel(organizationId) as any); } catch (e: any) { setError(e.message); }
+  useEffect(() => {
+    let cancelled = false;
+    getOrganizationIntel(organizationId).then((result) => {
+      if (!cancelled) setIntel(result);
+    }).catch((e: any) => {
+      if (!cancelled) setError(e.message);
+    });
+    return () => { cancelled = true; };
   }, [organizationId]);
 
   if (error) return <div className="bg-[#0a0a0f] border border-[#1e293b] rounded-lg p-4 mt-4"><p className="text-slate-500 text-sm">{error}</p></div>;

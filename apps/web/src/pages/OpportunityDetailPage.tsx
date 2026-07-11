@@ -14,7 +14,8 @@ import type { Opportunity, OpportunityStage, RevenueLane } from '../data/mockSal
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
 import { notify } from '../services/feedbackService';
-import { createOrder, getAnyOrderByOpportunityId } from '../services/ordersService';
+import { createOrder } from '../services/ordersService';
+import { useOrderByOpportunityId } from '../hooks/useOrders';
 
 const stageCtas = {
   LEAD_ENGAGED: 'Mark as Contacted',
@@ -83,6 +84,7 @@ export function OpportunityDetailPage() {
   const [inlineLaneEditing, setInlineLaneEditing] = useState(false);
   const creativeSectionRef = useRef<HTMLDivElement>(null);
   const activeOpp = localOpp ?? opp;
+  const orderForOpportunity = useOrderByOpportunityId(activeOpp?.id);
   const creativeRequests = useCreativeRequests(id, refreshTick);
   const [form, setForm] = useState({ requestType: 'MOCKUP' as CreativeRequestType, designTeam: 'APPAREL_MOCKUP' as DesignTeam, priority: 'NORMAL' as CreativePriority, title: '', sport: opp?.sport ?? '', season: opp?.season ?? '', neededItems: [] as string[], designNotes: '', inspirationNotes: '', dueDate: '', assetLinks: '', internalNotes: '' });
   const summary = useMemo(() => ({ total: creativeRequests.length, active: creativeRequests.filter((r) => !['DELIVERED','ARCHIVED'].includes(r.status)).length, delivered: creativeRequests.filter((r) => r.status === 'DELIVERED').length, highUrgent: creativeRequests.filter((r) => ['HIGH','URGENT'].includes(r.priority)).length }), [creativeRequests, refreshTick]);
@@ -125,16 +127,16 @@ export function OpportunityDetailPage() {
     }
   };
 
-  const logCrmActivity = (message: string) => {
-    const updated = logOpportunityActivity(activeOpp.id, message);
+  const logCrmActivity = async (message: string) => {
+    const updated = await logOpportunityActivity(activeOpp.id, message);
     if (updated) setLocalOpp(updated);
     setActionMessage(message);
     notify('CRM activity logged.', 'success');
   };
 
-  const removeOpportunity = () => {
+  const removeOpportunity = async () => {
     if (!window.confirm(`Remove opportunity "${activeOpp.title}" from the pipeline?`)) return;
-    deleteOpportunity(activeOpp.id);
+    await deleteOpportunity(activeOpp.id);
     notify('Opportunity removed from pipeline.', 'success');
     navigate('/opportunities');
   };
@@ -155,8 +157,8 @@ export function OpportunityDetailPage() {
                     {getLaneLabel(lane)}
                     <button
                       className="ml-0.5 text-slate-500 hover:text-rose-400 leading-none"
-                      onClick={() => {
-                        const result = removeOpportunityLane(activeOpp.id, lane);
+                      onClick={async () => {
+                        const result = await removeOpportunityLane(activeOpp.id, lane);
                         if (result) setLocalOpp(result);
                       }}
                       title="Remove lane"
@@ -167,10 +169,10 @@ export function OpportunityDetailPage() {
                   <select
                     className="rounded border border-slate-700 bg-slate-900 px-1 py-0.5 text-[10px] text-slate-100"
                     value=""
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       const lane = e.target.value as RevenueLane;
                       if (lane) {
-                        const result = addOpportunityLane(activeOpp.id, lane);
+                        const result = await addOpportunityLane(activeOpp.id, lane);
                         if (result) setLocalOpp(result);
                       }
                       setInlineLaneEditing(false);
@@ -301,7 +303,7 @@ export function OpportunityDetailPage() {
               ))}
             </div>
             <div className="mt-4 flex gap-2">
-              <Button onClick={() => {
+              <Button onClick={async () => {
                 const missing = requiredAdvanceFields.filter((field) => !(advanceForm[field.key] ?? '').trim());
                 if (missing.length) {
                   setActionMessage(`Missing required fields: ${missing.map((m) => m.label).join(', ')}`);
@@ -310,7 +312,7 @@ export function OpportunityDetailPage() {
                 // Apply lane change from drawer if different from current
                 const newLane = advanceForm['lane'];
                 if (newLane && !activeOpp.lanes.includes(newLane as RevenueLane)) {
-                  const laneResult = addOpportunityLane(activeOpp.id, newLane as RevenueLane);
+                  const laneResult = await addOpportunityLane(activeOpp.id, newLane as RevenueLane);
                   if (laneResult) setLocalOpp(laneResult);
                 }
                 setStage(nextStage, `Advanced to ${nextStage.replace(/_/g, ' ')} in mock mode with guided drawer fields.`);
@@ -347,7 +349,7 @@ export function OpportunityDetailPage() {
 
       <div className="grid gap-3 lg:grid-cols-3">
         <Card title="Close Risk: Invoice / Payment" className="lg:col-span-2"><p className="text-sm text-slate-300">Invoice status follows the current stage. Payment follow-up is active when the deal is INVOICE SENT or DECISION PENDING, and closes only after PAYMENT RECEIVED.</p></Card>
-        <Card title="Outcome Zone">{canAdvance && (activeOpp.stage === 'INVOICE_SENT' || activeOpp.stage === 'DECISION_PENDING' || activeOpp.stage === 'CLOSED_WON') ? <div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won. Review Orders for handoff coverage.')}>Closed Won (High Consequence)</Button>{getAnyOrderByOpportunityId(activeOpp.id) ? <Link className="block rounded-md border border-cyan-400/40 px-3 py-2 text-center text-sm font-semibold text-cyan-200" to={`/orders/${getAnyOrderByOpportunityId(activeOpp.id)?.id}`}>Open Order Handoff</Link> : null}<Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost. Capture loss reason during follow-up review.')}>Closed Lost (High Consequence)</Button></div> : <p className="text-sm text-slate-300">{activeOpp.stage === 'CLOSED_WON' ? 'Deal closed. No further stage changes.' : 'Closed Won / Closed Lost become available once the invoice is sent.'}</p>}</Card>
+        <Card title="Outcome Zone">{canAdvance && (activeOpp.stage === 'INVOICE_SENT' || activeOpp.stage === 'DECISION_PENDING' || activeOpp.stage === 'CLOSED_WON') ? <div className="space-y-2"><Button className="w-full" onClick={() => setStage('CLOSED_WON', 'Marked Closed Won. Review Orders for handoff coverage.')}>Closed Won (High Consequence)</Button>{orderForOpportunity ? <Link className="block rounded-md border border-cyan-400/40 px-3 py-2 text-center text-sm font-semibold text-cyan-200" to={`/orders/${orderForOpportunity.id}`}>Open Order Handoff</Link> : null}<Button className="w-full border-slate-600 bg-slate-800/60 text-slate-200" onClick={() => setStage('CLOSED_LOST', 'Marked Closed Lost. Capture loss reason during follow-up review.')}>Closed Lost (High Consequence)</Button></div> : <p className="text-sm text-slate-300">{activeOpp.stage === 'CLOSED_WON' ? 'Deal closed. No further stage changes.' : 'Closed Won / Closed Lost become available once the invoice is sent.'}</p>}</Card>
       </div>
 
       <Card title="Creative Requests">

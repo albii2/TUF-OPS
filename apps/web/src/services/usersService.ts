@@ -232,7 +232,7 @@ export async function toggleUserDirectorSignoff(id: string, directorSignedOff: b
 // These are no-ops / throw in API-only mode.
 // ============================================================================
 
-export async function createUser(_input: any, _actor?: AppUser | null) {
+export async function createUser(_input: any, _actor?: AppUser | null): Promise<{ user: ManagedUser; temporaryCredential: string }> {
   throw new Error('createUser is not available in API mode.');
 }
 
@@ -240,11 +240,11 @@ export function updateUser(_id: string, _patch: any, _actor?: AppUser | null) {
   console.warn('updateUser is a no-op in API mode.');
 }
 
-export async function resetUserCredential(_id: string, _actor?: AppUser | null) {
+export async function resetUserCredential(_id: string, _actor?: AppUser | null): Promise<{ user: ManagedUser; temporaryCredential: string }> {
   throw new Error('resetUserCredential is not available in API mode.');
 }
 
-export async function changeOwnCredential(_userId: string, _currentCredential: string, _newCredential: string) {
+export async function changeOwnCredential(_userId: string, _currentCredential: string, _newCredential: string): Promise<{ mustChangeCredential: boolean }> {
   throw new Error('changeOwnCredential is not available in API mode.');
 }
 

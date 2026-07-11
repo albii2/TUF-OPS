@@ -42,7 +42,7 @@ export function useOpsWorkspaceQueues() {
 
   useEffect(() => {
     let cancelled = false;
-    getOpWorkspaceQueues().then((queues) => {
+    getOpsWorkspaceQueues().then((queues) => {
       if (!cancelled) setData(queues);
     }).catch(() => {});
     return () => { cancelled = true; };

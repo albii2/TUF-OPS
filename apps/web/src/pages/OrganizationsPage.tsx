@@ -7,7 +7,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { OrganizationImportPanel } from '../components/OrganizationImportPanel';
 import { getOrganizationPriorityScore } from '../services/businessSelectors';
-import { bulkUpdateOrganizations } from '../services/organizationsService';
+import { updateOrganization } from '../services/organizationsService';
 import { listUsers } from '../services/usersService';
 import type { CoverageStatus, TerritoryId } from '../data/mockSalesData';
 
@@ -59,9 +59,15 @@ export function OrganizationsPage() {
     setSelected(allVisibleSelected ? selected.filter((id) => !visibleIds.includes(id)) : Array.from(new Set([...selected, ...visibleIds])));
   };
 
-  const runBulkAction = (label: string, patch: Parameters<typeof bulkUpdateOrganizations>[1]) => {
+  const runBulkAction = async (label: string, patch: Record<string, any>) => {
     if (!selected.length) return;
-    const updated = bulkUpdateOrganizations(selected, patch);
+    let updated = 0;
+    for (const id of selected) {
+      try {
+        await updateOrganization(id, patch as any);
+        updated++;
+      } catch { /* skip */ }
+    }
     setBulkMessage(`${label} applied to ${updated} selected account${updated === 1 ? '' : 's'}.`);
     setRefreshKey((value) => value + 1);
   };

@@ -912,17 +912,17 @@ export function detectAcad101(userId: string): { completed: boolean; currentValu
 /**
  * ACAD-102: Demonstrate — Add 5 organizations, log 3 prospecting activities.
  */
-export function detectAcad102(): {
+export async function detectAcad102(): Promise<{
   completed: boolean;
   currentValue: number;
   orgCount: number;
   activityCount: number;
-} {
-  const orgs = listOrganizations({});
+}> {
+  const orgs = await listOrganizations({});
   const validOrgs = orgs.filter((o) => o.name && o.name.trim().length > 0);
 
   const user = getStoredUser();
-  const activities = listActivities({});
+  const activities = await listActivities({});
   const repActivities = user
     ? activities.filter((a) => a.user === user.name)
     : activities;
@@ -943,14 +943,14 @@ export function detectAcad102(): {
  * ACAD-103: Demonstrate — Create an opportunity, identify all sales lanes, record needs.
  * Detection: checks for opportunities with description/notes populated.
  */
-export function detectAcad103(): {
+export async function detectAcad103(): Promise<{
   completed: boolean;
   currentValue: number;
   oppCount: number;
   oppsWithNeeds: number;
-} {
+}> {
   const user = getStoredUser();
-  const opportunities = listOpportunities({});
+  const opportunities = await listOpportunities({});
   const repOpps = user
     ? opportunities.filter((o) => o.assignedRep === user.name)
     : opportunities;
@@ -974,13 +974,13 @@ export function detectAcad103(): {
  * project deal value from discovery.
  * Detection: checks for opportunities at Proposal Sent or Negotiation with revenue > 0.
  */
-export function detectAcad104(): {
+export async function detectAcad104(): Promise<{
   completed: boolean;
   currentValue: number;
   proposalOpps: number;
-} {
+}> {
   const user = getStoredUser();
-  const opportunities = listOpportunities({});
+  const opportunities = await listOpportunities({});
   const repOpps = user
     ? opportunities.filter((o) => o.assignedRep === user.name)
     : opportunities;
@@ -1001,13 +1001,13 @@ export function detectAcad104(): {
  * ACAD-105: Demonstrate — Reach Closed Won correctly, complete all required info.
  * Detection: checks for Closed Won opportunities that have complete data.
  */
-export function detectAcad105(): {
+export async function detectAcad105(): Promise<{
   completed: boolean;
   currentValue: number;
   closedWonOpps: number;
-} {
+}> {
   const user = getStoredUser();
-  const opportunities = listOpportunities({});
+  const opportunities = await listOpportunities({});
   const repOpps = user
     ? opportunities.filter((o) => o.assignedRep === user.name)
     : opportunities;
@@ -1103,15 +1103,15 @@ function computeModulePhase(
  * Master detection function — runs all 6 module checks, applies sequential gating,
  * quiz requirements, coach review, and acknowledgment tracking.
  */
-export function detectAllModules(): ModuleProgress[] {
+export async function detectAllModules(): Promise<ModuleProgress[]> {
   const user = getStoredUser();
   const userId = user?.id ?? 'unknown';
 
   const acad101 = detectAcad101(userId);
-  const acad102 = detectAcad102();
-  const acad103 = detectAcad103();
-  const acad104 = detectAcad104();
-  const acad105 = detectAcad105();
+  const acad102 = await detectAcad102();
+  const acad103 = await detectAcad103();
+  const acad104 = await detectAcad104();
+  const acad105 = await detectAcad105();
   const acad106 = detectAcad106();
 
   const record = getCertificationRecord(userId);
@@ -1312,11 +1312,11 @@ export function getSubmission(userId: string): CertificationSubmission | null {
   }
 }
 
-export function submitForApproval(
+export async function submitForApproval(
   userId: string,
   userName: string
-): CertificationSubmission {
-  const progress = detectAllModules();
+): Promise<CertificationSubmission> {
+  const progress = await detectAllModules();
   const quizResults = getQuizResults();
 
   const moduleDetails: SubmittedModuleDetail[] = LEVEL_1_MODULES.map((mod) => {
@@ -1388,11 +1388,11 @@ export function clearSubmission(userId: string): void {
 /**
  * Director approves a rep: certifies them as Level 1 Certified Territory Account Executive.
  */
-export function directorApproveRep(
+export async function directorApproveRep(
   repUserId: string,
   repUserName: string,
   directorName: string
-): CertificationRecord | null {
+): Promise<CertificationRecord | null> {
   // Only certify if the rep has submitted for approval
   const submission = getSubmission(repUserId);
   if (!submission) return null;
@@ -1404,7 +1404,7 @@ export function directorApproveRep(
   );
   if (!allQuizzesPassed || !allExercisesVerified) return null;
 
-  const progress = detectAllModules();
+  const progress = await detectAllModules();
 
   const record: CertificationRecord = {
     userId: repUserId,
@@ -1438,11 +1438,11 @@ export function directorApproveRep(
  * Legacy alias for backward compatibility.
  * @deprecated Use directorApproveRep instead.
  */
-export function directorCertifyRep(
+export async function directorCertifyRep(
   repUserId: string,
   repUserName: string,
   directorName: string
-): CertificationRecord | null {
+): Promise<CertificationRecord | null> {
   return directorApproveRep(repUserId, repUserName, directorName);
 }
 

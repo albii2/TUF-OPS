@@ -191,14 +191,6 @@ export default function AdminCertificationPage() {
   const forceCertifyRep = (repUser: ManagedUser) => {
     // Update the current user session
     updateUserCertificationStatus(repUser.id, true);
-    // Also update the stored users seed data
-    const users = readStoredUsers();
-    const idx = users.findIndex(u => u.id === repUser.id);
-    if (idx >= 0) {
-      users[idx].isCertified = true;
-      users[idx].directorSignedOff = true;
-      saveStoredUsers(users);
-    }
     refreshData();
   };
 
