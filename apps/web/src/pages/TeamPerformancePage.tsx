@@ -5,8 +5,8 @@ import { formatCurrency } from '../utils/format';
 import { getNearCloseOpportunities, getStuckOpportunities, getUntouchedAccounts } from '../services/businessSelectors';
 
 export function TeamPerformancePage() {
-  const opps = useOpportunities({});
-  const orgs = useOrganizations({});
+  const { data: opps = [] } = useOpportunities({});
+  const { data: orgs = [] } = useOrganizations({});
   const reps = Array.from(new Set(opps.map((o) => o.assignedRep))).map((rep) => {
     const repOpps = opps.filter((o) => o.assignedRep === rep);
     const repOrgs = orgs.filter((o) => o.assignedRep === rep);

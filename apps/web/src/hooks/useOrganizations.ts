@@ -1,85 +1,55 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
-  getOrganizationById,
-  listAccountsNeedingAction,
-  listOrganizations,
-  listStaleAccounts,
-  listUntouchedAccounts,
-  type OrganizationListParams,
-} from '../services/organizationsService';
+  getOrganizations,
+  getOrganization,
+  queryKeys,
+} from '../api';
+import type { OrganizationListParams } from '../services/organizationsService';
 import type { Organization } from '../data/mockSalesData';
 
-export function useOrganizations(params: OrganizationListParams): Organization[] {
-  const [apiData, setApiData] = useState<Organization[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    listOrganizations(params).then((data) => {
-      if (!cancelled) setApiData(data);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority, params.refreshKey]);
-
-  return apiData;
+export function useOrganizations(params: OrganizationListParams) {
+  return useQuery<Organization[]>({
+    queryKey: queryKeys.organizations.list(params),
+    queryFn: () => getOrganizations(params),
+  });
 }
 
-export function useOrganizationById(id?: string): Organization | undefined {
-  const [apiData, setApiData] = useState<Organization | undefined>(undefined);
-
-  useEffect(() => {
-    if (!id) { setApiData(undefined); return; }
-    let cancelled = false;
-    getOrganizationById(id).then((data) => {
-      if (!cancelled) setApiData(data);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [id]);
-
-  return apiData;
+export function useOrganizationById(id?: string) {
+  return useQuery<Organization | undefined>({
+    queryKey: queryKeys.organizations.detail(id ?? ''),
+    queryFn: () => getOrganization(id!),
+    enabled: Boolean(id),
+  });
 }
 
-export function useUntouchedAccounts(): Organization[] {
-  const [apiData, setApiData] = useState<Organization[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    listOrganizations({}).then((data) => {
-      if (!cancelled) setApiData(data.filter((o) => o.coverageStatus === 'UNTOUCHED'));
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  return apiData;
+export function useUntouchedAccounts() {
+  return useQuery<Organization[]>({
+    queryKey: queryKeys.organizations.untouched(),
+    queryFn: async () => {
+      const orgs = await getOrganizations({});
+      return orgs.filter((o) => o.coverageStatus === 'UNTOUCHED');
+    },
+  });
 }
 
-export function useStaleAccounts(): Organization[] {
-  const [apiData, setApiData] = useState<Organization[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    listOrganizations({}).then((data) => {
-      if (!cancelled) {
-        const staleThreshold = new Date();
-        staleThreshold.setDate(staleThreshold.getDate() - 14);
-        setApiData(data.filter((o) => new Date(o.lastActivity) < staleThreshold));
-      }
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  return apiData;
+export function useStaleAccounts() {
+  return useQuery<Organization[]>({
+    queryKey: queryKeys.organizations.stale(),
+    queryFn: async () => {
+      const orgs = await getOrganizations({});
+      const staleThreshold = new Date();
+      staleThreshold.setDate(staleThreshold.getDate() - 14);
+      return orgs.filter((o) => new Date(o.lastActivity) < staleThreshold);
+    },
+  });
 }
 
-export function useAccountsNeedingAction(): Organization[] {
-  const [apiData, setApiData] = useState<Organization[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    listOrganizations({}).then((data) => {
-      if (!cancelled) setApiData(data.filter((o) => o.coverageStatus !== 'CLOSED' && o.nextAction.trim().length > 0));
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  return apiData;
+export function useAccountsNeedingAction() {
+  return useQuery<Organization[]>({
+    queryKey: queryKeys.organizations.needsAction(),
+    queryFn: async () => {
+      const orgs = await getOrganizations({});
+      return orgs.filter((o) => o.coverageStatus !== 'CLOSED' && o.nextAction.trim().length > 0);
+    },
+  });
 }

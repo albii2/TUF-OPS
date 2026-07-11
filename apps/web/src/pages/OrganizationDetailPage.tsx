@@ -17,9 +17,9 @@ import type { RevenueLane } from '@tuf/shared';
 
 export function OrganizationDetailPage() {
   const { id } = useParams();
-  const org = useOrganizationById(id);
+  const { data: org } = useOrganizationById(id);
   const user = getStoredUser();
-  const allOpportunities = useOpportunities({});
+  const { data: allOpportunities = [] } = useOpportunities({});
   const [laneMessage, setLaneMessage] = useState('');
   const [referralMessage, setReferralMessage] = useState('');
   const [referralRefreshKey, setReferralRefreshKey] = useState(0);
@@ -36,8 +36,9 @@ export function OrganizationDetailPage() {
     linkedOpportunityId: '',
   });
   const activeOpportunities = allOpportunities.filter((o) => o.organizationId === id && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage));
-  const orgOrders = useOrders({}).filter((o) => o.organizationId === id);
-  const orgActivity = useActivities({ entityType: 'ORGANIZATION', entityId: id, limit: 5 });
+  const { data: allOrdersForOrg = [] } = useOrders({});
+  const orgOrders = allOrdersForOrg.filter((o) => o.organizationId === id);
+  const { data: orgActivity = [] } = useActivities({ entityType: 'ORGANIZATION', entityId: id, limit: 5 });
   const orgReferrals = useEcosystemReferrals({ sourceOrganizationId: id, refreshKey: referralRefreshKey });
   const revenueLanes = getRevenueLanes();
 

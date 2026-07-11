@@ -21,9 +21,9 @@ const zoneActiveColor: Record<TerritoryId, string> = {
 };
 
 export function TerritoryMapPage() {
-  const territories = useTerritories();
-  const organizations = useOrganizations({});
-  const opportunities = useOpportunities({});
+  const { data: territories = [] } = useTerritories();
+  const { data: organizations = [] } = useOrganizations({});
+  const { data: opportunities = [] } = useOpportunities({});
   const [activeZone, setActiveZone] = useState<TerritoryId>('metro');
 
   const zoneMetrics = useMemo(() => {

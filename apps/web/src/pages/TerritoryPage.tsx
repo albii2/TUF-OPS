@@ -13,11 +13,11 @@ import type { TerritoryId } from '../data/mockSalesData';
 
 export function TerritoryPage() {
   const user = getStoredUser();
-  const territories = useTerritories();
-  const orgs = useOrganizations({});
-  const opps = useOpportunities({});
-  const staleAccounts = useStaleAccounts();
-  const orders = useOrders({});
+  const { data: territories = [] } = useTerritories();
+  const { data: orgs = [] } = useOrganizations({});
+  const { data: opps = [] } = useOpportunities({});
+  const { data: staleAccounts = [] } = useStaleAccounts();
+  const { data: orders = [] } = useOrders({});
 
   const completedOrders = orders.filter(o => o.productionStatus === 'COMPLETED');
   const avgOrderSize = completedOrders.length 

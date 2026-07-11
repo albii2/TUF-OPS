@@ -40,8 +40,8 @@ export function OrganizationsPage() {
   const [targetTerritory, setTargetTerritory] = useState<TerritoryId>('metro');
   const [targetCoverage, setTargetCoverage] = useState<CoverageStatus>('CONTACTED');
 
-  const allOrganizations = useOrganizations({ refreshKey });
-  const filtered = useOrganizations({ search, status: status as any, rep, territory: territory as any, director, coverageStatus: coverageStatus as any, priority: priority as any, refreshKey });
+  const { data: allOrganizations = [] } = useOrganizations({ refreshKey });
+  const { data: filtered = [] } = useOrganizations({ search, status: status as any, rep, territory: territory as any, director, coverageStatus: coverageStatus as any, priority: priority as any, refreshKey });
 
   const managedUsers = listUsers();
   const reps = useMemo(() => Array.from(new Set([...allOrganizations.map((o) => o.assignedRep), ...managedUsers.filter((u) => u.role === 'REP' && u.status === 'ACTIVE').map((u) => u.displayName)])).filter(Boolean), [allOrganizations, managedUsers]);

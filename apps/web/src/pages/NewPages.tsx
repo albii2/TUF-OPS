@@ -49,7 +49,7 @@ export function OrganizationNewPage() {
 export function OpportunityNewPage() {
   const navigate = useNavigate();
   const user = getStoredUser();
-  const organizations = useOrganizations({});
+  const { data: organizations = [] } = useOrganizations({});
   const [programLevel, setProgramLevel] = useState(SCHOOL_PROGRAM_LEVELS[0]);
   const [sport, setSport] = useState(SPORT_OPTIONS[0]);
   const [seasonCode, setSeasonCode] = useState('FA26');

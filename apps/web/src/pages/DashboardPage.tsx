@@ -5,6 +5,7 @@ import { getStoredUser } from '../auth';
 import { markPageVisited } from '../lib/academy';
 import { ForgePanel } from '../components/ForgePanel';
 import type { Role } from '../types';
+import type { Activity } from '../data/mockSalesData';
 import { useActivities } from '../hooks/useReports';
 import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
 import { useOpportunities } from '../hooks/useOpportunities';
@@ -61,7 +62,7 @@ function StagePipeline({ counts, values }: { counts: Record<string, number>; val
   );
 }
 
-function ActivityFeed({ title, activities }: { title: string; activities: ReturnType<typeof useActivities> }) {
+function ActivityFeed({ title, activities }: { title: string; activities: Activity[] }) {
   return (
     <GlassCard title={title}>
       <div className="space-y-2">
@@ -78,10 +79,10 @@ function ActivityFeed({ title, activities }: { title: string; activities: Return
 
 export function DashboardPage({ role }: { role: Role }) {
   useEffect(() => { markPageVisited('dashboard'); }, []);
-  const opportunities = useOpportunities({});
-  const organizations = useOrganizations({});
-  const orders = useOrders({});
-  const activities = useActivities({ limit: 8 });
+  const { data: opportunities = [] } = useOpportunities({});
+  const { data: organizations = [] } = useOrganizations({});
+  const { data: orders = [] } = useOrders({});
+  const { data: activities = [] } = useActivities({ limit: 8 });
   const currentUser = getStoredUser();
   const { metrics: backendMetrics, error: dashboardMetricsError, isApiBacked } = useDashboardMetrics(role, currentUser?.id, currentUser?.email);
 

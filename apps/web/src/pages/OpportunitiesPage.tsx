@@ -48,16 +48,16 @@ export function OpportunitiesPage({ forceRep, title = "Pipeline Opportunities" }
   const [sort, setSort] = useState<SortOption>('latest');
   const [showClosed, setShowClosed] = useState(false);
 
-  const allOpportunities = useOpportunities({});
-  const filtered = useOpportunities({
+  const { data: allOpportunities = [] } = useOpportunities({});
+  const { data: filtered = [] } = useOpportunities({
     search,
     stage: stage as 'ALL' | OpportunityStage,
     lane: lane as 'ALL' | 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN',
     rep: forceRep ?? rep,
     sport,
   });
-  const opportunityStages = useOpportunityStages();
-  const revenueLanes = useRevenueLanes();
+  const { data: opportunityStages = [] } = useOpportunityStages();
+  const { data: revenueLanes = [] } = useRevenueLanes();
 
   const reps = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.assignedRep))), [allOpportunities]);
   const sports = useMemo(() => Array.from(new Set(allOpportunities.map((o) => o.sport))), [allOpportunities]);

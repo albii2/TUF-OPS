@@ -1,6 +1,8 @@
-import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { apiClient } from '../services/apiClient';
 import { getStoredUser } from '../auth';
+import { queryKeys } from '../api';
 
 export interface DailyActivityEntry {
   id: number;
@@ -35,41 +37,41 @@ export interface DailyActivityInput {
 
 export function useDailyActivities() {
   const user = getStoredUser();
-  const [today, setToday] = useState<DailyActivityEntry[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const queryClient = useQueryClient();
 
-  const fetchToday = useCallback(async () => {
-    setLoading(true);
-    try {
+  const todayQuery = useQuery<DailyActivityEntry[]>({
+    queryKey: queryKeys.activities.today(),
+    queryFn: async () => {
       const data = await apiClient<{ activities: DailyActivityEntry[]; date: string }>('/daily-activities/today');
-      setToday(data.activities || []);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+      return data.activities || [];
+    },
+  });
 
-  const saveActivity = useCallback(async (input: DailyActivityInput) => {
-    setSaving(true);
-    try {
-      const result = await apiClient<DailyActivityEntry>('/daily-activities', {
+  const saveMutation = useMutation({
+    mutationFn: async (input: DailyActivityInput) => {
+      return apiClient<DailyActivityEntry>('/daily-activities', {
         method: 'POST',
         body: input,
       });
-      await fetchToday();
-      return result;
-    } catch (err: any) {
-      setError(err?.message || 'Failed to save');
-      return null;
-    } finally {
-      setSaving(false);
-    }
-  }, [fetchToday]);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.activities.today() });
+    },
+  });
 
-  const myEntry = today.find((e) => e.user_id === Number(user?.id)) || null;
+  const fetchToday = useCallback(() => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.activities.today() });
+  }, [queryClient]);
 
-  return { today, myEntry, loading, saving, error, fetchToday, saveActivity };
+  const myEntry = (todayQuery.data || []).find((e) => e.user_id === Number(user?.id)) || null;
+
+  return {
+    today: todayQuery.data || [],
+    myEntry,
+    loading: todayQuery.isLoading,
+    saving: saveMutation.isPending,
+    error: todayQuery.error ? (todayQuery.error instanceof Error ? todayQuery.error.message : 'Failed to load') : null,
+    fetchToday,
+    saveActivity: saveMutation.mutateAsync,
+  };
 }

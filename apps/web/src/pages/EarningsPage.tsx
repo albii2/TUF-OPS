@@ -69,9 +69,9 @@ function MoneyCard({ label, value, note }: { label: string; value: string; note:
 
 export function EarningsPage() {
   const user = getStoredUser();
-  const opportunities = useOpportunities({});
-  const orders = useOrders({});
-  const organizations = useOrganizations({});
+  const { data: opportunities = [] } = useOpportunities({});
+  const { data: orders = [] } = useOrders({});
+  const { data: organizations = [] } = useOrganizations({});
   const activeRepNames = listUsers().filter((member) => member.role === 'REP' && member.status === 'ACTIVE').map((member) => member.displayName);
   const directorRepNames = user?.role === 'DIRECTOR' ? getManagedRepNamesForDirector(user.name) : [];
   const repNames = user?.role === 'DIRECTOR' ? directorRepNames : activeRepNames;

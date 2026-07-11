@@ -65,10 +65,10 @@ function getActivityTypeInfo(message: string): { label: string; color: string; b
 export function OpportunityDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const opp = useOpportunityById(id);
-  const opportunityStages = useOpportunityStages();
-  const dealActivity = useActivities({ entityType: 'OPPORTUNITY', entityId: id });
-  const organization = useOrganizationById(opp?.organizationId);
+  const { data: opp } = useOpportunityById(id);
+  const { data: opportunityStages = [] } = useOpportunityStages();
+  const { data: dealActivity = [] } = useActivities({ entityType: 'OPPORTUNITY', entityId: id });
+  const { data: organization } = useOrganizationById(opp?.organizationId);
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -84,7 +84,7 @@ export function OpportunityDetailPage() {
   const [inlineLaneEditing, setInlineLaneEditing] = useState(false);
   const creativeSectionRef = useRef<HTMLDivElement>(null);
   const activeOpp = localOpp ?? opp;
-  const orderForOpportunity = useOrderByOpportunityId(activeOpp?.id);
+  const { data: orderForOpportunity } = useOrderByOpportunityId(activeOpp?.id);
   const creativeRequests = useCreativeRequests(id, refreshTick);
   const [form, setForm] = useState({ requestType: 'MOCKUP' as CreativeRequestType, designTeam: 'APPAREL_MOCKUP' as DesignTeam, priority: 'NORMAL' as CreativePriority, title: '', sport: opp?.sport ?? '', season: opp?.season ?? '', neededItems: [] as string[], designNotes: '', inspirationNotes: '', dueDate: '', assetLinks: '', internalNotes: '' });
   const summary = useMemo(() => ({ total: creativeRequests.length, active: creativeRequests.filter((r) => !['DELIVERED','ARCHIVED'].includes(r.status)).length, delivered: creativeRequests.filter((r) => r.status === 'DELIVERED').length, highUrgent: creativeRequests.filter((r) => ['HIGH','URGENT'].includes(r.priority)).length }), [creativeRequests, refreshTick]);

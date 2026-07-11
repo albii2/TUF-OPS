@@ -1,67 +1,40 @@
-import { useEffect, useState } from 'react';
-import { getOpsWorkspaceQueues, getOrderById, getOrderByOpportunityId, listOrders, type OrderListParams } from '../services/ordersService';
+import { useQuery } from '@tanstack/react-query';
+import {
+  getOrders,
+  getOrder,
+  getOrderByOpportunityId,
+  getOpsWorkspaceQueues,
+  queryKeys,
+} from '../api';
+import type { OrderListParams } from '../services/ordersService';
 import type { Order } from '../data/mockSalesData';
 
-export function useOrders(params: OrderListParams): Order[] {
-  const [data, setData] = useState<Order[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    listOrders(params).then((orders) => {
-      if (!cancelled) setData(orders);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [params.search, params.productionStatus, params.refreshKey]);
-
-  return data;
+export function useOrders(params: OrderListParams) {
+  return useQuery<Order[]>({
+    queryKey: queryKeys.orders.list(params),
+    queryFn: () => getOrders(params),
+  });
 }
 
-export function useOrderById(id?: string): Order | undefined {
-  const [data, setData] = useState<Order | undefined>(undefined);
-
-  useEffect(() => {
-    if (!id) { setData(undefined); return; }
-    let cancelled = false;
-    getOrderById(id).then((order) => {
-      if (!cancelled) setData(order);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [id]);
-
-  return data;
+export function useOrderById(id?: string) {
+  return useQuery<Order | undefined>({
+    queryKey: queryKeys.orders.detail(id ?? ''),
+    queryFn: () => getOrder(id!),
+    enabled: Boolean(id),
+  });
 }
 
 export function useOpsWorkspaceQueues() {
-  const [data, setData] = useState<ReturnType<typeof getOpsWorkspaceQueues> extends Promise<infer T> ? T : never>({
-    NEEDS_REVIEW: [],
-    READY_FOR_VENDOR: [],
-    IN_PRODUCTION: [],
-    BLOCKED: [],
-    COMPLETED: [],
+  return useQuery({
+    queryKey: queryKeys.orders.opsWorkspace(),
+    queryFn: getOpsWorkspaceQueues,
   });
-
-  useEffect(() => {
-    let cancelled = false;
-    getOpsWorkspaceQueues().then((queues) => {
-      if (!cancelled) setData(queues);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
-
-  return data;
 }
 
-export function useOrderByOpportunityId(opportunityId?: string, refreshKey?: number): Order | undefined {
-  const [data, setData] = useState<Order | undefined>(undefined);
-
-  useEffect(() => {
-    if (!opportunityId) { setData(undefined); return; }
-    let cancelled = false;
-    getOrderByOpportunityId(opportunityId).then((order) => {
-      if (!cancelled) setData(order);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, [opportunityId, refreshKey]);
-
-  return data;
+export function useOrderByOpportunityId(opportunityId?: string) {
+  return useQuery<Order | undefined>({
+    queryKey: queryKeys.orders.byOpportunityId(opportunityId ?? ''),
+    queryFn: () => getOrderByOpportunityId(opportunityId),
+    enabled: Boolean(opportunityId),
+  });
 }

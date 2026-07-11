@@ -49,9 +49,9 @@ export function OrdersPage() {
   const [message, setMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const allOrders = useOrders({ refreshKey });
-  const searchedOrders = useOrders({ search, refreshKey });
-  const opportunities = useOpportunities({ refreshKey });
+  const { data: allOrders = [] } = useOrders({ refreshKey });
+  const { data: searchedOrders = [] } = useOrders({ search, refreshKey });
+  const { data: opportunities = [] } = useOpportunities({ refreshKey });
   const canShowValue = canSeeOrderValue();
 
   const filtered = useMemo(

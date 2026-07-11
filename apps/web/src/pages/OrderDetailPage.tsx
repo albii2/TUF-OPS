@@ -89,7 +89,7 @@ function buildPatchForStage(stage: OrderStage, form: Record<string, string>, exi
 
 export function OrderDetailPage() {
   const { id } = useParams();
-  const order = useOrderById(id);
+  const { data: order } = useOrderById(id);
   const [localOrder, setLocalOrder] = useState<Order | undefined>();
   const [showAdvanceDrawer, setShowAdvanceDrawer] = useState(false);
   const [blockingMode, setBlockingMode] = useState(false);
@@ -97,9 +97,9 @@ export function OrderDetailPage() {
   const [showNotes, setShowNotes] = useState(false);
   const [message, setMessage] = useState('');
   const activeOrder = localOrder ?? order;
-  const linkedOpportunity = useOpportunityById(activeOrder?.opportunityId);
-  const organization = useOrganizationById(activeOrder?.organizationId);
-  const orderActivities = useActivities({ entityType: 'ORDER', entityId: id, limit: 20 });
+  const { data: linkedOpportunity } = useOpportunityById(activeOrder?.opportunityId);
+  const { data: organization } = useOrganizationById(activeOrder?.organizationId);
+  const { data: orderActivities = [] } = useActivities({ entityType: 'ORDER', entityId: id, limit: 20 });
 
   const activityTimeline = useMemo(() => [...orderActivities].sort((a, b) => b.timestamp.localeCompare(a.timestamp)), [orderActivities]);
 

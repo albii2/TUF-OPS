@@ -41,7 +41,7 @@ const QUEUE_CONFIG: Record<QueueKey, { label: string; description: string; color
 
 export function OpsWorkspacePage() {
   const navigate = useNavigate();
-  const queues = useOpsWorkspaceQueues();
+  const { data: queues = { NEEDS_REVIEW: [], READY_FOR_VENDOR: [], IN_PRODUCTION: [], BLOCKED: [], COMPLETED: [] } } = useOpsWorkspaceQueues();
   const [expandedQueue, setExpandedQueue] = useState<QueueKey | null>(null);
 
   const metrics = useMemo(() => {

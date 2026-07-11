@@ -19,7 +19,7 @@ const PRODUCTION_STAGES = [
 export function ProductionTrackerPage() {
   const navigate = useNavigate();
   const user = getStoredUser();
-  const allOrders = useOrders({});
+  const { data: allOrders = [] } = useOrders({});
   const [expandedStage, setExpandedStage] = useState<string | null>(null);
 
   const myOrders = useMemo(() => {

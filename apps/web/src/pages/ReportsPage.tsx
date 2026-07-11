@@ -10,11 +10,16 @@ import { useReports } from '../hooks/useReports';
 import { getReferralRepEffectiveness, getReferralSourceEffectiveness, listEcosystemReferrals } from '../services/ecosystemReferralsService';
 
 export function ReportsPage() {
-  const reportsSummary = useReports();
+  const { data: reportsSummary = {
+    weeklySummary: { pipelineAdded: 0, closedWon: 0, newOrganizations: 0, blockedOrders: 0 },
+    monthlySummary: { pipelineTotal: 0, closedWon: 0, winRate: 0, averageDeal: 0 },
+    lanePerformance: [],
+    repPerformance: [],
+  } } = useReports();
   const user = getStoredUser();
-  const opportunities = useOpportunities({});
-  const orders = useOrders({});
-  const organizations = useOrganizations({});
+  const { data: opportunities = [] } = useOpportunities({});
+  const { data: orders = [] } = useOrders({});
+  const { data: organizations = [] } = useOrganizations({});
   const staleOpps = getStaleOpportunities(opportunities);
   const staleOrgs = getStaleAccounts(organizations);
   const nearClose = getNearCloseOpportunities(opportunities);
