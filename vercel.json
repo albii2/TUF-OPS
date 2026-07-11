@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
   "installCommand": "corepack enable && pnpm install --frozen-lockfile",
-  "buildCommand": "VITE_ENABLE_LEAD_BOOTSTRAP=true VITE_DATA_MODE=api VERCEL_GIT_COMMIT_SHA=$VERCEL_GIT_COMMIT_SHA pnpm --filter web build",
+  "buildCommand": "echo \"VITE_GIT_COMMIT=$VERCEL_GIT_COMMIT_SHA\" > apps/web/.env.production && VITE_ENABLE_LEAD_BOOTSTRAP=true VITE_DATA_MODE=api pnpm --filter web build",
   "outputDirectory": "apps/web/dist",
   "headers": [
     {
