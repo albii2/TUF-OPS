@@ -22,6 +22,12 @@ export type OrganizationListParams = {
 
 const LOCAL_ORGANIZATIONS_KEY = 'tuf_ops_mock_organizations_v1';
 const VALID_TERRITORIES: TerritoryId[] = ['metro', 'north', 'west', 'south'];
+const ZONE_TO_TERRITORY: Record<string, TerritoryId> = {
+  metro: 'metro', north: 'north', west: 'west', south: 'south',
+  central: 'metro', east: 'metro', 'twin cities': 'metro', minneapolis: 'metro', 'st paul': 'metro',
+  northeast: 'north', northwest: 'north',
+  southwest: 'west', southeast: 'south',
+};
 const PRIMEAU_DIRECTOR_NAME = 'Primeau Hill';
 const PRIMEAU_DIRECTOR_TERRITORIES = new Set<TerritoryId>(['metro', 'north']);
 
