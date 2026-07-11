@@ -271,6 +271,28 @@ export function deleteOpportunity(id: string) {
 // ASYNC API WRAPPERS — use these when DATA_MODE === 'api'
 // ============================================================================
 
+function normalizeApiOpportunity(raw: any): Opportunity {
+  const stage = raw.stage || 'lead';
+  return {
+    id: String(raw.id),
+    title: raw.name || '',
+    organizationId: String(raw.organization_id || ''),
+    organizationName: raw.organization_name || raw.organization?.name || '',
+    lanes: raw.lane ? [raw.lane] : [],
+    sport: raw.sport || '',
+    season: raw.season || '',
+    stage,
+    value: raw.value || raw.estimated_value || 0,
+    assignedRep: raw.assigned_rep_name || raw.assigned_rep || 'Unassigned',
+    assignedDirector: raw.assigned_director_name || raw.assigned_director || 'Unassigned',
+    estimatedValue: raw.estimated_value || raw.value || 0,
+    nextAction: raw.next_action || 'Review opportunity details',
+    closeProbability: raw.close_probability || raw.probability || 50,
+    lastActivity: raw.updated_at ? raw.updated_at.slice(0, 10) : new Date().toISOString().slice(0, 10),
+    createdAt: raw.created_at || new Date().toISOString(),
+  } as Opportunity;
+}
+
 export async function listOpportunitiesAsync(params: OpportunityListParams = {}): Promise<Opportunity[]> {
   if (DATA_MODE === 'api') {
     const query: Record<string, string | undefined> = {};
@@ -279,7 +301,8 @@ export async function listOpportunitiesAsync(params: OpportunityListParams = {})
     if (params.lane && params.lane !== 'ALL') query.lane = params.lane;
     if (params.rep) query.rep = params.rep;
     if (params.sport) query.sport = params.sport;
-    return apiClient<Opportunity[]>('/opportunities', { query });
+    const raw = await apiClient<any[]>('/opportunities', { query });
+    return raw.map(normalizeApiOpportunity);
   }
   return listOpportunities(params);
 }
