@@ -165,7 +165,21 @@ export async function resetUserCredential(targetUserId: number, actor: SafeUser,
 export async function loginWithCredential(payload: LoginPayload) {
   const credential = payload.credential || '';
   const email = payload.email || '';
-  const user = await getUserWithCredentialByEmail(email);
+
+  let user: any = null;
+
+  if (email) {
+    user = await getUserWithCredentialByEmail(email);
+  } else {
+    // PIN-only login — search all ACTIVE users
+    const result = await pool.query('SELECT * FROM users WHERE status = $1', ['ACTIVE']);
+    for (const row of result.rows) {
+      if (await verifyCredential(credential, row.credential_hash || row.password || '')) {
+        user = row;
+        break;
+      }
+    }
+  }
   if (!user || user.status !== 'ACTIVE') {
     await audit('FAILED_CREDENTIAL_ATTEMPT', user?.id ?? null, null, { email });
     return null;
