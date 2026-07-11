@@ -16,7 +16,7 @@ export async function apiClient<T>(path: string, config: ApiRequestConfig = {}):
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
-  // Attach auth token if available — skip for login endpoint
+  // Attach auth token if available — skip for login + auth endpoints
   try {
     if (!path.includes('/auth/login')) {
       const rawUser = localStorage.getItem('tuf_ops_user_v3');
