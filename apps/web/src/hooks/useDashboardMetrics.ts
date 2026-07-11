@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Role } from '../types';
+import type { Role } from '@tuf/shared';
 import { emptyDashboardMetrics, fetchDashboardMetrics, type DashboardMetrics } from '../services/dashboardMetricsService';
 import { DATA_MODE } from '../services/dataMode';
 

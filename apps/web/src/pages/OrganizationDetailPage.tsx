@@ -15,7 +15,7 @@ import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionSta
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
 import { createActivity, createActivityAsync } from '../services/activitiesService';
 import { DATA_MODE } from '../services/dataMode';
-import type { RevenueLane } from '../data/mockSalesData';
+import type { RevenueLane } from '@tuf/shared';
 
 export function OrganizationDetailPage() {
   const { id } = useParams();

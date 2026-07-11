@@ -1,125 +1,20 @@
 import { REVENUE_LANES as revenueLanes } from '../config/business';
-export type RevenueLane = 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN';
-export type LaneStatus = 'OPEN' | 'ACTIVE' | 'WON' | 'LOST';
-export type OpportunityStage =
-  | 'LEAD_ENGAGED'
-  | 'DISCOVERY'
-  | 'MOCKUP_STAGE'
-  | 'INVOICE_SENT'
-  | 'CLOSED_WON'
-  | 'CLOSED_LOST'
-  | 'LEAD_ASSIGNED'
-  | 'CONTACTED'
-  | 'MOCKUP_REQUESTED'
-  | 'MOCKUP_DELIVERED'
-  | 'DECISION_PENDING'
-  | 'PAYMENT_RECEIVED';
+import type { TeamMember, Organization, Opportunity, Order, Activity } from '@tuf/shared';
 
-export type CoverageStatus = 'UNTOUCHED' | 'CONTACTED' | 'ACTIVE' | 'CLOSED';
-export type TerritoryId = 'metro' | 'north' | 'west' | 'south';
+export type {
+  RevenueLane,
+  LaneStatus,
+  OpportunityStage,
+  CoverageStatus,
+  TerritoryId,
+  TeamMember,
+  Organization,
+  Opportunity,
+  Order,
+  Activity,
+} from '@tuf/shared';
 
-export type TeamMember = {
-  id: string;
-  name: string;
-  role: 'OWNER' | 'DIRECTOR' | 'REP' | 'OPS';
-  territoryIds: TerritoryId[];
-  active: boolean;
-};
-
-export type Organization = {
-  id: string;
-  name: string;
-  city: string;
-  state: string;
-  assignedRep: string;
-  assignedDirector: string;
-  territory: TerritoryId;
-  schoolPhone?: string;
-  athleticDirectorName?: string;
-  athleticDirectorEmail?: string;
-  athleticDirectorPhone?: string;
-  headCoachName?: string;
-  headCoachEmail?: string;
-  headCoachPhone?: string;
-  coverageStatus: CoverageStatus;
-  priority: 'HIGH' | 'MEDIUM' | 'LOW';
-  pipelineValue: number;
-  status: 'ACTIVE' | 'WATCH' | 'NEW';
-  nextAction: string;
-  lastActivity: string;
-  leadTier?: 'TIER_1' | 'TIER_2' | 'TIER_3' | 'UNASSIGNED';
-  laneStatuses: Record<RevenueLane, { status: LaneStatus; estimatedValue: number; activeOpportunityCount: number; nextAction: string }>;
-  expansionRecommendation: string;
-};
-
-export type Opportunity = {
-  id: string;
-  title: string;
-  organizationId: string;
-  organizationName: string;
-  lanes: RevenueLane[];
-  sport: string;
-  season: string;
-  stage: OpportunityStage;
-  value: number;
-  assignedRep: string;
-  assignedDirector?: string;
-  estimatedValue?: number;
-  nextAction: string;
-  nextActionDueDate?: string;
-  lastActivity: string;
-  createdAt?: string;
-  updatedAt?: string;
-  dueDate?: string;
-  orderId?: string | null;
-  closeProbability: number;
-};
-
-export type Order = {
-  id: string;
-  organizationId: string;
-  organizationName: string;
-  opportunityId: string;
-  lane: RevenueLane;
-  value: number;
-  productionStatus: 'NEEDS_REVIEW' | 'READY_FOR_VENDOR' | 'IN_PRODUCTION' | 'BLOCKED' | 'COMPLETED';
-  orderStage?: 'ORDER_CREATED' | 'PAYMENT_CONFIRMED' | 'ARTWORK_FINALIZED' | 'VENDOR_READY' | 'IN_PRODUCTION' | 'QUALITY_CHECK' | 'SHIPPED_DELIVERED' | 'COMPLETED' | 'BLOCKED_ON_HOLD';
-  previousActiveStage?: 'ORDER_CREATED' | 'PAYMENT_CONFIRMED' | 'ARTWORK_FINALIZED' | 'VENDOR_READY' | 'IN_PRODUCTION' | 'QUALITY_CHECK' | 'SHIPPED_DELIVERED' | 'COMPLETED' | 'BLOCKED_ON_HOLD';
-  title?: string;
-  sport?: string;
-  quantity?: number;
-  dueDate?: string;
-  assignedRep?: string;
-  assignedDirector?: string;
-  nextAction?: string;
-  nextActionOwner?: string;
-  paymentStatus?: string;
-  artworkStatus?: string;
-  vendorStatus?: string;
-  shippingStatus?: string;
-  customerContact?: string;
-  resolutionDueDate?: string;
-  completedDate?: string;
-  createdAt?: string;
-  updatedAt?: string;
-  riskStatus?: 'red' | 'yellow' | 'green' | 'gray';
-  activityIds?: string[];
-  missingInfo: string[];
-  vendor: string;
-  createdDate: string;
-  vendorNotes: string;
-};
-
-export type Activity = {
-  id: string;
-  entityType: 'ORGANIZATION' | 'OPPORTUNITY' | 'ORDER';
-  entityId: string;
-  message: string;
-  timestamp: string;
-  user: string;
-};
-
-export const opportunityStages: OpportunityStage[] = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT', 'CLOSED_WON', 'CLOSED_LOST'];
+export { opportunityStages } from '@tuf/shared';
 
 export const teamMembers: TeamMember[] = [
   { id: 'u-owner-coach-bradshaw', name: 'Coach Bradshaw', role: 'OWNER', territoryIds: ['metro', 'north', 'west', 'south'], active: true },

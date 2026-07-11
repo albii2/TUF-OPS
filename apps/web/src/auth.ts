@@ -1,4 +1,4 @@
-import type { AppUser, Role } from './types';
+import type { AppUser, Role } from '@tuf/shared';
 import { authenticateWithCredential, authenticateWithPin, getActiveUserByRole } from './services/usersService';
 import { seedExecutiveProfile } from './lib/achievements';
 

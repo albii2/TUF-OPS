@@ -33,7 +33,7 @@ import AdminCertificationPage from './pages/AdminCertificationPage';
 import DailyActivityCommand from './pages/DailyActivityCommand';
 import RecruitingPage from './pages/RecruitingPage';
 import CandidateDetailPage from './pages/CandidateDetailPage';
-import type { AppUser, Role } from './types';
+import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
 // Routes that are always accessible regardless of certification status

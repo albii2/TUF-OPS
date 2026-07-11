@@ -99,7 +99,7 @@ export default function RecruitingPage() {
             />
             <select
               value={form.source}
-              onChange={e => setForm({ ...form, source: e.target.value })}
+              onChange={e => setForm({ ...form, source: e.target.value as any })}
               className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
             >
               {SOURCES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}

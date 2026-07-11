@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginWithPin } from '../auth';
 import { TufLogo } from '../components/ui';
-import type { AppUser } from '../types';
+import type { AppUser } from '@tuf/shared';
 import TufMarkSvg from '../assets/tuf-mark.svg';
 
 export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void }) {

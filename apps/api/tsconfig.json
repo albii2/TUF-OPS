@@ -10,6 +10,7 @@
     { "path": "../../packages/auth/tsconfig.json" },
     { "path": "../../packages/database/tsconfig.json" },
     { "path": "../../packages/env/tsconfig.json" },
-    { "path": "../../packages/logger/tsconfig.json" }
+    { "path": "../../packages/logger/tsconfig.json" },
+    { "path": "../../packages/shared/tsconfig.json" }
   ]
 }

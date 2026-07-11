@@ -1,6 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { createCandidate, getCandidates, getCandidateById, updateCandidate, setResumeUrl, getCandidateActivities, getRecruitingDashboard } from './recruiting.service';
-import type { CreateCandidateInput, UpdateCandidateInput } from './recruiting.interface';
+import type { CreateCandidateInput, UpdateCandidateInput } from '@tuf/shared';
 
 export async function createCandidateHandler(request: FastifyRequest, reply: FastifyReply) {
   try {

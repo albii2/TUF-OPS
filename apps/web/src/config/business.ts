@@ -1,4 +1,4 @@
-import type { OpportunityStage, RevenueLane } from '../data/mockSalesData';
+import type { OpportunityStage, RevenueLane } from '@tuf/shared';
 
 export const ACCOUNT_TYPES = ['School', 'Youth Program', 'Club', 'Rec Team', 'College', 'Business/Organization'] as const;
 export const SCHOOL_PROGRAM_LEVELS = ['Varsity', 'JV', 'Freshman', '8th Grade', '7th Grade', 'Middle School', 'Elementary', 'All Athletics'] as const;

@@ -1,4 +1,6 @@
-import { opportunities, type Opportunity, opportunityStages, type OpportunityStage, type RevenueLane } from '../data/mockSalesData';
+import { opportunities } from '../data/mockSalesData';
+import { opportunityStages } from '@tuf/shared';
+import type { Opportunity, OpportunityStage, RevenueLane } from '@tuf/shared';
 import { REVENUE_LANES as revenueLanes } from '../config/business';
 import { getStoredUser } from '../auth';
 import { buildOpportunityDisplayName } from '../utils/naming';

@@ -1,5 +1,5 @@
 import { pool } from '@packages/database';
-import type { Candidate, CandidateActivity, CreateCandidateInput, UpdateCandidateInput, CandidateStage } from './recruiting.interface';
+import type { Candidate, CandidateActivity, CreateCandidateInput, UpdateCandidateInput, CandidateStage } from '@tuf/shared';
 
 export async function createCandidate(input: CreateCandidateInput): Promise<Candidate> {
   const result = await pool.query<Candidate>(

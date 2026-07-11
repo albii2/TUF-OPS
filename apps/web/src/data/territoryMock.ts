@@ -1,4 +1,5 @@
-import { organizations, opportunities, teamMembers, type TerritoryId } from './mockSalesData';
+import { organizations, opportunities, teamMembers } from './mockSalesData';
+import type { TerritoryId } from '@tuf/shared';
 
 export type Territory = {
   id: TerritoryId;

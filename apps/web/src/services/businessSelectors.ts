@@ -1,4 +1,4 @@
-import type { Opportunity, Organization, Order, RevenueLane } from '../data/mockSalesData';
+import type { Opportunity, Organization, Order, RevenueLane } from '@tuf/shared';
 import { getOrderRisk } from './orderWorkflow';
 import { getMomentumState as getUnifiedMomentumState, getStaleOpenOpportunities, getStaleOrganizations } from './kpiUtils';
 

@@ -15,6 +15,7 @@
     "@fastify/cors": "^8.5.0",
     "@packages/auth": "workspace:*",
     "@packages/database": "workspace:*",
+    "@tuf/shared": "workspace:*",
     "fastify": "^4.26.2",
     "typescript": "^5.4.5"
   },

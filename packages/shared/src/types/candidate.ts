@@ -1,0 +1,80 @@
+export type CandidateStage =
+  | 'applied' | 'screening' | 'interview_scheduled' | 'interview_complete'
+  | 'offer_extended' | 'offer_accepted' | 'activated' | 'academy'
+  | 'certified' | 'territory_assigned' | 'active_tae' | 'rejected';
+
+export type CandidateSource = 'indeed' | 'linkedin' | 'referral' | 'website' | 'other';
+
+export interface Candidate {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  source: CandidateSource;
+  stage: CandidateStage;
+  assigned_director_id: number | null;
+  territory_id: number | null;
+  resume_url: string | null;
+  notes: string | null;
+  interview_date: string | null;
+  interview_scorecard: Record<string, number> | null;
+  offer_details: Record<string, unknown> | null;
+  certification_progress: Record<string, number> | null;
+  user_id: number | null;
+  created_by: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CandidateActivity {
+  id: number;
+  candidate_id: number;
+  type: string;
+  description: string | null;
+  created_by: number | null;
+  created_at: string;
+}
+
+export interface CreateCandidateInput {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone?: string;
+  source?: CandidateSource;
+  notes?: string;
+  assigned_director_id?: number;
+  created_by?: number;
+}
+
+export interface UpdateCandidateInput {
+  stage?: CandidateStage;
+  assigned_director_id?: number;
+  territory_id?: number;
+  notes?: string;
+  interview_date?: string;
+  interview_scorecard?: Record<string, number>;
+  offer_details?: Record<string, unknown>;
+  certification_progress?: Record<string, number>;
+}
+
+export const STAGE_ORDER: CandidateStage[] = [
+  'applied', 'screening', 'interview_scheduled', 'interview_complete',
+  'offer_extended', 'offer_accepted', 'activated', 'academy',
+  'certified', 'territory_assigned', 'active_tae',
+];
+
+export const STAGE_LABELS: Record<CandidateStage, string> = {
+  applied: 'Applied',
+  screening: 'Screening',
+  interview_scheduled: 'Interview Scheduled',
+  interview_complete: 'Interview Complete',
+  offer_extended: 'Offer Extended',
+  offer_accepted: 'Offer Accepted',
+  activated: 'Activated',
+  academy: 'Academy',
+  certified: 'Certified',
+  territory_assigned: 'Territory Assigned',
+  active_tae: 'Active TAE',
+  rejected: 'Rejected',
+};
