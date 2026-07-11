@@ -9,11 +9,27 @@ exports.getRepActivitiesByOpportunityHandler = getRepActivitiesByOpportunityHand
 const activities_service_1 = require("./activities.service");
 const activities_interface_1 = require("./activities.interface");
 async function createActivityHandler(request, reply) {
-    const { type, organization_id, opportunity_id, description, created_by, due_date, completed } = request.body;
+    const body = request.body;
+    // Accept both camelCase (frontend) and snake_case (backend) field names
+    const type = body.type || body.activity_type;
+    const organization_id = body.organization_id ?? body.organizationId;
+    const opportunity_id = body.opportunity_id ?? body.opportunityId;
+    const description = body.description || body.notes;
+    const created_by = body.created_by ?? body.createdBy;
+    const due_date = body.due_date ?? body.dueDate;
+    const completed = body.completed;
     if (!Object.values(activities_interface_1.ActivityType).includes(type)) {
         return reply.code(400).send({ message: 'Invalid activity type' });
     }
-    const activity = await (0, activities_service_1.createActivity)({ type, organization_id, opportunity_id, description, created_by, due_date, completed });
+    const activity = await (0, activities_service_1.createActivity)({
+        type,
+        organization_id,
+        opportunity_id,
+        description,
+        created_by,
+        due_date,
+        completed,
+    });
     return reply.code(201).send(activity);
 }
 async function getActivitiesByOpportunityHandler(request, reply) {

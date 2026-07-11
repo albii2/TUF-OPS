@@ -11,6 +11,7 @@ const database_1 = require("@packages/database");
 const auth_1 = require("@packages/auth");
 const opportunities_interface_1 = require("./opportunities.interface");
 const commissions_service_1 = require("../commissions/commissions.service");
+const resolve_user_1 = require("../shared/resolve-user");
 const REQUIRED_CHANNELS = [
     opportunities_interface_1.OpportunityChannelType.UNIFORM,
     opportunities_interface_1.OpportunityChannelType.TRAVEL_GEAR,
@@ -49,11 +50,26 @@ const LEGACY_TO_CANONICAL = {
     'CLOSED_WON': auth_1.STAGES.CLOSED_WON,
     'CLOSED_LOST': auth_1.STAGES.CLOSED_LOST,
 };
+// Map TUF display stage names to canonical stages
+const TUF_STAGE_TO_CANONICAL = {
+    'Prospect': auth_1.STAGES.LEAD,
+    'Engage': auth_1.STAGES.CONTACTED,
+    'Design the Win': auth_1.STAGES.PROPOSAL_SENT,
+    'Prove the Gear': auth_1.STAGES.NEGOTIATION,
+    'Invoice & Secure Payment': auth_1.STAGES.ORDER_ASSEMBLY,
+    'Commit to the Team': auth_1.STAGES.DIRECTOR_QA,
+    'Execute the Order': auth_1.STAGES.CLOSED_WON,
+    'Expand the Program': auth_1.STAGES.CLOSED_WON,
+};
 function normalizeStage(input) {
     // If already canonical, return as-is
     const canonicalValues = new Set(Object.values(auth_1.STAGES));
     if (canonicalValues.has(input))
         return input;
+    // Map TUF display names to canonical
+    const fromTuf = TUF_STAGE_TO_CANONICAL[input];
+    if (fromTuf)
+        return fromTuf;
     // Map legacy to canonical
     return LEGACY_TO_CANONICAL[input] ?? input;
 }
@@ -65,11 +81,27 @@ function normalizeChannelType(value) {
     return REQUIRED_CHANNELS.includes(normalized) ? normalized : null;
 }
 async function createOpportunity(opportunity) {
-    const { name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type } = opportunity;
-    const resolvedSport = sport ?? DEFAULT_SPORT;
-    const resolvedSeason = season ?? DEFAULT_SEASON;
-    const resolvedYear = year ?? DEFAULT_YEAR;
-    const resolvedChannelType = normalizeChannelType(channel_type ?? deal_type ?? 'UNIFORM');
+    const name = opportunity.name;
+    // Accept both camelCase and snake_case for foreign key fields
+    const organization_id = opportunity.organization_id ?? opportunity.organizationId;
+    const sport = opportunity.sport ?? DEFAULT_SPORT;
+    const season = opportunity.season ?? DEFAULT_SEASON;
+    const year = opportunity.year ?? DEFAULT_YEAR;
+    // Resolve rep/director names to IDs — frontend sends string names, backend expects numeric IDs
+    const repName = opportunity.assignedRep;
+    const directorName = opportunity.assignedDirector;
+    const assigned_rep_id = opportunity.assigned_rep_id ?? (repName ? await (0, resolve_user_1.resolveUserId)(repName) : null);
+    const assigned_director_id = opportunity.assigned_director_id ?? (directorName ? await (0, resolve_user_1.resolveUserId)(directorName) : null);
+    const resolvedChannelType = normalizeChannelType(opportunity.channel_type ?? opportunity.deal_type ?? 'UNIFORM');
+    // Accept frontend estimated_value as value
+    const value = opportunity.value ?? opportunity.estimated_value ?? 0;
+    const created_by = opportunity.created_by ?? opportunity.createdBy ?? assigned_rep_id ?? 1;
+    const updated_by = opportunity.updated_by ?? opportunity.updatedBy ?? created_by;
+    const status = opportunity.status || 'open';
+    const stage = normalizeStage(opportunity.stage ?? '') || auth_1.STAGES.LEAD;
+    const resolvedSport = sport;
+    const resolvedSeason = season;
+    const resolvedYear = year;
     if (!resolvedChannelType) {
         throw new Error('channel_type is required and must be one of UNIFORM, TRAVEL_GEAR, TEAM_STORE, LETTERMAN');
     }
@@ -91,18 +123,18 @@ async function createOpportunity(opportunity) {
         resolvedSport,
         resolvedSeason,
         resolvedYear,
-        status || 'open',
-        value ?? 0,
+        status,
+        value,
         created_by,
         updated_by,
-        normalizeStage(stage ?? '') || auth_1.STAGES.LEAD,
-        next_action,
-        expected_close_date,
-        last_activity_date || new Date(),
+        stage,
+        opportunity.next_action,
+        opportunity.expected_close_date,
+        opportunity.last_activity_date || new Date(),
         assigned_rep_id,
         assigned_director_id,
-        estimated_revenue,
-        deal_type || resolvedChannelType,
+        opportunity.estimated_revenue,
+        opportunity.deal_type || resolvedChannelType,
         resolvedChannelType,
     ]);
     return result.rows[0];
@@ -239,7 +271,37 @@ async function updateOpportunity(id, updates) {
             throw new Error('Opportunity not found');
         }
         const currentOpportunity = currentOpportunityResult.rows[0];
+        // Resolve rep/director names to IDs before merging
+        const repName = updates.assignedRep;
+        const directorName = updates.assignedDirector;
+        if (repName) {
+            const resolved = await (0, resolve_user_1.resolveUserId)(repName);
+            if (resolved !== null)
+                updates.assigned_rep_id = resolved;
+        }
+        if (directorName) {
+            const resolved = await (0, resolve_user_1.resolveUserId)(directorName);
+            if (resolved !== null)
+                updates.assigned_director_id = resolved;
+        }
+        // Accept camelCase for field names
+        if (updates.organizationId !== undefined) {
+            updates.organization_id = updates.organizationId;
+        }
+        if (updates.estimated_value !== undefined) {
+            updates.value = updates.estimated_value;
+        }
+        if (updates.updatedBy !== undefined) {
+            updates.updated_by = updates.updatedBy;
+        }
+        if (updates.createdBy !== undefined) {
+            updates.created_by = updates.createdBy;
+        }
         const newOpportunity = { ...currentOpportunity, ...updates, updated_at: new Date() };
+        // Normalize stage if it was sent as a TUF display name
+        if (updates.stage) {
+            newOpportunity.stage = normalizeStage(String(updates.stage));
+        }
         const { name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type, actual_revenue, actual_cost, gross_profit, closed_at, loss_reason } = newOpportunity;
         const result = await client.query(`UPDATE opportunities SET
         name = $1, organization_id = $2, sport = $3, season = $4, year = $5, status = $6, value = $7, created_by = $8, updated_by = $9, stage = $10, next_action = $11, expected_close_date = $12, last_activity_date = $13, assigned_rep_id = $14, assigned_director_id = $15, estimated_revenue = $16, deal_type = $17, channel_type = $18, actual_revenue = $19, actual_cost = $20, gross_profit = $21, closed_at = $22, loss_reason = $23, updated_at = $24

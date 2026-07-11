@@ -17,6 +17,7 @@ const creative_requests_routes_1 = require("./modules/creative-requests/creative
 const training_routes_1 = require("./modules/training/training.routes");
 const announcements_routes_1 = require("./modules/announcements/announcements.routes");
 const users_routes_1 = require("./modules/users/users.routes");
+const daily_activities_routes_1 = require("./modules/daily-activities/daily-activities.routes");
 const users_service_1 = require("./modules/users/users.service");
 const database_1 = require("@packages/database");
 const auth_1 = require("./auth");
@@ -24,11 +25,20 @@ const server = (0, fastify_1.default)();
 const port = Number(process.env.PORT || 4000);
 const webDistPath = process.env.WEB_DIST_PATH || node_path_1.default.resolve(__dirname, '../../web/dist');
 const indexHtmlPath = node_path_1.default.join(webDistPath, 'index.html');
-const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?)/;
+const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|daily-command(?:\/.*)?)/;
 const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,https://ops.tufsports.us,https://tufops.app')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
+// Also allow Vercel preview deployments
+function resolveOrigin(origin, callback) {
+    if (!origin || corsOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+    }
+    else {
+        callback(new Error('Not allowed by CORS'), false);
+    }
+}
 const mimeTypes = {
     '.css': 'text/css; charset=utf-8',
     '.html': 'text/html; charset=utf-8',
@@ -78,7 +88,7 @@ function emptyDataHealthPayload(status, reason) {
     };
 }
 server.register(cors_1.default, {
-    origin: corsOrigins,
+    origin: resolveOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 });
 server.addHook('onRequest', auth_1.authMiddleware);
@@ -111,6 +121,7 @@ server.register(production_requests_routes_1.productionRequestRoutes, { prefix: 
 server.register(orders_routes_1.orderRoutes, { prefix: '/api/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/api' });
 server.register(users_routes_1.userRoutes, { prefix: '/api/auth' });
+server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/api/v1/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/api/v1/opportunities' });
 server.register(activities_routes_1.activityRoutes, { prefix: '/api/v1/activities' });
@@ -118,9 +129,10 @@ server.register(reporting_routes_1.reportingRoutes, { prefix: '/api/v1/reporting
 server.register(production_requests_routes_1.productionRequestRoutes, { prefix: '/api/v1/production-requests' });
 server.register(orders_routes_1.orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/api/v1' });
-server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
 server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' });
 server.register(announcements_routes_1.announcementRoutes, { prefix: '/api/v1' });
+server.register(daily_activities_routes_1.dailyActivityRoutes, { prefix: '/api/daily-activities' });
+server.register(daily_activities_routes_1.dailyActivityRoutes, { prefix: '/api/v1/daily-activities' });
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/opportunities' });
 server.register(activities_routes_1.activityRoutes, { prefix: '/activities' });
