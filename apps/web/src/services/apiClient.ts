@@ -16,18 +16,18 @@ export async function apiClient<T>(path: string, config: ApiRequestConfig = {}):
 
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
-  // Attach auth token if available (stored in localStorage after login)
+  // Attach auth token if available — skip for login endpoint
   try {
-    const rawUser = localStorage.getItem('tuf_ops_user_v3');
-    if (rawUser) {
-      const parsed = JSON.parse(rawUser);
-      if (parsed.token) {
-        headers['Authorization'] = `Bearer ${parsed.token}`;
+    if (!path.includes('/auth/login')) {
+      const rawUser = localStorage.getItem('tuf_ops_user_v3');
+      if (rawUser) {
+        const parsed = JSON.parse(rawUser);
+        if (parsed.token) {
+          headers['Authorization'] = `Bearer ${parsed.token}`;
+        }
       }
     }
-  } catch {
-    // fail silently — no token, no auth header
-  }
+  } catch {}
 
   const maxRetries = 3;
   const delays = [1000, 2000, 4000];
