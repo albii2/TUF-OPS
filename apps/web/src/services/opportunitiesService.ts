@@ -302,7 +302,7 @@ export async function listOpportunitiesAsync(params: OpportunityListParams = {})
     if (params.rep) query.rep = params.rep;
     if (params.sport) query.sport = params.sport;
     const raw = await apiClient<any[]>('/opportunities', { query });
-    return raw.map(normalizeApiOpportunity);
+    return (raw || []).filter(Boolean).map(normalizeApiOpportunity);
   }
   return listOpportunities(params);
 }
