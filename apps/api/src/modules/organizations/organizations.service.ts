@@ -2,6 +2,7 @@ import { pool } from '@packages/database';
 import { OpportunityChannelType } from '../opportunities/opportunities.interface';
 import { STAGES } from '@packages/auth';
 import { resolveUserId } from '../shared/resolve-user';
+import { auditLog } from '../shared/audit-log';
 
 const REQUIRED_CHANNELS: OpportunityChannelType[] = [
   OpportunityChannelType.UNIFORM,
@@ -51,6 +52,15 @@ export async function createOrganization(organization: any) {
     );
     const createdOrganization = orgResult.rows[0];
     await client.query('COMMIT');
+
+    // Audit log
+    auditLog({
+      action: 'CREATE',
+      user_id: created_by,
+      resource_type: 'organization',
+      resource_id: createdOrganization.id,
+      metadata: { name, state },
+    }).catch(() => {});
 
     // Fire-and-forget: create auto-opportunities in the background
     // Don't block the response — org is saved, opps will populate async
@@ -120,7 +130,17 @@ export async function updateOrganization(id: string, organization: any) {
       'UPDATE organizations SET name = $1, state = $2, assigned_rep_id = $3, assigned_director_id = $4, territory_id = $5, updated_by = $6, updated_at = NOW() WHERE id = $7 RETURNING *',
       [name, state, assigned_rep_id, assigned_director_id, territory_id, updated_by, id]
     );
-    return result.rows[0];
+    const updatedOrg = result.rows[0];
+
+    auditLog({
+      action: 'UPDATE',
+      user_id: updated_by,
+      resource_type: 'organization',
+      resource_id: id,
+      metadata: { name, state },
+    }).catch(() => {});
+
+    return updatedOrg;
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new Error('Organization already exists for this name and state');
@@ -129,6 +149,12 @@ export async function updateOrganization(id: string, organization: any) {
   }
 }
 
-export async function deleteOrganization(id: string) {
+export async function deleteOrganization(id: string, userId?: number | null) {
   await pool.query('DELETE FROM organizations WHERE id = $1', [id]);
+  auditLog({
+    action: 'DELETE',
+    user_id: userId ?? null,
+    resource_type: 'organization',
+    resource_id: id,
+  }).catch(() => {});
 }

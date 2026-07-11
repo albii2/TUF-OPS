@@ -6,6 +6,7 @@ export async function upsertDailyActivityHandler(request: FastifyRequest, reply:
   if (!request.currentUser) {
     return reply.code(401).send({ error: 'Authentication required' });
   }
+  const body = request.body as DailyActivityInput;
   try {
     const activity = await upsertDailyActivity(request.currentUser.id, request.body as DailyActivityInput);
     return reply.code(200).send(activity);

@@ -3,6 +3,7 @@ import { STAGES, isValidTransition, isSalesStage, isFulfillmentStage } from '@pa
 import { Opportunity, OpportunityStageHistory, OpportunityChannelType, CanonicalStage } from './opportunities.interface';
 import { createCommission } from '../commissions/commissions.service';
 import { resolveUserId } from '../shared/resolve-user';
+import { auditLog } from '../shared/audit-log';
 
 const REQUIRED_CHANNELS: OpportunityChannelType[] = [
   OpportunityChannelType.UNIFORM,
@@ -155,7 +156,17 @@ export async function createOpportunity(opportunity: Partial<Opportunity> & {
       resolvedChannelType,
     ]
   );
-  return result.rows[0];
+  const newOpp = result.rows[0];
+
+  auditLog({
+    action: 'CREATE',
+    user_id: created_by,
+    resource_type: 'opportunity',
+    resource_id: newOpp.id,
+    metadata: { name, stage, organization_id, channel_type: resolvedChannelType },
+  }).catch(() => {});
+
+  return newOpp;
 }
 
 export async function getOpportunitiesByOrganization(organizationId: string): Promise<Opportunity[]> {
@@ -308,6 +319,15 @@ export async function updateOpportunityStage(
     }
 
     await client.query('COMMIT');
+
+    auditLog({
+      action: 'STAGE_CHANGE',
+      user_id: changedBy,
+      resource_type: 'opportunity',
+      resource_id: opportunityId,
+      metadata: { from_stage: fromStage, to_stage: normalizedTo, actual_revenue, actual_cost },
+    }).catch(() => {});
+
     return updatedOpp;
   } catch (error) {
     await client.query('ROLLBACK');
@@ -378,7 +398,17 @@ export async function updateOpportunity(id: number, updates: Partial<Opportunity
       [name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, next_action, expected_close_date, last_activity_date, assigned_rep_id, assigned_director_id, estimated_revenue, deal_type, channel_type, actual_revenue, actual_cost, gross_profit, closed_at, loss_reason, newOpportunity.updated_at, id]
     );
 
-    return result.rows[0];
+    const updatedOpp = result.rows[0];
+
+    auditLog({
+      action: 'UPDATE',
+      user_id: updated_by ?? null,
+      resource_type: 'opportunity',
+      resource_id: id,
+      metadata: { name, stage },
+    }).catch(() => {});
+
+    return updatedOpp;
   } finally {
     client.release();
   }

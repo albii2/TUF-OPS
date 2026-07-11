@@ -6,6 +6,9 @@ export async function createOrganizationHandler(request: FastifyRequest, reply: 
   try {
     // Inject authenticated user as created_by/updated_by if not provided
     const body = request.body as any;
+    if (!body.name?.trim()) {
+      return reply.code(400).send({ message: 'Organization name is required' });
+    }
     const actorId = (request as any).currentUser?.id;
     console.log('createOrganizationHandler actorId:', actorId, 'hasUser:', !!(request as any).currentUser);
     if (actorId && !body.created_by) body.created_by = actorId;
@@ -53,6 +56,7 @@ export async function updateOrganizationHandler(request: FastifyRequest, reply: 
 
 export async function deleteOrganizationHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as any;
-  await deleteOrganization(id);
+  const userId = request.currentUser?.id ?? null;
+  await deleteOrganization(id, userId);
   return reply.code(204).send();
 }

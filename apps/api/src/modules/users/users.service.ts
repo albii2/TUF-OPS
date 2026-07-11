@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 import { pool } from '@packages/database';
 import { generateTemporaryCredential, hashCredential, validatePermanentCredential, validateTemporaryCredential, verifyCredential } from './credentials';
 import type { AuthSession, ChangeCredentialPayload, CreateUserPayload, CredentialAuditAction, LoginPayload, SafeUser, UserRole } from './users.interface';
+import { auditLog } from '../shared/audit-log';
 
 const SENSITIVE_FIELDS = new Set(['password', 'password_hash', 'credential_hash']);
 const MAX_FAILED_ATTEMPTS = 5;
@@ -251,5 +252,15 @@ export async function certifyUser(userId: number, actor: SafeUser): Promise<Safe
 
   if (!result.rows[0]) throw new Error('User not found or cannot be certified');
 
-  return sanitizeUser(result.rows[0]);
+  const certifiedUser = sanitizeUser(result.rows[0]);
+
+  auditLog({
+    action: 'UPDATE',
+    user_id: actor.id,
+    resource_type: 'user',
+    resource_id: userId,
+    metadata: { action: 'certify_user' },
+  }).catch(() => {});
+
+  return certifiedUser;
 }

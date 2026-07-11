@@ -4,7 +4,14 @@ import { createOpportunity, getOpportunities, getOpportunitiesByOrganization, up
 
 export async function createOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const opportunity = await createOpportunity(request.body as any);
+    const body = request.body as any;
+    if (!body.name?.trim()) {
+      return reply.code(400).send({ message: 'Opportunity name is required' });
+    }
+    if (!body.organization_id && !body.organizationId) {
+      return reply.code(400).send({ message: 'organization_id is required' });
+    }
+    const opportunity = await createOpportunity(body);
     return reply.code(201).send(opportunity);
   } catch (error: any) {
     if (error.message.includes('already exists') || error.message.includes('channel_type is required')) {
@@ -28,6 +35,10 @@ export async function getOpportunitiesHandler(request: FastifyRequest, reply: Fa
 export async function updateOpportunityStageHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as any;
   const { stage, changed_by, note, actual_revenue, actual_cost, loss_reason } = request.body as any;
+
+  if (!stage) {
+    return reply.code(400).send({ message: 'stage is required' });
+  }
 
   try {
     const updatedOpportunity = await updateOpportunityStage(Number(id), stage, changed_by, note, { actual_revenue, actual_cost, loss_reason });

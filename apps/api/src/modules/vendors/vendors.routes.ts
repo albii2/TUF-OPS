@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { requireCertification, requirePermission, permissions } from '../../auth';
 import {
   createVendorController,
   getVendorController,
@@ -21,37 +22,41 @@ import {
   getAllCapacityStatusController,
 } from './vendors.controller';
 
+const vendorAuth = [requireCertification()];
+const vendorWriteAuth = [requireCertification(), requirePermission(permissions.CONFIGURE_TERRITORY)];
+const vendorOpsAuth = [requireCertification(), requirePermission(permissions.VIEW_OPERATIONS_QUEUE)];
+
 export async function vendorRoutes(fastify: FastifyInstance) {
   // Vendor Management
-  fastify.post('/vendors', createVendorController);
-  fastify.get('/vendors', getVendorsController);
-  fastify.get('/vendors/:id', getVendorController);
-  fastify.patch('/vendors/:id', updateVendorController);
+  fastify.post('/vendors', { preHandler: vendorWriteAuth }, createVendorController);
+  fastify.get('/vendors', { preHandler: vendorAuth }, getVendorsController);
+  fastify.get('/vendors/:id', { preHandler: vendorAuth }, getVendorController);
+  fastify.patch('/vendors/:id', { preHandler: vendorWriteAuth }, updateVendorController);
 
   // Vendor Agreements
-  fastify.post('/vendors/:vendorId/agreements', createVendorAgreementController);
-  fastify.get('/vendors/:vendorId/agreements', getVendorAgreementsController);
-  fastify.get('/vendors/:vendorId/agreements/active', getActiveVendorAgreementController);
+  fastify.post('/vendors/:vendorId/agreements', { preHandler: vendorWriteAuth }, createVendorAgreementController);
+  fastify.get('/vendors/:vendorId/agreements', { preHandler: vendorAuth }, getVendorAgreementsController);
+  fastify.get('/vendors/:vendorId/agreements/active', { preHandler: vendorAuth }, getActiveVendorAgreementController);
 
   // Performance Metrics
-  fastify.post('/vendors/:vendorId/performance', recordPerformanceController);
-  fastify.get('/vendors/:vendorId/performance', getPerformanceController);
+  fastify.post('/vendors/:vendorId/performance', { preHandler: vendorOpsAuth }, recordPerformanceController);
+  fastify.get('/vendors/:vendorId/performance', { preHandler: vendorAuth }, getPerformanceController);
 
   // Vendor Payments
-  fastify.post('/vendors/:vendorId/payments', createPaymentController);
-  fastify.get('/vendors/:vendorId/payments', getPaymentsController);
-  fastify.patch('/vendors/payments/:paymentId/status', updatePaymentStatusController);
+  fastify.post('/vendors/:vendorId/payments', { preHandler: vendorWriteAuth }, createPaymentController);
+  fastify.get('/vendors/:vendorId/payments', { preHandler: vendorAuth }, getPaymentsController);
+  fastify.patch('/vendors/payments/:paymentId/status', { preHandler: vendorWriteAuth }, updatePaymentStatusController);
 
   // Order Assignment
-  fastify.post('/orders/:orderId/assign-vendor', assignOrderController);
-  fastify.get('/orders/:orderId/vendor-assignments', getOrderAssignmentsController);
-  fastify.get('/vendors/:vendorId/active-orders', getVendorActiveOrdersController);
+  fastify.post('/orders/:orderId/assign-vendor', { preHandler: vendorOpsAuth }, assignOrderController);
+  fastify.get('/orders/:orderId/vendor-assignments', { preHandler: vendorAuth }, getOrderAssignmentsController);
+  fastify.get('/vendors/:vendorId/active-orders', { preHandler: vendorAuth }, getVendorActiveOrdersController);
 
   // Settlement
-  fastify.patch('/orders/:orderId/settlement', updateSettlementController);
-  fastify.get('/orders/pending-vendor-payments', getPendingPaymentsController);
+  fastify.patch('/orders/:orderId/settlement', { preHandler: vendorWriteAuth }, updateSettlementController);
+  fastify.get('/orders/pending-vendor-payments', { preHandler: vendorAuth }, getPendingPaymentsController);
 
   // Analytics
-  fastify.get('/vendors/:vendorId/capacity-utilization', getCapacityUtilizationController);
-  fastify.get('/vendors/capacity-status/all', getAllCapacityStatusController);
+  fastify.get('/vendors/:vendorId/capacity-utilization', { preHandler: vendorAuth }, getCapacityUtilizationController);
+  fastify.get('/vendors/capacity-status/all', { preHandler: vendorAuth }, getAllCapacityStatusController);
 }

@@ -1,5 +1,6 @@
 import { pool } from '@packages/database';
 import type { Candidate, CandidateActivity, CreateCandidateInput, UpdateCandidateInput, CandidateStage } from '@tuf/shared';
+import { auditLog } from '../shared/audit-log';
 
 export async function createCandidate(input: CreateCandidateInput): Promise<Candidate> {
   const result = await pool.query<Candidate>(
@@ -25,7 +26,17 @@ export async function createCandidate(input: CreateCandidateInput): Promise<Cand
     [result.rows[0].id, input.created_by || null]
   );
 
-  return result.rows[0];
+  const candidate = result.rows[0];
+
+  auditLog({
+    action: 'CREATE',
+    user_id: input.created_by ?? null,
+    resource_type: 'candidate',
+    resource_id: candidate.id,
+    metadata: { first_name: candidate.first_name, last_name: candidate.last_name, stage: candidate.stage },
+  }).catch(() => {});
+
+  return candidate;
 }
 
 export async function getCandidates(params: {
@@ -98,6 +109,8 @@ export async function updateCandidate(id: number, input: UpdateCandidateInput): 
     [...values, id]
   );
 
+  const updatedCandidate = result.rows[0];
+
   // Log stage change activity
   if (input.stage && input.stage !== current.stage) {
     await pool.query(
@@ -107,7 +120,17 @@ export async function updateCandidate(id: number, input: UpdateCandidateInput): 
     );
   }
 
-  return result.rows[0];
+  if (updatedCandidate) {
+    auditLog({
+      action: 'UPDATE',
+      user_id: null, // updateCandidate doesn't receive actor ID currently
+      resource_type: 'candidate',
+      resource_id: id,
+      metadata: { stage: updatedCandidate.stage },
+    }).catch(() => {});
+  }
+
+  return updatedCandidate;
 }
 
 export async function setResumeUrl(id: number, url: string): Promise<Candidate | null> {

@@ -14,6 +14,10 @@ export async function createActivityHandler(request: FastifyRequest, reply: Fast
   const due_date = body.due_date ?? body.dueDate;
   const completed = body.completed;
 
+  if (!type) {
+    return reply.code(400).send({ message: 'Activity type is required' });
+  }
+
   if (!Object.values(ActivityType).includes(type)) {
     return reply.code(400).send({ message: 'Invalid activity type' });
   }
@@ -64,6 +68,13 @@ export async function createRepActivityHandler(request: FastifyRequest, reply: F
   }
 
   const { opportunity_id, activity_type, notes } = request.body as any;
+
+  if (!opportunity_id) {
+    return reply.code(400).send({ message: 'opportunity_id is required' });
+  }
+  if (!activity_type) {
+    return reply.code(400).send({ message: 'activity_type is required' });
+  }
 
   try {
     const activity = await createRepActivity({
