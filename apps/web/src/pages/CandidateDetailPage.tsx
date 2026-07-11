@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCandidate, updateCandidate, getCandidateActivities, STAGES, STAGE_LABELS, STAGE_COLORS, type Candidate, type CandidateActivity } from '../services/recruitingService';
+import { apiClient } from '../services/apiClient';
 
 const SCORECARD_FIELDS = [
   { key: 'communication', label: 'Communication' },
@@ -20,6 +21,29 @@ export default function CandidateDetailPage() {
   const [saving, setSaving] = useState(false);
   const [scorecard, setScorecard] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState('');
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !candidate) return;
+    setUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(',')[1];
+        await apiClient(`/recruiting/${candidate.id}/resume`, {
+          method: 'POST',
+          body: { file_data: base64, file_name: file.name },
+        });
+        await load();
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Upload failed', err);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -195,12 +219,25 @@ export default function CandidateDetailPage() {
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-4">
             <h2 className="text-sm font-semibold text-gray-300 mb-3">Resume</h2>
             {candidate.resume_url ? (
-              <a href={candidate.resume_url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline text-sm">
-                View Resume →
-              </a>
+              <div>
+                <a href={candidate.resume_url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline text-sm block mb-2">
+                  📄 View Resume →
+                </a>
+                <p className="text-gray-500 text-xs">Upload a new file to replace.</p>
+              </div>
             ) : (
-              <p className="text-gray-500 text-sm">No resume uploaded.</p>
+              <p className="text-gray-500 text-sm mb-2">No resume uploaded.</p>
             )}
+            <label className="block mt-2">
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                className="text-sm text-gray-300 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-cyan-700 file:text-white hover:file:bg-cyan-600 disabled:opacity-50"
+              />
+            </label>
+            {uploading && <p className="text-cyan-400 text-xs mt-1">Uploading...</p>}
           </div>
 
           {/* Activity Timeline */}

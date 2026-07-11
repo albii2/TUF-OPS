@@ -59,8 +59,29 @@ export async function uploadResumeHandler(request: FastifyRequest, reply: Fastif
   try {
     const { id } = request.params as any;
     const data = request.body as any;
-    const url = data?.resume_url;
-    if (!url) return reply.code(400).send({ error: 'resume_url is required' });
+    
+    // Accept either a URL or a base64-encoded file
+    const resumeUrl = data?.resume_url;
+    const fileData = data?.file_data;  // base64
+    const fileName = data?.file_name || 'resume.pdf';
+    
+    let url = resumeUrl;
+    
+    if (fileData && !url) {
+      // Save base64-encoded file to disk
+      const fs = await import('node:fs');
+      const path = await import('node:path');
+      const uploadDir = path.join(process.cwd(), 'uploads', 'resumes');
+      await fs.promises.mkdir(uploadDir, { recursive: true });
+      
+      const filePath = path.join(uploadDir, `${id}_${Date.now()}_${fileName}`);
+      const buffer = Buffer.from(fileData, 'base64');
+      await fs.promises.writeFile(filePath, buffer);
+      url = `/uploads/resumes/${path.basename(filePath)}`;
+    }
+    
+    if (!url) return reply.code(400).send({ error: 'resume_url or file_data is required' });
+    
     const candidate = await setResumeUrl(Number(id), url);
     if (!candidate) return reply.code(404).send({ error: 'Candidate not found' });
     return reply.send(candidate);
