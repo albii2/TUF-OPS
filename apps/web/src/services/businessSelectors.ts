@@ -16,14 +16,15 @@ export function getStuckOpportunities(opportunities: Opportunity[]): Opportunity
 
 export function getLanePenetration(organizations: Organization[]): Record<RevenueLane, number> {
   const totals: Record<RevenueLane, number> = {
-    UNIFORM: 0, TRAVEL_GEAR: 0, TEAM_STORE: 0, LETTERMAN: 0,
+    UNIFORM: 0,
+    TRAVEL_GEAR: 0,
+    TEAM_STORE: 0,
+    LETTERMAN: 0,
   };
-  if (!organizations || !Array.isArray(organizations)) return totals;
 
   organizations.forEach((org) => {
-    if (!org?.laneStatuses) return;
     (Object.keys(org.laneStatuses) as RevenueLane[]).forEach((lane) => {
-      if (org.laneStatuses[lane]?.status === 'ACTIVE' || org.laneStatuses[lane]?.status === 'WON') {
+      if (org.laneStatuses[lane].status === 'ACTIVE' || org.laneStatuses[lane].status === 'WON') {
         totals[lane] += 1;
       }
     });
@@ -33,10 +34,9 @@ export function getLanePenetration(organizations: Organization[]): Record<Revenu
 }
 
 export function getOrganizationPriorityScore(org: Organization): number {
-  if (!org?.laneStatuses) return org?.pipelineValue || 0;
-  const activeLaneCount = Object.values(org.laneStatuses).filter((lane) => lane?.status === 'ACTIVE').length;
-  const openLaneCount = Object.values(org.laneStatuses).filter((lane) => lane?.status === 'OPEN').length;
-  return (org.pipelineValue || 0) + activeLaneCount * 5000 + openLaneCount * 2500;
+  const activeLaneCount = Object.values(org.laneStatuses).filter((lane) => lane.status === 'ACTIVE').length;
+  const openLaneCount = Object.values(org.laneStatuses).filter((lane) => lane.status === 'OPEN').length;
+  return org.pipelineValue + activeLaneCount * 5000 + openLaneCount * 2500;
 }
 
 export function getOrderRiskScore(order: Order): number {
