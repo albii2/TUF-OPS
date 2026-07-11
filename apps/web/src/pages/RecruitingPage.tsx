@@ -105,6 +105,21 @@ export default function RecruitingPage() {
               {SOURCES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
             </select>
             <input
+              placeholder="Position Applied" value={(form as any).position_applied || ''}
+              onChange={e => setForm({ ...form, position_applied: e.target.value } as any)}
+              className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
+            />
+            <input
+              placeholder="Position Recommended" value={(form as any).position_recommended || ''}
+              onChange={e => setForm({ ...form, position_recommended: e.target.value } as any)}
+              className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
+            />
+            <input
+              placeholder="Assigned Recruiter" value={(form as any).assigned_recruiter || ''}
+              onChange={e => setForm({ ...form, assigned_recruiter: e.target.value } as any)}
+              className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"
+            />
+            <input
               placeholder="Resume URL (link to file)" value={(form as any).resume_url || ''}
               onChange={e => setForm({ ...form, resume_url: e.target.value } as any)}
               className="bg-gray-800 border border-gray-700 rounded px-3 py-2 text-white text-sm"

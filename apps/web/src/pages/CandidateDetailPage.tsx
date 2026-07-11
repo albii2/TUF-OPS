@@ -120,7 +120,7 @@ export default function CandidateDetailPage() {
         <div>
           <h1 className="text-2xl font-bold text-white">{candidate.first_name} {candidate.last_name}</h1>
           <p className="text-gray-400">{candidate.email} {candidate.phone ? `· ${candidate.phone}` : ''}</p>
-          <p className="text-gray-500 text-sm capitalize">Source: {candidate.source}</p>
+          <p className="text-gray-500 text-sm capitalize">Source: {candidate.source}{candidate.position_applied ? ` · Applied: ${candidate.position_applied}` : ''}{candidate.assigned_recruiter ? ` · Recruiter: ${candidate.assigned_recruiter}` : ''}</p>
         </div>
         <span className={`${STAGE_COLORS[candidate.stage] || 'bg-gray-600'} text-white text-sm px-4 py-1 rounded-full font-semibold`}>
           {STAGE_LABELS[candidate.stage] || candidate.stage}

@@ -33,6 +33,7 @@ export type {
   CandidateActivity,
   CreateCandidateInput,
   UpdateCandidateInput,
+  OfferStatus,
 } from './types/candidate.js';
 
 export {

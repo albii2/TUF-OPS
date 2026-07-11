@@ -4,8 +4,8 @@ import { auditLog } from '../shared/audit-log';
 
 export async function createCandidate(input: CreateCandidateInput): Promise<Candidate> {
   const result = await pool.query<Candidate>(
-    `INSERT INTO candidates (first_name, last_name, email, phone, source, notes, assigned_director_id, created_by)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO candidates (first_name, last_name, email, phone, source, position_applied, position_recommended, assigned_recruiter, notes, assigned_director_id, created_by)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING *`,
     [
       input.first_name.trim(),
@@ -13,6 +13,9 @@ export async function createCandidate(input: CreateCandidateInput): Promise<Cand
       input.email.trim().toLowerCase(),
       input.phone || null,
       input.source || 'other',
+      input.position_applied || null,
+      input.position_recommended || null,
+      input.assigned_recruiter || null,
       input.notes || null,
       input.assigned_director_id || null,
       input.created_by || null,
