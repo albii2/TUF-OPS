@@ -1,3 +1,3 @@
 export type DataMode = 'mock' | 'api';
-// TUF Ops is a live production system. Always use the API.
-export const DATA_MODE: DataMode = 'api';
+// Set VITE_DATA_MODE=api at build time to switch to live PostgreSQL mode.
+export const DATA_MODE: DataMode = (import.meta.env.VITE_DATA_MODE || 'mock') === 'api' ? 'api' : 'mock';
