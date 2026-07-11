@@ -1,82 +1,108 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
+  getOrganizationById,
   getOrganizationByIdAsync,
+  listAccountsNeedingAction,
+  listOrganizations,
   listOrganizationsAsync,
+  listStaleAccounts,
+  listUntouchedAccounts,
   type OrganizationListParams,
 } from '../services/organizationsService';
 import type { Organization } from '../data/mockSalesData';
+import { DATA_MODE } from '../services/dataMode';
 
 export function useOrganizations(params: OrganizationListParams): Organization[] {
-  const [data, setData] = useState<Organization[]>([]);
+  const [apiData, setApiData] = useState<Organization[]>([]);
 
   useEffect(() => {
-    let cancelled = false;
-    listOrganizationsAsync(params).then((res) => {
-      if (!cancelled) setData(res);
-    }).catch(() => {});
-    return () => { cancelled = true; };
+    if (DATA_MODE === 'api') {
+      let cancelled = false;
+      listOrganizationsAsync(params).then((data) => {
+        if (!cancelled) setApiData(data);
+      }).catch(() => {});
+      return () => { cancelled = true; };
+    }
   }, [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority, params.refreshKey]);
 
-  return data;
+  if (DATA_MODE === 'api') return apiData;
+
+  return useMemo(
+    () => listOrganizations(params),
+    [params.search, params.status, params.rep, params.territory, params.director, params.coverageStatus, params.priority, params.refreshKey],
+  );
 }
 
 export function useOrganizationById(id?: string): Organization | undefined {
-  const [data, setData] = useState<Organization | undefined>(undefined);
+  const [apiData, setApiData] = useState<Organization | undefined>(undefined);
 
   useEffect(() => {
-    if (!id) { setData(undefined); return; }
-    let cancelled = false;
-    getOrganizationByIdAsync(id).then((res) => {
-      if (!cancelled) setData(res);
-    }).catch(() => {});
-    return () => { cancelled = true; };
+    if (DATA_MODE === 'api') {
+      if (!id) { setApiData(undefined); return; }
+      let cancelled = false;
+      getOrganizationByIdAsync(id).then((data) => {
+        if (!cancelled) setApiData(data);
+      }).catch(() => {});
+      return () => { cancelled = true; };
+    }
   }, [id]);
 
-  return data;
+  if (DATA_MODE === 'api') return apiData;
+
+  return useMemo(() => (id ? getOrganizationById(id) : undefined), [id]);
 }
 
 export function useUntouchedAccounts(): Organization[] {
-  const [data, setData] = useState<Organization[]>([]);
+  const [apiData, setApiData] = useState<Organization[]>([]);
 
   useEffect(() => {
-    let cancelled = false;
-    listOrganizationsAsync({}).then((res) => {
-      if (!cancelled) setData(res.filter((o) => o.coverageStatus === 'UNTOUCHED'));
-    }).catch(() => {});
-    return () => { cancelled = true; };
+    if (DATA_MODE === 'api') {
+      let cancelled = false;
+      listOrganizationsAsync({}).then((data) => {
+        if (!cancelled) setApiData(data.filter((o) => o.coverageStatus === 'UNTOUCHED'));
+      }).catch(() => {});
+      return () => { cancelled = true; };
+    }
   }, []);
 
-  return data;
+  if (DATA_MODE === 'api') return apiData;
+  return useMemo(() => listUntouchedAccounts(), []);
 }
 
 export function useStaleAccounts(): Organization[] {
-  const [data, setData] = useState<Organization[]>([]);
+  const [apiData, setApiData] = useState<Organization[]>([]);
 
   useEffect(() => {
-    let cancelled = false;
-    listOrganizationsAsync({}).then((res) => {
-      if (!cancelled) {
-        const threshold = new Date();
-        threshold.setDate(threshold.getDate() - 14);
-        setData(res.filter((o) => new Date(o.lastActivity) < threshold));
-      }
-    }).catch(() => {});
-    return () => { cancelled = true; };
+    if (DATA_MODE === 'api') {
+      let cancelled = false;
+      listOrganizationsAsync({}).then((data) => {
+        if (!cancelled) {
+          const staleThreshold = new Date();
+          staleThreshold.setDate(staleThreshold.getDate() - 14);
+          setApiData(data.filter((o) => new Date(o.lastActivity) < staleThreshold));
+        }
+      }).catch(() => {});
+      return () => { cancelled = true; };
+    }
   }, []);
 
-  return data;
+  if (DATA_MODE === 'api') return apiData;
+  return useMemo(() => listStaleAccounts(), []);
 }
 
 export function useAccountsNeedingAction(): Organization[] {
-  const [data, setData] = useState<Organization[]>([]);
+  const [apiData, setApiData] = useState<Organization[]>([]);
 
   useEffect(() => {
-    let cancelled = false;
-    listOrganizationsAsync({}).then((res) => {
-      if (!cancelled) setData(res.filter((o) => o.coverageStatus !== 'CLOSED' && o.nextAction.trim().length > 0));
-    }).catch(() => {});
-    return () => { cancelled = true; };
+    if (DATA_MODE === 'api') {
+      let cancelled = false;
+      listOrganizationsAsync({}).then((data) => {
+        if (!cancelled) setApiData(data.filter((o) => o.coverageStatus !== 'CLOSED' && o.nextAction.trim().length > 0));
+      }).catch(() => {});
+      return () => { cancelled = true; };
+    }
   }, []);
 
-  return data;
+  if (DATA_MODE === 'api') return apiData;
+  return useMemo(() => listAccountsNeedingAction(), []);
 }
