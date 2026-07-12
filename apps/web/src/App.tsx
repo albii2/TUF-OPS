@@ -34,6 +34,7 @@ import DailyActivityCommand from './pages/DailyActivityCommand';
 import RecruitingPage from './pages/RecruitingPage';
 import CandidateDetailPage from './pages/CandidateDetailPage';
 import ExecutiveIntakePage from './pages/ExecutiveIntakePage';
+import PeopleOpsPage from './pages/PeopleOpsPage';
 import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
@@ -145,6 +146,7 @@ export default function App() {
         <Route path="/recruiting" element={<CertificationProtected user={user} path="/recruiting"><PageProtected user={user} path="/recruiting"><RecruitingPage /></PageProtected></CertificationProtected>} />
         <Route path="/recruiting/:id" element={<CertificationProtected user={user} path="/recruiting"><PageProtected user={user} path="/recruiting"><CandidateDetailPage /></PageProtected></CertificationProtected>} />
         <Route path="/intake" element={<PageProtected user={user} path="/intake"><ExecutiveIntakePage /></PageProtected>} />
+        <Route path="/people" element={<PageProtected user={user} path="/people"><PeopleOpsPage /></PageProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>
