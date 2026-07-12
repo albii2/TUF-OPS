@@ -15,6 +15,7 @@ import { announcementRoutes } from './modules/announcements/announcements.routes
 import { userRoutes } from './modules/users/users.routes';
 import { dailyActivityRoutes } from './modules/daily-activities/daily-activities.routes';
 import { recruitingRoutes } from './modules/recruiting/recruiting.routes';
+import { intakeRoutes } from './modules/intake/intake.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -142,6 +143,7 @@ server.register(announcementRoutes, { prefix: '/api/v1' });
 server.register(dailyActivityRoutes, { prefix: '/api/daily-activities' });
 server.register(dailyActivityRoutes, { prefix: '/api/v1/daily-activities' });
 server.register(recruitingRoutes, { prefix: '/api/recruiting' });
+server.register(intakeRoutes, { prefix: '/api/intake' });
 server.register(recruitingRoutes, { prefix: '/api/v1/recruiting' });
 server.register(organizationRoutes, { prefix: '/organizations' });
 server.register(opportunityRoutes, { prefix: '/opportunities' });
