@@ -132,7 +132,7 @@ export async function updateIntakeItem(id: number, data: {
 
 export async function deleteIntakeItem(id: number): Promise<boolean> {
   const result = await pool.query('DELETE FROM executive_intake WHERE id = $1', [id]);
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }
 
 export async function getOpenDecisions(): Promise<IntakeItem[]> {
