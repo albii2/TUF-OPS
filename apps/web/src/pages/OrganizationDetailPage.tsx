@@ -53,11 +53,12 @@ export function OrganizationDetailPage() {
   const activeSports = laneCoverageBySport.map((x) => x.sport).filter(Boolean);
   const closedRevenue = allOpportunities.filter((o) => o.organizationId === id && o.stage === 'CLOSED_WON').reduce((sum, o) => sum + o.value, 0);
   const pipelineRevenue = allOpportunities.filter((o) => o.organizationId === id && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).reduce((sum, o) => sum + o.value, 0);
+  const laneData = org.laneStatuses || {};
   const laneStates = [
-    { lane: 'UNIFORM', status: org.laneStatuses.UNIFORM.status },
-    { lane: 'TEAM_STORE', status: org.laneStatuses.TEAM_STORE.status },
-    { lane: 'TRAVEL_GEAR', status: org.laneStatuses.TRAVEL_GEAR.status },
-    { lane: 'LETTERMAN', status: org.laneStatuses.LETTERMAN.status },
+    { lane: 'UNIFORM', status: laneData.UNIFORM?.status || 'OPEN' },
+    { lane: 'TEAM_STORE', status: laneData.TEAM_STORE?.status || 'OPEN' },
+    { lane: 'TRAVEL_GEAR', status: laneData.TRAVEL_GEAR?.status || 'OPEN' },
+    { lane: 'LETTERMAN', status: laneData.LETTERMAN?.status || 'OPEN' },
   ];
   const missingLanes = laneStates.filter((x) => x.status === 'OPEN').map((x) => x.lane);
   const suggestedNextLane = missingLanes[0] ?? 'Maintain active lane pressure';
@@ -78,7 +79,8 @@ export function OrganizationDetailPage() {
       return;
     }
 
-    const laneData = org.laneStatuses[lane];
+    const laneData = (org.laneStatuses || {})[lane];
+    const laneInfo = laneData || { estimatedValue: 5000 };
     const createdOpportunity = await createOpportunity({
       organizationId: id,
       organizationName: org.name,
@@ -87,7 +89,7 @@ export function OrganizationDetailPage() {
       seasonCode: String(new Date().getFullYear()),
       lane,
       assignedRep: org.assignedRep,
-      value: laneData.estimatedValue || 5000,
+      value: laneInfo.estimatedValue || 5000,
       organizationAssignedDirector: org.assignedDirector,
     });
 
@@ -195,15 +197,16 @@ export function OrganizationDetailPage() {
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {revenueLanes.map((lane) => {
-          const laneData = org.laneStatuses[lane];
+          const laneData = (org.laneStatuses || {})[lane];
+          const laneInfo = laneData || { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Not set' };
           return (
             <Card key={lane}>
               <div className="space-y-2">
                 <LaneBadge lane={lane} />
-                <LaneStatusBadge status={laneData.status} />
-                <p className="text-lg font-semibold text-cyan-300">{formatCurrency(laneData.estimatedValue)}</p>
-                <p className="text-xs text-slate-400">Active Opps: {laneData.activeOpportunityCount}</p>
-                <p className="text-xs text-slate-300">Next: {laneData.nextAction}</p>
+                <LaneStatusBadge status={laneInfo.status} />
+                <p className="text-lg font-semibold text-cyan-300">{formatCurrency(laneInfo.estimatedValue)}</p>
+                <p className="text-xs text-slate-400">Active Opps: {laneInfo.activeOpportunityCount}</p>
+                <p className="text-xs text-slate-300">Next: {laneInfo.nextAction}</p>
                 <Button className="w-full" onClick={() => attackLane(lane)}>Attack This Lane</Button>
               </div>
             </Card>
