@@ -85,8 +85,9 @@ function normalizeApiUser(raw: any): ManagedUser {
 
 async function fetchUsersFromApi(): Promise<ManagedUser[]> {
   try {
-    const raw = await apiClient<any[]>('/users');
-    return (raw || []).map(normalizeApiUser);
+    const raw = await apiClient<any>('/users');
+    const list = Array.isArray(raw) ? raw : (raw?.users || []);
+    return list.map(normalizeApiUser);
   } catch {
     console.warn('[usersService] Failed to fetch users from API');
     return [];

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Button, Input, Select } from '../components/primitives';
-import { createUser, listUsers, resetUserCredential, updateUser, formatUserDisplay, type ManagedUser } from '../services/usersService';
+import { createUser, listUsersAsync, resetUserCredential, updateUser, formatUserDisplay, type ManagedUser } from '../services/usersService';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
@@ -24,6 +24,7 @@ function getActivityStatus(user: ManagedUser) {
 export function UsersPage() {
   const viewer = getStoredUser();
   const [refresh, setRefresh] = useState(0);
+  const [userList, setUserList] = useState<ManagedUser[]>([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -34,7 +35,12 @@ export function UsersPage() {
   const [oneTimeCredential, setOneTimeCredential] = useState<{ name: string; credential: string; action: 'created' | 'reset' } | null>(null);
   const { success, error } = useToast();
 
-  const users = listUsers();
+  // Fetch users asynchronously on mount and refresh
+  useEffect(() => {
+    listUsersAsync().then(setUserList);
+  }, [refresh]);
+
+  const users = userList;
   const directors = users.filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE');
   const canManage = viewer?.role === 'ADMIN';
   const visible = canManage ? users : [];
