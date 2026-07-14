@@ -105,3 +105,20 @@ export async function getRepActivitiesByOpportunityHandler(request: FastifyReque
   const activities = await getRepActivitiesByOpportunity(Number(opportunity_id));
   return reply.send(activities);
 }
+
+// Generic list handler — supports ?entityType=ORGANIZATION&entityId=123&limit=5
+export async function listActivitiesHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { entityType, entityId, limit } = request.query as any;
+  
+  if (entityType === 'ORGANIZATION' && entityId) {
+    const activities = await getActivitiesByOrganization(Number(entityId));
+    return reply.send(activities.slice(0, limit ? Number(limit) : undefined));
+  }
+  
+  if (entityType === 'OPPORTUNITY' && entityId) {
+    const activities = await getActivitiesByOpportunity(Number(entityId));
+    return reply.send(activities.slice(0, limit ? Number(limit) : undefined));
+  }
+  
+  return reply.code(400).send({ message: 'entityType and entityId required' });
+}
