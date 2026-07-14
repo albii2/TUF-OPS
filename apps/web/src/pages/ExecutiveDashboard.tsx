@@ -36,10 +36,10 @@ export default function ExecutiveDashboard() {
       {loading ? <p className="text-slate-500">Loading...</p> : data ? (
         <div className="grid grid-cols-2 gap-4">
           {/* Decisions */}
-          <Section title="🔴 Executive Decisions" count={data.decisions.length} color="border-red-500">
-            {data.decisions.map((d: any) => (
+          <Section title="🔴 Executive Decisions" count={(data.decisions || []).length} color="border-red-500">
+            {(data.decisions || []).map((d: any) => (
               <div key={d.id} className="text-sm py-1 border-b border-slate-800">
-                <span className="text-red-300 font-semibold">{d.priority.toUpperCase()}</span>
+                <span className="text-red-300 font-semibold">{d.priority?.toUpperCase?.() || ''}</span>
                 <span className="text-white ml-2">{d.title}</span>
                 {d.owner && <span className="text-slate-500 ml-2">— {d.owner}</span>}
               </div>
@@ -47,8 +47,8 @@ export default function ExecutiveDashboard() {
           </Section>
 
           {/* Revenue Blockers */}
-          <Section title="💰 Revenue Blockers" count={data.revenueBlockers.length} color="border-orange-500">
-            {data.revenueBlockers.map((d: any) => (
+          <Section title="💰 Revenue Blockers" count={(data.revenueBlockers || []).length} color="border-orange-500">
+            {(data.revenueBlockers || []).map((d: any) => (
               <div key={d.id} className="text-sm py-1 border-b border-slate-800">
                 <span className="text-white">{d.title}</span>
                 {d.owner && <span className="text-slate-500 ml-2">— {d.owner}</span>}
@@ -57,8 +57,8 @@ export default function ExecutiveDashboard() {
           </Section>
 
           {/* HR Pipeline */}
-          <Section title="👥 People Ops Pipeline" count={data.hr.length} color="border-cyan-500">
-            {data.pipelineStats.map((s: any) => (
+          <Section title="👥 People Ops Pipeline" count={(data.hr || []).length} color="border-cyan-500">
+            {(data.pipelineStats || []).map((s: any) => (
               <div key={s.current_stage} className="flex justify-between text-sm py-0.5">
                 <span className="text-slate-400">{STAGE_LABELS[s.current_stage] || s.current_stage}</span>
                 <span className="text-cyan-300 font-semibold">{s.count}</span>
@@ -67,8 +67,8 @@ export default function ExecutiveDashboard() {
           </Section>
 
           {/* Overdue */}
-          <Section title="⏰ Overdue (>7 days)" count={data.overdue.length} color="border-yellow-500">
-            {data.overdue.map((d: any) => (
+          <Section title="⏰ Overdue (>7 days)" count={(data.overdue || []).length} color="border-yellow-500">
+            {(data.overdue || []).map((d: any) => (
               <div key={d.id} className="text-sm py-1 border-b border-slate-800">
                 <span className="text-yellow-300">{new Date(d.created_at).toLocaleDateString()}</span>
                 <span className="text-white ml-2">{d.title}</span>
