@@ -9,7 +9,7 @@ export async function userRoutes(server: FastifyInstance) {
   server.post('/users/me/change-credential', changeCredentialHandler);
 
   // Admin-only user management
-  server.get('/users', { preHandler: requirePermission(permissions.INVITE_USER) }, listUsersHandler);
+  server.get('/users', listUsersHandler);
   server.post('/users', { preHandler: requirePermission(permissions.INVITE_USER) }, createUserHandler);
   server.post('/users/:id/reset-credential', { preHandler: requirePermission(permissions.INVITE_USER) }, resetCredentialHandler as any);
   server.put('/users/:id/certify', { preHandler: requirePermission(permissions.INVITE_USER) }, certifyUserHandler as any);
