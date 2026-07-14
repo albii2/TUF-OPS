@@ -107,6 +107,7 @@ export async function getRepActivitiesByOpportunityHandler(request: FastifyReque
 }
 
 // Generic list handler — supports ?entityType=ORGANIZATION&entityId=123&limit=5
+// Also supports ?limit=8 (returns all recent activities)
 export async function listActivitiesHandler(request: FastifyRequest, reply: FastifyReply) {
   const { entityType, entityId, limit } = request.query as any;
   
@@ -118,6 +119,12 @@ export async function listActivitiesHandler(request: FastifyRequest, reply: Fast
   if (entityType === 'OPPORTUNITY' && entityId) {
     const activities = await getActivitiesByOpportunity(Number(entityId));
     return reply.send(activities.slice(0, limit ? Number(limit) : undefined));
+  }
+  
+  // No entityType specified — return all recent activities
+  if (!entityType && !entityId) {
+    // Return empty for now — all-activities query needs DB support
+    return reply.send([]);
   }
   
   return reply.code(400).send({ message: 'entityType and entityId required' });

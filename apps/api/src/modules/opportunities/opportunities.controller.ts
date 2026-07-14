@@ -66,3 +66,11 @@ export async function updateOpportunityHandler(request: FastifyRequest, reply: F
     return reply.code(500).send({ message: 'Internal Server Error' });
   }
 }
+
+export async function getOpportunityByIdHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as any;
+  const opportunities = await getOpportunities();
+  const opp = opportunities.find((o: any) => o.id === Number(id));
+  if (!opp) return reply.code(404).send({ message: 'Opportunity not found' });
+  return reply.send(opp);
+}
