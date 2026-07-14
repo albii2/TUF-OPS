@@ -35,9 +35,34 @@ export function UsersPage() {
   const [oneTimeCredential, setOneTimeCredential] = useState<{ name: string; credential: string; action: 'created' | 'reset' } | null>(null);
   const { success, error } = useToast();
 
-  // Fetch users asynchronously on mount and refresh
+  // Fetch users directly from API — bypasses caching issues
   useEffect(() => {
-    listUsersAsync().then(setUserList);
+    const stored = localStorage.getItem('tuf_ops_user_v3');
+    if (!stored) return;
+    const user = JSON.parse(stored);
+    const token = user.token;
+    if (!token) return;
+    fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.json())
+      .then(data => {
+        const list = Array.isArray(data) ? data : (data?.users || []);
+        setUserList(list.map(u => ({
+          id: String(u.id), firstName: '', lastName: '', displayName: u.name || '', email: u.email || '',
+          role: u.role === 'OWNER' ? 'ADMIN' : u.role, rank: u.rank, tier: u.tier,
+          region: u.region, state_market: u.state_market, division: u.division,
+          territory: u.territory || '', subterritory: u.subterritory,
+          sport_focus: u.sport_focus, assignedDirectorId: u.assigned_director_id ? String(u.assigned_director_id) : undefined,
+          reports_to_user_id: u.reports_to_user_id ? String(u.reports_to_user_id) : null,
+          status: u.status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE',
+          avatarColor: ['#1FB6FF','#22C55E','#F59E0B','#A855F7','#EF4444','#14B8A6'][Number(u.id) % 6],
+          mustChangeCredential: Boolean(u.must_change_credential),
+          hrDocsCompleted: Boolean(u.hr_docs_completed),
+          directorSignedOff: Boolean(u.director_signed_off),
+          practicalExerciseCompleted: Boolean(u.practical_exercise_completed),
+          isCertified: Boolean(u.is_certified),
+        })));
+      })
+      .catch(e => console.error('Users fetch error:', e));
   }, [refresh]);
 
   const users = userList;
