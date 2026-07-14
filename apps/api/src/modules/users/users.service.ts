@@ -85,7 +85,7 @@ function sanitizeUser(row: any): SafeUser {
 }
 
 function assertAdmin(actor?: SafeUser | null) {
-  if (!actor || actor.role !== 'ADMIN') throw new Error('Only Owner/Admin users can manage credentials');
+  if (!actor || (actor.role !== 'ADMIN' && actor.role !== 'DIRECTOR')) throw new Error('Only Owner/Admin/Director users can manage credentials');
 }
 
 async function audit(action: CredentialAuditAction, targetUserId: number | null, actorUserId?: number | null, metadata: Record<string, unknown> = {}) {
