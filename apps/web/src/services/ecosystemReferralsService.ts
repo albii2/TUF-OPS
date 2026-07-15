@@ -1,3 +1,17 @@
+/**
+ * NOTE: Ecosystem Referrals are currently stored in localStorage only.
+ * There is no backend API endpoint for referrals yet (no /api/ecosystem-referrals
+ * or equivalent route in the API server). All CRUD operations operate on the
+ * local `tuf_ops_ecosystem_referrals_v3` key.
+ *
+ * When a backend endpoint becomes available, the following functions should be
+ * updated to use apiClient:
+ *   - listEcosystemReferrals → GET /api/ecosystem-referrals
+ *   - createEcosystemReferral → POST /api/ecosystem-referrals
+ *   - getEcosystemReferralSummary, getReferralSourceEffectiveness,
+ *     getReferralRepEffectiveness → derived from listEcosystemReferrals
+ */
+
 import { getStoredUser } from '../auth';
 import { listOrganizations } from './organizationsService';
 import { listOpportunities } from './opportunitiesService';

@@ -49,7 +49,8 @@ export function canViewOrder(order: Order, linkedOpportunity?: Opportunity) {
 }
 
 export function isRepCertified(user: AppUser | null) {
-  return true;
+  if (!user) return false;
+  return user.isCertified === true;
 }
 
 export function canCreateOpportunity() {

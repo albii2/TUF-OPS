@@ -229,33 +229,49 @@ export async function toggleUserDirectorSignoff(id: string, directorSignedOff: b
 }
 
 // ============================================================================
-// MOCK-ONLY STUBS — preserved for pages that still reference them
-// These are no-ops / throw in API-only mode.
+// STUBS — wired to API above, kept for reference
 // ============================================================================
 
-export async function createUser(_input: any, _actor?: AppUser | null): Promise<{ user: ManagedUser; temporaryCredential: string }> {
-  throw new Error('createUser is not available in API mode.');
+export async function createUser(
+  input: { firstName: string; lastName: string; email: string; role: string; territory?: string; assignedDirectorId?: string; status?: string },
+  _actor?: AppUser | null,
+): Promise<{ user: ManagedUser; temporaryCredential: string }> {
+  const payload: Record<string, unknown> = {
+    name: `${input.firstName} ${input.lastName}`.trim(),
+    role: input.role,
+  };
+  if (input.email) payload.email = input.email;
+  if (input.territory) payload.territory = input.territory;
+  if (input.assignedDirectorId) payload.assigned_director_id = Number(input.assignedDirectorId);
+  if (input.status) payload.status = input.status;
+
+  const result = await apiClient<{ user: Record<string, unknown>; temporaryCredential: string }>('/users', {
+    method: 'POST',
+    body: payload,
+  });
+  return { user: normalizeApiUser(result.user), temporaryCredential: result.temporaryCredential };
 }
 
 export async function updateUser(id: string, patch: any, _actor?: AppUser | null) {
-  const stored = localStorage.getItem('tuf_ops_user_v3');
-  const token = stored ? JSON.parse(stored).token : null;
-  if (!token) throw new Error('Not authenticated');
-  const res = await fetch(`/api/users/${id}`, {
+  return apiClient(`/users/${id}`, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify(patch),
+    body: patch,
   });
-  if (!res.ok) throw new Error(`Failed to update user: ${res.status}`);
-  return res.json();
 }
 
-export async function resetUserCredential(_id: string, _actor?: AppUser | null): Promise<{ user: ManagedUser; temporaryCredential: string }> {
-  throw new Error('resetUserCredential is not available in API mode.');
+export async function resetUserCredential(id: string, _actor?: AppUser | null): Promise<{ user: ManagedUser; temporaryCredential: string }> {
+  const result = await apiClient<{ user: Record<string, unknown>; temporaryCredential: string }>(`/users/${id}/reset-credential`, {
+    method: 'POST',
+  });
+  return { user: normalizeApiUser(result.user), temporaryCredential: result.temporaryCredential };
 }
 
-export async function changeOwnCredential(_userId: string, _currentCredential: string, _newCredential: string): Promise<{ mustChangeCredential: boolean }> {
-  throw new Error('changeOwnCredential is not available in API mode.');
+export async function changeOwnCredential(userId: string, currentCredential: string, newCredential: string): Promise<{ mustChangeCredential: boolean }> {
+  const result = await apiClient<{ user: { must_change_credential: boolean } }>('/users/me/change-credential', {
+    method: 'POST',
+    body: { current_credential: currentCredential, new_credential: newCredential },
+  });
+  return { mustChangeCredential: result.user.must_change_credential };
 }
 
 export function generateTemporaryCredential() {
