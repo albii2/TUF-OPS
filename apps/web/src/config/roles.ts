@@ -26,6 +26,8 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   ops_workspace: { label: 'Ops Workspace', route: '/ops-workspace' },
   certification_review: { label: 'Certifications', route: '/admin/certification' },
   documents: { label: 'Documents', route: '/documents' },
+  production_requests: { label: 'Production', route: '/production-requests' },
+  orders: { label: 'Orders', route: '/orders' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
