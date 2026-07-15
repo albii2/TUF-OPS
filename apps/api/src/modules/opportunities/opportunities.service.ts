@@ -121,6 +121,7 @@ export async function createOpportunity(opportunity: Partial<Opportunity> & {
        AND sport = $3
        AND season = $4
        AND year = $5
+       AND stage NOT IN ('CLOSED_WON', 'CLOSED_LOST')
      LIMIT 1`,
     [organization_id, resolvedChannelType, resolvedSport, resolvedSeason, resolvedYear]
   );
