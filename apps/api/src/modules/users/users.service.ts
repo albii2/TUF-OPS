@@ -187,6 +187,29 @@ export async function setUserStatus(targetUserId: number, status: 'ACTIVE' | 'IN
   return result.rows[0];
 }
 
+export async function updateUser(targetUserId: number, patch: Record<string, any>, actor: SafeUser) {
+  assertAdmin(actor);
+  const allowed = ['assigned_director_id', 'territory', 'region', 'state_market', 'division', 'subterritory', 'sport_focus', 'reports_to_user_id', 'rank', 'tier'];
+  const updates: string[] = [];
+  const values: any[] = [];
+  let i = 1;
+  for (const key of allowed) {
+    if (patch[key] !== undefined) {
+      updates.push(`${key} = $${i++}`);
+      values.push(patch[key]);
+    }
+  }
+  if (updates.length === 0) return null;
+  updates.push('updated_at = NOW()');
+  values.push(targetUserId);
+  await pool.query(
+    `UPDATE users SET ${updates.join(', ')} WHERE id = $${i}`,
+    values,
+  );
+  const result = await pool.query('SELECT * FROM users WHERE id = $1', [targetUserId]);
+  return sanitizeUser(result.rows[0]);
+}
+
 export async function loginWithCredential(payload: LoginPayload) {
   const credential = payload.credential || '';
   const email = payload.email || '';

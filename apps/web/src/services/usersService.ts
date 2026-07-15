@@ -237,8 +237,17 @@ export async function createUser(_input: any, _actor?: AppUser | null): Promise<
   throw new Error('createUser is not available in API mode.');
 }
 
-export function updateUser(_id: string, _patch: any, _actor?: AppUser | null) {
-  console.warn('updateUser is a no-op in API mode.');
+export async function updateUser(id: string, patch: any, _actor?: AppUser | null) {
+  const stored = localStorage.getItem('tuf_ops_user_v3');
+  const token = stored ? JSON.parse(stored).token : null;
+  if (!token) throw new Error('Not authenticated');
+  const res = await fetch(`/api/users/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw new Error(`Failed to update user: ${res.status}`);
+  return res.json();
 }
 
 export async function resetUserCredential(_id: string, _actor?: AppUser | null): Promise<{ user: ManagedUser; temporaryCredential: string }> {

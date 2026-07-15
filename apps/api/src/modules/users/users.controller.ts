@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
-import { changeOwnCredential, certifyUser, createUserWithTemporaryCredential, listUsers, loginWithCredential, resetUserCredential, setUserStatus, verifyAuthToken } from './users.service';
+import { changeOwnCredential, certifyUser, createUserWithTemporaryCredential, listUsers, loginWithCredential, resetUserCredential, setUserStatus, updateUser, verifyAuthToken } from './users.service';
 import type { SafeUser } from './users.interface';
 
 function bearerToken(request: FastifyRequest) {
@@ -104,6 +104,17 @@ export async function setUserStatusHandler(request: FastifyRequest<{ Params: { i
   try {
     await setUserStatus(Number(request.params.id), (request.body as any)?.status || 'INACTIVE', actor);
     return reply.send({ success: true });
+  } catch (error) {
+    return handleError(reply, error);
+  }
+}
+
+export async function updateUserHandler(request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) {
+  const actor = await requireAuthenticatedUser(request, reply);
+  if (!actor) return;
+  try {
+    const result = await updateUser(Number(request.params.id), request.body as any, actor);
+    return reply.send(result);
   } catch (error) {
     return handleError(reply, error);
   }
