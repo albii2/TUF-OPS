@@ -13,11 +13,13 @@ export type SidebarKey =
   | 'ops_workspace'
   | 'settings'
   | 'users'
+  | 'daily_command'
+  | 'recruiting'
+  | 'production_requests'
+  | 'orders'
   | 'academy'
   | 'certification_review'
-  | 'documents'
-  | 'daily_command'
-  | 'recruiting';
+  | 'documents';
 
 export type AppUser = {
   id: string;
