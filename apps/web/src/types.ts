@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP';
+export type Role = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP' | 'OPERATIONS';
 
 export type SidebarKey =
   | 'dashboard'

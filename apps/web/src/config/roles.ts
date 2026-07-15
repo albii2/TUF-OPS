@@ -53,4 +53,10 @@ export const roleConfig: Record<Role, RoleConfig> = {
     primaryActions: ['Call', 'Text', 'Email', 'Close Deal'],
     visiblePages: ['/dashboard', '/my-opportunities', '/organizations', '/opportunities', '/orders', '/earnings', '/academy', '/territory', '/settings', '/daily-command'],
   },
+  OPERATIONS: {
+    sidebarItems: ['dashboard', 'invoices', 'production_requests', 'orders', 'settings'],
+    dashboardWidgets: ['Orders in Production', 'Quality Control', 'Shipping Queue'],
+    primaryActions: ['Process Order', 'Update Status', 'QC Check'],
+    visiblePages: ['/dashboard', '/orders', '/production-requests', '/settings'],
+  },
 };
