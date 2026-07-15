@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getStoredUser } from '../auth';
 import { apiClient } from '../services/apiClient';
 
@@ -27,7 +27,7 @@ export default function PeopleOpsPage() {
     setLoading(false);
   };
 
-  useState(() => { fetchData(); });
+  useEffect(() => { fetchData(); }, []);
 
   const handleCreate = async () => {
     if (!form.candidate_name.trim()) return;

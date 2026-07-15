@@ -36,6 +36,7 @@ import CandidateDetailPage from './pages/CandidateDetailPage';
 import ExecutiveIntakePage from './pages/ExecutiveIntakePage';
 import PeopleOpsPage from './pages/PeopleOpsPage';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import LeadershipCommsPage from './pages/LeadershipCommsPage';
 import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
@@ -68,15 +69,15 @@ function PageProtected({ user, path, children }: { user: AppUser | null; path: s
 
 /**
  * Certification gate: uncertified REP users are redirected to the Academy.
- * Non-REP roles (ADMIN, DIRECTOR, REGIONAL_DIRECTOR) bypass this gate.
+ * Non-REP roles (ADMIN, DIRECTOR, REGIONAL_DIRECTOR, OPERATIONS) bypass this gate.
  * Training, login, change-credential, and dashboard paths are always accessible.
  */
 function CertificationProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
 
-  // ADMIN bypasses certification gate
-  if (user.role === 'ADMIN') return children;
+  // ADMIN and OPERATIONS bypass certification gate
+  if (user.role === 'ADMIN' || user.role === 'OPERATIONS') return children;
 
   // Allow access to Academy and cert review
   if (UNCERTIFIED_ACCESSIBLE_PATHS.has(path)) return children;
@@ -112,7 +113,7 @@ export default function App() {
         }
       >
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
-        <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{dashboard}</PageProtected></CertificationProtected>} />
+        <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{user?.role === 'ADMIN' || user?.role === 'REGIONAL_DIRECTOR' ? <ExecutiveDashboard /> : dashboard}</PageProtected></CertificationProtected>} />
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />
@@ -148,7 +149,7 @@ export default function App() {
         <Route path="/recruiting/:id" element={<CertificationProtected user={user} path="/recruiting"><PageProtected user={user} path="/recruiting"><CandidateDetailPage /></PageProtected></CertificationProtected>} />
         <Route path="/intake" element={<PageProtected user={user} path="/intake"><ExecutiveIntakePage /></PageProtected>} />
         <Route path="/people" element={<PageProtected user={user} path="/people"><PeopleOpsPage /></PageProtected>} />
-        <Route path="/dashboard" element={<PageProtected user={user} path="/dashboard"><ExecutiveDashboard /></PageProtected>} />
+        <Route path="/comms" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'REGIONAL_DIRECTOR']}><LeadershipCommsPage /></RoleProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

@@ -35,7 +35,7 @@ export const roleConfig: Record<Role, RoleConfig> = {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'territory', 'invoices', 'daily_command', 'recruiting', 'users', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
-    visiblePages: ['/dashboard', '/my-opportunities', '/team-opportunities', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/daily-command', '/recruiting'],
+    visiblePages: ['/dashboard', '/my-opportunities', '/team-opportunities', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/daily-command', '/recruiting', '/intake', '/people', '/comms'],
   },
   REGIONAL_DIRECTOR: {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'territory', 'daily_command', 'recruiting'],

@@ -18,6 +18,7 @@ import { recruitingRoutes } from './modules/recruiting/recruiting.routes';
 import { intakeRoutes } from './modules/intake/intake.routes';
 import { peopleRoutes } from './modules/people/people.routes';
 import { dashboardRoutes } from './modules/dashboard/dashboard.routes';
+import { commsRoutes } from './modules/comms/comms.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -26,7 +27,7 @@ const server = fastify();
 const port = Number(process.env.PORT || 4000);
 const webDistPath = process.env.WEB_DIST_PATH || path.resolve(__dirname, '../../web/dist');
 const indexHtmlPath = path.join(webDistPath, 'index.html');
-const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|daily-command(?:\/.*)?|recruiting(?:\/.*)?)/;
+const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|daily-command(?:\/.*)?|recruiting(?:\/.*)?|intake(?:\/.*)?|people(?:\/.*)?|academy(?:\/.*)?|admin\/certification(?:\/.*)?|forge(?:\/.*)?|comms(?:\/.*)?)/;
 const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,https://ops.tufsports.us,https://tufops.app')
   .split(',')
   .map((origin) => origin.trim())
@@ -149,6 +150,7 @@ server.register(recruitingRoutes, { prefix: '/api/recruiting' });
 server.register(intakeRoutes, { prefix: '/api/intake' });
 server.register(peopleRoutes, { prefix: '/api/people' });
 server.register(dashboardRoutes, { prefix: '/api/dashboard' });
+server.register(commsRoutes, { prefix: '/api/comms' });
 server.register(recruitingRoutes, { prefix: '/api/v1/recruiting' });
 server.register(organizationRoutes, { prefix: '/organizations' });
 server.register(opportunityRoutes, { prefix: '/opportunities' });
