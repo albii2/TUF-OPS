@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createActivity, getActivitiesByOpportunity, getActivitiesByOrganization, markActivityComplete, createRepActivity, getRepActivitiesByOpportunity } from './activities.service';
+import { createActivity, getActivitiesByOpportunity, getActivitiesByOrganization, getAllActivities, markActivityComplete, createRepActivity, getRepActivitiesByOpportunity } from './activities.service';
 import { ActivityType } from './activities.interface';
 
 export async function createActivityHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -138,8 +138,8 @@ export async function listActivitiesHandler(request: FastifyRequest, reply: Fast
   
   // No entityType specified — return all recent activities
   if (!entityType && !entityId) {
-    // Return empty for now — all-activities query needs DB support
-    return reply.send([]);
+    const activities = await getAllActivities(limit ? Number(limit) : 100);
+    return reply.send(activities);
   }
   
   return reply.code(400).send({ message: 'entityType and entityId required' });
