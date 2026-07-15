@@ -22,16 +22,31 @@ export async function createActivityHandler(request: FastifyRequest, reply: Fast
     return reply.code(400).send({ message: 'Invalid activity type' });
   }
 
-  const activity = await createActivity({
-    type,
-    organization_id,
-    opportunity_id,
-    description,
-    created_by,
-    due_date,
-    completed,
-  });
-  return reply.code(201).send(activity);
+  if (!organization_id) {
+    return reply.code(400).send({ message: 'organization_id is required' });
+  }
+
+  if (!description?.trim()) {
+    return reply.code(400).send({ message: 'description is required' });
+  }
+
+  try {
+    const activity = await createActivity({
+      type,
+      organization_id,
+      opportunity_id,
+      description,
+      created_by,
+      due_date,
+      completed,
+    });
+    return reply.code(201).send(activity);
+  } catch (error: any) {
+    if (error.message?.includes('required') || error.message?.includes('does not exist')) {
+      return reply.code(400).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
 }
 
 export async function getActivitiesByOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
