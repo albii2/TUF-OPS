@@ -1,84 +1,55 @@
 import { pool } from '@packages/database';
 
+async function safeQuery<T>(queryFn: () => Promise<T>, fallback: T): Promise<T> {
+  try { return await queryFn(); } catch { return fallback; }
+}
+
 export async function getExecutiveDashboard() {
-  const [
-    decisions, hr, overdue, pipelineStats, revenueBlockers,
-    recruiting, sales, ops, waiting, dailyBrief,
-  ] = await Promise.all([
-    // Decisions: open critical + high priority intake items
-    pool.query(
-      `SELECT * FROM executive_intake 
-       WHERE status = 'open' AND (priority = 'critical' OR priority = 'high')
-       ORDER BY CASE priority WHEN 'critical' THEN 0 ELSE 1 END, created_at DESC
-       LIMIT 10`
-    ),
+  const empty = { rows: [] } as any;
 
-    // HR: people in pipeline needing action
-    pool.query(
-      `SELECT candidate_name, current_stage, assigned_hr, notes
-       FROM people_pipeline 
+  const [decisions, hr, overdue, pipelineStats, revenueBlockers,
+    recruiting, sales, ops, waiting, dailyBrief] = await Promise.all([
+    safeQuery(() => pool.query(
+      `SELECT * FROM executive_intake WHERE status = 'open' AND (priority = 'critical' OR priority = 'high')
+       ORDER BY CASE priority WHEN 'critical' THEN 0 ELSE 1 END, created_at DESC LIMIT 10`), empty),
+
+    safeQuery(() => pool.query(
+      `SELECT candidate_name, current_stage, assigned_hr, notes FROM people_pipeline
        WHERE status = 'active' AND current_stage NOT IN ('first_order', 'first_proposal')
-       ORDER BY created_at DESC LIMIT 10`
-    ),
+       ORDER BY created_at DESC LIMIT 10`), empty),
 
-    // Overdue: open items older than 7 days
-    pool.query(
-      `SELECT * FROM executive_intake 
-       WHERE status = 'open' AND created_at < NOW() - INTERVAL '7 days'
-       ORDER BY created_at ASC LIMIT 10`
-    ),
+    safeQuery(() => pool.query(
+      `SELECT * FROM executive_intake WHERE status = 'open' AND created_at < NOW() - INTERVAL '7 days'
+       ORDER BY created_at ASC LIMIT 10`), empty),
 
-    // Pipeline stats
-    pool.query(
-      `SELECT current_stage, COUNT(*) as count FROM people_pipeline WHERE status = 'active' GROUP BY current_stage`
-    ),
+    safeQuery(() => pool.query(
+      `SELECT current_stage, COUNT(*) as count FROM people_pipeline WHERE status = 'active' GROUP BY current_stage`), empty),
 
-    // Revenue blockers: high priority, open, tagged 'revenue'
-    pool.query(
-      `SELECT * FROM executive_intake 
-       WHERE status = 'open' AND 'revenue' = ANY(tags)
-       ORDER BY priority LIMIT 5`
-    ),
+    safeQuery(() => pool.query(
+      `SELECT * FROM executive_intake WHERE status = 'open' AND 'revenue' = ANY(tags) ORDER BY priority LIMIT 5`), empty),
 
-    // Recruiting: active candidates by stage
-    pool.query(
+    safeQuery(() => pool.query(
       `SELECT c.first_name || ' ' || c.last_name AS name, c.stage, c.assigned_director_id AS owner_id,
-              'REP' AS role, c.updated_at
-       FROM candidates c
-       WHERE c.stage NOT IN ('rejected', 'hired')
-       ORDER BY c.updated_at DESC NULLS LAST LIMIT 10`
-    ),
+       'REP' AS role, c.updated_at FROM candidates c
+       WHERE c.stage NOT IN ('rejected', 'hired') ORDER BY c.updated_at DESC NULLS LAST LIMIT 10`), empty),
 
-    // Sales: near-close pipeline (proposal_sent or negotiation) + stuck deals
-    pool.query(
-      `SELECT o.id, o.name AS title, o.stage, o.assigned_rep_id,
-              o.value, o.next_action, o.expected_close_date
-       FROM opportunities o
-       WHERE o.stage IN ('PROPOSAL_SENT', 'proposal_sent', 'NEGOTIATION', 'negotiation')
-         AND o.stage NOT IN ('CLOSED_WON', 'closed_won', 'CLOSED_LOST', 'closed_lost')
-       ORDER BY o.expected_close_date ASC NULLS LAST LIMIT 10`
-    ),
+    safeQuery(() => pool.query(
+      `SELECT o.id, o.name AS title, o.stage, o.assigned_rep_id, o.value, o.next_action, o.expected_close_date
+       FROM opportunities o WHERE o.stage IN ('PROPOSAL_SENT','proposal_sent','NEGOTIATION','negotiation')
+       ORDER BY o.expected_close_date ASC NULLS LAST LIMIT 10`), empty),
 
-    // Ops: orders in active production stages
-    pool.query(
-      `SELECT ord.id, ord.status, ord.assigned_rep_id,
-              o.name AS opportunity_name, ord.updated_at
-       FROM orders ord
-       JOIN opportunities o ON o.id = ord.opportunity_id
-       WHERE ord.status IN ('IN_PRODUCTION', 'in_production', 'QUALITY_CONTROL', 'quality_control',
-                            'READY_FOR_OPS', 'ready_for_ops', 'ORDER_ASSEMBLY', 'order_assembly')
-       ORDER BY ord.updated_at ASC NULLS LAST LIMIT 10`
-    ),
+    safeQuery(() => pool.query(
+      `SELECT ord.id, ord.status, ord.assigned_rep_id, o.name AS opportunity_name, ord.updated_at
+       FROM orders ord JOIN opportunities o ON o.id = ord.opportunity_id
+       WHERE ord.status IN ('IN_PRODUCTION','in_production','QUALITY_CONTROL','quality_control',
+                            'READY_FOR_OPS','ready_for_ops','ORDER_ASSEMBLY','order_assembly')
+       ORDER BY ord.updated_at ASC NULLS LAST LIMIT 10`), empty),
 
-    // Waiting: open intake items without an owner
-    pool.query(
-      `SELECT * FROM executive_intake 
-       WHERE status = 'open' AND (owner IS NULL OR owner = '')
-       ORDER BY created_at DESC LIMIT 10`
-    ),
+    safeQuery(() => pool.query(
+      `SELECT * FROM executive_intake WHERE status = 'open' AND (owner IS NULL OR owner = '')
+       ORDER BY created_at DESC LIMIT 10`), empty),
 
-    // Daily Brief: aggregate counts for rollup
-    pool.query(
+    safeQuery(() => pool.query(
       `SELECT
         (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND (priority = 'critical' OR priority = 'high')) AS open_decisions,
         (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND 'revenue' = ANY(tags)) AS revenue_blockers,
@@ -87,20 +58,13 @@ export async function getExecutiveDashboard() {
         (SELECT COUNT(*) FROM opportunities WHERE stage IN ('PROPOSAL_SENT','proposal_sent','NEGOTIATION','negotiation')) AS near_close_deals,
         (SELECT COUNT(*) FROM orders WHERE status IN ('IN_PRODUCTION','in_production','QUALITY_CONTROL','quality_control','READY_FOR_OPS','ready_for_ops')) AS active_orders,
         (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND created_at < NOW() - INTERVAL '7 days') AS overdue_items,
-        (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND (owner IS NULL OR owner = '')) AS waiting_items`
-    ),
+        (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND (owner IS NULL OR owner = '')) AS waiting_items`), empty),
   ]);
 
   return {
-    decisions: decisions.rows,
-    hr: hr.rows,
-    overdue: overdue.rows,
-    pipelineStats: pipelineStats.rows,
-    revenueBlockers: revenueBlockers.rows,
-    recruiting: recruiting.rows,
-    sales: sales.rows,
-    ops: ops.rows,
-    waiting: waiting.rows,
-    dailyBrief: dailyBrief.rows[0] || {},
+    decisions: decisions.rows, hr: hr.rows, overdue: overdue.rows,
+    pipelineStats: pipelineStats.rows, revenueBlockers: revenueBlockers.rows,
+    recruiting: recruiting.rows, sales: sales.rows, ops: ops.rows,
+    waiting: waiting.rows, dailyBrief: dailyBrief.rows[0] || {},
   };
 }
