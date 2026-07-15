@@ -42,17 +42,17 @@ export async function getExecutiveDashboard() {
 
     // Recruiting: active candidates by stage
     pool.query(
-      `SELECT c.candidate_name AS name, c.current_stage AS stage, c.assigned_director AS owner,
-              COALESCE(c.role, 'REP') AS role, c.updated_at
+      `SELECT c.first_name || ' ' || c.last_name AS name, c.stage, c.assigned_director_id AS owner_id,
+              'REP' AS role, c.updated_at
        FROM candidates c
-       WHERE c.status = 'active'
+       WHERE c.stage NOT IN ('rejected', 'hired')
        ORDER BY c.updated_at DESC NULLS LAST LIMIT 10`
     ),
 
     // Sales: near-close pipeline (proposal_sent or negotiation) + stuck deals
     pool.query(
       `SELECT o.id, o.name AS title, o.stage, o.assigned_rep_id,
-              o.expected_value, o.next_action, o.expected_close_date
+              o.value, o.next_action, o.expected_close_date
        FROM opportunities o
        WHERE o.stage IN ('PROPOSAL_SENT', 'proposal_sent', 'NEGOTIATION', 'negotiation')
          AND o.stage NOT IN ('CLOSED_WON', 'closed_won', 'CLOSED_LOST', 'closed_lost')
@@ -83,7 +83,7 @@ export async function getExecutiveDashboard() {
         (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND (priority = 'critical' OR priority = 'high')) AS open_decisions,
         (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND 'revenue' = ANY(tags)) AS revenue_blockers,
         (SELECT COUNT(*) FROM people_pipeline WHERE status = 'active') AS active_candidates,
-        (SELECT COUNT(*) FROM candidates WHERE status = 'active') AS active_recruits,
+        (SELECT COUNT(*) FROM candidates WHERE stage NOT IN ('rejected', 'hired')) AS active_recruits,
         (SELECT COUNT(*) FROM opportunities WHERE stage IN ('PROPOSAL_SENT','proposal_sent','NEGOTIATION','negotiation')) AS near_close_deals,
         (SELECT COUNT(*) FROM orders WHERE status IN ('IN_PRODUCTION','in_production','QUALITY_CONTROL','quality_control','READY_FOR_OPS','ready_for_ops')) AS active_orders,
         (SELECT COUNT(*) FROM executive_intake WHERE status = 'open' AND created_at < NOW() - INTERVAL '7 days') AS overdue_items,
