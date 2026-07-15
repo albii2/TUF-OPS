@@ -46,7 +46,8 @@ export function UsersPage() {
       .then(r => r.json())
       .then(data => {
         const list = Array.isArray(data) ? data : (data?.users || []);
-        setUserList(list.map(u => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setUserList((list as any[]).map((u: Record<string, any>) => ({
           id: String(u.id), firstName: '', lastName: '', displayName: u.name || '', email: u.email || '',
           role: u.role === 'OWNER' ? 'ADMIN' : u.role, rank: u.rank, tier: u.tier,
           region: u.region, state_market: u.state_market, division: u.division,
