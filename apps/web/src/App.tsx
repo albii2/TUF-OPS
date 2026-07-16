@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from './components/AppShell';
-import { getStoredUser } from './auth';
+import { getStoredUser, fetchCurrentUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ForgePage } from './pages/ForgePage';
@@ -89,17 +89,21 @@ function CertificationProtected({ user, path, children }: { user: AppUser | null
 }
 
 export default function App() {
-  const [user, setUser] = useState<AppUser | null>(() => getStoredUser());
+  const [user, setUser] = useState<AppUser | null>(null);
   const dashboard = useMemo(() => <DashboardPage role={user?.role ?? 'ADMIN'} />, [user?.role]);
 
+  // Fetch current user from server on mount — server-authoritative identity
   useEffect(() => {
-    const syncUser = () => setUser(getStoredUser());
-    window.addEventListener('tuf:user-updated', syncUser);
-    window.addEventListener('storage', syncUser);
-    return () => {
-      window.removeEventListener('tuf:user-updated', syncUser);
-      window.removeEventListener('storage', syncUser);
+    fetchCurrentUser().then(setUser);
+  }, []);
+
+  useEffect(() => {
+    const syncUser = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setUser(detail ?? getStoredUser());
     };
+    window.addEventListener('tuf:user-updated', syncUser);
+    return () => window.removeEventListener('tuf:user-updated', syncUser);
   }, []);
 
   return (

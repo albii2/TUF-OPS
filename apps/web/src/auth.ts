@@ -2,57 +2,106 @@ import type { AppUser, Role } from '@tuf/shared';
 import { authenticateWithCredential, authenticateWithPin, getActiveUserByRole } from './services/usersService';
 import { seedExecutiveProfile } from './lib/achievements';
 
-const USER_KEY = 'tuf_ops_user_v3';
-const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP'];
+const TOKEN_KEY = 'tuf_ops_token_v1';
+const LEGACY_USER_KEY = 'tuf_ops_user_v3';
+const ALLOWED_ROLES: Role[] = ['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR', 'REP', 'OPERATIONS'];
 
-function persistUser(user: AppUser): AppUser {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
-  window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: user }));
-  return user;
+// ── In-memory cache (volatile, rebuilt from server on each page load) ──
+let cachedUser: AppUser | null = null;
+
+// ── Token management ──
+export function getStoredToken(): string | null {
+  return localStorage.getItem(TOKEN_KEY);
 }
 
-function isValidStoredUser(value: unknown): value is AppUser {
-  if (!value || typeof value !== 'object') return false;
-  const candidate = value as { id?: unknown; name?: unknown; email?: unknown; role?: unknown; mustChangeCredential?: unknown };
-  return typeof candidate.id === 'string' && typeof candidate.name === 'string' && typeof candidate.email === 'string' && typeof candidate.role === 'string' && typeof candidate.mustChangeCredential === 'boolean' && ALLOWED_ROLES.includes(candidate.role as Role);
+function persistToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
+  // Migrate from legacy key on first successful login
+  if (localStorage.getItem(LEGACY_USER_KEY)) {
+    localStorage.removeItem(LEGACY_USER_KEY);
+  }
 }
 
+export function clearToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+  cachedUser = null;
+}
+
+// ── Synchronous user access (from in-memory cache only) ──
 export function getStoredUser(): AppUser | null {
-  const raw = localStorage.getItem(USER_KEY);
-  if (!raw) return null;
+  return cachedUser;
+}
+
+// ── Server-authoritative identity ──
+export async function fetchCurrentUser(): Promise<AppUser | null> {
+  const token = getStoredToken();
+  if (!token) { cachedUser = null; return null; }
   try {
-    const parsed = JSON.parse(raw);
-    if (!isValidStoredUser(parsed)) {
-      localStorage.removeItem(USER_KEY);
-      return null;
-    }
-    return parsed;
+    const res = await fetch('/api/auth/me', {
+      headers: { ['Authorization']: 'Bearer ' + token },
+    });
+    if (!res.ok) { cachedUser = null; clearToken(); return null; }
+    const data = await res.json();
+    const user = data.user || data;
+    const appUser: AppUser = {
+      id: String(user.id),
+      name: user.name || '',
+      email: user.email || '',
+      role: user.role === 'OWNER' ? 'ADMIN' : user.role,
+      rank: user.rank ?? null,
+      tier: user.tier ?? null,
+      region: user.region ?? null,
+      state_market: user.state_market ?? null,
+      division: user.division ?? null,
+      territory: user.territory ?? null,
+      subterritory: user.subterritory ?? null,
+      sport_focus: user.sport_focus ?? null,
+      assigned_director_id: user.assigned_director_id ?? null,
+      reports_to_user_id: user.reports_to_user_id ?? null,
+      mustChangeCredential: Boolean(user.must_change_credential ?? user.mustChangeCredential),
+      hrDocsCompleted: Boolean(user.hr_docs_completed ?? user.hrDocsCompleted),
+      directorSignedOff: Boolean(user.director_signed_off ?? user.directorSignedOff),
+      practicalExerciseCompleted: Boolean(user.practical_exercise_completed ?? user.practicalExerciseCompleted),
+      isCertified: Boolean(user.is_certified ?? user.isCertified),
+    };
+    cachedUser = appUser;
+    window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: appUser }));
+    return appUser;
   } catch {
+    cachedUser = null;
     return null;
   }
 }
 
+// ── Login ──
 export async function loginWithPin(pin: string): Promise<AppUser | null> {
   try {
-    const matched = await authenticateWithPin(pin);
-    if (!matched) return null;
-    const user = persistUser(matched);
-    if (user.role === 'ADMIN') seedExecutiveProfile(user.id);
-    return user;
+    const result = await authenticateWithPin(pin);
+    if (!result) return null;
+    // Store token, not user object
+    if ((result as any).token) persistToken((result as any).token);
+    // Also populate in-memory cache from the result
+    cachedUser = result;
+    if (result.role === 'ADMIN') seedExecutiveProfile(result.id);
+    window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: result }));
+    return result;
   } catch {
     return null;
   }
 }
-
 
 export async function loginWithCredential(emailOrName: string, credential: string): Promise<AppUser | null> {
   const matched = await authenticateWithCredential(emailOrName, credential);
   if (!matched) return null;
-  return persistUser(matched);
+  if ((matched as any).token) persistToken((matched as any).token);
+  cachedUser = matched;
+  window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: matched }));
+  return matched;
 }
 
+// ── Role switching ──
 export function updateRole(role: Role): AppUser | null {
-  const existing = getStoredUser();
+  const existing = cachedUser;
   if (!existing) return null;
   if (existing.role === role) return existing;
   const active = getActiveUserByRole(role);
@@ -78,13 +127,19 @@ export function updateRole(role: Role): AppUser | null {
     practicalExerciseCompleted: active.practicalExerciseCompleted,
     isCertified: active.isCertified,
   };
-  return persistUser(updated);
+  cachedUser = updated;
+  window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: updated }));
+  return updated;
 }
 
 export function updateStoredUser(user: AppUser): AppUser {
-  return persistUser(user);
+  cachedUser = user;
+  window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: user }));
+  return user;
 }
 
 export function logout(): void {
-  localStorage.removeItem(USER_KEY);
+  clearToken();
+  cachedUser = null;
+  window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: null }));
 }
