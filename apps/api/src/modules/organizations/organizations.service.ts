@@ -38,6 +38,7 @@ export async function createOrganization(organization: any) {
   const assigned_rep_id = organization.assigned_rep_id ?? (repName ? await resolveUserId(repName) : null);
   const assigned_director_id = organization.assigned_director_id ?? (directorName ? await resolveUserId(directorName) : null);
   const territory_id = organization.territory_id ?? organization.territoryId ?? null;
+  const city = organization.city ?? null;
   const created_by = organization.created_by ?? organization.createdBy ?? assigned_rep_id ?? 1;
   const updated_by = organization.updated_by ?? organization.updatedBy ?? created_by;
 
@@ -47,8 +48,8 @@ export async function createOrganization(organization: any) {
     // Insert organization immediately — don't wait for auto-opportunities
     await client.query('BEGIN');
     const orgResult = await client.query(
-      'INSERT INTO organizations (name, state, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [name, state, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by]
+      'INSERT INTO organizations (name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+      [name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by]
     );
     const createdOrganization = orgResult.rows[0];
     await client.query('COMMIT');

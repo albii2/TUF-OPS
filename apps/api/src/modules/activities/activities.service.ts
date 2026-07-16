@@ -58,12 +58,12 @@ export async function getActivitiesByOpportunity(opportunityId: number): Promise
 }
 
 export async function getActivitiesByOrganization(organizationId: number): Promise<Activity[]> {
-  const result = await pool.query('SELECT * FROM activities WHERE organization_id = $1 ORDER BY timestamp DESC', [organizationId]);
+  const result = await pool.query('SELECT * FROM activities WHERE organization_id = $1 ORDER BY created_at DESC', [organizationId]);
   return result.rows;
 }
 
 export async function getAllActivities(limit = 100): Promise<Activity[]> {
-  const result = await pool.query('SELECT * FROM activities ORDER BY timestamp DESC LIMIT $1', [limit]);
+  const result = await pool.query('SELECT * FROM activities ORDER BY created_at DESC LIMIT $1', [limit]);
   return result.rows;
 }
 
