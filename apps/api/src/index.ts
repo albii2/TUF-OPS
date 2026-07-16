@@ -170,6 +170,7 @@ const healthHandler = async () => ({
   status: 'ok',
   service: 'tuf-ops-api',
   timestamp: new Date().toISOString(),
+  commit: process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT || 'unknown',
 });
 
 server.get('/health', healthHandler);
