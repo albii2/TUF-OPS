@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: tuf-ops-api
+    env: node
+    rootDir: apps/api
+    region: ohio
+    buildCommand: cd ../.. && pnpm install --frozen-lockfile && cd apps/api && pnpm run build
+    startCommand: node dist/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "4000"
+      - key: DATABASE_URL
+        sync: false
+        value: <RAILWAY_POSTGRES_URL>
+      - key: AUTH_TOKEN_SECRET
+        sync: false
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: "https://ops.tufsports.us,https://tufops.app,https://tuf-ops.vercel.app"
+      - key: WEB_DIST_PATH
+        value: "../../apps/web/dist"
+    healthCheckPath: /health
+    autoDeploy: true

@@ -15,7 +15,7 @@ export function getApiBaseUrl(): string {
       hostname === 'ops.tufsports.us' ||
       hostname === 'tufops.app'
     ) {
-      return '/api';
+      return '/api/v1';
     }
   }
 
@@ -23,11 +23,11 @@ export function getApiBaseUrl(): string {
   const envBase: string | undefined = viteEnv?.VITE_API_BASE_URL;
 
   // In production build, prefer relative path unless an explicit relative
-  // base URL is set (absolute URLs bypass the Vercel proxy and trigger CORS).
+  // base URL is set (absolute URLs bypass the proxy and trigger CORS).
   if (viteEnv?.PROD) {
     if (envBase && envBase.startsWith('/')) return envBase.replace(/\/$/, '');
-    return '/api';
+    return '/api/v1';
   }
 
-  return (envBase || '/api').replace(/\/$/, '');
+  return (envBase || '/api/v1').replace(/\/$/, '');
 }

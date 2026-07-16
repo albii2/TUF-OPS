@@ -26,7 +26,10 @@ import { authMiddleware, permissionErrorHandler } from './auth';
 
 const server = fastify();
 const port = Number(process.env.PORT || 4000);
-const webDistPath = process.env.WEB_DIST_PATH || path.resolve(__dirname, '../../web/dist');
+const webDistPath = process.env.WEB_DIST_PATH
+  || (process.env.NODE_ENV === 'production'
+    ? path.resolve(__dirname, 'public')
+    : path.resolve(__dirname, '../../web/dist'));
 const indexHtmlPath = path.join(webDistPath, 'index.html');
 const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|daily-command(?:\/.*)?|recruiting(?:\/.*)?|intake(?:\/.*)?|people(?:\/.*)?|academy(?:\/.*)?|admin\/certification(?:\/.*)?|forge(?:\/.*)?|comms(?:\/.*)?)/;
 const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,https://ops.tufsports.us,https://tufops.app')
@@ -126,16 +129,7 @@ server.addHook('onRequest', async (request, reply) => {
   }
 });
 
-server.register(organizationRoutes, { prefix: '/api/organizations' });
-server.register(opportunityRoutes, { prefix: '/api/opportunities' });
-server.register(activityRoutes, { prefix: '/api/activities' });
-server.register(reportingRoutes, { prefix: '/api/reporting' });
-server.register(productionRequestRoutes, { prefix: '/api/production-requests' });
-server.register(orderRoutes, { prefix: '/api/orders' });
-server.register(creativeRequestRoutes, { prefix: '/api' });
-server.register(userRoutes, { prefix: '/api/auth' });
-server.register(userRoutes, { prefix: '/api' });  // Also register at /api/users for frontend compat
-server.register(userRoutes, { prefix: '/api/v1/auth' });
+// ── API v1 Routes ──────────────────────────────────────────────
 server.register(organizationRoutes, { prefix: '/api/v1/organizations' });
 server.register(opportunityRoutes, { prefix: '/api/v1/opportunities' });
 server.register(activityRoutes, { prefix: '/api/v1/activities' });
@@ -145,23 +139,32 @@ server.register(orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creativeRequestRoutes, { prefix: '/api/v1' });
 server.register(trainingRoutes, { prefix: '/api/v1/training' });
 server.register(announcementRoutes, { prefix: '/api/v1' });
-server.register(dailyActivityRoutes, { prefix: '/api/daily-activities' });
 server.register(dailyActivityRoutes, { prefix: '/api/v1/daily-activities' });
-server.register(recruitingRoutes, { prefix: '/api/recruiting' });
-server.register(intakeRoutes, { prefix: '/api/intake' });
-server.register(peopleRoutes, { prefix: '/api/people' });
-server.register(dashboardRoutes, { prefix: '/api/dashboard' });
-server.register(commsRoutes, { prefix: '/api/comms' });
-server.register(workItemsRoutes, { prefix: '/api/work-items' });
 server.register(recruitingRoutes, { prefix: '/api/v1/recruiting' });
-server.register(organizationRoutes, { prefix: '/organizations' });
-server.register(opportunityRoutes, { prefix: '/opportunities' });
-server.register(activityRoutes, { prefix: '/activities' });
-server.register(reportingRoutes, { prefix: '/reporting' });
-server.register(productionRequestRoutes, { prefix: '/production-requests' });
-server.register(orderRoutes, { prefix: '/orders' });
-server.register(creativeRequestRoutes);
-server.register(userRoutes, { prefix: '/auth' });
+server.register(intakeRoutes, { prefix: '/api/v1/intake' });
+server.register(peopleRoutes, { prefix: '/api/v1/people' });
+server.register(dashboardRoutes, { prefix: '/api/v1/dashboard' });
+server.register(commsRoutes, { prefix: '/api/v1/comms' });
+server.register(vendorRoutes, { prefix: '/api/v1/vendors' });
+server.register(workItemsRoutes, { prefix: '/api/v1/work-items' });
+server.register(userRoutes, { prefix: '/api/v1/auth' });
+server.register(userRoutes, { prefix: '/api/v1' });  // frontend compat for /users paths
+
+// ── Legacy compat: keep /api/auth for identity refactor ─────────
+server.register(userRoutes, { prefix: '/api/auth' });
+
+// ── Legacy API route logging ────────────────────────────────────
+server.addHook('onRequest', async (request) => {
+  const requestPath = request.url.split('?')[0];
+  if (
+    requestPath.startsWith('/api/') &&
+    !requestPath.startsWith('/api/v1/') &&
+    !requestPath.startsWith('/api/auth/') &&
+    requestPath !== '/api/health'
+  ) {
+    request.log.warn({ url: request.url }, 'Legacy /api/* route accessed — migrate to /api/v1/*');
+  }
+});
 
 const healthHandler = async () => ({
   status: 'ok',
