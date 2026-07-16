@@ -37,6 +37,9 @@ import ExecutiveIntakePage from './pages/ExecutiveIntakePage';
 import PeopleOpsPage from './pages/PeopleOpsPage';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import LeadershipCommsPage from './pages/LeadershipCommsPage';
+import CEOHome from './pages/CEOHome';
+import DirectorHome from './pages/DirectorHome';
+import TAEHome from './pages/TAEHome';
 import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
@@ -154,6 +157,9 @@ export default function App() {
         <Route path="/intake" element={<PageProtected user={user} path="/intake"><ExecutiveIntakePage /></PageProtected>} />
         <Route path="/people" element={<PageProtected user={user} path="/people"><PeopleOpsPage /></PageProtected>} />
         <Route path="/comms" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'REGIONAL_DIRECTOR']}><LeadershipCommsPage /></RoleProtected>} />
+        <Route path="/ceo" element={<RoleProtected user={user} allowedRoles={['ADMIN']}><CEOHome /></RoleProtected>} />
+        <Route path="/director" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR']}><DirectorHome /></RoleProtected>} />
+        <Route path="/rep" element={<RoleProtected user={user} allowedRoles={['REP']}><TAEHome /></RoleProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
     </Routes>

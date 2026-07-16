@@ -6,3 +6,4 @@ export * from './users';
 export * from './candidates';
 export * from './dashboard';
 export * from './activities';
+export * from './workItems';

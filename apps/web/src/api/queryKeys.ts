@@ -72,4 +72,10 @@ export const queryKeys = {
     detail: (id: number) => ['candidates', 'detail', id] as const,
     activities: (id: number) => ['candidates', 'activities', id] as const,
   },
+
+  workItems: {
+    all: ['work-items'] as const,
+    list: (params?: { owner_id?: number; status?: string; source?: string; priority?: string }) =>
+      ['work-items', 'list', params] as const,
+  },
 } as const;
