@@ -1,38 +1,22 @@
-name: TUF Ops CI
+name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
-  quality:
-    name: Type Check + Lint + Build
+  ci:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck:v1
-      - run: pnpm lint
-      - run: pnpm build:v1
 
-  integration:
-    name: Integration Tests (DB)
-    runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16
         env:
-          POSTGRES_DB: tuf_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tuf_test
         ports:
           - 5432:5432
         options: >-
@@ -40,21 +24,33 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    env:
-      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tuf_test
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tuf_test
-      AUTH_TOKEN_SECRET: ci-auth-token-secret
-      INITIAL_OWNER_CREDENTIAL: '0000'
-      NODE_ENV: test
+
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
+
+      - uses: pnpm/action-setup@v2
+
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: pnpm
+          node-version: 22
+          cache: 'pnpm'
+
       - run: pnpm install --frozen-lockfile
-      - run: pnpm db:migrate:test
-      - run: pnpm --filter @apps/api test:run
+
+      - run: pnpm --filter @tuf/shared build
+
+      - run: pnpm --filter @apps/api typecheck
+
+      - run: pnpm --filter web typecheck
+
+      - run: pnpm --filter web lint
+
+      - run: pnpm --filter @apps/api lint
+
+      - run: pnpm --filter @apps/api test
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tuf_test
+
+      - run: pnpm --filter web test
+
+      - run: pnpm --filter web build
