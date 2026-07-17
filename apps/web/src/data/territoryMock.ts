@@ -28,6 +28,8 @@ const territoryNames: Record<TerritoryId, string> = {
   north: 'TUF NORTH',
   west: 'TUF WEST',
   south: 'TUF SOUTH',
+  il: 'TUF ILLINOIS',
+  wi: 'TUF WISCONSIN',
 };
 
 export const territories: Territory[] = (['metro', 'north', 'west', 'south'] as TerritoryId[]).map((id) => {

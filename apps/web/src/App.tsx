@@ -79,15 +79,8 @@ function CertificationProtected({ user, path, children }: { user: AppUser | null
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
 
-  // ADMIN and OPERATIONS bypass certification gate
-  if (user.role === 'ADMIN' || user.role === 'OPERATIONS') return children;
-
-  // Allow access to Academy and cert review
-  if (UNCERTIFIED_ACCESSIBLE_PATHS.has(path)) return children;
-
-  // REP and DIRECTOR: gate CRM access behind full certification + Director approval
-  if (!user.isCertified) return <Navigate to="/academy" replace />;
-
+  // Certification no longer gates CRM access — uncertified reps build pipeline
+  // WHILE completing Academy. Certification status is shown in the UI instead.
   return children;
 }
 
