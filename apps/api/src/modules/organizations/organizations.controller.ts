@@ -25,7 +25,16 @@ export async function createOrganizationHandler(request: FastifyRequest, reply: 
 }
 
 export async function getOrganizationsHandler(request: FastifyRequest, reply: FastifyReply) {
+  const user = (request as any).currentUser;
   const organizations = await getOrganizations();
+  
+  // Territory scoping: directors with a state_market set only see orgs in their state
+  if (user?.state_market && user.role !== 'ADMIN') {
+    const state = user.state_market; // e.g. 'IL', 'MN', 'WI'
+    const filtered = organizations.filter((org: any) => org.state === state || org.state_market === state);
+    return reply.send(filtered);
+  }
+  
   return reply.send(organizations);
 }
 

@@ -28,7 +28,16 @@ export async function getOpportunitiesByOrganizationHandler(request: FastifyRequ
 }
 
 export async function getOpportunitiesHandler(request: FastifyRequest, reply: FastifyReply) {
+  const user = (request as any).currentUser;
   const opportunities = await getOpportunities();
+  
+  // Territory scoping: directors with state_market only see opps for orgs in their state
+  if (user?.state_market && user.role !== 'ADMIN') {
+    const state = user.state_market;
+    const filtered = opportunities.filter((opp: any) => opp.organization_state === state);
+    return reply.send(filtered);
+  }
+  
   return reply.send(opportunities);
 }
 

@@ -1,4 +1,4 @@
-export type TerritoryId = 'metro' | 'north' | 'west' | 'south';
+export type TerritoryId = 'metro' | 'north' | 'west' | 'south' | 'il' | 'wi';
 export type CoverageStatus = 'UNTOUCHED' | 'CONTACTED' | 'ENGAGED' | 'NEGOTIATING' | 'CLOSED';
 export type RevenueLane = 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN';
 export type LaneStatus = 'OPEN' | 'ACTIVE' | 'WON' | 'LOST';

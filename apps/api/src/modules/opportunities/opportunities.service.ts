@@ -176,7 +176,9 @@ export async function getOpportunitiesByOrganization(organizationId: string): Pr
 }
 
 export async function getOpportunities(): Promise<Opportunity[]> {
-  const result = await pool.query('SELECT * FROM opportunities ORDER BY updated_at DESC, id DESC');
+  const result = await pool.query(
+    'SELECT o.*, org.state as organization_state FROM opportunities o LEFT JOIN organizations org ON org.id = o.organization_id ORDER BY o.updated_at DESC, o.id DESC'
+  );
   return result.rows;
 }
 
