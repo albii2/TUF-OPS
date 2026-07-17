@@ -267,7 +267,7 @@ export async function checkAndUpdateCertification(userId: number): Promise<boole
   const user = userRes.rows[0];
 
   // Admin, Regional Director, Director are exempt
-  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR') {
+  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR' || user.role === 'OPERATIONS') {
     await pool.query('UPDATE users SET is_certified = true WHERE id = $1', [userId]);
     return true;
   }
@@ -529,7 +529,7 @@ export async function getUserEnrollment(userId: number): Promise<TrainingEnrollm
     // Normalize roles to valid training enrollment roles
     if (role === 'SALES_REP') {
       role = 'REP';
-    } else if (role === 'ADMIN' || role === 'OWNER') {
+    } else if (role === 'ADMIN' || role === 'OWNER' || role === 'OPERATIONS' || role === 'OPS') {
       role = 'ADMIN';
     } else if (role === 'REGIONAL_DIRECTOR') {
       role = 'DIRECTOR';

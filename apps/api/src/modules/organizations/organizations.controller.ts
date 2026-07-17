@@ -28,10 +28,10 @@ export async function getOrganizationsHandler(request: FastifyRequest, reply: Fa
   const user = (request as any).currentUser;
   const organizations = await getOrganizations();
   
-  // Territory scoping: directors with a state_market set only see orgs in their state
+  // Territory scoping: directors with a state_market set only see orgs in their state(s)
   if (user?.state_market && user.role !== 'ADMIN') {
-    const state = user.state_market; // e.g. 'IL', 'MN', 'WI'
-    const filtered = organizations.filter((org: any) => org.state === state || org.state_market === state);
+    const states = user.state_market.split(',').map((s: string) => s.trim());
+    const filtered = organizations.filter((org: any) => states.includes(org.state));
     return reply.send(filtered);
   }
   

@@ -17,3 +17,4 @@ exports.logger = (0, pino_1.default)({
             },
         },
 });
+//# sourceMappingURL=index.js.map

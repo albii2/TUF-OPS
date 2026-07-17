@@ -31,10 +31,10 @@ export async function getOpportunitiesHandler(request: FastifyRequest, reply: Fa
   const user = (request as any).currentUser;
   const opportunities = await getOpportunities();
   
-  // Territory scoping: directors with state_market only see opps for orgs in their state
+  // Territory scoping: directors with state_market only see opps for orgs in their state(s)
   if (user?.state_market && user.role !== 'ADMIN') {
-    const state = user.state_market;
-    const filtered = opportunities.filter((opp: any) => opp.organization_state === state);
+    const states = user.state_market.split(',').map((s: string) => s.trim());
+    const filtered = opportunities.filter((opp: any) => states.includes(opp.organization_state));
     return reply.send(filtered);
   }
   

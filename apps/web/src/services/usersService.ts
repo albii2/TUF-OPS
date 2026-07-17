@@ -62,7 +62,7 @@ function normalizeApiUser(raw: any): ManagedUser {
     lastName: raw.last_name || raw.lastName || '',
     displayName: raw.display_name || raw.name || `${raw.first_name || ''} ${raw.last_name || ''}`.trim(),
     email: raw.email || '',
-    role: (raw.role === 'OWNER' ? 'ADMIN' : raw.role) as Role,
+    role: (raw.role === 'OWNER' ? 'ADMIN' : raw.role === 'OPS' ? 'OPERATIONS' : raw.role) as Role,
     rank: raw.rank || null,
     tier: raw.tier || null,
     region: raw.region || null,
@@ -134,7 +134,7 @@ export async function authenticateWithPin(pin: string): Promise<AppUser | null> 
       id: String(backendUser.id),
       name: String(backendUser.name || ''),
       email: String(backendUser.email || ''),
-      role: (backendUser.role === 'OWNER' ? 'ADMIN' : String(backendUser.role)) as AppUser['role'],
+      role: (backendUser.role === 'OWNER' ? 'ADMIN' : backendUser.role === 'OPS' ? 'OPERATIONS' : String(backendUser.role)) as AppUser['role'],
       rank: (backendUser.rank || null) as string | null,
       tier: (backendUser.tier || null) as string | null,
       region: (backendUser.region || null) as string | null,
@@ -302,6 +302,9 @@ export function formatUserDisplay(user: ManagedUser | AppUser): string {
     }
     if (user.subterritory) parts.push(user.subterritory);
     return parts.join(' · ');
+  }
+  if (user.role === 'OPERATIONS') {
+    return `Operations · ${user.region || 'National'}`;
   }
   // REP:
   const parts = ['Rep'];

@@ -9,3 +9,4 @@ function createEnv(schema) {
     }
     return parsed.data;
 }
+//# sourceMappingURL=index.js.map

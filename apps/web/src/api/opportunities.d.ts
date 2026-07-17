@@ -1,0 +1,2 @@
+export { listOpportunities as getOpportunities, getOpportunityById as getOpportunity, createOpportunity, updateOpportunity, deleteOpportunity, addOpportunityLane, removeOpportunityLane, logOpportunityActivity, updateOpportunityStage, getOpportunityStages, getRevenueLanes, } from '../services/opportunitiesService';
+//# sourceMappingURL=opportunities.d.ts.map

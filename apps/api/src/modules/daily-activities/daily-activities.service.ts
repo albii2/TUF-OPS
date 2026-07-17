@@ -73,7 +73,7 @@ export async function getTodayActivities(
   const date = new Date().toISOString().slice(0, 10);
 
   // Admin and Director see all reps
-  if (role === 'ADMIN' || role === 'DIRECTOR' || role === 'REGIONAL_DIRECTOR') {
+  if (role === 'ADMIN' || role === 'DIRECTOR' || role === 'REGIONAL_DIRECTOR' || role === 'OPERATIONS') {
     const result = await pool.query<(DailyActivity & { user_name: string; user_role: string })>(
       `SELECT da.*, u.name as user_name, u.role as user_role
        FROM daily_activities da

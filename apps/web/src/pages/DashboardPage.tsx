@@ -190,6 +190,32 @@ export function DashboardPage({ role }: { role: Role }) {
     );
   }
 
+  if (role === 'OPERATIONS') {
+    const inProduction = needsReviewOrders.length + readyForVendorOrders.length;
+    const opsMission = blockedOrders.length
+      ? { title: 'Unblock production immediately', reason: `${blockedOrders.length} blocked orders are waiting on missing package items.`, to: '/orders', cta: 'Open blocked orders' }
+      : needsReviewOrders.length
+        ? { title: 'Collect missing handoff information', reason: `${needsReviewOrders.length} orders need review before vendor routing.`, to: '/production-requests', cta: 'Open production queue' }
+        : { title: 'Prepare vendor packets', reason: `${readyForVendorOrders.length} orders are ready for vendor release.`, to: '/orders', cta: 'Open orders' };
+
+    return (
+      <div className="space-y-3">
+        <h1 className="text-2xl font-semibold text-white">Operations Fulfillment Control</h1>
+        <div className="grid gap-3 md:grid-cols-4">
+          <MetricTile value={String(inProduction)} label="In Production" tone="border-cyan-500/40 bg-cyan-500/10" to="/production-requests" />
+          <MetricTile value={String(needsReviewOrders.length)} label="Needs QC Review" tone="border-amber-500/40 bg-amber-500/10" to="/production-requests" />
+          <MetricTile value={String(readyForVendorOrders.length)} label="Ready for Vendor" tone="border-emerald-500/40 bg-emerald-500/10" to="/orders" />
+          <MetricTile value={String(blockedOrders.length)} label="Blocked Orders" tone="border-rose-500/40 bg-rose-500/10" to="/orders" />
+        </div>
+        <GlassCard title="MISSION PRIORITY"><p className="text-sm font-semibold text-white">{opsMission.title}</p><p className="text-sm text-slate-300">{opsMission.reason}</p><Link to={opsMission.to} className="mt-2 inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{opsMission.cta}</Link></GlassCard>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <GlassCard title="PRODUCTION QUEUE"><div className="space-y-2">{[...needsReviewOrders, ...readyForVendorOrders].slice(0, 8).map((order) => <DealRow key={order.id} title={`Order #${order.id}`} meta={`${order.organizationName} · ${order.productionStatus.replace(/_/g, ' ')}`} value={order.value} to={`/orders/${order.id}`} />)}</div></GlassCard>
+          <GlassCard title="COMPLETED THIS MONTH"><p className="text-2xl font-semibold text-white">{completedOrders.length}</p><p className="text-sm text-slate-400">Orders shipped</p></GlassCard>
+        </div>
+      </div>
+    );
+  }
+
   const repMission = staleOpps.length
     ? { title: 'Follow up stale opportunity now', reason: `${staleOpps.length} opportunities are stale and need activity today.`, to: '/my-opportunities', cta: 'Open my pipeline' }
     : nearClose.length

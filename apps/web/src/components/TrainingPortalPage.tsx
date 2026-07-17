@@ -6,7 +6,7 @@ import TufAcademyLogo from '../assets/tuf-academy.png';
 export default function TrainingPortalPage() {
   const user = getStoredUser();
   const userId = user ? user.id : 'u-rep-jason-mulder';
-  const isAdminOrDirector = user && (user.role === 'ADMIN' || user.role === 'DIRECTOR' || user.role === 'REGIONAL_DIRECTOR');
+  const isAdminOrDirector = user && (user.role === 'ADMIN' || user.role === 'DIRECTOR' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'OPERATIONS');
   const isCertified = user?.isCertified === true;
   const hrDocsDone = user?.hrDocsCompleted === true;
   const practicalDone = user?.practicalExerciseCompleted === true;
