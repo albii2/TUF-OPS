@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import { getStoredUser } from '../auth';
 import {
   LEVEL_1_MODULES,
+  DIRECTOR_MODULES,
   SALES_PHILOSOPHY,
   QUIZZES,
   QUIZ_PASS_THRESHOLD,
   MODULE_ORDER,
   CERTIFICATION_TITLE,
   detectAllModules,
+  detectAllDirectorModules,
+  getAcademyTrack,
   isLevel1Complete,
   verifiedModuleCount,
   certificationProgress,
@@ -176,10 +179,18 @@ function QuizModal({
 
 function MissionStatementModal({
   existingText,
+  title = 'Your Mission Statement',
+  subtitle = "Explain TUF's mission in your own words. This will be reviewed by your Director.",
+  prompt = 'Why does TUF exist? What is our mission? How do the 7 Sales Philosophy principles guide you as a Territory Account Executive? Write 3-5 sentences.',
+  saveLabel = 'Save Mission Statement',
   onClose,
   onSave,
 }: {
   existingText: string;
+  title?: string;
+  subtitle?: string;
+  prompt?: string;
+  saveLabel?: string;
   onClose: () => void;
   onSave: (text: string) => void;
 }) {
@@ -191,9 +202,9 @@ function MissionStatementModal({
       <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-black text-white">Your Mission Statement</h2>
+            <h2 className="text-lg font-black text-white">{title}</h2>
             <p className="text-xs text-slate-400 mt-0.5">
-              Explain TUF's mission in your own words. This will be reviewed by your Director.
+              {subtitle}
             </p>
           </div>
           <button
@@ -207,15 +218,14 @@ function MissionStatementModal({
         <div className="mb-4 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
           <p className="text-sm text-slate-300 mb-2 font-bold">Prompt:</p>
           <p className="text-xs text-slate-400 leading-relaxed">
-            Why does TUF exist? What is our mission? How do the 7 Sales Philosophy principles
-            guide you as a Territory Account Executive? Write 3-5 sentences.
+            {prompt}
           </p>
         </div>
 
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Write your mission statement here..."
+          placeholder="Write your response here..."
           rows={8}
           className="w-full rounded-lg border border-slate-700 bg-slate-900/60 p-4 text-sm text-slate-200 placeholder-slate-600 focus:border-cyan-400/40 focus:outline-none resize-vertical"
         />
@@ -231,7 +241,7 @@ function MissionStatementModal({
             disabled={!canSave}
             className="rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-5 py-2 text-sm font-bold text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-40 transition-colors"
           >
-            Save Mission Statement
+            {saveLabel}
           </button>
         </div>
       </div>
@@ -393,6 +403,14 @@ export default function AcademyPage() {
 
   const isCertified = user?.isCertified === true;
   const isRep = user?.role === 'REP';
+  // Role-based track selection: DIRECTOR / REGIONAL_DIRECTOR train on the
+  // Director track; REP trains on the TAE track.
+  const track = getAcademyTrack(user?.role);
+  const isDirector = track.track === 'DIRECTOR';
+  const trackModules = track.modules;
+  const trackOrder = track.order;
+  const certTitle = track.certificationTitle;
+  const moduleCount = trackModules.length;
   const userName = user?.name ?? 'TAE';
   const userId = user?.id ?? '';
 
@@ -406,7 +424,9 @@ export default function AcademyPage() {
   }, [user]);
 
   const refreshProgress = useCallback(async () => {
-    const progress = await detectAllModules();
+    const progress = isDirector
+      ? await detectAllDirectorModules()
+      : await detectAllModules();
     setModuleProgress(progress);
 
     // Save certification record WITHOUT auto-certifying
@@ -416,12 +436,12 @@ export default function AcademyPage() {
         userName: user.name,
         role: user.role,
         isLevel1Certified: isCertified,
-        certificationTitle: CERTIFICATION_TITLE,
+        certificationTitle: certTitle,
         moduleProgress: progress,
         lastChecked: new Date().toISOString(),
       });
     }
-  }, [user, isCertified]);
+  }, [user, isCertified, isDirector, certTitle]);
 
   const verifiedCount = verifiedModuleCount(moduleProgress);
   const completeCount = moduleProgress.filter(
@@ -432,12 +452,12 @@ export default function AcademyPage() {
   const missionStatement = getMissionStatement(userId);
 
   const certificationLabel = isCertified
-    ? `${CERTIFICATION_TITLE} — Full CRM Access Granted`
-    : isRep
+    ? `${certTitle} — Full CRM Access Granted`
+    : isRep || isDirector
       ? approvalSubmitted
-        ? 'Submitted for Director Review — Pending'
-        : `Academy Progress: ${completeCount}/5 Modules Complete — Coach Review Required`
-      : 'Director/Admin — Full CRM Access';
+        ? `Submitted for ${isDirector ? 'VP' : 'Director'} Review — Pending`
+        : `Academy Progress: ${completeCount}/${moduleCount} Modules Complete — Coach Review Required`
+      : 'Admin — Full CRM Access';
 
   const statusColor = isCertified
     ? 'border-emerald-400/40 bg-emerald-400/10 text-emerald-200'
@@ -495,7 +515,7 @@ export default function AcademyPage() {
   const handleSubmitForApproval = useCallback(async () => {
     if (!isLevel1Complete(moduleProgress)) {
       setApprovalError(
-        'All 5 modules must go through Coach Review and you must acknowledge each one before submitting for certification.'
+        `All ${moduleCount} modules must go through Coach Review and you must acknowledge each one before submitting for certification.`
       );
       return;
     }
@@ -516,7 +536,7 @@ export default function AcademyPage() {
 
   const moduleDefMap = useMemo(() => {
     const map = new Map<AcademyModuleCode, AcademyModule>();
-    LEVEL_1_MODULES.forEach((m) => map.set(m.code, m));
+    [...LEVEL_1_MODULES, ...DIRECTOR_MODULES].forEach((m) => map.set(m.code, m));
     return map;
   }, []);
 
@@ -530,10 +550,10 @@ export default function AcademyPage() {
           <div className="flex flex-col items-center text-center">
             <div className="mx-auto max-w-3xl">
               <h1 className="text-2xl font-black leading-tight tracking-wider text-white md:text-3xl">
-                TUF SALES SYSTEM — CERTIFICATION
+                {isDirector ? 'TUF DIRECTOR TRACK — CERTIFICATION' : 'TUF SALES SYSTEM — CERTIFICATION'}
               </h1>
               <p className="mt-4 max-w-xl mx-auto text-sm leading-6 text-slate-400">
-                Complete all six modules. Pass the assessments. Get Director approval. Start selling.
+                Complete all {moduleCount === 6 ? 'six' : 'five'} modules. Pass the assessments. Get {isDirector ? 'VP' : 'Director'} approval. {isDirector ? 'Deploy your team.' : 'Start selling.'}
               </p>
 
               {/* Certification Status — Professional badge */}
@@ -555,16 +575,16 @@ export default function AcademyPage() {
               </div>
 
               {/* Certification Module Checklist */}
-              {isRep && (
+              {(isRep || isDirector) && (
                 <div className="mt-5 max-w-md mx-auto rounded-lg border border-slate-700 bg-slate-900/40 p-4 text-left">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                     Module Status
                   </h3>
                   <div className="space-y-1.5">
-                    {MODULE_ORDER.map((code) => {
+                    {trackOrder.map((code) => {
                       const progress = moduleProgress.find((p) => p.code === code);
                       const phase = progress?.phase ?? 'locked';
-                      const mod = LEVEL_1_MODULES.find((m) => m.code === code);
+                      const mod = trackModules.find((m) => m.code === code);
                       const statusText =
                         phase === 'certified' || phase === 'acknowledged' ? 'COMPLETE' :
                         (phase as string) === 'demonstrate' || phase === 'quiz_passed' || phase === 'awaiting_coach' || phase === 'coach_review' ? 'IN PROGRESS' :
@@ -581,7 +601,7 @@ export default function AcademyPage() {
                       );
                     })}
                     <div className="border-t border-slate-700/50 pt-1.5 mt-1.5 flex items-center justify-between text-xs">
-                      <span className="text-slate-400 font-bold">Director Review</span>
+                      <span className="text-slate-400 font-bold">{isDirector ? 'VP Review' : 'Director Review'}</span>
                       <span className={isCertified ? 'text-slate-200 font-bold' : approvalSubmitted ? 'text-slate-400 font-bold' : 'text-slate-500 font-bold'}>
                         {isCertified ? 'APPROVED' : approvalSubmitted ? 'PENDING' : 'NOT SUBMITTED'}
                       </span>
@@ -620,7 +640,7 @@ export default function AcademyPage() {
             CERTIFICATION MODULES
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {LEVEL_1_MODULES.map((module, idx) => {
+            {trackModules.map((module, idx) => {
               const progress = moduleProgress.find((p) => p.code === module.code);
               const phase = progress?.phase ?? 'locked';
               const quizResult = quizResults[module.code] ?? null;
@@ -776,12 +796,12 @@ export default function AcademyPage() {
                         <p className="text-xs text-slate-400">{module.demonstrateTask}</p>
                       </div>
                       {/* Module-specific Demonstrate actions */}
-                      {module.code === 'ACAD-101' && (
+                      {(module.code === 'ACAD-101' || module.code === 'DIR-1') && (
                         <button
                           onClick={() => setShowMissionModal(true)}
                           className="w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors"
                         >
-                          Write Mission Statement
+                          {module.code === 'DIR-1' ? 'Write State Ownership Brief' : 'Write Mission Statement'}
                         </button>
                       )}
                       {module.code === 'ACAD-102' && (
@@ -821,7 +841,39 @@ export default function AcademyPage() {
                           to="/opportunities"
                           className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
                         >
-                          Practice: Close & Hand Off →
+                          Practice: Close &amp; Hand Off →
+                        </Link>
+                      )}
+                      {module.code === 'DIR-2' && (
+                        <Link
+                          to="/recruiting"
+                          className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
+                        >
+                          Work: Recruiting Pipeline →
+                        </Link>
+                      )}
+                      {module.code === 'DIR-3' && (
+                        <Link
+                          to="/admin/certification"
+                          className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
+                        >
+                          Work: Certification Reviews →
+                        </Link>
+                      )}
+                      {module.code === 'DIR-4' && (
+                        <Link
+                          to="/territory"
+                          className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
+                        >
+                          Work: Territory Map →
+                        </Link>
+                      )}
+                      {module.code === 'DIR-5' && (
+                        <Link
+                          to="/team-opportunities"
+                          className="block w-full rounded-lg border border-slate-600/40 bg-slate-800/40 px-3 py-2 text-xs font-bold text-slate-300 hover:bg-slate-700/40 transition-colors text-center"
+                        >
+                          Work: Team Pipeline →
                         </Link>
                       )}
                     </div>
@@ -832,7 +884,7 @@ export default function AcademyPage() {
                     <div className="mb-3 rounded-lg border border-slate-700/40 bg-slate-900/30 p-3">
                       <p className="text-xs font-bold text-slate-300 mb-1">Awaiting Coach Review</p>
                       <p className="text-xs text-slate-500">
-                        Your work has been submitted. Your Director will review and provide feedback.
+                        Your work has been submitted. {isDirector ? 'VP Sales' : 'Your Director'} will review and provide feedback.
                       </p>
                     </div>
                   )}
@@ -872,7 +924,7 @@ export default function AcademyPage() {
                     <div className="mb-3 rounded-lg border border-slate-600/40 bg-slate-900/30 p-3">
                       <p className="text-xs font-bold text-slate-300 mb-1">Certified</p>
                       <p className="text-xs text-slate-400">
-                        {CERTIFICATION_TITLE}
+                        {certTitle}
                       </p>
                     </div>
                   )}
@@ -881,7 +933,7 @@ export default function AcademyPage() {
                   {phase === 'locked' && (
                     <div className="mb-3 rounded-lg bg-slate-950/40 border border-slate-700/50 p-2.5">
                       <p className="text-xs text-slate-500 italic">
-                        Complete {MODULE_ORDER[MODULE_ORDER.indexOf(module.code) - 1]} assessment first to access this module.
+                        Complete {trackOrder[trackOrder.indexOf(module.code) - 1]} assessment first to access this module.
                       </p>
                     </div>
                   )}
@@ -1083,6 +1135,18 @@ export default function AcademyPage() {
         {showMissionModal && (
           <MissionStatementModal
             existingText={missionStatement}
+            title={isDirector ? 'Your State Ownership Brief' : 'Your Mission Statement'}
+            subtitle={
+              isDirector
+                ? 'Define how you will own your state. This will be reviewed by VP Sales.'
+                : "Explain TUF's mission in your own words. This will be reviewed by your Director."
+            }
+            prompt={
+              isDirector
+                ? 'What state do you own? How will you build your 4-6 TAE team? What is your revenue responsibility, and what does your weekly rhythm look like — pipeline reviews, ride-alongs, certifications, forecast? Write 5-8 sentences.'
+                : 'Why does TUF exist? What is our mission? How do the 7 Sales Philosophy principles guide you as a Territory Account Executive? Write 3-5 sentences.'
+            }
+            saveLabel={isDirector ? 'Save State Ownership Brief' : 'Save Mission Statement'}
             onClose={() => setShowMissionModal(false)}
             onSave={handleSaveMission}
           />
@@ -1101,15 +1165,15 @@ export default function AcademyPage() {
         )}
 
         {/* ── Submit for Certification Section ── */}
-        {isRep && completeCount === 5 && !approvalSubmitted && !isCertified && (
+        {(isRep || isDirector) && completeCount === moduleCount && !approvalSubmitted && !isCertified && (
           <div className="rounded-2xl border border-slate-700/50 bg-slate-900/30 p-6 mt-6">
             <div className="flex items-start gap-3">
               <div>
                 <h2 className="text-lg font-black text-white uppercase tracking-wider">
-                  Submit for {CERTIFICATION_TITLE}
+                  Submit for {certTitle}
                 </h2>
                 <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-                  All modules have been reviewed and acknowledged. Submit for Director certification.
+                  All modules have been reviewed and acknowledged. Submit for {isDirector ? 'VP' : 'Director'} certification.
                 </p>
                 {approvalError && (
                   <div className="mt-3 rounded-lg border border-red-400/20 bg-red-500/5 p-3 text-xs text-red-200">
@@ -1133,10 +1197,10 @@ export default function AcademyPage() {
           <div className="rounded-2xl border border-slate-700/50 bg-slate-900/30 p-6 mb-6">
             <div className="flex items-start gap-3">
               <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-wider">Submitted for Director Certification</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-wider">Submitted for {isDirector ? 'VP' : 'Director'} Certification</h2>
                 <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-                  Your certification submission is under review. The Director will review your completed
-                  modules, Coach Reviews, and decide: &ldquo;Would I trust you with one of our schools?&rdquo;
+                  Your certification submission is under review. {isDirector ? 'VP Sales' : 'The Director'} will review your completed
+                  modules, Coach Reviews, and decide: &ldquo;{isDirector ? 'Would I trust you with one of our states?' : 'Would I trust you with one of our schools?'}&rdquo;
                 </p>
               </div>
             </div>
@@ -1180,18 +1244,21 @@ export default function AcademyPage() {
         </div>
 
         {/* ── Footer Status Boxes ── */}
-        {isRep && !isCertified && !approvalSubmitted && completeCount < 5 && (
+        {(isRep || isDirector) && !isCertified && !approvalSubmitted && completeCount < moduleCount && (
           <div className="rounded-2xl border border-slate-700/50 bg-slate-900/30 p-6">
             <div className="flex items-start gap-3">
               <div>
-                <h2 className="text-lg font-black text-white uppercase tracking-wider">CRM Access is Gated</h2>
+                <h2 className="text-lg font-black text-white uppercase tracking-wider">
+                  {isDirector ? 'Director Certification In Progress' : 'CRM Access is Gated'}
+                </h2>
                 <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-                  Complete all modules (Learn → Demonstrate → Coach Review → Acknowledge),
-                  then submit for Director certification to access the full CRM.
+                  {isDirector
+                    ? 'Complete all modules (Learn → Demonstrate → Coach Review → Acknowledge), then submit for VP certification.'
+                    : 'Complete all modules (Learn → Demonstrate → Coach Review → Acknowledge), then submit for Director certification to access the full CRM.'}
                 </p>
                 <p className="mt-3 text-xs text-slate-500 font-medium">
-                  {5 - completeCount} module{5 - completeCount !== 1 ? 's' : ''} remaining before
-                  you can submit for {CERTIFICATION_TITLE}.
+                  {moduleCount - completeCount} module{moduleCount - completeCount !== 1 ? 's' : ''} remaining before
+                  you can submit for {certTitle}.
                 </p>
               </div>
             </div>
@@ -1203,10 +1270,12 @@ export default function AcademyPage() {
             <div className="flex items-start gap-3">
               <div>
                 <h2 className="text-lg font-black text-white">
-                  {CERTIFICATION_TITLE}
+                  {certTitle}
                 </h2>
                 <p className="mt-2 text-sm text-slate-300 leading-relaxed">
-                  Full CRM access has been granted. Continue building your pipeline toward the 4-order monthly baseline.
+                  {isDirector
+                    ? 'Certification complete. Keep the weekly rhythm — pipeline reviews, ride-alongs, certifications, forecast.'
+                    : 'Full CRM access has been granted. Continue building your pipeline toward the 4-order monthly baseline.'}
                 </p>
               </div>
             </div>

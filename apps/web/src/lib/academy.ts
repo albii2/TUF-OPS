@@ -7,12 +7,20 @@
  *   docs/canon/Academy_v1.0.md
  *
  * MODULE STRUCTURE:
- *   ACAD-101: The TUF Philosophy
- *   ACAD-102: Prospecting
- *   ACAD-103: Discovery
- *   ACAD-104: Proposal
- *   ACAD-105: Order Handoff
- *   ACAD-106: Product Knowledge
+ *   TAE TRACK (Level 1 — Territory Account Executive, role REP):
+ *     ACAD-101: The TUF Philosophy
+ *     ACAD-102: Prospecting
+ *     ACAD-103: Discovery
+ *     ACAD-104: Proposal
+ *     ACAD-105: Order Handoff
+ *     ACAD-106: Product Knowledge
+ *
+ *   DIRECTOR TRACK (Level 1 — State Director, roles DIRECTOR / REGIONAL_DIRECTOR):
+ *     DIR-1: The Director Role
+ *     DIR-2: Recruiting Your Team
+ *     DIR-3: Certifying and Coaching Reps
+ *     DIR-4: Territory Management
+ *     DIR-5: Pipeline Leadership
  *
  * PHASES PER MODULE:
  *   LEARN → DEMONSTRATE → COACH REVIEW → DEPLOY
@@ -21,11 +29,18 @@
 import { listOrganizations } from '../services/organizationsService';
 import { listOpportunities } from '../services/opportunitiesService';
 import { listActivities } from '../services/activitiesService';
+import { getCandidates } from '../services/recruitingService';
 import { getStoredUser } from '../auth';
 
 // ─── Module Definitions ─────────────────────────────────────────────────────
 
-export type AcademyModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105' | 'ACAD-106';
+export type TAEModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105' | 'ACAD-106';
+export type DirectorModuleCode = 'DIR-1' | 'DIR-2' | 'DIR-3' | 'DIR-4' | 'DIR-5';
+export type AcademyModuleCode = TAEModuleCode | DirectorModuleCode;
+
+export function isDirectorModuleCode(code: AcademyModuleCode): code is DirectorModuleCode {
+  return code.startsWith('DIR-');
+}
 
 /**
  * Module phases reflecting the Learn → Demonstrate → Coach Review → Deploy flow.
@@ -304,6 +319,175 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
   },
 ];
 
+/** Director Track — State Director modules */
+export const DIRECTOR_MODULES: AcademyModule[] = [
+  {
+    code: 'DIR-1',
+    name: 'The Director Role',
+    description:
+      'Owning a state territory, the 4-6 TAE team model, revenue responsibility, and the weekly operating rhythm.',
+    completionCriteria:
+      'Write your State Ownership Brief — your state, your revenue responsibility, your weekly rhythm — reviewed by VP Sales.',
+    demonstrateTask:
+      'Write your State Ownership Brief: your state, your team plan, your revenue responsibility, and your weekly rhythm. Submit it for VP review.',
+    philosophyPrinciple: 3, // Four healthy orders beat one lucky order
+    learnContent: [
+      {
+        heading: 'You Own a State',
+        body: 'A State Director owns a state territory the way a TAE owns an account list. Every school, every club, every program in your state is either being worked or being ignored — and both are your responsibility.\n\nYou are not a super-rep. Your job is not to out-sell your team. Your job is to build the machine that sells: recruit the right TAEs, certify them, assign them territory, and coach them to the four-order floor.\n\nWhen your state hits its number, it will be because you built a team that hits its numbers.',
+      },
+      {
+        heading: 'The 4-6 TAE Team Model',
+        body: 'A state runs on 4-6 Territory Account Executives. Fewer than 4 and you cannot cover the state. More than 6 and you cannot coach them properly.\n\nThe math is simple:\n\n5 TAEs × 4 healthy orders per month = 20 orders per month for your state.\n\nThat is the baseline — consistency over size. One rep landing a whale does not fix three reps at zero. Four healthy orders per rep, every month, is what a healthy state looks like.\n\nEvery hire you make either raises that floor or lowers it. Recruit accordingly.',
+      },
+      {
+        heading: 'Revenue Responsibility',
+        body: 'Your number is the sum of your team\'s numbers. There is no separate Director quota that saves you — if your reps miss, you missed.\n\nThat means you manage leading indicators, not outcomes:\n\n• Territory Coverage — what % of assigned accounts have activity?\n• Pipeline health — does every rep have deals in every stage?\n• Account Penetration — are reps developing all four lanes, or just selling uniforms?\n\nRevenue is the result. Coverage, activity, and pipeline are what you actually manage.',
+      },
+      {
+        heading: 'The Weekly Rhythm',
+        body: 'Directors run on a fixed weekly cadence. The rhythm is the job:\n\nMonday — Team pipeline review. Every rep, every active deal, next action and date on each.\n\nMidweek — Ride-alongs and call reviews. Sit in on discovery calls. Watch a rep present a proposal. Coach in the moment.\n\nOngoing — Certifications. Review Academy submissions, deliver Coach Reviews, run practical exercises with reps in training.\n\nFriday — Forecast. What closes this month? What is stuck? What escalates?\n\nSkip a week and you will feel it in the pipeline three weeks later. The rhythm is not optional.',
+      },
+      {
+        heading: 'What Success Looks Like',
+        body: 'A successful state, ninety days in:\n\n• 4-6 TAEs recruited, certified, and deployed.\n• Every account in the state assigned to a rep — no orphan schools.\n• Every rep building toward the four-order monthly floor.\n• A pipeline review rhythm the team can set their watch by.\n\nYou will know you are doing the job right when the state produces without you touching individual deals. Build the machine. Then keep it tuned.',
+      },
+    ],
+  },
+  {
+    code: 'DIR-2',
+    name: 'Recruiting Your Team',
+    description:
+      'Sourcing TAEs, running the interview process, evaluating for pipeline-building aptitude, extending offers, and the HR handoff.',
+    completionCriteria:
+      'Add 3+ candidates to your recruiting pipeline and advance at least one through an interview stage.',
+    demonstrateTask:
+      'Add 3 candidates to the recruiting pipeline, log your evaluation notes, and advance at least one candidate through an interview stage.',
+    philosophyPrinciple: 4, // Coaches buy from people
+    learnContent: [
+      {
+        heading: 'Where TAEs Come From',
+        body: 'The best TAE candidates come from three pools:\n\n1. Coaches — current or former. They speak the customer\'s language natively. A coach selling to coaches skips two years of credibility-building.\n\n2. Ex-athletes — they understand programs from the inside, they are competitive, and they know what game-day gear means to a team.\n\n3. Salespeople — proven pipeline builders from other industries. They bring process discipline; you teach them the sport.\n\nRemember Sales Philosophy #4: coaches buy from people. The rep IS the product. When you recruit, you are choosing the product TUF puts in front of every coach in that territory.',
+      },
+      {
+        heading: 'The Interview Process',
+        body: 'Run a structured process — do not hire off one good conversation:\n\n1. Screen — 20 minutes. Why sales? Why sports? What is their connection to athletic programs?\n\n2. Deep interview — walk their history. Look for evidence of consistent self-driven work: building a program, a client book, a training regimen.\n\n3. Pipeline exercise — give them a hypothetical territory of 40 schools and ask: \"Walk me through your first two weeks.\" Listen for research, prioritization, and daily activity — not just \"I\'d call the big schools.\"\n\n4. Final conversation — sell the role honestly and confirm mutual fit.\n\nEvery candidate goes through every stage. The process protects you from charm.',
+      },
+      {
+        heading: 'Evaluating for Pipeline-Building Aptitude',
+        body: 'You are hiring for one core aptitude: the ability to build pipeline through consistent activity.\n\nGreen flags:\n\n• They describe process, not luck. \"I blocked two hours every morning for outreach.\"\n• They ask about the territory and the accounts before asking about the commission.\n• They are comfortable talking to coaches — or already are one.\n\nRed flags:\n\n• Whale hunters. \"I closed one huge deal at my last job\" with no answer for what the other eleven months looked like.\n• Closers with no prospecting history. TUF reps build their own pipeline — there is no lead faucet.\n• Anyone who talks product before relationships. We sell trust before apparel.',
+      },
+      {
+        heading: 'Extending Offers',
+        body: 'When you extend an offer, sell the role the same way we sell uniforms — honestly:\n\n• The territory: real accounts, assigned by name, no phantom \"unlimited opportunity\" talk.\n• The floor: four healthy orders per month is the standard, and you will coach them to it.\n• The Academy: certification comes before full CRM access. They earn deployment.\n• The support: weekly pipeline reviews, ride-alongs, and a Director who answers the phone.\n\nSet expectations at the offer stage and your coaching conversations get easier for the next year. Surprise them now and you will pay for it monthly.',
+      },
+      {
+        heading: 'Onboarding Handoff to HR',
+        body: 'Once a candidate accepts, hand them to HR the same way a rep hands an order to Operations — complete, with nothing missing:\n\n• Signed offer and NDA\n• 90-day performance agreement\n• Commission structure form\n• Start date and Academy enrollment\n\nApply the Director QA question to your own handoff: can HR onboard this person without contacting you again? If the answer is no, the handoff is not done.\n\nYour job on day one of their employment: territory assigned, Academy access live, first week scheduled. A rep who starts with a plan produces a month faster than one who starts with a shrug.',
+      },
+    ],
+  },
+  {
+    code: 'DIR-3',
+    name: 'Certifying and Coaching Reps',
+    description:
+      'How Academy certification works, Coach Review responsibilities, running practical exercises, when to sign off, and the ongoing coaching cadence.',
+    completionCriteria:
+      'Deliver at least one Coach Review (Strengths, Corrections, Coaching Notes) for a rep module submission.',
+    demonstrateTask:
+      'Review a rep\'s module submission and deliver a Coach Review with specific Strengths, Corrections, and Coaching Notes.',
+    philosophyPrinciple: 7, // The Director QA question
+    learnContent: [
+      {
+        heading: 'How Academy Certification Works',
+        body: 'Every rep moves through the same flow on every module:\n\nLearn → Demonstrate → Coach Review → Deploy.\n\nLearn: the rep studies the module content and passes the assessment at 80% or better.\n\nDemonstrate: the rep performs real work in the CRM — real organizations, real activities, real opportunities. Exercises are auto-detected from CRM data, not self-reported.\n\nCoach Review: you review the work and deliver written feedback. The rep must acknowledge it before moving on.\n\nDeploy: when every module is acknowledged and you approve the certification, the rep becomes a Level 1 Certified Territory Account Executive.\n\nYou are the quality gate in that flow. The system tracks progress; you judge readiness.',
+      },
+      {
+        heading: 'The Coach Review',
+        body: 'A Coach Review has three parts, and all three matter:\n\nStrengths — what the rep did well, specifically. \"Good job\" is not feedback. \"Your discovery notes mapped all four lanes for every sport\" is.\n\nCorrections — what must change before you would put this rep in front of a coach. Name the gap and the fix.\n\nCoaching Notes — the bigger-picture guidance: habits, mindset, what to focus on next.\n\nDo not rubber-stamp. A rep who gets a hollow review learns that the bar is decorative. The review is your coaching voice on the record — the rep reads it, acknowledges it, and carries it into the next module.',
+      },
+      {
+        heading: 'Running Practical Exercises',
+        body: 'The Demonstrate phase is where knowledge becomes skill — and where you actually learn who your rep is.\n\n• Watch the CRM, not just the checkboxes. Five organizations added in five minutes with empty notes is activity theater, not prospecting.\n\n• Ride along on the first real discovery call. Let the rep run it. Take notes. Coach afterward, not during.\n\n• For the product walkthrough (ACAD-106), sit as the skeptical coach. Push back on price. Ask \"why GRIND?\" If the rep cannot answer you, they cannot answer a real coach.\n\nThe exercise is not paperwork on the way to certification. It is the certification.',
+      },
+      {
+        heading: 'When to Sign Off',
+        body: 'Quiz scores measure knowledge. Certification is a judgment call, and it is yours.\n\nBefore you approve, ask two questions:\n\n1. \"Would I trust this rep with one of our schools?\" Not a practice account — a real program, a real coach, TUF\'s real reputation.\n\n2. The Director QA question, applied to training: \"Can this rep run the pipeline without me stepping in on every deal?\"\n\nIf either answer is no, do not sign off. Send the rep back with a specific correction and a specific next step. Certifying an unready rep does not help them — it hands your hardest coaching problem a live territory.',
+      },
+      {
+        heading: 'Ongoing Coaching Cadence',
+        body: 'Certification is the start of coaching, not the end of it:\n\n• Weekly 1:1 — pipeline first, then skills. What moved? What is stuck? What is the next action on every active deal?\n\n• Monthly ride-along — stay close to how the rep actually sells, not just what the CRM says.\n\n• Coach from the pipeline. A rep below the four-order floor has a visible cause: not enough activity, weak discovery, or stalled proposals. The pipeline tells you which. Coach that — not everything at once.\n\nRelationships compound with reps the same way they do with coaches. Consistent, specific coaching every week beats a quarterly performance lecture every time.',
+      },
+    ],
+  },
+  {
+    code: 'DIR-4',
+    name: 'Territory Management',
+    description:
+      'Assigning organizations, coverage strategy, lane penetration across the territory, reading the territory map, and reassignment decisions.',
+    completionCriteria:
+      'Every account in your territory assigned to a rep — verify at least 5 accounts have owners and coverage activity.',
+    demonstrateTask:
+      'Review your territory map, confirm every account has an assigned rep (at least 5 verified), and correct any coverage gaps.',
+    philosophyPrinciple: 5, // Activity creates opportunity
+    learnContent: [
+      {
+        heading: 'Assigning Organizations',
+        body: 'Rule one of territory management: every account has an owner. An unassigned school is a school being sold to by someone else.\n\nAssign with density in mind:\n\n• Mix metro and outstate for every rep. Metro schools are dense and get prospected at volume. Outstate schools are sparse but reward deeper relationships. No rep gets all of one.\n\n• Match reps to geography they can actually work — a rep\'s home base matters even in a remote-first model.\n\n• No unassigned pools. A \"we\'ll get to it\" list is a graveyard. If a school exists in your state, a named rep owns it.',
+      },
+      {
+        heading: 'Coverage Strategy',
+        body: 'Territory Coverage is the percentage of assigned accounts with real activity — calls, visits, discovery conversations.\n\nCoverage is your leading indicator. Activity creates opportunity: a territory at 70% coverage will out-produce a territory at 30% coverage every quarter, regardless of who has the flashier deal this month.\n\nRead coverage before you read revenue:\n\n• Low coverage, low revenue — activity problem. Coach prospecting habits.\n• High coverage, low revenue — conversion problem. Coach discovery and proposals.\n• Low coverage, high revenue — a lucky whale is hiding the rot. Fix it before the whale swims off.',
+      },
+      {
+        heading: 'Lane Penetration Across the Territory',
+        body: 'Every account has four lanes: Uniforms, Travel Gear, Team Stores, and Letterman Jackets. Territory-level lane penetration tells you which lanes your reps develop and which they ignore.\n\nThe pattern you will see everywhere: uniforms first, everything else never. Reps default to the lane that feels most like \"selling uniforms\" and leave the other three untouched.\n\nThat is your coaching opening. An account that buys uniforms already trusts the rep — the remaining lanes are revenue opportunities sitting inside a relationship that already exists.\n\nIn every pipeline review, ask the lane question: \"This account buys game uniforms. Where are we on travel gear? Team store? Letterman?\"',
+      },
+      {
+        heading: 'Reading the Territory Map',
+        body: 'The territory map shows every account in your state, who owns it, and what is happening there. Read it weekly:\n\n• Clusters of accounts with no activity — a coverage gap. Is the rep overloaded, avoiding the area, or under-prospecting?\n\n• One rep\'s zone going quiet while others produce — an early warning you will not get from monthly revenue numbers.\n\n• Account Penetration by account — which relationships are one-lane, and which are becoming programs.\n\nBring the map to your pipeline reviews. \"Walk me through this corner of your territory\" is a better coaching prompt than \"how is it going?\"',
+      },
+      {
+        heading: 'Reassignment Decisions',
+        body: 'Reassignment is a tool, not a punishment. Use it when:\n\n• Sustained inactivity — a zone with no logged activity for 30+ days and no plan to change it.\n• Structural overload — a rep genuinely cannot cover what they own while hitting the four-order floor.\n• Departure — a rep leaves; their accounts move to named owners the same week. No orphan periods.\n\nWhen you reassign, do it cleanly: update the assignment in the system, tell both reps why, and set expectations for the handoff — open deals, warm relationships, and account notes travel with the account.\n\nUse it sparingly. Reps invest months building relationships; churning territory burns that investment. But letting a dead zone stay dead to spare a feeling costs the state real revenue.',
+      },
+    ],
+  },
+  {
+    code: 'DIR-5',
+    name: 'Pipeline Leadership',
+    description:
+      'Team pipeline reviews, unblocking stuck deals, forecast discipline, escalating to VP Sales, and the 4-orders-per-month floor.',
+    completionCriteria:
+      'Run a team pipeline review with at least 3 active opportunities — every deal has a next action and a date.',
+    demonstrateTask:
+      'Run a team pipeline review: at least 3 active opportunities in the pipeline, each with a next action and owner confirmed.',
+    philosophyPrinciple: 6, // Pipeline predicts success
+    learnContent: [
+      {
+        heading: 'The Team Pipeline Review',
+        body: 'Once a week, same day, same time: every rep, every active deal.\n\nThe format is fixed:\n\n• Stage — where is the deal, and does the stage match reality?\n• Next action — what specifically happens next?\n• Date — when?\n• Owner — who does it? (Almost always the rep. Occasionally you.)\n\nA deal with no next action is not a deal — it is a wish with a dollar value. The review exists to convert wishes back into deals or clear them out of the pipeline.\n\nKeep it fast. Twenty deals should take forty minutes. Deep coaching happens in 1:1s; the pipeline review is for movement.',
+      },
+      {
+        heading: 'Unblocking Stuck Deals',
+        body: 'Every stuck deal is stuck for a findable reason. Diagnose before you prescribe:\n\n• No next action — the rep does not know what to do next. Coach the play: who to call, what to ask.\n\n• Wrong contact — three weeks of \"waiting to hear back\" usually means the rep is talking to someone who cannot say yes. Find the decision-maker.\n\n• Unanswered question — \"we need to think about it\" means an objection was never surfaced. Send the rep back in to dig.\n\nCoach the rep to unblock it — do not take the deal over. Every deal you personally rescue teaches your team that stuck deals are your job. There is one exception: a strategic account at real risk. Step in, close it, then debrief the rep on exactly what you did and why.',
+      },
+      {
+        heading: 'Forecast Discipline',
+        body: 'Your forecast is built from pipeline stages and projected deal values — not from optimism.\n\nThe rules:\n\n• Deal value is projected from discovery. If a deal has no value recorded, it has no place in the forecast.\n• Stage means what it means. \"Negotiation\" with no proposal sent is not Negotiation.\n• Closed Won means the full standard: payment, roster, sizing, artwork, and the Director QA question answered yes. Nothing forecasts as won until it is actually won.\n\nPipeline predicts success. A disciplined pipeline tells you next month\'s number three weeks early — which means you can still do something about it. An inflated pipeline tells you a comfortable lie until the month ends.',
+      },
+      {
+        heading: 'The 4-Orders-Per-Month Floor',
+        body: 'Four healthy orders per rep, per month. That is the floor, not the ceiling.\n\nWhen a rep is below the floor, the cause is upstream — look 60 days back:\n\n• Thin activity 60 days ago → thin pipeline 30 days ago → missed floor today.\n\nThe floor conversation is a pipeline conversation: \"You closed one order this month. Show me your discovery conversations from six weeks ago.\" The pattern is almost always visible, and it is almost always activity.\n\nHold the floor consistently. A rep who misses one month gets coaching. A rep who misses three months with full coaching has told you something — and the 90-day performance agreement exists for exactly that conversation.',
+      },
+      {
+        heading: 'Escalating to VP Sales',
+        body: 'You own the state. Some things still go up:\n\n• Multi-state accounts — an organization whose programs cross state lines needs coordination above your level.\n• Pricing exceptions — anything below standard thresholds gets VP sign-off before the rep quotes it.\n• Systemic gaps — you cannot recruit enough TAEs, a competitor is moving on the whole state, a structural coverage problem you cannot solve with your team.\n• Personnel — terminations and performance-agreement decisions.\n\nEscalate with data, not drama: what is happening, what you already tried, what you need. \"Riverside crossed into Wisconsin, here is the account history, I need a coordination decision by Friday\" gets action. \"I have a problem\" gets a meeting.',
+      },
+    ],
+  },
+];
+
 // ─── Module Order (sequential gating) ────────────────────────────────────────
 
 export const MODULE_ORDER: AcademyModuleCode[] = [
@@ -314,6 +498,19 @@ export const MODULE_ORDER: AcademyModuleCode[] = [
   'ACAD-105',
   'ACAD-106',
 ];
+
+export const DIRECTOR_MODULE_ORDER: AcademyModuleCode[] = [
+  'DIR-1',
+  'DIR-2',
+  'DIR-3',
+  'DIR-4',
+  'DIR-5',
+];
+
+/** Returns the sequential order list for the track a module belongs to. */
+export function moduleOrderFor(code: AcademyModuleCode): AcademyModuleCode[] {
+  return isDirectorModuleCode(code) ? DIRECTOR_MODULE_ORDER : MODULE_ORDER;
+}
 
 // ─── Sales Philosophy ────────────────────────────────────────────────────────
 
@@ -735,6 +932,291 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       correctIndex: 0,
     },
   ],
+  'DIR-1': [
+    {
+      id: 'dir1-q1',
+      question: 'What is the core job of a State Director?',
+      options: [
+        'Personally close the largest deals in the state to lead the team by example',
+        'Build the machine that sells — recruit, certify, assign territory, and coach a team of TAEs to the four-order floor',
+        'Manage order fulfillment and production quality for every deal the state closes',
+        'Handle escalations from VP Sales and relay company announcements to the reps',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir1-q2',
+      question: 'Why does a state run on 4-6 TAEs — not more, not fewer?',
+      options: [
+        'Fewer than 4 cannot cover the state; more than 6 cannot be coached properly',
+        'HR budget policy caps each state at six sales hires per fiscal year',
+        'Six reps is the maximum the CRM supports per territory',
+        'Four reps is the minimum required before a Director earns commission overrides',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir1-q3',
+      question: 'One of your five reps closes a $30,000 letterman order in March. Your other four reps closed zero orders. Applying Sales Philosophy #3 ("Four healthy orders beat one lucky order"), how should you read the month?',
+      options: [
+        'A strong month — the state total exceeded target, which is what leadership measures',
+        'A weak month disguised by a whale — four reps produced nothing, and the baseline of consistent orders per rep is what a healthy state looks like',
+        'An average month — big orders and zero months balance out over a full year',
+        'A staffing problem — the four reps at zero should be replaced immediately',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir1-q4',
+      question: 'What belongs in a Director\'s fixed weekly rhythm?',
+      options: [
+        'Monday pipeline review, midweek ride-alongs and call reviews, ongoing certification work, Friday forecast',
+        'Daily deal-by-deal approvals for every stage change a rep makes in the CRM',
+        'A monthly all-hands meeting and quarterly territory reviews — weekly cadence is micromanagement',
+        'Rotating each week\'s focus so no two weeks look the same',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir1-q5',
+      question: 'As a Director, which numbers do you actually manage day to day?',
+      options: [
+        'Closed revenue — it is the only number the company banks',
+        'Leading indicators — territory coverage, pipeline health, and account penetration; revenue is the result',
+        'Quiz scores and certification dates for each rep on the team',
+        'Gross margin per order across the four lanes',
+      ],
+      correctIndex: 1,
+    },
+  ],
+  'DIR-2': [
+    {
+      id: 'dir2-q1',
+      question: 'What are the three best sourcing pools for TAE candidates?',
+      options: [
+        'Coaches, ex-athletes, and proven salespeople from other industries',
+        'Recent marketing graduates, retail associates, and customer service reps',
+        'Referrals from current customers, job boards, and staffing agencies',
+        'Former uniform vendor employees, equipment managers, and athletic trainers',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir2-q2',
+      question: 'What is the single core aptitude you are hiring for in a TAE?',
+      options: [
+        'Closing ability — a strong closer can rescue any pipeline',
+        'Product knowledge — reps must master fabrics and collections before selling',
+        'The ability to build pipeline through consistent, self-driven activity',
+        'Negotiation skill — pricing conversations decide most deals',
+      ],
+      correctIndex: 2,
+    },
+    {
+      id: 'dir2-q3',
+      question: 'A candidate interviews brilliantly. He is charming, confident, and tells a great story about a $200K deal he closed two years ago. When you ask him to walk through his first two weeks in a 40-school territory, he says "I\'d find the biggest programs and get in front of them." What should you do?',
+      options: [
+        'Hire him — a documented six-figure close outweighs a vague territory answer',
+        'Treat it as a red flag — he is a whale hunter with no daily activity plan, and the pipeline exercise exists to expose exactly this',
+        'Hire him for a metro zone where big programs are concentrated',
+        'Skip the remaining stages and extend an offer before another company does',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir2-q4',
+      question: 'Sales Philosophy #4 says "Coaches buy from people — the rep IS the product." What does that principle mean for recruiting?',
+      options: [
+        'Only former coaches should ever be hired as TAEs',
+        'When you hire a TAE, you are choosing the product TUF puts in front of every coach in that territory',
+        'Reps should be evaluated primarily on appearance and presentation polish',
+        'The product line matters less than pricing, so hire for negotiation skill',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir2-q5',
+      question: 'What must be complete before the HR onboarding handoff is done?',
+      options: [
+        'Signed offer and NDA, 90-day performance agreement, commission form, start date, and Academy enrollment — HR can onboard without contacting you again',
+        'A verbal acceptance and a start date — HR collects the paperwork during week one',
+        'The candidate\'s first territory plan and a completed Academy certification',
+        'Background check, drug screening, and three professional references on file',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  'DIR-3': [
+    {
+      id: 'dir3-q1',
+      question: 'What is the module flow every rep moves through in the Academy?',
+      options: [
+        'Study → Test → Graduate → Sell',
+        'Learn → Demonstrate → Coach Review → Deploy',
+        'Shadow → Practice → Solo → Certify',
+        'Quiz → Interview → Approval → Launch',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir3-q2',
+      question: 'What are the three parts of a Coach Review?',
+      options: [
+        'Score, Ranking, and Next Module',
+        'Strengths, Corrections, and Coaching Notes',
+        'Pass/Fail, Retake Date, and Signature',
+        'Activity Count, Quiz Score, and Certification Decision',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir3-q3',
+      question: 'A rep has passed every quiz with 90%+ and completed every practical exercise. On your ride-along, he talked over the coach for the entire call and never asked a discovery question. Should you certify him?',
+      options: [
+        'Yes — the certification requirements are objective, and he met all of them',
+        'No — certification is your judgment call, and the question is "Would I trust this rep with one of our schools?" Send him back with a specific correction',
+        'Yes, but privately flag him to VP Sales as a coaching risk',
+        'No — restart him from ACAD-101 so the lesson sticks',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir3-q4',
+      question: 'Why must a Director avoid rubber-stamp Coach Reviews?',
+      options: [
+        'Hollow reviews teach the rep that the bar is decorative — the review is your coaching voice on the record and shapes the next module',
+        'Corporate audits certification records quarterly and flags short reviews',
+        'Reps can appeal a review that lacks sufficient written detail',
+        'Short reviews delay module unlocking in the system',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir3-q5',
+      question: 'Sales Philosophy #7 is the Director QA question: "Can Operations produce this order without contacting the customer again?" How does this module apply that same standard to certification?',
+      options: [
+        'By requiring reps to memorize the QA question before their final quiz',
+        'By asking the training version of it: "Can this rep run the pipeline without me stepping in on every deal?" — if no, don\'t sign off',
+        'By having Operations review each rep\'s first three orders after certification',
+        'By making the QA question the final question on every module quiz',
+      ],
+      correctIndex: 1,
+    },
+  ],
+  'DIR-4': [
+    {
+      id: 'dir4-q1',
+      question: 'What is rule one of territory management?',
+      options: [
+        'Metro schools always go to the most senior rep',
+        'Every account has an owner — an unassigned school is a school being sold to by someone else',
+        'Territory boundaries follow county lines for clean reporting',
+        'Each rep\'s account list is rebalanced every quarter regardless of performance',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir4-q2',
+      question: 'Why do you mix metro and outstate accounts for every rep?',
+      options: [
+        'It equalizes drive time so mileage reimbursements stay fair',
+        'Metro schools are dense and prospected at volume; outstate schools are sparse but reward deeper relationships — no rep should get all of one',
+        'Outstate schools order more letterman jackets, which balances lane revenue',
+        'It prevents reps from comparing the size of their account lists',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir4-q3',
+      question: 'Your territory report shows a rep at 75% coverage but well below the four-order floor. What does this pattern tell you, and what do you coach?',
+      options: [
+        'An activity problem — the rep needs to make more calls and visits',
+        'A conversion problem — activity is happening but not turning into orders, so coach discovery and proposals',
+        'A territory problem — the rep\'s accounts are too small and need to be swapped',
+        'A data problem — coverage that high with low orders means the CRM is wrong',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir4-q4',
+      question: 'An account has bought game uniforms from your rep for two seasons. Nothing else. In a pipeline review, what is the lane question you should ask?',
+      options: [
+        '"When does their uniform contract come up for renewal?"',
+        '"This account buys uniforms and already trusts us — where are we on travel gear, team store, and letterman?"',
+        '"Should we offer a discount to lock in next season\'s uniform order early?"',
+        '"Is the coach happy with the current uniforms?"',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir4-q5',
+      question: 'Sales Philosophy #5 says "Activity creates opportunity." How does a Director apply that principle at the territory level?',
+      options: [
+        'Read Territory Coverage before revenue — a territory at 70% coverage out-produces one at 30% every quarter, so manage the activity that creates the opportunities',
+        'Require reps to log a minimum of 100 activities per week in the CRM',
+        'Focus rep activity exclusively on accounts with open opportunities',
+        'Reassign any account that has not produced revenue within 90 days',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  'DIR-5': [
+    {
+      id: 'dir5-q1',
+      question: 'In a team pipeline review, what four things must be confirmed for every active deal?',
+      options: [
+        'Stage, next action, date, and owner',
+        'Deal value, discount level, close date, and competitor',
+        'Coach name, sport, lane, and roster size',
+        'Age of deal, number of calls, proposal status, and rep quota progress',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir5-q2',
+      question: 'A rep\'s $9,000 deal has sat in Negotiation for three weeks. The rep says "I\'m waiting to hear back." What is the Director\'s best move?',
+      options: [
+        'Call the school yourself and close the deal before it goes cold',
+        'Diagnose the block with the rep — three weeks of silence usually means the wrong contact or an unsurfaced objection — and coach the rep to unblock it',
+        'Move the deal back to Proposal Sent so the pipeline reflects reality',
+        'Tell the rep to send a discount offer to force a decision this week',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir5-q3',
+      question: 'What is forecast discipline?',
+      options: [
+        'Submitting the forecast to VP Sales by the same deadline every month',
+        'Forecasting from pipeline stages and discovery-projected deal values — no value recorded means no place in the forecast, and nothing counts as won until the full Closed Won standard is met',
+        'Always forecasting 10% below the pipeline total to stay conservative',
+        'Requiring every rep to commit to a personal number at the start of the month',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: 'dir5-q4',
+      question: 'A rep misses the four-order floor this month. Where do you look first?',
+      options: [
+        'Their activity and discovery conversations from 60 days ago — a missed floor today started upstream',
+        'Their closing technique on the deals that fell through this month',
+        'Their territory — a rep who misses the floor probably has weak accounts',
+        'Their commission plan — misaligned incentives cause most missed months',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir5-q5',
+      question: 'Sales Philosophy #6 says "Pipeline predicts success." Why does a disciplined team pipeline matter more to a Director than last month\'s revenue?',
+      options: [
+        'Because VP Sales reviews pipeline reports more often than revenue reports',
+        'Because revenue is deferred until Operations fulfills each order',
+        'Because a disciplined pipeline shows next month\'s number three weeks early — while there is still time to act; last month already happened',
+        'Because pipeline totals are the primary input to each rep\'s commission',
+      ],
+      correctIndex: 2,
+    },
+  ],
 };
 
 // ─── Quiz Storage ────────────────────────────────────────────────────────────
@@ -1057,16 +1539,17 @@ function computeModulePhase(
   userId: string,
   isAllCertified: boolean
 ): ModulePhase {
-  const idx = MODULE_ORDER.indexOf(code);
+  const order = moduleOrderFor(code);
+  const idx = order.indexOf(code);
 
   // If the user is already fully certified, all modules show as certified
   if (isAllCertified) return 'certified';
 
-  // Check sequential lock: ACAD-101 is always available; others require previous module quiz passed.
-  // Quiz pass unlocks the next module immediately. Director review happens asynchronously
-  // and does NOT block progression.
+  // Check sequential lock: the first module of a track is always available; others require
+  // previous module quiz passed. Quiz pass unlocks the next module immediately.
+  // Coach review happens asynchronously and does NOT block progression.
   if (idx > 0) {
-    const prevCode = MODULE_ORDER[idx - 1];
+    const prevCode = order[idx - 1];
     if (!isQuizPassed(prevCode)) {
       return 'locked';
     }
@@ -1118,7 +1601,7 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
   const isAllCertified = record?.isLevel1Certified === true;
 
   const rawData: Record<
-    AcademyModuleCode,
+    TAEModuleCode,
     { completed: boolean; currentValue: number }
   > = {
     'ACAD-101': acad101,
@@ -1137,7 +1620,7 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
   };
 
   return LEVEL_1_MODULES.map((mod) => {
-    const raw = rawData[mod.code];
+    const raw = rawData[mod.code as TAEModuleCode];
     const quizPassed = isQuizPassed(mod.code);
 
     // Exercise is only considered complete after quiz is passed AND raw data shows completion
@@ -1172,6 +1655,179 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
                 ? 'proposal opps'
                 : 'closed won opps',
       extra: extraData[mod.code],
+      coachReview: coachReview ?? undefined,
+    };
+  });
+}
+
+// ─── Director Track Detection ────────────────────────────────────────────────
+
+/**
+ * DIR-1: Demonstrate — Director writes their State Ownership Brief.
+ * Detection: reuses the mission-statement storage (per-user).
+ */
+export function detectDir1(userId: string): { completed: boolean; currentValue: number } {
+  const written = hasMissionStatement(userId);
+  return { completed: written, currentValue: written ? 1 : 0 };
+}
+
+/**
+ * DIR-2: Demonstrate — Add 3 candidates to the recruiting pipeline.
+ * Detection: counts candidates in the recruiting pipeline.
+ */
+export async function detectDir2(): Promise<{
+  completed: boolean;
+  currentValue: number;
+  candidateCount: number;
+}> {
+  try {
+    const candidates = await getCandidates();
+    const count = Array.isArray(candidates) ? candidates.length : 0;
+    return {
+      completed: count >= 3,
+      currentValue: Math.min(count, 3),
+      candidateCount: count,
+    };
+  } catch {
+    return { completed: false, currentValue: 0, candidateCount: 0 };
+  }
+}
+
+/**
+ * DIR-3: Demonstrate — Deliver at least one Coach Review for a rep module.
+ * Detection: counts Coach Reviews the Director has recorded for TAE (ACAD-*) modules.
+ */
+export function detectDir3(): {
+  completed: boolean;
+  currentValue: number;
+  reviewCount: number;
+} {
+  const reviews = getCoachReviews();
+  const repReviews = Object.keys(reviews).filter((code) => code.startsWith('ACAD-'));
+  return {
+    completed: repReviews.length >= 1,
+    currentValue: Math.min(repReviews.length, 1),
+    reviewCount: repReviews.length,
+  };
+}
+
+/**
+ * DIR-4: Demonstrate — Verify territory coverage: accounts have assigned reps.
+ * Detection: counts organizations with an assigned rep.
+ */
+export async function detectDir4(): Promise<{
+  completed: boolean;
+  currentValue: number;
+  assignedOrgs: number;
+  totalOrgs: number;
+}> {
+  try {
+    const orgs = await listOrganizations({});
+    const assigned = orgs.filter(
+      (o) => o.assignedRep && o.assignedRep.trim().length > 0
+    );
+    return {
+      completed: assigned.length >= 5,
+      currentValue: Math.min(assigned.length, 5),
+      assignedOrgs: assigned.length,
+      totalOrgs: orgs.length,
+    };
+  } catch {
+    return { completed: false, currentValue: 0, assignedOrgs: 0, totalOrgs: 0 };
+  }
+}
+
+/**
+ * DIR-5: Demonstrate — Run a team pipeline review with 3+ active opportunities.
+ * Detection: counts team opportunities in active pipeline stages.
+ */
+export async function detectDir5(): Promise<{
+  completed: boolean;
+  currentValue: number;
+  activeOpps: number;
+}> {
+  try {
+    const opportunities = await listOpportunities({});
+    const active = opportunities.filter((o) => ACTIVE_STAGES.has(o.stage));
+    return {
+      completed: active.length >= 3,
+      currentValue: Math.min(active.length, 3),
+      activeOpps: active.length,
+    };
+  } catch {
+    return { completed: false, currentValue: 0, activeOpps: 0 };
+  }
+}
+
+/**
+ * Master detection for the Director track — mirrors detectAllModules for DIR-1..DIR-5.
+ */
+export async function detectAllDirectorModules(): Promise<ModuleProgress[]> {
+  const user = getStoredUser();
+  const userId = user?.id ?? 'unknown';
+
+  const dir1 = detectDir1(userId);
+  const dir2 = await detectDir2();
+  const dir3 = detectDir3();
+  const dir4 = await detectDir4();
+  const dir5 = await detectDir5();
+
+  const record = getCertificationRecord(userId);
+  const isAllCertified = record?.isLevel1Certified === true;
+
+  const rawData: Record<
+    DirectorModuleCode,
+    { completed: boolean; currentValue: number }
+  > = {
+    'DIR-1': dir1,
+    'DIR-2': { completed: dir2.completed, currentValue: dir2.currentValue },
+    'DIR-3': { completed: dir3.completed, currentValue: dir3.currentValue },
+    'DIR-4': { completed: dir4.completed, currentValue: dir4.currentValue },
+    'DIR-5': { completed: dir5.completed, currentValue: dir5.currentValue },
+  };
+
+  const targetValues: Record<DirectorModuleCode, number> = {
+    'DIR-1': 1,
+    'DIR-2': 3,
+    'DIR-3': 1,
+    'DIR-4': 5,
+    'DIR-5': 3,
+  };
+
+  const labels: Record<DirectorModuleCode, string> = {
+    'DIR-1': 'state ownership brief',
+    'DIR-2': 'candidates in pipeline',
+    'DIR-3': 'coach reviews delivered',
+    'DIR-4': 'accounts with owners',
+    'DIR-5': 'active pipeline opps',
+  };
+
+  const extraData: Partial<Record<DirectorModuleCode, string>> = {
+    'DIR-2': `${dir2.candidateCount} candidates in pipeline`,
+    'DIR-3': `${dir3.reviewCount} coach reviews delivered`,
+    'DIR-4': `${dir4.assignedOrgs} of ${dir4.totalOrgs} accounts assigned`,
+    'DIR-5': `${dir5.activeOpps} active opps`,
+  };
+
+  return DIRECTOR_MODULES.map((mod) => {
+    const code = mod.code as DirectorModuleCode;
+    const raw = rawData[code];
+    const quizPassed = isQuizPassed(code);
+
+    // Exercise is only considered complete after quiz is passed AND raw data shows completion
+    const exerciseCompleted = quizPassed && raw.completed;
+
+    const phase = computeModulePhase(code, exerciseCompleted, raw.currentValue, userId, isAllCertified);
+
+    const coachReview = getCoachReview(code);
+
+    return {
+      code,
+      phase,
+      currentValue: raw.currentValue,
+      targetValue: targetValues[code],
+      label: labels[code],
+      extra: extraData[code],
       coachReview: coachReview ?? undefined,
     };
   });
@@ -1232,6 +1888,46 @@ export interface CertificationRecord {
 }
 
 export const CERTIFICATION_TITLE = 'Level 1 Certified Territory Account Executive';
+export const DIRECTOR_CERTIFICATION_TITLE = 'Level 1 Certified State Director';
+
+// ─── Role-Based Track Selection ──────────────────────────────────────────────
+
+/** Roles that train on the Director track. */
+export function isDirectorRole(role: string | null | undefined): boolean {
+  return role === 'DIRECTOR' || role === 'REGIONAL_DIRECTOR';
+}
+
+export interface AcademyTrack {
+  /** Track identifier */
+  track: 'TAE' | 'DIRECTOR';
+  /** Modules in this track */
+  modules: AcademyModule[];
+  /** Sequential module order for gating */
+  order: AcademyModuleCode[];
+  /** Certification title granted on completion */
+  certificationTitle: string;
+}
+
+/**
+ * Role-based track selector: DIRECTOR / REGIONAL_DIRECTOR train on the Director
+ * track; REP (and everyone else) trains on the TAE track.
+ */
+export function getAcademyTrack(role: string | null | undefined): AcademyTrack {
+  if (isDirectorRole(role)) {
+    return {
+      track: 'DIRECTOR',
+      modules: DIRECTOR_MODULES,
+      order: DIRECTOR_MODULE_ORDER,
+      certificationTitle: DIRECTOR_CERTIFICATION_TITLE,
+    };
+  }
+  return {
+    track: 'TAE',
+    modules: LEVEL_1_MODULES,
+    order: MODULE_ORDER,
+    certificationTitle: CERTIFICATION_TITLE,
+  };
+}
 
 export function getCertificationRecord(userId: string): CertificationRecord | null {
   try {
@@ -1316,10 +2012,15 @@ export async function submitForApproval(
   userId: string,
   userName: string
 ): Promise<CertificationSubmission> {
-  const progress = await detectAllModules();
+  const user = getStoredUser();
+  const track = getAcademyTrack(user?.role);
+  const progress =
+    track.track === 'DIRECTOR'
+      ? await detectAllDirectorModules()
+      : await detectAllModules();
   const quizResults = getQuizResults();
 
-  const moduleDetails: SubmittedModuleDetail[] = LEVEL_1_MODULES.map((mod) => {
+  const moduleDetails: SubmittedModuleDetail[] = track.modules.map((mod) => {
     const quiz = quizResults[mod.code];
     const prog = progress.find((p) => p.code === mod.code);
     return {

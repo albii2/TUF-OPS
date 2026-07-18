@@ -1,1 +1,0 @@
-{"version":3,"file":"DocumentPreview.d.ts","sourceRoot":"","sources":["DocumentPreview.tsx"],"names":[],"mappings":"AACA,OAAO,EAAE,KAAK,YAAY,EAAoB,MAAM,0BAA0B,CAAC;AAE/E,UAAU,oBAAoB;IAC5B,IAAI,EAAE,YAAY,CAAC;CACpB;AAED,wBAAgB,eAAe,CAAC,EAAE,IAAI,EAAE,EAAE,oBAAoB,+BAsC7D;AAED,wBAAgB,gBAAgB,CAAC,IAAI,EAAE,YAAY,QAYlD;AAED,wBAAgB,aAAa,CAAC,IAAI,EAAE,YAAY,QAgB/C"}

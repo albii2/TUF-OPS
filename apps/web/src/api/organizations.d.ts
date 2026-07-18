@@ -1,2 +1,0 @@
-export { listOrganizations as getOrganizations, getOrganizationById as getOrganization, createOrganization, updateOrganization, } from '../services/organizationsService';
-//# sourceMappingURL=organizations.d.ts.map
