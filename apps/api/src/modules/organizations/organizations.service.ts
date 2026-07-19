@@ -1,15 +1,7 @@
 import { pool } from '@packages/database';
-import { OpportunityChannelType } from '../opportunities/opportunities.interface';
 import { STAGES } from '@packages/auth';
 import { resolveUserId } from '../shared/resolve-user';
 import { auditLog } from '../shared/audit-log';
-
-const REQUIRED_CHANNELS: OpportunityChannelType[] = [
-  OpportunityChannelType.UNIFORM,
-  OpportunityChannelType.TRAVEL_GEAR,
-  OpportunityChannelType.TEAM_STORE,
-  OpportunityChannelType.LETTERMAN,
-];
 
 function normalizeName(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
@@ -62,29 +54,6 @@ export async function createOrganization(organization: any) {
       resource_id: createdOrganization.id,
       metadata: { name, state },
     }).catch(() => {});
-
-    // Fire-and-forget: create auto-opportunities in the background
-    // Don't block the response — org is saved, opps will populate async
-    const oppCreatedBy = created_by;
-    const oppUpdatedBy = updated_by;
-    const oppRepId = assigned_rep_id;
-    const oppDirId = assigned_director_id;
-    const oppOrgId = createdOrganization.id;
-    const oppName = name;
-    
-    setImmediate(async () => {
-      try {
-        for (const channelType of REQUIRED_CHANNELS) {
-          await pool.query(
-            `INSERT INTO opportunities (name, organization_id, sport, season, year, status, value, created_by, updated_by, stage, last_activity_date, assigned_rep_id, assigned_director_id, deal_type, channel_type)
-             VALUES ($1, $2, 'FOOTBALL', 'FALL', 2026, $3, $4, $5, $6, $7, current_timestamp, $8, $9, $10, $11)`,
-            [`${oppName} - ${channelType}`, oppOrgId, 'open', 0.00, oppCreatedBy, oppUpdatedBy, STAGES.LEAD, oppRepId, oppDirId, channelType, channelType]
-          );
-        }
-      } catch (oppError) {
-        console.error('createOrganization: auto-opportunity creation failed:', oppError);
-      }
-    });
 
     return createdOrganization;
   } catch (error) {
@@ -151,6 +120,9 @@ export async function updateOrganization(id: string, organization: any) {
 }
 
 export async function deleteOrganization(id: string, userId?: number | null) {
+  // Cascade: delete related records before the organization
+  await pool.query('DELETE FROM activities WHERE organization_id = $1', [id]);
+  await pool.query('DELETE FROM opportunities WHERE organization_id = $1', [id]);
   await pool.query('DELETE FROM organizations WHERE id = $1', [id]);
   auditLog({
     action: 'DELETE',
