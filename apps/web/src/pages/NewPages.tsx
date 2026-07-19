@@ -117,6 +117,7 @@ export function OpportunityNewPage() {
     }
     try {
       const created = await createOpportunity({
+        name: preview,
         organizationId: resolvedOrg.id,
         organizationName: resolvedOrg.name,
         programLevel,
