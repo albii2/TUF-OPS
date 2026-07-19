@@ -34,8 +34,8 @@ import { getStoredUser } from '../auth';
 
 // ─── Module Definitions ─────────────────────────────────────────────────────
 
-export type TAEModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105' | 'ACAD-106';
-export type DirectorModuleCode = 'DIR-1' | 'DIR-2' | 'DIR-3' | 'DIR-4' | 'DIR-5';
+export type TAEModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105' | 'ACAD-106' | 'ACAD-107';
+export type DirectorModuleCode = 'DIR-1' | 'DIR-2' | 'DIR-3' | 'DIR-4' | 'DIR-5' | 'DIR-6';
 export type AcademyModuleCode = TAEModuleCode | DirectorModuleCode;
 
 export function isDirectorModuleCode(code: AcademyModuleCode): code is DirectorModuleCode {
@@ -317,6 +317,49 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
       },
     ],
   },
+
+  {
+    code: 'ACAD-107',
+    name: 'Emergency Pipeline Accelerator',
+    description:
+      'The 5-Day Pipeline Blast: rapid outreach, account triage, lane expansion, and converting dead air into active deals when your pipeline needs immediate volume.',
+    completionCriteria:
+      'Create 10+ new opportunities across 5+ accounts within 5 business days, log 5+ outreach activities.',
+    demonstrateTask:
+      'Execute a 5-Day Pipeline Blast: create 10+ opportunities across 5+ accounts and log 5+ outreach activities within 5 business days.',
+    philosophyPrinciple: 5,
+    learnContent: [
+      {
+        heading: 'The Emergency Pipeline Mindset',
+        body: 'A thin pipeline is not a judgment \u2014 it is a math problem. Math problems have solutions.\n\nThe Emergency Pipeline Accelerator exists for one situation: you need pipeline volume RIGHT NOW across multiple accounts. This is not a sustainable long-term strategy \u2014 the four-order baseline, consistent daily activity, and systematic lane penetration are your long game. But fewer than 8 active opportunities = emergency mode.\n\nRules of the Blast:\n1. Activity volume over perfection. A good call today beats a perfect call next week.\n2. Lane expansion over new accounts. 5x easier to add a lane to an existing relationship.\n3. Speed over precision. Close enough gets you in the door \u2014 refine after contact.\n\nThe emergency pipeline blast is a finite sprint \u2014 5 business days \u2014 not a permanent operating model.',
+      },
+      {
+        heading: 'Day 1: Account Triage',
+        body: 'Open your territory. Sort active accounts by lane penetration \u2014 lowest first. You are looking for EXISTING accounts with open lanes, not new schools. Existing relationships where you have sold one or two lanes but left others sitting.\n\nExample: Jefferson High \u2014 you sold Football Uniforms 8 months ago. Travel Gear, Team Store, Letterman: untouched. That is three opportunities you can open TODAY with one call to a coach who already knows your name.\n\nPriority ranking:\n1. Active accounts with 1-2 lanes won \u2192 expand to remaining lanes\n2. Active accounts with only Uniforms \u2192 introduce Team Store and Travel Gear\n3. Accounts you contacted but never closed \u2192 re-engage with a fresh lane\n4. Cold accounts \u2192 only after exhausting 1-3\n\nDay 1 output: ranked list of 20+ accounts with specific lanes to attack.',
+      },
+      {
+        heading: 'Day 2: Rapid Outreach Blitz',
+        body: 'Block 4 hours. Phone only. No email. No research rabbit holes.\n\nThe Rapid Outreach format:\n1. Call. Introduce yourself (or remind them who you are).\n2. State the lane. "Coach, we handled your football uniforms \u2014 have you thought about a team store?"\n3. One question. "Is that something you would want to hear more about?"\n4. Log the opportunity. Yes, no, maybe \u2014 it goes in the pipeline.\n\nTarget: 20 calls in 4 hours. One call every 12 minutes. Log every single one \u2014 an unlogged call never happened.\n\nA maybe = LEAD. A yes = LEAD_ENGAGED. A "call me back in two weeks" = LEAD with a date.',
+      },
+      {
+        heading: 'Day 3: Lane Expansion',
+        body: 'Every account is at 25% lane penetration or less. Day 3 converts one-lane accounts into multi-lane relationships.\n\nFor every Uniforms deal:\n\u2022 Travel Gear \u2014 "Coach, does your team travel with matching warm-ups or bags?"\n\u2022 Team Store \u2014 "Do your parents and fans have a place to buy spirit wear?"\n\u2022 Letterman \u2014 "Who handles varsity jackets and senior achievement awards?"\n\nYou are not selling four products. You are asking four questions. The questions open the lane. Discovery fills it.\n\nTarget: introduce a second lane to 10 existing accounts. If 7 say "not right now," 3 become active pipeline \u2014 from accounts you already own.',
+      },
+      {
+        heading: 'Day 4: Cold Start Outreach',
+        body: 'Only if you have exhausted lane expansion and still need volume.\n\nThe Cold Start Script (60 seconds):\n\n"Coach [Name], this is [Your Name] with TUF Sports Apparel. I work with [neighboring school] \u2014 we handle their football uniforms and team store. Quick question: who manages your game-day uniforms right now?"\n\nWhat it does: names a nearby school (social proof), states what you do (credibility), asks a simple question (engagement). No pitch. No features.\n\nIf they are happy with their current vendor: "Totally fair. What is one thing you wish was easier about the current setup?" Now you are in discovery.\n\nTarget: 15 new accounts. Aim for 5 conversations. Log every attempt \u2014 even voicemails.',
+      },
+      {
+        heading: 'Day 5: Pipeline Review',
+        body: 'Day 5 converts Blast output into sustainable pipeline.\n\nReview every opportunity created this week:\n\u2022 LEAD \u2192 schedule the follow-up call NOW.\n\u2022 LEAD_ENGAGED \u2192 advance to DISCOVERY, book the meeting.\n\u2022 Voicemail \u2192 schedule callback #2 for next week.\n\nCleanup:\n\u2022 Dead leads after 3 attempts \u2192 CLOSED_LOST. Free the mental space.\n\u2022 Opportunities with no next action \u2192 add one. No action = not a deal.\n\nThe Blast is complete when every new opportunity has: (1) a stage, (2) a next action, (3) a date.',
+      },
+      {
+        heading: 'The Numbers That Matter',
+        body: 'Measure your blast:\n\u2022 Calls attempted\n\u2022 Conversations had\n\u2022 Opportunities created\n\u2022 New accounts contacted\n\u2022 Lane expansions in existing accounts\n\nA good 5-Day Blast: 50+ calls, 20+ conversations, 10+ new opportunities, 5+ lane expansions.\n\nSales Philosophy #5: Activity creates opportunity. The blast is pure activity. More calls = more conversations = more pipeline. When your Director asks about your pipeline next week, you will have data \u2014 not excuses.',
+      },
+    ],
+  },
+
 ];
 
 /** Director Track — State Director modules */
@@ -486,6 +529,45 @@ export const DIRECTOR_MODULES: AcademyModule[] = [
       },
     ],
   },
+
+  {
+    code: 'DIR-6',
+    name: 'Territory Building Accelerator',
+    description:
+      'Rapid territory activation: account assignment, coverage planning, rep deployment, and building pipeline density across your state in 30 days.',
+    completionCriteria:
+      'Assign 80%+ of territory accounts to reps with owners, run 2 pipeline blasts with your team, and show 20%+ pipeline growth in 30 days.',
+    demonstrateTask:
+      'Assign 80%+ of accounts to rep owners, execute 2 team pipeline blasts, and demonstrate 20%+ pipeline growth within 30 days.',
+    philosophyPrinciple: 6,
+    learnContent: [
+      {
+        heading: 'Territory Is a Math Problem',
+        body: 'A territory is not a geography question \u2014 it is a math equation:\n\nTotal accounts \u00d7 Average lane penetration \u00d7 Pipeline velocity = State revenue.\n\nIf any variable is weak, the result is weak. Your job as Director is to strengthen all three simultaneously.\n\nWhen you feel like your state is not producing fast enough, do not guess. Check the math:\n\n\u2022 Are all accounts assigned? (Coverage)\n\u2022 Are reps developing more than one lane per account? (Penetration)\n\u2022 Are opportunities moving through stages or sitting? (Velocity)\n\nThe math will tell you exactly where the bottleneck is \u2014 and exactly what to coach.',
+      },
+      {
+        heading: 'Week 1: Account Assignment Blitz',
+        body: 'An unassigned account is an account making zero revenue. Every day a school sits unassigned is a day someone else is selling to them.\n\nThe Account Assignment Blitz \u2014 done in one session:\n\n1. Export every account in your state.\n2. Sort by territory zone (Metro, North, West, Central).\n3. Assign each account to a specific rep by name.\n4. No "shared" accounts. One rep owns the relationship.\n5. No "unassigned" category. Every account gets an owner today.\n\nPush the assignments into the CRM immediately \u2014 do not wait for the "perfect" distribution. A slightly unbalanced assignment executed today beats a perfectly balanced assignment that sits in a spreadsheet for two weeks.\n\nTarget: 100% account assignment within your first week as Director. If you inherit an existing state with unassigned accounts, fix it this week.',
+      },
+      {
+        heading: 'Week 2: The Territory Pipeline Blast',
+        body: 'Once accounts are assigned, the entire team executes a coordinated Pipeline Blast \u2014 every rep, same week, same playbook.\n\nThis is not optional individual activity. This is a team-wide operation:\n\nMonday \u2014 Reps triage their newly assigned accounts, rank by lane penetration, identify top 20 targets.\nTuesday \u2014 Blocked outreach. 4 hours. Phone only. Lane expansion calls to existing accounts.\nWednesday \u2014 Cold outreach to untouched accounts within each rep\'s zone.\nThursday \u2014 Follow-up day. Every yes/maybe from Tue/Wed gets a second touch.\nFriday \u2014 Pipeline review. Director leads. Every rep reports: calls made, conversations had, opportunities created.\n\nYou run this as a Director \u2014 not as a participant. Your job is to set the schedule, enforce the blocks, and lead the Friday review. Do not make calls yourself. Coach your team to make them.\n\nExpected output: 50+ new opportunities across the state in one week.',
+      },
+      {
+        heading: 'Week 3: Lane Density \u2014 Penetration Over Acquisition',
+        body: 'The fastest path to pipeline volume is not new accounts \u2014 it is lane expansion in existing accounts.\n\nBy Week 3, every rep should have a ranked list of their accounts sorted by lane penetration. The mission: every account with Uniforms only must have at least one additional lane opened this week.\n\nThe play is simple:\n\n1. Rep opens the account in the CRM.\n2. Identifies which lanes are already won.\n3. Attacks the NEXT lane \u2014 not all three, not the "easiest" one. The next one.\n4. One call. One question. "Coach, we handled your uniforms \u2014 have you thought about a Team Store?"\n\nLane density \u2014 the percentage of an account\'s total revenue lanes that are active \u2014 is the leading indicator of account health. An account at 25% density (one lane) will produce 25% of its potential. An account at 75% density is a program partner.\n\nYour state\'s average lane density is your report card as a Director. Drive it up.',
+      },
+      {
+        heading: 'Week 4: Pipeline Review and Sustainment',
+        body: 'The territory accelerator culminates in a state-wide pipeline review:\n\n\u2022 Total pipeline value across all reps \u2014 trending up or flat?\n\u2022 Average opportunities per rep \u2014 above or below 8 active?\n\u2022 Lane penetration by rep \u2014 who is developing multi-lane accounts and who is stuck on Uniforms?\n\u2022 Activity consistency \u2014 which reps executed the blast and which did not?\n\nFrom this review, you build your coaching priority list:\n\n1. Reps with <4 active opportunities \u2192 immediate 1:1, diagnose the activity problem.\n2. Reps with low lane density \u2192 ride-along this week, coach lane expansion conversations.\n3. Reps exceeding all metrics \u2192 recognize publicly, use them as examples.\n\nThe accelerator is not the end \u2014 it is the beginning of the operating rhythm. From here, you run the weekly pipeline review, the monthly territory health check, and the quarterly rep performance review.\n\nPipeline predicts success. After 30 days, your pipeline numbers tell you exactly what the next 60 days will produce \u2014 and where to coach.',
+      },
+      {
+        heading: 'Territory Health \u2014 The Numbers You Track Weekly',
+        body: 'Your state has vital signs. Track them weekly:\n\n1. Account Coverage \u2014 % of accounts with an assigned rep (target: 100%)\n2. Active Pipeline Count \u2014 total open opportunities across all reps (target: 5+ per rep)\n3. Lane Density \u2014 average lanes per account (target: 2.0+)\n4. Pipeline Velocity \u2014 average days from LEAD to CLOSED_WON (target: <60)\n5. Activity Volume \u2014 total outreach activities per rep per week (target: 20+)\n\nRun these five numbers every Monday. They will tell you more about your state than a two-hour meeting ever could.\n\nA Director who can say "we are at 92% coverage, 1.7 average lanes, 6.3 active opps per rep, and trending up on velocity" is a Director who runs a state \u2014 not one who is run by it.',
+      },
+    ],
+  },
+
 ];
 
 // ─── Module Order (sequential gating) ────────────────────────────────────────
@@ -497,6 +579,7 @@ export const MODULE_ORDER: AcademyModuleCode[] = [
   'ACAD-104',
   'ACAD-105',
   'ACAD-106',
+  'ACAD-107',
 ];
 
 export const DIRECTOR_MODULE_ORDER: AcademyModuleCode[] = [
@@ -505,6 +588,7 @@ export const DIRECTOR_MODULE_ORDER: AcademyModuleCode[] = [
   'DIR-3',
   'DIR-4',
   'DIR-5',
+  'DIR-6',
 ];
 
 /** Returns the sequential order list for the track a module belongs to. */
@@ -932,6 +1016,64 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       correctIndex: 0,
     },
   ],
+
+  'ACAD-107': [
+    {
+      id: '107-q1',
+      question: 'When should a TAE activate the Emergency Pipeline Accelerator?',
+      options: [
+        'When the pipeline has fewer than 8 active opportunities \u2014 emergency mode requires a different gear',
+        'Every Monday morning as a standard weekly routine regardless of pipeline health',
+        'Only after the Director has approved the blast in writing',
+        'When the rep has closed more than 4 deals in a single month',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '107-q2',
+      question: 'On Day 1 of the Pipeline Blast, what is the correct account triage priority order?',
+      options: [
+        'Existing accounts with 1-2 lanes won \u2192 Uniforms-only accounts \u2192 previously contacted \u2192 cold accounts',
+        'Cold accounts first \u2192 then existing accounts \u2192 then previously contacted',
+        'Alphabetical by school name to ensure systematic coverage',
+        'Largest schools by enrollment first, regardless of relationship status',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '107-q3',
+      question: 'During the Day 2 Rapid Outreach Blitz, what is the correct call format?',
+      options: [
+        'Call \u2192 state the lane \u2192 ask one question \u2192 log the opportunity (yes, no, or maybe)',
+        'Email first \u2192 wait for response \u2192 call if no reply within 48 hours',
+        'Research the coach for 15 minutes \u2192 craft a personalized pitch \u2192 present all four lanes',
+        'Send a brochure \u2192 follow up with a phone call the following week',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '107-q4',
+      question: 'Why is lane expansion (Day 3) prioritized over new account outreach (Day 4)?',
+      options: [
+        'It is 5x easier to add a lane to an existing relationship than to cold-start a new account \u2014 Sales Philosophy #4: Coaches buy from people',
+        'New account outreach takes less time so it should be saved for the end of the week',
+        'Lane expansion deals are always larger than new account deals',
+        'The CRM requires existing accounts to have at least two lanes before new accounts can be added',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '107-q5',
+      question: 'A TAE completes a 5-Day Pipeline Blast. What numbers indicate a successful execution?',
+      options: [
+        '50+ calls, 20+ conversations, 10+ new opportunities, 5+ lane expansions',
+        '100+ calls, 50+ conversations, 2 new opportunities, unlimited follow-ups',
+        'Any number of calls is fine as long as the rep felt productive',
+        '25 calls, 5 conversations, 1 new opportunity \u2014 quality over quantity',
+      ],
+      correctIndex: 0,
+    },
+  ],
   'DIR-1': [
     {
       id: 'dir1-q1',
@@ -1215,6 +1357,64 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
         'Because pipeline totals are the primary input to each rep\'s commission',
       ],
       correctIndex: 2,
+    },
+  ],
+
+  'DIR-6': [
+    {
+      id: 'dir6-q1',
+      question: 'What is the territory revenue equation?',
+      options: [
+        'Total accounts \u00d7 Average lane penetration \u00d7 Pipeline velocity = State revenue',
+        'Total reps \u00d7 Average deal size \u00d7 Close rate = State revenue',
+        'Accounts assigned \u00d7 Weekly calls \u00d7 Months active = State revenue',
+        'Total opportunities \u00d7 Average value \u00d7 Win rate = State revenue',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir6-q2',
+      question: 'During Week 1 (Account Assignment Blitz), what is the rule for assigning accounts?',
+      options: [
+        'Every account gets one owner \u2014 no shared accounts, no unassigned accounts \u2014 push assignments immediately',
+        'Accounts are divided equally by revenue potential and assigned gradually over 6 weeks',
+        'Top 20% of accounts get assigned first, remaining 80% stay unassigned until reps prove themselves',
+        'Reps self-select their accounts based on personal relationships with coaches',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir6-q3',
+      question: 'During the Week 2 Territory Pipeline Blast, what is the Director\'s role?',
+      options: [
+        'Set the schedule, enforce the blocks, and lead the Friday review \u2014 do not make calls yourself',
+        'Make the most calls personally to lead by example and set the pace',
+        'Review each rep\'s scripts for quality before they are allowed to make calls',
+        'Build the target account list and hand it to reps with pre-written call scripts',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir6-q4',
+      question: 'What is lane density and why does it matter?',
+      options: [
+        'The percentage of an account\'s total revenue lanes that are active \u2014 it is the leading indicator of account health and the Director\'s report card',
+        'The total dollar value of all active opportunities divided by the number of accounts',
+        'The number of reps assigned to each lane category across the state',
+        'The geographic concentration of accounts within each territory zone',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: 'dir6-q5',
+      question: 'A Director runs territory health numbers every Monday. What five metrics should they track?',
+      options: [
+        'Account Coverage, Active Pipeline Count, Lane Density, Pipeline Velocity, Activity Volume',
+        'Total Revenue, Profit Margin, Headcount, Expenses, Customer Satisfaction',
+        'Deals Closed, Proposals Sent, Emails Sent, Meetings Held, Demos Given',
+        'Account Age, Rep Tenure, Average Contract Length, Renewal Rate, Referral Count',
+      ],
+      correctIndex: 0,
     },
   ],
 };
@@ -1586,6 +1786,31 @@ function computeModulePhase(
  * Master detection function — runs all 6 module checks, applies sequential gating,
  * quiz requirements, coach review, and acknowledgment tracking.
  */
+
+/**
+ * ACAD-107: Demonstrate \u2014 TAE executes a 5-Day Pipeline Blast.
+ * Detection: counts opportunities created in the last 7 days.
+ */
+export async function detectAcad107(): Promise<{
+  completed: boolean;
+  currentValue: number;
+  oppsCreated: number;
+}> {
+  try {
+    const opps = await listOpportunities({});
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const recent = opps.filter((o) => {
+      const created = o.createdAt ? new Date(o.createdAt) : null;
+      return created && created >= sevenDaysAgo;
+    });
+    const count = recent.length;
+    return { completed: count >= 10, currentValue: count, oppsCreated: count };
+  } catch {
+    return { completed: false, currentValue: 0, oppsCreated: 0 };
+  }
+}
+
 export async function detectAllModules(): Promise<ModuleProgress[]> {
   const user = getStoredUser();
   const userId = user?.id ?? 'unknown';
@@ -1596,6 +1821,7 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
   const acad104 = await detectAcad104();
   const acad105 = await detectAcad105();
   const acad106 = detectAcad106();
+  const acad107 = await detectAcad107();
 
   const record = getCertificationRecord(userId);
   const isAllCertified = record?.isLevel1Certified === true;
@@ -1610,6 +1836,7 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
     'ACAD-104': { completed: acad104.completed, currentValue: acad104.currentValue },
     'ACAD-105': { completed: acad105.completed, currentValue: acad105.currentValue },
     'ACAD-106': { completed: acad106.completed, currentValue: acad106.currentValue },
+    'ACAD-107': { completed: acad107.completed, currentValue: acad107.currentValue },
   };
 
   const extraData: Partial<Record<AcademyModuleCode, string>> = {
@@ -1617,6 +1844,7 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
     'ACAD-103': `${acad103.oppsWithNeeds} opps with needs / ${acad103.oppCount} total`,
     'ACAD-104': `${acad104.proposalOpps} proposal opps`,
     'ACAD-105': `${acad105.closedWonOpps} closed won`,
+    'ACAD-107': `${acad107.oppsCreated} opps created in last 7 days`,
   };
 
   return LEVEL_1_MODULES.map((mod) => {
@@ -1643,6 +1871,8 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
               ? 1
               : mod.code === 'ACAD-104'
                 ? 1
+                : mod.code === 'ACAD-107'
+                ? 10
                 : 1,
       label:
         mod.code === 'ACAD-101'
@@ -1653,6 +1883,8 @@ export async function detectAllModules(): Promise<ModuleProgress[]> {
               ? 'opps with needs'
               : mod.code === 'ACAD-104'
                 ? 'proposal opps'
+                : mod.code === 'ACAD-107'
+                ? 'opps created (7 days)'
                 : 'closed won opps',
       extra: extraData[mod.code],
       coachReview: coachReview ?? undefined,
@@ -1762,6 +1994,31 @@ export async function detectDir5(): Promise<{
 /**
  * Master detection for the Director track — mirrors detectAllModules for DIR-1..DIR-5.
  */
+
+/**
+ * DIR-6: Demonstrate \u2014 Director executes Territory Building Accelerator.
+ * Detection: checks org assignment coverage and pipeline growth.
+ */
+export async function detectDir6(): Promise<{
+  completed: boolean;
+  currentValue: number;
+  assignedOrgs: number;
+  totalOrgs: number;
+  activeOpps: number;
+}> {
+  try {
+    const orgs = await listOrganizations({});
+    const opps = await listOpportunities({});
+    const assigned = orgs.filter((o) => o.assignedRep && o.assignedRep !== 'Unassigned');
+    const pct = orgs.length ? Math.round((assigned.length / orgs.length) * 100) : 0;
+    const activeOpps = opps.filter((o) => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).length;
+    const completed = pct >= 80 && activeOpps >= 20;
+    return { completed, currentValue: pct, assignedOrgs: assigned.length, totalOrgs: orgs.length, activeOpps };
+  } catch {
+    return { completed: false, currentValue: 0, assignedOrgs: 0, totalOrgs: 0, activeOpps: 0 };
+  }
+}
+
 export async function detectAllDirectorModules(): Promise<ModuleProgress[]> {
   const user = getStoredUser();
   const userId = user?.id ?? 'unknown';
@@ -1771,6 +2028,7 @@ export async function detectAllDirectorModules(): Promise<ModuleProgress[]> {
   const dir3 = detectDir3();
   const dir4 = await detectDir4();
   const dir5 = await detectDir5();
+  const dir6 = await detectDir6();
 
   const record = getCertificationRecord(userId);
   const isAllCertified = record?.isLevel1Certified === true;
@@ -1784,6 +2042,7 @@ export async function detectAllDirectorModules(): Promise<ModuleProgress[]> {
     'DIR-3': { completed: dir3.completed, currentValue: dir3.currentValue },
     'DIR-4': { completed: dir4.completed, currentValue: dir4.currentValue },
     'DIR-5': { completed: dir5.completed, currentValue: dir5.currentValue },
+    'DIR-6': { completed: dir6.completed, currentValue: dir6.currentValue },
   };
 
   const targetValues: Record<DirectorModuleCode, number> = {
@@ -1792,6 +2051,7 @@ export async function detectAllDirectorModules(): Promise<ModuleProgress[]> {
     'DIR-3': 1,
     'DIR-4': 5,
     'DIR-5': 3,
+    'DIR-6': 80, // 80% coverage
   };
 
   const labels: Record<DirectorModuleCode, string> = {
@@ -1800,6 +2060,7 @@ export async function detectAllDirectorModules(): Promise<ModuleProgress[]> {
     'DIR-3': 'coach reviews delivered',
     'DIR-4': 'accounts with owners',
     'DIR-5': 'active pipeline opps',
+    'DIR-6': 'account coverage %',
   };
 
   const extraData: Partial<Record<DirectorModuleCode, string>> = {
@@ -1807,6 +2068,7 @@ export async function detectAllDirectorModules(): Promise<ModuleProgress[]> {
     'DIR-3': `${dir3.reviewCount} coach reviews delivered`,
     'DIR-4': `${dir4.assignedOrgs} of ${dir4.totalOrgs} accounts assigned`,
     'DIR-5': `${dir5.activeOpps} active opps`,
+    'DIR-6': `${dir6.assignedOrgs} of ${dir6.totalOrgs} assigned`,
   };
 
   return DIRECTOR_MODULES.map((mod) => {
