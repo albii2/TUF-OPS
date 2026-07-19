@@ -152,7 +152,7 @@ export function OpportunityDetailPage() {
             <div className="flex items-center gap-2 text-xs text-slate-400">
               <span>Lanes:</span>
               <span className="inline-flex flex-wrap gap-1">
-                {activeOpp.lanes.map((lane) => (
+                {(activeOpp.lanes ?? []).map((lane) => (
                   <span key={lane} className="inline-flex items-center gap-1 rounded-full border border-[#23557a] bg-[#0e2131] px-2 py-0.5 text-[10px] font-semibold text-[#cdeaff]">
                     {getLaneLabel(lane)}
                     <button
@@ -179,7 +179,7 @@ export function OpportunityDetailPage() {
                     }}
                   >
                     <option value="">+ Add Lane</option>
-                    {REVENUE_LANES.filter((l) => !activeOpp.lanes.includes(l)).map((lane) => (
+                    {REVENUE_LANES.filter((l) => !(activeOpp.lanes ?? []).includes(l)).map((lane) => (
                       <option key={lane} value={lane}>{getLaneLabel(lane)}</option>
                     ))}
                   </select>
@@ -234,7 +234,7 @@ export function OpportunityDetailPage() {
                 creativeSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
               }
               setShowAdvanceDrawer(true);
-              setAdvanceForm({ lane: activeOpp.lanes[0] });
+              setAdvanceForm({ lane: (activeOpp.lanes ?? [])[0] });
             }}>{stageCtas[activeOpp.stage]}</Button>
           ) : nextStage && !canAdvance ? (
             <p className="text-sm text-slate-300">{getAdvanceDeniedMessage(activeOpp)}</p>
@@ -311,7 +311,7 @@ export function OpportunityDetailPage() {
                 }
                 // Apply lane change from drawer if different from current
                 const newLane = advanceForm['lane'];
-                if (newLane && !activeOpp.lanes.includes(newLane as RevenueLane)) {
+                if (newLane && !(activeOpp.lanes ?? []).includes(newLane as RevenueLane)) {
                   const laneResult = await addOpportunityLane(activeOpp.id, newLane as RevenueLane);
                   if (laneResult) setLocalOpp(laneResult);
                 }

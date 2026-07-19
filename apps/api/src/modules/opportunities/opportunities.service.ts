@@ -172,14 +172,23 @@ export async function createOpportunity(opportunity: Partial<Opportunity> & {
 
 export async function getOpportunitiesByOrganization(organizationId: string): Promise<Opportunity[]> {
   const result = await pool.query('SELECT * FROM opportunities WHERE organization_id = $1', [organizationId]);
-  return result.rows;
+  return result.rows.map((row: any) => ({
+    ...row,
+    lanes: row.channel_type ? [row.channel_type] : [],
+  }));
 }
 
 export async function getOpportunities(): Promise<Opportunity[]> {
   const result = await pool.query(
     'SELECT o.*, org.state as organization_state FROM opportunities o LEFT JOIN organizations org ON org.id = o.organization_id ORDER BY o.updated_at DESC, o.id DESC'
   );
-  return result.rows;
+  // Transform channel_type into lanes array for frontend compatibility.
+  // Each opportunity has one channel_type; multi-lane expansion is handled
+  // client-side via addOpportunityLane/removeOpportunityLane.
+  return result.rows.map((row: any) => ({
+    ...row,
+    lanes: row.channel_type ? [row.channel_type] : [],
+  }));
 }
 
 export async function getOrganizationChannelPenetration(organizationId: number) {
