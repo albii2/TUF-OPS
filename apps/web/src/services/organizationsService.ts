@@ -103,6 +103,11 @@ export async function getOrganizationById(id: string): Promise<Organization | un
   return apiClient<Organization>(`/organizations/${id}`);
 }
 
+export async function deleteOrganization(id: string): Promise<boolean> {
+  await apiClient(`/organizations/${id}`, { method: 'DELETE' });
+  return true;
+}
+
 // Backward-compat stubs — these are no-ops since mock mode is removed
 export function listUntouchedAccounts(): Organization[] { return []; }
 export function listStaleAccounts(): Organization[] { return []; }

@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { getStoredUser } from '../auth';
 import { LighthousePanel } from '../components/LighthousePanel';
@@ -9,7 +9,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useActivities } from '../hooks/useReports';
 import { createOpportunity, getRevenueLanes } from '../services/opportunitiesService';
-import { updateOrganization } from '../services/organizationsService';
+import { updateOrganization, deleteOrganization } from '../services/organizationsService';
 import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionStatuses, type ReferredOrganizationType, type WarmIntroductionStatus } from '../services/ecosystemReferralsService';
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
 import { createActivity } from '../services/activitiesService';
@@ -17,6 +17,7 @@ import type { RevenueLane } from '@tuf/shared';
 
 export function OrganizationDetailPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { data: org } = useOrganizationById(id);
   const user = getStoredUser();
   const { data: allOpportunities = [] } = useOpportunities({});
@@ -134,6 +135,17 @@ export function OrganizationDetailPage() {
     setReferralMessage('Ecosystem referral captured and added to the dedicated Ecosystem Pipeline.');
   };
 
+  const removeOrganization = async () => {
+    if (!id || !org) return;
+    if (!window.confirm(`PERMANENTLY DELETE "${org.name}"? This removes the organization and all related opportunities, activities, and orders. This cannot be undone.`)) return;
+    try {
+      await deleteOrganization(id);
+      navigate('/organizations');
+    } catch {
+      alert('Failed to delete organization. You may not have permission.');
+    }
+  };
+
   return (
     <div className="space-y-3 min-w-0">
       <Card title="Account Penetration Console">
@@ -142,6 +154,12 @@ export function OrganizationDetailPage() {
             <p className="text-lg font-semibold">{org.name}</p>
             <p className="text-sm text-slate-400">{org.city}, {org.state} · {zoneLabel}</p>
             <p className="text-xs text-slate-400">Rep {org.assignedRep} · Director {org.assignedDirector} · Lead Tier {org.leadTier ?? 'UNASSIGNED'}</p>
+            {(user && (user.role === 'ADMIN' || user.role === 'DIRECTOR')) && (
+              <button
+                className="mt-2 rounded border border-rose-500/50 bg-rose-500/10 px-3 py-1 text-xs text-rose-300 hover:bg-rose-500/20"
+                onClick={removeOrganization}
+              >Delete Organization</button>
+            )}
             {(user && (user.role === 'DIRECTOR' || user.role === 'ADMIN')) && (
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-xs text-slate-500">Reassign Rep:</span>
