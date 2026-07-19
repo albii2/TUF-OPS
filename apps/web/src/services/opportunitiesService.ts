@@ -29,6 +29,27 @@ export const nextActionByStage: Record<OpportunityStage, string> = {
 
 function normalizeApiOpportunity(raw: any): Opportunity {
   const stage = raw.stage || 'lead';
+  // Map canonical lowercase stages to legacy display stages for frontend compatibility
+  const stageMap: Record<string, string> = {
+    lead: 'LEAD_ENGAGED',
+    contacted: 'CONTACTED',
+    proposal_sent: 'MOCKUP_STAGE',
+    negotiation: 'MOCKUP_DELIVERED',
+    order_assembly: 'INVOICE_SENT',
+    director_qa: 'DECISION_PENDING',
+    closed_won: 'CLOSED_WON',
+    closed_lost: 'CLOSED_LOST',
+    ready_for_operations: 'READY_FOR_OPS',
+    in_production: 'IN_PRODUCTION',
+    quality_control: 'QUALITY_CONTROL',
+    shipped: 'SHIPPED',
+    delivered: 'DELIVERED',
+    lead_engaged: 'LEAD_ENGAGED',
+    discovery: 'DISCOVERY',
+    mockup_stage: 'MOCKUP_STAGE',
+    invoice_sent: 'INVOICE_SENT',
+  };
+  const displayStage = stageMap[stage.toLowerCase()] || stage;
   return {
     id: String(raw.id),
     title: raw.name || '',
@@ -37,11 +58,11 @@ function normalizeApiOpportunity(raw: any): Opportunity {
     lanes: raw.lanes ?? (raw.channel_type ? [raw.channel_type] : raw.lane ? [raw.lane] : []),
     sport: raw.sport || '',
     season: raw.season || '',
-    stage,
-    value: raw.value || raw.estimated_value || 0,
+    stage: displayStage as Opportunity['stage'],
+    value: Number(raw.value) || Number(raw.estimated_value) || 0,
     assignedRep: raw.assigned_rep_name || raw.assigned_rep || 'Unassigned',
     assignedDirector: raw.assigned_director_name || raw.assigned_director || 'Unassigned',
-    estimatedValue: raw.estimated_value || raw.value || 0,
+    estimatedValue: Number(raw.estimated_value) || Number(raw.value) || 0,
     nextAction: raw.next_action || 'Review opportunity details',
     closeProbability: raw.close_probability || raw.probability || 50,
     lastActivity: raw.updated_at ? raw.updated_at.slice(0, 10) : new Date().toISOString().slice(0, 10),
