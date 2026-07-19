@@ -82,6 +82,7 @@ export function OrganizationDetailPage() {
     const laneData = (org.laneStatuses || {})[lane];
     const laneInfo = laneData || { estimatedValue: 5000 };
     const createdOpportunity = await createOpportunity({
+      name: `${org.name} - ${lane.replace(/_/g, ' ')}`,
       organizationId: id,
       organizationName: org.name,
       programLevel: 'Varsity',

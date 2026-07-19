@@ -34,7 +34,7 @@ function normalizeApiOpportunity(raw: any): Opportunity {
     title: raw.name || '',
     organizationId: String(raw.organization_id || ''),
     organizationName: raw.organization_name || raw.organization?.name || '',
-    lanes: raw.lane ? [raw.lane] : [],
+    lanes: raw.lanes ?? (raw.channel_type ? [raw.channel_type] : raw.lane ? [raw.lane] : []),
     sport: raw.sport || '',
     season: raw.season || '',
     stage,
@@ -61,6 +61,7 @@ export async function listOpportunities(params: OpportunityListParams = {}): Pro
 }
 
 export async function createOpportunity(input: {
+  name?: string;
   organizationId: string;
   organizationName: string;
   programLevel: string;

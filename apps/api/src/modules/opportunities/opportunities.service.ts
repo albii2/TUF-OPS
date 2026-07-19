@@ -131,7 +131,8 @@ export async function createOpportunity(opportunity: Partial<Opportunity> & {
       'SELECT * FROM opportunities WHERE organization_id = $1 AND channel_type = $2 AND sport = $3 AND season = $4 AND year = $5 LIMIT 1',
       [organization_id, resolvedChannelType, resolvedSport, resolvedSeason, resolvedYear]
     );
-    return res.rows[0];
+    const existingOpp = res.rows[0];
+    return { ...existingOpp, lanes: resolvedChannelType ? [resolvedChannelType] : [] };
   }
 
   const result = await pool.query(
@@ -167,7 +168,7 @@ export async function createOpportunity(opportunity: Partial<Opportunity> & {
     metadata: { name, stage, organization_id, channel_type: resolvedChannelType },
   }).catch(() => {});
 
-  return newOpp;
+  return { ...newOpp, lanes: resolvedChannelType ? [resolvedChannelType] : [] };
 }
 
 export async function getOpportunitiesByOrganization(organizationId: string): Promise<Opportunity[]> {
