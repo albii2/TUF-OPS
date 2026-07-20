@@ -33,8 +33,8 @@ function normalizeApiOpportunity(raw: any): Opportunity {
   const stageMap: Record<string, string> = {
     lead: 'LEAD_ENGAGED',
     contacted: 'CONTACTED',
-    proposal_sent: 'MOCKUP_STAGE',
-    negotiation: 'MOCKUP_DELIVERED',
+    proposal_sent: 'DISCOVERY',
+    negotiation: 'MOCKUP_STAGE',
     order_assembly: 'INVOICE_SENT',
     director_qa: 'DECISION_PENDING',
     closed_won: 'CLOSED_WON',
