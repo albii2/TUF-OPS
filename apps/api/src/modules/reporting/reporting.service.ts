@@ -67,9 +67,10 @@ function directorScope(directorId: number, stateMarket: string): Scope {
     };
   }
   // Use state-based scoping: director sees all orgs in their assigned states
+  const placeholders = states.map((_, i) => `$${i + 1}`).join(', ');
   return {
-    where: `WHERE org.state = ANY($1)`,
-    params: [states],
+    where: `WHERE org.state IN (${placeholders})`,
+    params: states,
     commissionVisibility: 'director',
   };
 }
