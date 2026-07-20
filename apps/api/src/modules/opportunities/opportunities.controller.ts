@@ -31,6 +31,12 @@ export async function getOpportunitiesHandler(request: FastifyRequest, reply: Fa
   const user = (request as any).currentUser;
   const opportunities = await getOpportunities();
   
+  // REP users: only see opportunities for orgs assigned to them
+  if (user?.role === 'REP' || user?.role === 'TAE') {
+    const filtered = opportunities.filter((opp: any) => opp.assigned_rep_id === user.id);
+    return reply.send(filtered);
+  }
+
   // Territory scoping: directors with state_market only see opps for orgs in their state(s)
   if (user?.state_market && user.role !== 'ADMIN') {
     const states = user.state_market.split(',').map((s: string) => s.trim());
