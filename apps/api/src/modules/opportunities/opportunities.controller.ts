@@ -11,6 +11,16 @@ export async function createOpportunityHandler(request: FastifyRequest, reply: F
     if (!body.organization_id && !body.organizationId) {
       return reply.code(400).send({ message: 'organization_id is required' });
     }
+    // Inject auth user as created_by/updated_by if not provided
+    const currentUser = (request as any).currentUser;
+    if (currentUser?.id) {
+      if (!body.created_by && !body.createdBy) body.created_by = currentUser.id;
+      if (!body.updated_by && !body.updatedBy) body.updated_by = currentUser.id;
+      // Auto-assign rep if the creator is a REP and no rep assigned
+      if ((currentUser.role === 'REP' || currentUser.role === 'TAE') && !body.assignedRep && !body.assigned_rep_id) {
+        body.assigned_rep_id = currentUser.id;
+      }
+    }
     const opportunity = await createOpportunity(body);
     return reply.code(201).send(opportunity);
   } catch (error: any) {
@@ -29,22 +39,29 @@ export async function getOpportunitiesByOrganizationHandler(request: FastifyRequ
 
 export async function getOpportunitiesHandler(request: FastifyRequest, reply: FastifyReply) {
   const user = (request as any).currentUser;
+  const query = (request.query as any) || {};
   const opportunities = await getOpportunities();
+  
+  // Apply stage filter if provided
+  let filtered = opportunities;
+  if (query.stage && query.stage !== 'ALL') {
+    filtered = filtered.filter((opp: any) => opp.stage === query.stage);
+  }
   
   // REP users: only see opportunities for orgs assigned to them
   if (user?.role === 'REP' || user?.role === 'TAE') {
-    const filtered = opportunities.filter((opp: any) => opp.assigned_rep_id === user.id);
+    filtered = filtered.filter((opp: any) => opp.assigned_rep_id === user.id);
     return reply.send(filtered);
   }
 
   // Territory scoping: directors with state_market only see opps for orgs in their state(s)
   if (user?.state_market && user.role !== 'ADMIN') {
     const states = user.state_market.split(',').map((s: string) => s.trim());
-    const filtered = opportunities.filter((opp: any) => states.includes(opp.organization_state));
+    filtered = filtered.filter((opp: any) => states.includes(opp.organization_state));
     return reply.send(filtered);
   }
   
-  return reply.send(opportunities);
+  return reply.send(filtered);
 }
 
 export async function updateOpportunityStageHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -55,8 +72,12 @@ export async function updateOpportunityStageHandler(request: FastifyRequest, rep
     return reply.code(400).send({ message: 'stage is required' });
   }
 
+  // Derive changed_by from auth if not provided
+  const currentUser = (request as any).currentUser;
+  const effectiveChangedBy = changed_by ?? currentUser?.id;
+
   try {
-    const updatedOpportunity = await updateOpportunityStage(Number(id), stage, changed_by, note, { actual_revenue, actual_cost, loss_reason });
+    const updatedOpportunity = await updateOpportunityStage(Number(id), stage, effectiveChangedBy, note, { actual_revenue, actual_cost, loss_reason });
     return reply.send(updatedOpportunity);
   } catch (error: any) {
     if (error.message.includes('not found')) {
