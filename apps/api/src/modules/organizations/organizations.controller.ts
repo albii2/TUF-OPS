@@ -28,6 +28,12 @@ export async function getOrganizationsHandler(request: FastifyRequest, reply: Fa
   const user = (request as any).currentUser;
   const organizations = await getOrganizations();
   
+  // REP users: only see orgs assigned to them
+  if (user?.role === 'REP' || user?.role === 'TAE') {
+    const filtered = organizations.filter((org: any) => org.assigned_rep_id === user.id);
+    return reply.send(filtered);
+  }
+
   // Territory scoping: directors with a state_market set only see orgs in their state(s)
   if (user?.state_market && user.role !== 'ADMIN') {
     const states = user.state_market.split(',').map((s: string) => s.trim());
