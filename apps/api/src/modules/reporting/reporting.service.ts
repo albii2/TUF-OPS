@@ -24,7 +24,7 @@ export interface DashboardMetrics {
   total_director_override: number;
 }
 
-type Scope = { where: string; params: number[]; commissionVisibility: 'admin' | 'director' | 'rep' };
+type Scope = { where: string; params: any[]; commissionVisibility: 'admin' | 'director' | 'rep' };
 
 const AUDITABLE_TOUCH_TYPES = ['CALL', 'EMAIL', 'TEXT', 'MEETING', 'NOTE', 'OPPORTUNITY_ACTIVITY', 'LOGGED_CONTACT'];
 const PAYABLE_ORDER_STATUSES = ['DELIVERED', 'COMPLETED'];
@@ -56,13 +56,20 @@ function repScope(repId: number): Scope {
   return { where: 'WHERE org.assigned_rep_id = $1', params: [repId], commissionVisibility: 'rep' };
 }
 
-function directorScope(directorId: number): Scope {
+function directorScope(directorId: number, stateMarket: string): Scope {
+  const states = stateMarket ? stateMarket.split(',').map((s: string) => s.trim()).filter(Boolean) : [];
+  if (states.length === 0) {
+    // Fallback: no state_market configured, use assigned_director_id
+    return {
+      where: 'WHERE org.assigned_director_id = $1',
+      params: [directorId],
+      commissionVisibility: 'director',
+    };
+  }
+  // Use state-based scoping: director sees all orgs in their assigned states
   return {
-    where: `WHERE org.assigned_director_id = $1
-      AND (org.assigned_rep_id IS NULL OR org.assigned_rep_id NOT IN (
-        SELECT u.id FROM users u WHERE u.role IN ('ADMIN', 'OWNER')
-      ))`,
-    params: [directorId],
+    where: `WHERE org.state = ANY($1::text[])`,
+    params: [states],
     commissionVisibility: 'director',
   };
 }
@@ -200,7 +207,13 @@ export async function getCommissionMetrics(): Promise<Pick<DashboardMetrics, 'pa
 }
 
 export async function getDirectorDashboardMetrics(directorId: number): Promise<DashboardMetrics> {
-  return getDashboardMetrics(directorScope(directorId));
+  // Fetch director's state_market for territory-based scoping
+  const userResult = await pool.query(
+    'SELECT state_market FROM users WHERE id = $1 AND role = $2',
+    [directorId, 'DIRECTOR']
+  );
+  const stateMarket = userResult.rows[0]?.state_market || '';
+  return getDashboardMetrics(directorScope(directorId, stateMarket));
 }
 
 export async function getRepDashboardMetrics(repId: number): Promise<DashboardMetrics> {
