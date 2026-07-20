@@ -7,7 +7,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { OrganizationImportPanel } from '../components/OrganizationImportPanel';
 import { getOrganizationPriorityScore } from '../services/businessSelectors';
-import { updateOrganization } from '../services/organizationsService';
+import { updateOrganization, deleteOrganization } from '../services/organizationsService';
 import { listUsers } from '../services/usersService';
 import type { CoverageStatus, TerritoryId } from '../data/mockSalesData';
 
@@ -18,6 +18,7 @@ export function OrganizationsPage() {
   const [searchParams] = useSearchParams();
   const user = getStoredUser();
   const canBulkAssign = user?.role === 'ADMIN';
+  const canBulkDelete = user?.role === 'ADMIN' || user?.role === 'DIRECTOR';
   const isPrimeauDirector = user?.role === 'DIRECTOR' && user.name === 'Primeau Hill';
 
   useEffect(() => { markPageVisited('organizations'); }, []);
@@ -72,8 +73,23 @@ export function OrganizationsPage() {
     setRefreshKey((value) => value + 1);
   };
 
+  const runBulkDelete = async () => {
+    if (!selected.length) return;
+    if (!window.confirm(`PERMANENTLY DELETE ${selected.length} organization${selected.length === 1 ? '' : 's'}? This removes all related opportunities, activities, and orders. This cannot be undone.`)) return;
+    let deleted = 0;
+    for (const id of selected) {
+      try {
+        await deleteOrganization(id);
+        deleted++;
+      } catch { /* skip */ }
+    }
+    setBulkMessage(`Deleted ${deleted} organization${deleted === 1 ? '' : 's'}.`);
+    setSelected([]);
+    setRefreshKey((value) => value + 1);
+  };
+
   const columns: Column<(typeof filtered)[number]>[] = [
-    { key: 'select', header: '', cell: (r) => canBulkAssign ? <input type='checkbox' checked={selected.includes(r.id)} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleSelected(r.id); }} /> : null },
+    { key: 'select', header: '', cell: (r) => (canBulkAssign || canBulkDelete) ? <input type='checkbox' checked={selected.includes(r.id)} onClick={(e) => e.stopPropagation()} onChange={(e) => { e.stopPropagation(); toggleSelected(r.id); }} /> : null },
     { key: 'organization', header: 'Organization', cell: (r) => <div><p className='font-medium'>{r.name}</p><p className='text-xs text-slate-400'>{r.city}, {r.state}</p><p className='text-xs text-slate-500'>School {r.schoolPhone || '—'} · AD {r.athleticDirectorEmail || r.athleticDirectorPhone || '—'}</p></div> },
     { key: 'rep', header: 'Rep', cell: (r) => r.assignedRep },
     { key: 'director', header: 'Director', cell: (r) => r.assignedDirector },
@@ -124,9 +140,16 @@ export function OrganizationsPage() {
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Director cleared', { assignedDirector: 'Unassigned' })}>Clear Director</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Rep cleared', { assignedRep: 'Unassigned' })}>Clear Rep</Button>
               <Button className='px-2 py-1 text-xs' onClick={() => runBulkAction('Coverage status', { coverageStatus: targetCoverage })}>Set Coverage Status</Button>
-            </div>
+              </div>
             {assignmentCue ? <p className='mt-2 text-amber-300'>{assignmentCue}</p> : null}
             {bulkMessage ? <p className='mt-2 text-cyan-300'>{bulkMessage}</p> : null}
+          </div>
+        )}
+
+        {canBulkDelete && selected.length > 0 && (
+          <div className='mb-3 rounded-md border border-rose-500/30 bg-rose-500/5 p-2 text-xs text-slate-200'>
+            <span className='mr-3'>{selected.length} selected</span>
+            <Button className='px-2 py-1 text-xs border-rose-500/50 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20' onClick={runBulkDelete}>Delete Selected</Button>
           </div>
         )}
 
