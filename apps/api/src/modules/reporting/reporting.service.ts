@@ -116,10 +116,11 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
         COALESCE(SUM(c.rep_commission), 0)::float8 AS total_rep_commission,
         COALESCE(SUM(c.director_override), 0)::float8 AS total_director_override
       FROM opportunities o
+      JOIN organizations org ON org.id = o.organization_id
       LEFT JOIN commissions c ON c.opportunity_id = o.id
-      ${opportunityScope}
+      ${orgScope}
     `, params),
-    pool.query(`SELECT o.stage, COUNT(*)::int AS count FROM opportunities o ${opportunityScope} GROUP BY o.stage`, params),
+    pool.query(`SELECT o.stage, COUNT(*)::int AS count FROM opportunities o JOIN organizations org ON org.id = o.organization_id ${orgScope} GROUP BY o.stage`, params),
     pool.query(`
       SELECT
         COUNT(*) FILTER (WHERE ord.status = ANY($${params.length + 1}::text[]))::int AS paid_order_count,
@@ -129,8 +130,9 @@ async function getDashboardMetrics(scope: Scope): Promise<DashboardMetrics> {
         COALESCE(SUM(c.director_override) FILTER (WHERE ord.status = ANY($${params.length + 1}::text[])), 0)::float8 AS director_override_estimate
       FROM orders ord
       JOIN opportunities o ON o.id = ord.opportunity_id
+      JOIN organizations org ON org.id = o.organization_id
       LEFT JOIN commissions c ON c.opportunity_id = o.id
-      ${orderScope}
+      ${orgScope}
     `, [...params, PAYABLE_ORDER_STATUSES]),
     pool.query(`
       SELECT
