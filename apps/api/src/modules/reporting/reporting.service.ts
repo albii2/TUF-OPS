@@ -68,7 +68,7 @@ function directorScope(directorId: number, stateMarket: string): Scope {
   }
   // Use state-based scoping: director sees all orgs in their assigned states
   return {
-    where: `WHERE org.state = ANY($1::text[])`,
+    where: `WHERE org.state = ANY($1)`,
     params: [states],
     commissionVisibility: 'director',
   };
