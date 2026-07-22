@@ -39,7 +39,7 @@ function normalizeApiOrganization(raw: any): Organization {
     headCoachName: undefined,
     headCoachEmail: undefined,
     headCoachPhone: undefined,
-    coverageStatus: 'UNTOUCHED' as CoverageStatus,
+    coverageStatus: (raw.updated_at && raw.created_at && raw.updated_at !== raw.created_at) ? 'CONTACTED' : 'UNTOUCHED' as CoverageStatus,
     priority: rawPriority === 'TIER_1' ? 'HIGH' : rawPriority === 'TIER_3' ? 'LOW' : 'MEDIUM',
     pipelineValue: 0,
     status: 'NEW' as Organization['status'],
