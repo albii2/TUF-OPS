@@ -262,7 +262,7 @@ export async function changeOwnCredential(userId: number, payload: ChangeCredent
   }
   const nextHash = await hashCredential(payload.new_credential);
   const result = await pool.query(
-    `UPDATE users SET credential_hash = $1, must_change_credential = false, failed_credential_attempts = 0, locked_until = NULL, updated_at = NOW()
+    `UPDATE users SET credential_hash = $1, credential_version = COALESCE(credential_version, 0) + 1, must_change_credential = false, failed_credential_attempts = 0, locked_until = NULL, updated_at = NOW()
      WHERE id = $2 RETURNING id, name, email, role, rank, tier, region, state_market, division, territory, subterritory, sport_focus, assigned_director_id, reports_to_user_id, status, must_change_credential, created_at, updated_at`,
     [nextHash, userId],
   );
