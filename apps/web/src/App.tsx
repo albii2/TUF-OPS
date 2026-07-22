@@ -3,7 +3,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from './components/AppShell';
 import { getStoredUser, fetchCurrentUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
 import { ForgePage } from './pages/ForgePage';
 import {
   OpportunitiesPage,
@@ -35,7 +34,6 @@ import RecruitingPage from './pages/RecruitingPage';
 import CandidateDetailPage from './pages/CandidateDetailPage';
 import ExecutiveIntakePage from './pages/ExecutiveIntakePage';
 import PeopleOpsPage from './pages/PeopleOpsPage';
-import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import ExecutiveCommandCenter from './pages/ExecutiveCommandCenter';
 import LeadershipCommsPage from './pages/LeadershipCommsPage';
 import CEOHome from './pages/CEOHome';
@@ -60,14 +58,14 @@ function Protected({ user, children }: { user: AppUser | null; children: JSX.Ele
 function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null; allowedRoles: Role[]; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential) return <Navigate to="/change-credential" replace />;
-  if (!allowedRoles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  if (!allowedRoles.includes(user.role)) return <Navigate to="/command" replace />;
   return children;
 }
 
 function PageProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
-  if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/academy' && path !== '/admin/certification') return <Navigate to="/dashboard" replace />;
+  if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/academy' && path !== '/admin/certification') return <Navigate to="/command" replace />;
   return children;
 }
 
@@ -87,7 +85,6 @@ function CertificationProtected({ user, path, children }: { user: AppUser | null
 
 export default function App() {
   const [user, setUser] = useState<AppUser | null>(null);
-  const dashboard = useMemo(() => <DashboardPage role={user?.role ?? 'ADMIN'} />, [user?.role]);
 
   // Fetch current user from server on mount — server-authoritative identity
   useEffect(() => {
@@ -114,8 +111,20 @@ export default function App() {
         }
       >
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
-        <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{user?.role === 'ADMIN' || user?.role === 'REGIONAL_DIRECTOR' ? <ExecutiveDashboard /> : dashboard}</PageProtected></CertificationProtected>} />
-        <Route path="/command" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'DIRECTOR', 'REGIONAL_DIRECTOR']}><ExecutiveCommandCenter /></RoleProtected>} />
+        {/* Single landing page: Command Center — role-filtered daily briefing */}
+        <Route path="/command" element={
+          <CertificationProtected user={user} path="/command">
+            <PageProtected user={user} path="/command">
+              {user?.role === 'ADMIN' || user?.role === 'REGIONAL_DIRECTOR'
+                ? <CEOHome />
+                : user?.role === 'DIRECTOR'
+                  ? <DirectorHome />
+                  : <TAEHome />
+              }
+            </PageProtected>
+          </CertificationProtected>
+        } />
+        <Route path="/dashboard" element={<Navigate to="/command" replace />} />
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />
@@ -152,11 +161,8 @@ export default function App() {
         <Route path="/intake" element={<PageProtected user={user} path="/intake"><ExecutiveIntakePage /></PageProtected>} />
         <Route path="/people" element={<PageProtected user={user} path="/people"><PeopleOpsPage /></PageProtected>} />
         <Route path="/comms" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'REGIONAL_DIRECTOR']}><LeadershipCommsPage /></RoleProtected>} />
-        <Route path="/ceo" element={<RoleProtected user={user} allowedRoles={['ADMIN']}><CEOHome /></RoleProtected>} />
-        <Route path="/director" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR']}><DirectorHome /></RoleProtected>} />
-        <Route path="/rep" element={<RoleProtected user={user} allowedRoles={['REP']}><TAEHome /></RoleProtected>} />
       </Route>
-      <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
+      <Route path="*" element={<Navigate to={user ? '/command' : '/login'} replace />} />
     </Routes>
   );
 }
