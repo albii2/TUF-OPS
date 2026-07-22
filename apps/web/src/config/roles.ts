@@ -34,25 +34,25 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'academy', 'people', 'recruiting', 'settings'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'settings'],
     dashboardWidgets: ["Today's Priorities", 'Who Needs You', 'Territory Snapshot'],
     primaryActions: ['Create Status Check', 'Review Pipeline', 'Coach Directors'],
     visiblePages: ['/command', '/organizations', '/opportunities', '/my-opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/intake', '/comms', '/settings', '/territory', '/users', '/admin/certification', '/daily-command', '/forge'],
   },
   REGIONAL_DIRECTOR: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'academy', 'people', 'recruiting'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting'],
     dashboardWidgets: ["Today's Priorities", 'Team Status', 'Territory Snapshot'],
     primaryActions: ['Coach Reps', 'Review Pipeline', 'Assign Accounts'],
     visiblePages: ['/command', '/organizations', '/opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/territory', '/admin/certification'],
   },
   DIRECTOR: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'academy', 'people', 'recruiting'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting'],
     dashboardWidgets: ["Today's Priorities", 'Team Status', 'Territory Snapshot'],
     primaryActions: ['Coach Reps', 'Review Pipeline', 'Assign Accounts'],
     visiblePages: ['/command', '/organizations', '/opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/territory', '/admin/certification'],
   },
   REP: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'academy', 'settings'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'settings'],
     dashboardWidgets: ["Today's Priorities", 'Who to Contact', 'Pipeline Progress'],
     primaryActions: ['Create Opportunity', 'Contact School', 'Advance Deal'],
     visiblePages: ['/command', '/organizations', '/my-opportunities', '/opportunities/new', '/organizations/new', '/orders', '/academy', '/settings', '/territory'],

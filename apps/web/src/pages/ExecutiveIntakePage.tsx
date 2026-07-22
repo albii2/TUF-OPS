@@ -24,7 +24,7 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 const SOURCES = ['email', 'recruiting', 'hr', 'sales', 'operations', 'leadership', 'technology', 'other'];
-const OWNERS = ['Bradshaw', 'Primeau', 'Denzer', 'Ryan', 'Brittany', 'Brandon', 'Maggie'];
+const FALLBACK_OWNERS = ['Bradshaw', 'Primeau', 'Denzer', 'Ryan', 'Brandon'];
 
 export default function ExecutiveIntakePage() {
   const user = getStoredUser();
@@ -120,7 +120,7 @@ export default function ExecutiveIntakePage() {
             <select value={form.owner} onChange={e => setForm({ ...form, owner: e.target.value })}
               className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm text-white">
               <option value="">Unassigned</option>
-              {OWNERS.map(o => <option key={o} value={o}>{o}</option>)}
+              {FALLBACK_OWNERS.map(o => <option key={o} value={o}>{o}</option>)}
             </select>
             <button onClick={handleCreate} className="px-4 py-1 bg-emerald-600 text-white rounded text-sm">Create</button>
             <button onClick={() => setShowForm(false)} className="px-4 py-1 bg-slate-700 text-slate-300 rounded text-sm">Cancel</button>

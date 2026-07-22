@@ -47,7 +47,7 @@ export default function PeopleOpsPage() {
   return (
     <div className="p-4 max-w-6xl mx-auto space-y-4">
       <h1 className="text-xl font-bold text-white">People Operations</h1>
-      <p className="text-sm text-slate-400">Brittany's operating system — every candidate from Application to First Order.</p>
+      <p className="text-sm text-slate-400">People pipeline — every candidate from Application to First Order.</p>
 
       {/* Pipeline funnel */}
       <div className="grid grid-cols-7 gap-1">
