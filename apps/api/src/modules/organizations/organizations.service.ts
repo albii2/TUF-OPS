@@ -37,11 +37,11 @@ export async function createOrganization(organization: any) {
   const client = await pool.connect();
 
   try {
-    // Insert organization immediately — don't wait for auto-opportunities
+    // Insert organization — immediate, don't wait for auto-opportunities
     await client.query('BEGIN');
     const orgResult = await client.query(
-      'INSERT INTO organizations (name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-      [name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by]
+      'INSERT INTO organizations (name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by, assigned_rep_name, assigned_director_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+      [name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by, repName || null, directorName || null]
     );
     const createdOrganization = orgResult.rows[0];
     await client.query('COMMIT');
@@ -97,8 +97,8 @@ export async function updateOrganization(id: string, organization: any) {
 
   try {
     const result = await pool.query(
-      'UPDATE organizations SET name = $1, state = $2, assigned_rep_id = $3, assigned_director_id = $4, territory_id = $5, updated_by = $6, updated_at = NOW() WHERE id = $7 RETURNING *',
-      [name, state, assigned_rep_id, assigned_director_id, territory_id, updated_by, id]
+      'UPDATE organizations SET name = $1, state = $2, assigned_rep_id = $3, assigned_director_id = $4, territory_id = $5, updated_by = $6, updated_at = NOW(), assigned_rep_name = $7, assigned_director_name = $8 WHERE id = $9 RETURNING *',
+      [name, state, assigned_rep_id, assigned_director_id, territory_id, updated_by, repName || null, directorName || null, id]
     );
     const updatedOrg = result.rows[0];
 
