@@ -1,244 +1,179 @@
 import { Link } from 'react-router-dom';
-import { GlassCard } from '../components/ui';
-import { useWorkItems } from '../hooks/useWorkItems';
-import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
-import { useOpportunities } from '../hooks/useOpportunities';
-import { useOrders } from '../hooks/useOrders';
 import { useOrganizations } from '../hooks/useOrganizations';
+import { useOpportunities } from '../hooks/useOpportunities';
 import { getStoredUser } from '../auth';
-import { getNearCloseOpportunities, getStaleOpportunities, getStaleAccounts } from '../services/businessSelectors';
+import { listUsers } from '../services/usersService';
+import { getNearCloseOpportunities, getStaleOpportunities } from '../services/businessSelectors';
 import { formatCurrency } from '../utils/format';
-
-const openStages = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT'];
-const pipelineStages = ['LEAD_ENGAGED', 'DISCOVERY', 'MOCKUP_STAGE', 'INVOICE_SENT', 'CLOSED_WON'] as const;
-
-function MetricTile({ value, label, tone, to }: { value: string; label: string; tone: string; to: string }) {
-  return (
-    <Link to={to} className={`group rounded-lg border p-3 transition hover:-translate-y-0.5 hover:border-cyan-300/70 ${tone}`}>
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-2xl font-semibold text-slate-50">{value}</p>
-        <span className="text-lg text-slate-200 transition group-hover:translate-x-1">›</span>
-      </div>
-      <p className="mt-1 text-sm text-slate-200">{label}</p>
-    </Link>
-  );
-}
-
-function WorkItemRow({ item }: { item: { id: number; title: string; priority: string; due_at: string | null; suggested_action: string | null; ai_summary: string | null; status: string; source: string } }) {
-  const priorityColors: Record<string, string> = {
-    critical: 'border-red-500/40 bg-red-500/10',
-    high: 'border-orange-500/40 bg-orange-500/10',
-    medium: 'border-amber-500/40 bg-amber-500/10',
-    low: 'border-slate-500/40 bg-slate-500/10',
-  };
-  const tone = priorityColors[item.priority] || priorityColors.medium;
-
-  return (
-    <div className={`rounded-lg border p-3 transition hover:border-cyan-400/70 ${tone}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">{item.source.replace(/_/g, ' ')}</span>
-            <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${item.priority === 'critical' ? 'bg-red-500/20 text-red-300' : item.priority === 'high' ? 'bg-orange-500/20 text-orange-300' : 'bg-amber-500/20 text-amber-300'}`}>
-              {item.priority}
-            </span>
-          </div>
-          <p className="text-sm font-semibold text-slate-100">{item.title}</p>
-          {item.ai_summary && <p className="mt-1 text-xs text-slate-400 line-clamp-2">{item.ai_summary}</p>}
-          {item.suggested_action && <p className="mt-1 text-xs font-medium text-cyan-300">Action: {item.suggested_action}</p>}
-        </div>
-        <div className="flex shrink-0 flex-col items-end gap-1">
-          {item.due_at && <span className="text-[10px] uppercase tracking-wider text-slate-400">{new Date(item.due_at).toLocaleDateString()}</span>}
-          <span className={`text-[10px] font-semibold uppercase ${item.status === 'open' ? 'text-cyan-300' : item.status === 'in_progress' ? 'text-emerald-300' : 'text-slate-500'}`}>{item.status.replace(/_/g, ' ')}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RepCoachingCard({ rep, open, stale, nearClose, pipeline }: { rep: string; open: number; stale: number; nearClose: number; pipeline: number }) {
-  const needsAttention = stale > 0 || nearClose > 0;
-  return (
-    <Link to="/team-opportunities" className={`block rounded-lg border p-3 transition hover:border-cyan-400/70 ${needsAttention ? 'border-amber-500/40 bg-amber-500/5' : 'border-slate-800 bg-slate-950/70'}`}>
-      <div className="flex items-center justify-between">
-        <p className="font-semibold text-slate-100">{rep}</p>
-        {needsAttention && <span className="text-[10px] font-bold uppercase bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded">Needs Attention</span>}
-      </div>
-      <div className="mt-1.5 grid grid-cols-3 gap-1 text-center">
-        <div><p className="text-lg font-bold text-white">{open}</p><p className="text-[9px] uppercase text-slate-500">Open</p></div>
-        <div><p className={`text-lg font-bold ${stale > 0 ? 'text-amber-300' : 'text-white'}`}>{stale}</p><p className="text-[9px] uppercase text-slate-500">Stale</p></div>
-        <div><p className={`text-lg font-bold ${nearClose > 0 ? 'text-emerald-300' : 'text-white'}`}>{nearClose}</p><p className="text-[9px] uppercase text-slate-500">Near Close</p></div>
-      </div>
-      <p className="mt-1.5 text-xs text-cyan-200 text-right">Pipeline: {formatCurrency(pipeline)}</p>
-    </Link>
-  );
-}
-
-function StagePipeline({ counts, values }: { counts: Record<string, number>; values: Record<string, number> }) {
-  return (
-    <div className="grid gap-2 md:grid-cols-5">
-      {pipelineStages.map((stage) => (
-        <div key={stage} className="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{stage.replace(/_/g, ' ')}</p>
-          <p className="mt-1 text-2xl font-bold text-white">{counts[stage] ?? 0}</p>
-          <p className="text-xs text-cyan-200">{formatCurrency(values[stage] ?? 0)}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function DirectorHome() {
   const user = getStoredUser();
-  const { data: opportunities = [] } = useOpportunities({});
+  const name = user?.name?.split(' ')[0] || 'Director';
   const { data: organizations = [] } = useOrganizations({});
-  const { data: orders = [] } = useOrders({});
-  const { metrics: backendMetrics, isApiBacked } = useDashboardMetrics('DIRECTOR', user?.id, user?.email);
+  const { data: opportunities = [] } = useOpportunities({});
 
-  // Work items: certifications pending, blocked orders, accounts needing assignment
-  const { data: certificationItems = [] } = useWorkItems({ source: 'certification', status: 'open' });
-  const { data: blockerItems = [] } = useWorkItems({ source: 'order_blocker', status: 'open' });
-  const { data: assignmentItems = [] } = useWorkItems({ source: 'executive_intake', status: 'open' });
-  const { data: allOpenItems = [] } = useWorkItems({ status: 'open' });
+  // Territory snapshot
+  const territoryOrgs = organizations;
+  const contacted = territoryOrgs.filter(o => o.coverageStatus !== 'UNTOUCHED').length;
+  const untouched = territoryOrgs.length - contacted;
+  const coveragePct = territoryOrgs.length ? Math.round((contacted / territoryOrgs.length) * 100) : 0;
 
-  const openOpps = opportunities.filter((opp) => openStages.includes(opp.stage));
-  const nearClose = getNearCloseOpportunities(opportunities);
-  const staleOpps = getStaleOpportunities(opportunities, 14);
-  const staleAccounts = getStaleAccounts(organizations, 14);
-  const untouchedAccounts = organizations.filter((org) => org.coverageStatus === 'UNTOUCHED');
-  const touchedAccounts = organizations.length - untouchedAccounts.length;
-  const coveragePct = organizations.length ? Math.round((touchedAccounts / organizations.length) * 100) : 0;
-  const pipelineValue = openOpps.reduce((sum, opp) => sum + opp.value, 0);
-  const nearCloseValue = nearClose.reduce((sum, opp) => sum + opp.value, 0);
-  const blockedOrders = orders.filter((order) => order.productionStatus === 'BLOCKED');
-  const stageCounts = Object.fromEntries(pipelineStages.map((stage) => [stage, opportunities.filter((opp) => opp.stage === stage).length]));
-  const stageValues = Object.fromEntries(pipelineStages.map((stage) => [stage, opportunities.filter((opp) => opp.stage === stage).reduce((sum, opp) => sum + opp.value, 0)]));
+  // Reps and their status
+  const allUsers = listUsers();
+  const reps = allUsers.filter(u => u.role === 'REP' && u.status === 'ACTIVE');
+  const repStatuses = reps.map(rep => {
+    const repOpps = opportunities.filter(o => o.assignedRep === rep.displayName);
+    const staleOpps = getStaleOpportunities(repOpps, 14);
+    const nearClose = getNearCloseOpportunities(repOpps);
+    const openOpps = repOpps.filter(o => !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage));
+    const lastActivity = repOpps
+      .map(o => o.lastActivity)
+      .filter(Boolean)
+      .sort()
+      .reverse()[0];
+    const daysSince = lastActivity
+      ? Math.floor((Date.now() - new Date(lastActivity).getTime()) / 86400000)
+      : 999;
 
-  // Rep coaching rows
-  const reps = Array.from(new Set(opportunities.map((opp) => opp.assignedRep))).filter(Boolean);
-  const repCoachingRows = reps.map((rep) => {
-    const repOpps = opportunities.filter((opp) => opp.assignedRep === rep);
-    const repOpen = repOpps.filter((opp) => openStages.includes(opp.stage));
-    const repStale = staleOpps.filter((opp) => opp.assignedRep === rep);
-    const repNearClose = nearClose.filter((opp) => opp.assignedRep === rep);
+    let status: string;
+    if (rep.isCertified && daysSince <= 1) status = 'Active today';
+    else if (!rep.isCertified) status = 'Academy in progress';
+    else if (daysSince > 3) status = `No activity in ${daysSince} days`;
+    else if (staleOpps.length > 0) status = `${staleOpps.length} stale deal${staleOpps.length > 1 ? 's' : ''}`;
+    else if (nearClose.length > 0) status = `${nearClose.length} near close`;
+    else status = `${openOpps.length} open opportunities`;
+
     return {
-      rep,
-      open: repOpen.length,
-      stale: repStale.length,
-      nearClose: repNearClose.length,
-      pipeline: repOpen.reduce((sum, opp) => sum + opp.value, 0),
+      name: rep.displayName,
+      status,
+      needsAttention: daysSince > 3 || staleOpps.length > 0,
+      openOpps: openOpps.length,
+      nearClose: nearClose.length,
+      stale: staleOpps.length,
     };
-  }).sort((a, b) => (b.stale + b.nearClose) - (a.stale + a.nearClose));
+  });
+  const needsCoaching = repStatuses.filter(r => r.needsAttention);
 
-  // Accounts needing assignment
-  const unassignedOrgs = organizations.filter((org) => !org.assignedRep && !org.assignedDirector);
-  const coachableReps = repCoachingRows.filter((r) => r.stale > 0 || r.nearClose > 0);
-  const certificationCount = certificationItems.length;
-  const blockerCount = blockerItems.length;
+  // Today's priorities — derived, not random
+  const priorities: string[] = [];
+  const nearCloseDeals = getNearCloseOpportunities(opportunities);
+  if (nearCloseDeals.length > 0) {
+    priorities.push(`Coach ${nearCloseDeals.length} near-close deal${nearCloseDeals.length > 1 ? 's' : ''} to close`);
+  }
+  if (needsCoaching.length > 0) {
+    const names = needsCoaching.map(r => r.name.split(' ')[0]).join(', ');
+    priorities.push(`Check in with ${names}`);
+  }
+  if (untouched > 0) {
+    priorities.push(`Assign ${Math.min(untouched, 5)} untouched accounts to reps`);
+  }
+  const staleOpps = getStaleOpportunities(opportunities, 14);
+  if (staleOpps.length > 0) {
+    priorities.push(`Review ${staleOpps.length} stale opportunities`);
+  }
+  if (priorities.length === 0) {
+    priorities.push('All reps are active and pipeline is moving');
+    priorities.push('Focus on recruiting and territory expansion');
+  }
 
-  // Prioritized work queue
-  const urgentItems = allOpenItems
-    .filter((item) => item.priority === 'critical' || item.priority === 'high')
-    .slice(0, 6);
-  const upcomingItems = allOpenItems
-    .filter((item) => item.priority !== 'critical' && item.priority !== 'high')
-    .slice(0, 6);
+  // Next high-value target
+  const untouchedOrgs = territoryOrgs.filter(o => o.coverageStatus === 'UNTOUCHED');
+  const nextTarget = untouchedOrgs[0];
 
-  // Director mission
-  const directorMission = coachableReps.length
-    ? { title: 'Coach reps on active deals', reason: `${coachableReps.length} reps have stale or near-close deals needing your attention.`, to: '/team-opportunities', cta: 'Open team pipeline' }
-    : unassignedOrgs.length
-      ? { title: 'Assign uncovered accounts', reason: `${unassignedOrgs.length} accounts need rep assignment.`, to: '/organizations', cta: 'Assign accounts' }
-      : { title: 'Everything is on track', reason: 'All reps are moving deals and accounts are covered.', to: '/dashboard', cta: 'View dashboard' };
+  // Academy status for uncertified reps
+  const uncertifiedReps = reps.filter(r => !r.isCertified);
 
   return (
-    <div className="space-y-3">
-      <h1 className="text-2xl font-semibold text-white">Director Command Center</h1>
-
-      {/* Mission Priority */}
-      <GlassCard title="🎯 MISSION PRIORITY">
-        <p className="text-sm font-semibold text-white">{directorMission.title}</p>
-        <p className="text-sm text-slate-300">{directorMission.reason}</p>
-        <Link to={directorMission.to} className="mt-2 inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{directorMission.cta}</Link>
-      </GlassCard>
-
-      {/* Top Metrics */}
-      <div className="grid gap-3 md:grid-cols-5">
-        <MetricTile value={String(coachableReps.length)} label="Reps Needing Attention" tone="border-amber-500/40 bg-amber-500/15" to="/team-opportunities" />
-        <MetricTile value={String(reps.length)} label="Active Reps" tone="border-cyan-500/40 bg-cyan-500/15" to="/team-performance" />
-        <MetricTile value={formatCurrency(nearCloseValue)} label="Coach to Close" tone="border-emerald-500/40 bg-emerald-500/15" to="/team-opportunities" />
-        <MetricTile value={`${coveragePct}%`} label="Territory Coverage" tone="border-sky-500/40 bg-sky-500/15" to="/territory" />
-        <MetricTile value={String(blockedOrders.length + blockerCount)} label="Blocked Orders" tone="border-rose-500/40 bg-rose-500/15" to="/orders" />
+    <div className="max-w-2xl mx-auto p-6 space-y-6">
+      {/* Greeting */}
+      <div>
+        <h1 className="text-2xl font-semibold text-white">
+          Good Morning, {name}
+        </h1>
       </div>
 
-      {/* Rep Attention & Team Pipeline */}
-      <div className="grid gap-3 lg:grid-cols-2">
-        <GlassCard title={`👥 REPS NEEDING ATTENTION (${coachableReps.length})`}>
-          {coachableReps.length ? (
-            <div className="space-y-2">
-              {coachableReps.slice(0, 8).map((row) => (
-                <RepCoachingCard key={row.rep} {...row} />
-              ))}
-            </div>
-          ) : <p className="text-sm text-slate-400">All reps are moving deals. Great work.</p>}
-        </GlassCard>
-
-        <GlassCard title="📊 TEAM PIPELINE">
-          <StagePipeline counts={stageCounts} values={stageValues} />
-        </GlassCard>
+      {/* Today's Priorities */}
+      <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-300 mb-3">
+          Today's Priorities
+        </h2>
+        <ul className="space-y-2">
+          {priorities.slice(0, 5).map((p, i) => (
+            <li key={i} className="flex items-start gap-2 text-slate-200">
+              <span className="text-cyan-400 mt-0.5">•</span>
+              <span>{p}</span>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* Certifications & Accounts Needing Assignment */}
-      <div className="grid gap-3 lg:grid-cols-2">
-        <GlassCard title={`🎓 CERTIFICATION ITEMS (${certificationCount})`}>
-          {certificationCount ? (
-            <div className="space-y-2">
-              {certificationItems.slice(0, 6).map((item) => (
-                <WorkItemRow key={item.id} item={item} />
-              ))}
+      {/* Your Team */}
+      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">
+          Your Team
+        </h2>
+        <div className="space-y-2">
+          {repStatuses.map(rep => (
+            <div
+              key={rep.name}
+              className={`flex items-center justify-between py-1.5 px-3 rounded-lg ${
+                rep.needsAttention ? 'bg-amber-500/5 border border-amber-500/20' : ''
+              }`}
+            >
+              <span className="text-slate-200 text-sm">{rep.name}</span>
+              <span className={`text-xs ${rep.needsAttention ? 'text-amber-300 font-semibold' : 'text-slate-500'}`}>
+                {rep.status}
+              </span>
             </div>
-          ) : <p className="text-sm text-slate-400">No certifications pending review.</p>}
-          <Link to="/admin/certification" className="mt-2 inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Review Certifications ›</Link>
-        </GlassCard>
-
-        <GlassCard title={`📋 ACCOUNTS NEEDING ASSIGNMENT (${unassignedOrgs.length})`}>
-          {unassignedOrgs.length ? (
-            <div className="space-y-2">
-              {unassignedOrgs.slice(0, 6).map((org) => (
-                <Link key={org.id} to={`/organizations/${org.id}`} className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 transition hover:border-cyan-400/70">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-100 truncate">{org.name}</p>
-                    <p className="text-xs text-slate-400">{org.city}{org.state ? `, ${org.state}` : ''}</p>
-                  </div>
-                  <span className="text-[10px] font-semibold uppercase text-amber-300">Unassigned</span>
-                </Link>
-              ))}
-            </div>
-          ) : <p className="text-sm text-slate-400">All accounts are assigned.</p>}
-          <Link to="/organizations" className="mt-2 inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">Manage Accounts ›</Link>
-        </GlassCard>
+          ))}
+          {repStatuses.length === 0 && (
+            <p className="text-sm text-slate-500">No reps assigned yet.</p>
+          )}
+        </div>
       </div>
 
-      {/* Prioritized Work Queue */}
-      <GlassCard title="📋 PRIORITIZED WORK QUEUE">
-        {urgentItems.length ? (
-          <div className="space-y-2 mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-red-400">Critical / High Priority</p>
-            {urgentItems.map((item) => (
-              <WorkItemRow key={item.id} item={item} />
-            ))}
+      {/* Your Territory */}
+      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">
+          Your Territory
+        </h2>
+        <div className="grid grid-cols-3 gap-4 mb-3">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-white">{territoryOrgs.length}</p>
+            <p className="text-xs text-slate-500">Schools</p>
           </div>
-        ) : null}
-        {upcomingItems.length ? (
-          <div className="space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Upcoming</p>
-            {upcomingItems.map((item) => (
-              <WorkItemRow key={item.id} item={item} />
-            ))}
+          <div className="text-center">
+            <p className="text-2xl font-bold text-emerald-300">{contacted}</p>
+            <p className="text-xs text-slate-500">Contacted</p>
           </div>
-        ) : null}
-        {!urgentItems.length && !upcomingItems.length && <p className="text-sm text-slate-400">All clear — no work items pending.</p>}
-      </GlassCard>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-amber-300">{untouched}</p>
+            <p className="text-xs text-slate-500">Untouched</p>
+          </div>
+        </div>
+        {nextTarget && (
+          <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-3 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-500">Next High-Value Target</p>
+              <p className="text-sm text-white font-semibold">{nextTarget.name}</p>
+            </div>
+            <Link
+              to={`/organizations/${nextTarget.id}`}
+              className="text-xs text-cyan-400 hover:text-cyan-300"
+            >
+              Open →
+            </Link>
+          </div>
+        )}
+      </div>
+
+      {/* Quick Links */}
+      <div className="flex gap-3 text-xs">
+        <Link to="/organizations" className="text-cyan-400 hover:text-cyan-300">Organizations →</Link>
+        <Link to="/team-opportunities" className="text-cyan-400 hover:text-cyan-300">Team Pipeline →</Link>
+        <Link to="/territory" className="text-cyan-400 hover:text-cyan-300">Territory Map →</Link>
+        <Link to="/recruiting" className="text-cyan-400 hover:text-cyan-300">Recruiting →</Link>
+      </div>
     </div>
   );
 }
