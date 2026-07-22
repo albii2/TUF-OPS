@@ -14,6 +14,7 @@ export type SidebarKey =
   | 'settings'
   | 'users'
   | 'daily_command'
+  | 'command'
   | 'recruiting'
   | 'production_requests'
   | 'orders'

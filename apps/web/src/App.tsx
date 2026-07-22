@@ -36,6 +36,7 @@ import CandidateDetailPage from './pages/CandidateDetailPage';
 import ExecutiveIntakePage from './pages/ExecutiveIntakePage';
 import PeopleOpsPage from './pages/PeopleOpsPage';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import ExecutiveCommandCenter from './pages/ExecutiveCommandCenter';
 import LeadershipCommsPage from './pages/LeadershipCommsPage';
 import CEOHome from './pages/CEOHome';
 import DirectorHome from './pages/DirectorHome';
@@ -114,6 +115,7 @@ export default function App() {
       >
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
         <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{user?.role === 'ADMIN' || user?.role === 'REGIONAL_DIRECTOR' ? <ExecutiveDashboard /> : dashboard}</PageProtected></CertificationProtected>} />
+        <Route path="/command" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'DIRECTOR', 'REGIONAL_DIRECTOR']}><ExecutiveCommandCenter /></RoleProtected>} />
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />

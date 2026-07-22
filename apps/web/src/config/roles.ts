@@ -14,6 +14,7 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   territory: { label: 'Territory', route: '/territory' },
   invoices: { label: 'Orders', route: '/orders' },
   daily_command: { label: 'Daily Command', route: '/daily-command' },
+  command: { label: 'Command Center', route: '/command' },
   recruiting: { label: 'Recruiting', route: '/recruiting' },
   users: { label: 'Users', route: '/users' },
   settings: { label: 'Settings', route: '/settings' },
@@ -32,10 +33,10 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['dashboard', 'pipeline', 'organizations', 'territory', 'invoices', 'daily_command', 'recruiting', 'users', 'settings'],
+    sidebarItems: ['dashboard', 'command', 'pipeline', 'organizations', 'territory', 'invoices', 'daily_command', 'recruiting', 'users', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
-    visiblePages: ['/dashboard', '/my-opportunities', '/team-opportunities', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/daily-command', '/recruiting', '/intake', '/people', '/comms'],
+    visiblePages: ['/dashboard', '/command', '/my-opportunities', '/team-opportunities', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/earnings', '/users', '/academy', '/admin/certification', '/documents', '/daily-command', '/recruiting', '/intake', '/people', '/comms'],
   },
   REGIONAL_DIRECTOR: {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'territory', 'daily_command', 'recruiting'],
