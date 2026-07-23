@@ -8,7 +8,7 @@ export type OrderListParams = {
 };
 
 export async function createOrder(opportunity: Opportunity): Promise<Order> {
-  return apiClient<Order>('/orders', {
+  const raw = await apiClient<any>('/orders', {
     method: 'POST',
     body: {
       organizationId: opportunity.organizationId,
@@ -21,13 +21,15 @@ export async function createOrder(opportunity: Opportunity): Promise<Order> {
       assignedRep: opportunity.assignedRep,
     },
   });
+  return normalizeApiOrder(raw);
 }
 
 export async function updateOrder(
   id: string,
   patch: Partial<Order>,
 ): Promise<Order> {
-  return apiClient<Order>(`/orders/${id}`, { method: 'PUT', body: patch });
+  const raw = await apiClient<any>(`/orders/${id}`, { method: 'PUT', body: patch });
+  return normalizeApiOrder(raw);
 }
 
 export async function listOrders(params: OrderListParams = {}): Promise<Order[]> {
@@ -78,7 +80,9 @@ function mapApiStatus(status: string): Order['productionStatus'] {
 
 export async function getOrderById(id: string): Promise<Order | undefined> {
   try {
-    return await apiClient<Order>(`/orders/${id}`);
+    const raw = await apiClient<any>(`/orders/${id}`);
+    if (!raw) return undefined;
+    return normalizeApiOrder(raw);
   } catch {
     return undefined;
   }
