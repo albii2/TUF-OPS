@@ -67,6 +67,24 @@ else
     FAILURES=$((FAILURES + 1))
 fi
 
+# [7] Clean up any test data that may have leaked
+echo -n "[7/7] Cleanup test data... "
+if railway run --service terrific-patience -- node -e "
+  const {Client}=require('pg');
+  (async()=>{
+    const c=new Client({connectionString:process.env.DATABASE_URL,ssl:{rejectUnauthorized:false}});
+    await c.connect();
+    await c.query(\"DELETE FROM opportunities WHERE name LIKE 'HT-%' OR name LIKE 'SMOKE-%' OR name LIKE 'REGRESSION-%' OR name LIKE 'STAGE-%'\");
+    await c.query(\"DELETE FROM organizations WHERE name LIKE 'HT-%' OR name LIKE 'SMOKE-%' OR name LIKE 'REGRESSION-%' OR name LIKE 'VERIFY-%'\");
+    console.log('OK');
+    await c.end();
+  })().catch(e=>{console.error(e.message);process.exit(1)})
+" 2>/dev/null; then
+    echo "PASS"
+else
+    echo "WARN — cleanup skipped (Railway CLI may not be available)"
+fi
+
 echo ""
 echo "=== Result: $FAILURES failure(s) ==="
 if [ $FAILURES -gt 0 ]; then
