@@ -23,7 +23,10 @@ def api(method, path, token=None, body=None):
         r.data = json.dumps(body).encode()
     try:
         resp = urllib.request.urlopen(r)
-        return resp.status, json.loads(resp.read())
+        text = resp.read().decode()
+        if not text or not text.strip():
+            return resp.status, {}
+        return resp.status, json.loads(text)
     except urllib.error.HTTPError as e:
         return e.code, e.read().decode()[:500]
 
