@@ -65,12 +65,14 @@ export function canCreateOpportunity() {
 export function canAdvanceOpportunity(opp: Opportunity) {
   const user = getViewer();
   if (!user) return false;
-  const isSandboxActive = typeof window !== 'undefined' && localStorage.getItem('tuf_combine_sandbox_active') === 'true';
-  if (!isRepCertified(user) && !isSandboxActive) return false;
   if (user.role === 'ADMIN') return true;
   if (user.role === 'REP') return opp.assignedRep === user.name;
-  // DIRECTOR can advance opportunities assigned to them (personal book) or to their reps
-  if (user.role === 'DIRECTOR') return opp.assignedRep === user.name;
+  // DIRECTOR can advance their own or any of their reps' opportunities
+  if (user.role === 'DIRECTOR') {
+    if (opp.assignedRep === user.name) return true;
+    const managedRepNames = getManagedRepNamesForDirector(user.name);
+    return managedRepNames.includes(opp.assignedRep);
+  }
   return false;
 }
 

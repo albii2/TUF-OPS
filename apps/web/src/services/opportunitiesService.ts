@@ -130,7 +130,9 @@ export async function logOpportunityActivity(id: string, message: string): Promi
 }
 
 export async function updateOpportunityStage(id: string, stage: OpportunityStage): Promise<Opportunity | undefined> {
-  return updateOpportunity(id, { stage } as any);
+  const raw = await apiClient<any>(`/opportunities/${id}/stage`, { method: 'PUT', body: { stage } });
+  if (!raw) return undefined;
+  return normalizeApiOpportunity(raw);
 }
 
 export function getOpportunityStages() {
@@ -143,7 +145,9 @@ export function getRevenueLanes() {
 
 export async function getOpportunityById(id: string): Promise<Opportunity | undefined> {
   try {
-    return await apiClient<Opportunity>(`/opportunities/${id}`);
+    const raw = await apiClient<any>(`/opportunities/${id}`);
+    if (!raw) return undefined;
+    return normalizeApiOpportunity(raw);
   } catch {
     return undefined;
   }
