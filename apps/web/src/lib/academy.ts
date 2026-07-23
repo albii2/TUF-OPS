@@ -730,6 +730,61 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       ],
       correctIndex: 0,
     },
+    {
+      id: '101-q6',
+      question: 'What does Sales Philosophy #2 ("We absorb the burden") mean in practice for a TAE?',
+      options: [
+        'The TAE handles uniforms and apparel end-to-end so the coach never has to chase vendors, check artwork, or track shipments',
+        'The TAE delegates all order follow-up to the Operations team and focuses exclusively on selling',
+        'The coach pays a premium for TUF to handle all administrative tasks related to team apparel',
+        'The TAE absorbs the financial risk of unsold inventory for each program',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '101-q7',
+      question: 'A new TAE asks their Director, "What\'s the most important number I should track?" Based on TUF\'s Sales Philosophy, what should the Director say?',
+      options: [
+        'Monthly revenue — that\'s what leadership reviews at the end of the quarter',
+        'The number of proposals you send each week — more proposals equals more revenue',
+        'The consistency of your monthly orders — four healthy orders every month beats one or two big months followed by zero',
+        'Your account penetration percentage — the higher, the better, regardless of order count',
+      ],
+      correctIndex: 2,
+    },
+    {
+      id: '101-q8',
+      question: 'What is the relationship between the four-order baseline and account penetration?',
+      options: [
+        'They are independent metrics — a rep can achieve the baseline with low penetration if they have enough accounts',
+        'Consistent four-order months come from deep account penetration — the more lanes you win per account, the more predictable your monthly orders become',
+        'Account penetration is a vanity metric — only the four-order baseline matters for performance reviews',
+        'High account penetration guarantees the four-order baseline, so reps should focus exclusively on penetration',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '101-q9',
+      question: 'A coach at a school where TUF already provides football uniforms asks, "Why should I switch my basketball uniforms to TUF too?" What is the TUF-culture-aligned response?',
+      options: [
+        'You\'ll get a multi-sport discount if you consolidate both sports with us',
+        'Because we already know your school, your colors, your branding, and your expectations — you\'re not starting over with a new vendor, you\'re expanding a relationship that already works',
+        'Our basketball uniforms use the same materials as our football uniforms, so the quality is identical',
+        'The athletic director has already approved moving all sports to TUF next season',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '101-q10',
+      question: 'Sales Philosophy #5 states, "We are program partners, not uniform vendors." A coach calls TUF and only wants to reorder the exact same jerseys from last season. What should the TAE do?',
+      options: [
+        'Process the reorder exactly as requested — the coach knows what they need',
+        'Take the reorder but use the conversation to ask about the rest of the program — travel gear, team stores, letterman jackets — because a partner looks at the whole program, not just the transaction',
+        'Insist on presenting new uniform options before processing any reorder',
+        'Forward the request to Operations and move on to the next opportunity',
+      ],
+      correctIndex: 1,
+    },
   ],
   'ACAD-102': [
     {
@@ -787,6 +842,61 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       ],
       correctIndex: 0,
     },
+    {
+      id: '102-q6',
+      question: 'A TAE sends an introductory email to a volleyball coach and gets no response after five days. What should they do?',
+      options: [
+        'Send a follow-up email with a proposed volleyball uniform catalog attached',
+        'Call the coach directly — email is easily ignored, and a phone conversation builds rapport faster',
+        'Wait another week — coaches are busy during the season and will respond when they\'re ready',
+        'Mark the school as unresponsive and move it to the bottom of the priority list',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '102-q7',
+      question: 'A TAE is on a first call with a baseball coach. The coach says, "We\'re just looking for pricing right now." What should the TAE do?',
+      options: [
+        'Provide pricing immediately — the coach asked for it and delaying will frustrate them',
+        'Acknowledge the pricing request but ask one discovery question first: "Coach, what\'s driving the timing on new uniforms this season?" — pricing means more when it\'s attached to a specific need',
+        'Explain that TUF doesn\'t share pricing until after a formal proposal is built',
+        'Ask for the coach\'s budget range first, then send only the options that fit',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '102-q8',
+      question: 'What is the most common mistake new TAEs make during the prospecting phase?',
+      options: [
+        'Spending too much time researching and not enough time making contact',
+        'Calling coaches too frequently and annoying them',
+        'Focusing on small schools instead of the largest programs in the territory',
+        'Sending proposals before making personal contact with the decision-maker',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '102-q9',
+      question: 'During prospecting, a TAE learns that a school\'s athletic director was a college teammate of another TUF rep in a different state. What is the best use of this information?',
+      options: [
+        'Mention the connection in the first call — "I was talking with [rep name] and he mentioned you two played together at State" — it builds instant rapport through a trusted relationship',
+        'Keep it to yourself — name-dropping another rep is unprofessional',
+        'Ask the other rep to call the athletic director and make a personal introduction before you reach out',
+        'Wait until the third or fourth conversation to mention the connection so it doesn\'t seem like you\'re leveraging it',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '102-q10',
+      question: 'Sales Philosophy #6 says "Pipeline predicts success." A TAE has sent 8 proposals this month but has zero Closed Won deals. What does their pipeline actually predict?',
+      options: [
+        'Success — 8 proposals means strong activity that will convert soon',
+        'Uncertainty — proposals alone don\'t predict revenue; the TAE needs to track which deals are advancing through Negotiation and why the others are stalled',
+        'Failure — if none of the 8 proposals converted, the TAE is targeting the wrong programs',
+        'The TAE needs to send at least 12 proposals per month to reliably hit the four-order baseline',
+      ],
+      correctIndex: 1,
+    },
   ],
   'ACAD-103': [
     {
@@ -841,6 +951,61 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
         'Offer a 15% first-year discount to incentivize switching vendors immediately',
         'Thank them for their time, note the account as unqualified, and move to the next school',
         'Explain in detail why TUF uniforms are superior in quality to their current vendor\'s products',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '103-q6',
+      question: 'A TAE has 12 deals in their pipeline. Four are in Negotiation, six are at Proposal Sent, and two are at Contacted. Is this pipeline healthy?',
+      options: [
+        'Yes — 12 active deals is well above the minimum threshold',
+        'No — too many deals are stalled at Proposal Sent without advancing to Negotiation; the TAE needs to follow up and move them or qualify them out',
+        'Yes — Proposal Sent is the most important stage because it means the coach has something to review',
+        'No — the two Contacted deals should be moved to Proposal Sent immediately to balance the pipeline',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '103-q7',
+      question: 'During discovery, a basketball coach mentions they need new warm-ups, travel bags, and shooting shirts in addition to game uniforms. How should the TAE record this?',
+      options: [
+        'As one opportunity with a large total value covering all items',
+        'As separate needs under each revenue lane — Uniforms, Travel Gear, and Team Stores — so each lane can be tracked and quoted independently',
+        'Focus only on the game uniforms during discovery since that\'s the largest line item',
+        'Ask the coach to prioritize which items they need this season and only record those',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '103-q8',
+      question: 'A deal has been sitting at "Proposal Sent" for three weeks with no response from the coach. The TAE has sent two follow-up emails. What should they do?',
+      options: [
+        'Pick up the phone and call — if the coach doesn\'t answer, leave a voicemail and set a reminder to call again in three days; email-only follow-up on a stalled deal is not enough',
+        'Mark the deal Closed Lost and redirect energy to active opportunities',
+        'Send a third email with a deadline: "If I don\'t hear back by Friday, I\'ll assume you\'re not interested"',
+        'Ask the Director to call the coach — a manager-level contact may restart the conversation',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '103-q9',
+      question: 'A TAE is managing 18 active opportunities across 12 accounts. According to TUF pipeline management principles, what is the risk here?',
+      options: [
+        'No risk — more opportunities always means more potential revenue',
+        'The TAE may be spread too thin — with 18 deals, it\'s hard to give each coach the personal attention that moves deals forward; 8-12 well-managed opportunities usually outperform 18 neglected ones',
+        'The CRM has a maximum of 15 active opportunities per rep, so three must be closed or disqualified',
+        'The risk is that some of these deals may overlap in the same sport at the same school',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '103-q10',
+      question: 'What is the correct sequence for a deal moving through the TUF pipeline?',
+      options: [
+        'Contacted → Discovery → Proposal Sent → Negotiation → Closed Won',
+        'Lead → Contacted → Proposal Sent → Closed Won',
+        'Discovery → Proposal Sent → Negotiation → Closed Won → Fulfillment',
+        'Contacted → Proposal Sent → Negotiation → Mockup Approved → Closed Won',
       ],
       correctIndex: 0,
     },
@@ -901,6 +1066,61 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       ],
       correctIndex: 0,
     },
+    {
+      id: '104-q6',
+      question: 'A football coach asks, "What\'s the difference between your PRO CUT jersey and a standard cut?" What is the correct answer?',
+      options: [
+        'PRO CUT is our premium line — it costs more but looks better',
+        'PRO CUT is built to D1 specifications — tailored shoulders, tapered torso, shorter sleeves with elastic grip strip, and a fit designed for pads, not just for standing on the sideline',
+        'PRO CUT uses heavier fabric that lasts two seasons longer than standard',
+        'PRO CUT is only available for varsity teams — JV and freshman use standard cut',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '104-q7',
+      question: 'A coach wants to order basketball uniforms but is torn between sublimation and tackle twill. What key difference should the TAE highlight?',
+      options: [
+        'Sublimation is cheaper; tackle twill is higher quality',
+        'Sublimation prints the design directly into the fabric — unlimited colors, no added weight, never cracks or peels. Tackle twill sews layered fabric letters and numbers on top — classic look, textured feel, traditional. The choice depends on the program\'s identity, not just budget',
+        'Tackle twill is what college teams wear, so it\'s always the better option',
+        'Sublimation only works on white fabric, so if your school colors are dark, you need tackle twill',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '104-q8',
+      question: 'A volleyball coach asks why TUF uniforms cost more than what they can find on a generic team sports website. What product-specific value should the TAE communicate?',
+      options: [
+        'Our uniforms are made in the USA, which increases the cost but ensures quality',
+        'TUF uniforms are cut for athletes, not spectators — moisture-wicking fabric, reinforced seams at stress points, four-way stretch that moves with the player, and a fit spec designed specifically for volleyball, not a generic "team uniform" template',
+        'We include free shipping on all orders over $500',
+        'TUF uniforms come with a lifetime warranty against manufacturing defects',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '104-q9',
+      question: 'A coach is ordering uniforms for a team with players ranging from 5\'2" to 6\'8". What sizing guidance should the TAE provide?',
+      options: [
+        'Order a standard size run from Small to 3XL and let the players sort it out',
+        'TUF provides a detailed sizing chart with measurements for chest, waist, inseam, and jersey length — and we recommend every athlete try on a sample size before the final roster is submitted, because a uniform that doesn\'t fit undermines everything else we do right',
+        'Use the roster weights and heights to estimate sizes — that\'s faster than measuring everyone',
+        'Order everything one size up since high school athletes are still growing',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '104-q10',
+      question: 'A baseball coach wants to order jerseys with the team name across the chest. They ask, "Can you do a two-color outline on the letters?" What does this tell the TAE about which decoration method to recommend?',
+      options: [
+        'Two-color outlines mean the coach wants tackle twill — layered fabric letters',
+        'It tells the TAE the coach cares about details, so they should present both sublimation and tackle twill options with visual samples showing how two-color lettering looks in each method',
+        'It means the order will need to go through the custom art department, which adds two weeks to production',
+        'Two-color outlines are only available on PRO CUT jerseys, so the coach will need to upgrade',
+      ],
+      correctIndex: 1,
+    },
   ],
   'ACAD-105': [
     {
@@ -957,6 +1177,61 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
         'The TAE should have collected payment during the call before changing the stage',
       ],
       correctIndex: 0,
+    },
+    {
+      id: '105-q6',
+      question: 'A coach sends the TAE a hand-drawn sketch of what they want on their football jerseys. What is the correct next step?',
+      options: [
+        'Tell the coach the art team only accepts digital files — ask them to recreate it in Photoshop',
+        'Scan the sketch, send it to the art team with the coach\'s description, and let the professionals turn it into a production-ready mockup — the TAE\'s job is to be the bridge, not the designer',
+        'Redraw the sketch yourself in design software before submitting it to the art team',
+        'Ask the coach to find a similar design online and send you the link instead',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '105-q7',
+      question: 'A coach receives their first mockup and asks for six changes, including a different font, adjusted logo placement, and new sleeve stripe pattern. How should the TAE handle this?',
+      options: [
+        'Push back — six changes is excessive and the coach needs to narrow it to the top three',
+        'Document every change clearly, confirm with the coach in writing, and submit to the art team — the mockup process exists to get it right, and the goal is a design the coach loves, not a design that was fast',
+        'Tell the coach that mockup revisions are limited to three rounds and they\'ve just used one',
+        'Ask the coach which three changes are most important and only submit those',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '105-q8',
+      question: 'What is the most common cause of production delays related to the mockup phase?',
+      options: [
+        'The art team is understaffed and takes too long to produce initial mockups',
+        'Artwork approval drags on because the coach is slow to respond — the TAE should set clear deadlines at the start: "Coach, I need your approval by [date] to hit your delivery window"',
+        'The factory rejects the design file due to technical limitations not caught during mockup',
+        'Shipping delays from the overseas production facility',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '105-q9',
+      question: 'A coach wants to use a local sponsor\'s logo on the team warm-ups. What does the TAE need before the art team can include it in the mockup?',
+      options: [
+        'The coach\'s verbal permission — if the local business is a team sponsor, that\'s sufficient',
+        'A high-resolution vector file of the logo (AI, EPS, or SVG) and, if the logo is trademarked, written permission from the sponsor to reproduce it on apparel',
+        'The sponsor\'s contact information so the TAE can call them directly for approval',
+        'Nothing additional — the art team can recreate any logo from a photo',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '105-q10',
+      question: 'The art team sends back a mockup, and the TAE notices the school\'s mascot is an eagle but the mockup shows a hawk. What should the TAE do?',
+      options: [
+        'Send it to the coach anyway — they\'ll catch the error and it saves time',
+        'Catch it before the coach sees it — send it back to the art team with the correction. The TAE is the last quality check before the mockup reaches the customer, and errors that reach the coach erode trust',
+        'Ask the coach if they\'d be open to changing their mascot to a hawk',
+        'Ignore it — mascots are close enough and the coach probably won\'t notice',
+      ],
+      correctIndex: 1,
     },
   ],
   'ACAD-106': [
@@ -1015,6 +1290,61 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
       ],
       correctIndex: 0,
     },
+    {
+      id: '106-q6',
+      question: 'After a deal reaches Closed Won, how long does standard production typically take before an order ships?',
+      options: [
+        '1-2 weeks — TUF maintains inventory of blank uniforms ready for decoration',
+        '4-6 weeks — custom team uniforms are made to order, and production doesn\'t begin until sizing, artwork, and payment are all finalized',
+        '8-12 weeks — all production happens overseas and must clear customs',
+        '2-3 days — TUF operates a just-in-time production facility',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '106-q7',
+      question: 'A coach calls the TAE two weeks before the season starts and says, "Our uniforms were supposed to arrive yesterday and they\'re not here." What should the TAE do?',
+      options: [
+        'Tell the coach to call the shipping carrier directly with the tracking number',
+        'Own the problem — check the tracking and order status, contact Operations immediately, and give the coach an honest update with a new ETA within the hour. The TAE is the face of TUF, even when something goes wrong',
+        'Explain that fulfillment is Operations\' responsibility and transfer the coach to the Ops team',
+        'Promise the uniforms will arrive by the end of the week and figure out the details later',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '106-q8',
+      question: 'What is the TAE\'s role after an order moves to Operations for fulfillment?',
+      options: [
+        'None — the TAE\'s job ends at Closed Won; Operations handles everything from there',
+        'The TAE stays informed on production milestones and is the coach\'s single point of contact if questions or issues arise — the rep doesn\'t build the order, but they own the relationship through delivery',
+        'The TAE should check in with Operations daily to make sure the order is on track',
+        'The TAE processes the order themselves in the production system to ensure accuracy',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '106-q9',
+      question: 'A shipment arrives at a school, and the coach discovers three jerseys have misspelled names. What is the correct resolution process?',
+      options: [
+        'The coach should have caught the errors on the roster approval — TUF produced what was submitted',
+        'The TAE apologizes, documents the errors with photos, contacts Operations to initiate a remake, and confirms the corrected names and expected delivery date with the coach — TUF fixes its mistakes at no cost to the school',
+        'The coach pays for the three replacement jerseys at a discounted rate',
+        'The TAE credits the coach\'s account for the three jerseys on their next order',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '106-q10',
+      question: 'What is the single most important document that must be accurate before an order enters production?',
+      options: [
+        'The initial proposal — that\'s what the coach agreed to',
+        'The final roster with confirmed sizes and numbers — every jersey is cut and decorated to a specific athlete; an error on this document means an unwearable uniform',
+        'The purchase order from the school\'s finance department',
+        'The mockup approval form signed by the athletic director',
+      ],
+      correctIndex: 1,
+    },
   ],
 
   'ACAD-107': [
@@ -1072,6 +1402,61 @@ export const QUIZZES: Record<AcademyModuleCode, QuizQuestion[]> = {
         '25 calls, 5 conversations, 1 new opportunity \u2014 quality over quantity',
       ],
       correctIndex: 0,
+    },
+    {
+      id: '107-q6',
+      question: 'A TAE has 40 schools in their territory. What percentage should have at least one active opportunity or won lane at any given time?',
+      options: [
+        '100% — every school should be actively worked every month',
+        '50-75% — the goal is deep coverage of schools with real potential, not spreading thin across every address in the territory',
+        '25% — focus on the top 10 schools and ignore the rest',
+        'The percentage doesn\'t matter as long as the TAE hits four orders per month',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '107-q7',
+      question: 'A TAE drives 90 minutes to visit a rural school for a 30-minute meeting with the athletic director. Was this a good use of time?',
+      options: [
+        'No — the travel time exceeds the meeting time, which is inefficient',
+        'Yes, if the school has multiple sports and no TUF relationship yet — outstate schools reward face-to-face relationship building, and a 30-minute in-person meeting can accomplish more than a month of phone calls',
+        'Only if the athletic director places an order during that meeting',
+        'No — outstate schools should only be contacted by phone or email to save drive time',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '107-q8',
+      question: 'During a Pipeline Blast, a TAE calls 15 coaches in one day and gets voicemail every time. What should they do on Day 2?',
+      options: [
+        'Call the same 15 coaches again — persistence is the point of a Pipeline Blast',
+        'Call the next 15 on the list and leave concise voicemails for all 30 at the end of the day — the Blast is about volume and coverage, not waiting for callbacks',
+        'Switch to email-only outreach since phone calls aren\'t connecting',
+        'Stop the Blast and spend the day researching why none of the coaches answered',
+      ],
+      correctIndex: 1,
+    },
+    {
+      id: '107-q9',
+      question: 'A TAE has three schools within 15 minutes of each other. Two are existing accounts with one lane each, and one is a cold school with 12 sports. How should the TAE structure their Wednesday?',
+      options: [
+        'Visit all three — start with the cold school to make personal contact, then stop by the two existing accounts to check in and plant seeds for lane expansion; proximity makes this an efficient use of one day',
+        'Spend the entire day at the cold school — 12 sports means it could be a massive account',
+        'Skip the cold school and focus on expanding the two existing accounts — lane expansion is 5x easier than cold starts',
+        'Call all three from the office and save the drive time for schools further away',
+      ],
+      correctIndex: 0,
+    },
+    {
+      id: '107-q10',
+      question: 'At the end of a quarter, a TAE reviews their territory and realizes 60% of their revenue came from 3 schools, while 25 other accounts generated nothing. What does this pattern indicate?',
+      options: [
+        'The TAE is doing great — three high-revenue schools are a strong foundation',
+        'The territory is fragile — revenue concentration in a few accounts means one coach leaving or one budget cut could wipe out more than half the rep\'s business; the TAE needs to develop the other 25 accounts to spread the risk',
+        'The TAE should drop the 25 non-performing accounts and focus exclusively on the top 3',
+        'This is normal for a first-year territory — revenue will naturally diversify over time',
+      ],
+      correctIndex: 1,
     },
   ],
   'DIR-1': [
