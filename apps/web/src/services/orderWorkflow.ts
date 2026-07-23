@@ -213,7 +213,7 @@ export function getOrderRisk(order: Order): { level: OrderRiskLevel; label: stri
   const today = new Date().toISOString().slice(0, 10);
   const dueSoon = dueDate <= addDays(2);
   const overdue = dueDate < today;
-  const missingRequiredHandoff = order.missingInfo.length > 0 || order.vendor === 'Unassigned';
+  const missingRequiredHandoff = (order.missingInfo?.length ?? 0) > 0 || order.vendor === 'Unassigned';
   if (stage === 'COMPLETED') return { level: 'gray', label: 'Completed', reason: 'Order complete', rank: 0, tone: 'border-slate-500/50 bg-slate-500/10 text-slate-300' };
   if (stage === 'BLOCKED_ON_HOLD' || overdue || missingRequiredHandoff) return { level: 'red', label: stage === 'BLOCKED_ON_HOLD' ? 'Blocked' : overdue ? 'Overdue' : 'Missing handoff', reason: stage === 'BLOCKED_ON_HOLD' ? order.missingInfo[0] ?? 'On hold' : overdue ? `Due ${dueDate}` : 'Required handoff info missing', rank: stage === 'BLOCKED_ON_HOLD' ? 100 : overdue ? 90 : 80, tone: 'border-rose-500/60 bg-rose-500/10 text-rose-200' };
   if (dueSoon || stage === 'VENDOR_READY' || stage === 'IN_PRODUCTION') return { level: 'yellow', label: dueSoon ? 'Due soon' : stage === 'VENDOR_READY' ? 'Needs vendor' : 'In production', reason: dueSoon ? `Due ${dueDate}` : stage === 'VENDOR_READY' ? 'Waiting on vendor confirmation' : 'Track vendor milestone', rank: dueDate === today ? 70 : stage === 'IN_PRODUCTION' ? 40 : 60, tone: 'border-amber-500/60 bg-amber-500/10 text-amber-200' };
