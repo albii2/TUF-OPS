@@ -133,24 +133,18 @@ function QuizModal({
                   return (
                     <label
                       key={oi}
+                      onClick={() => {
+                        const newAnswers = [...answers];
+                        newAnswers[i] = oi;
+                        setAnswers(newAnswers);
+                        setFeedback(null);
+                      }}
                       className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors text-sm ${
                         isSelected
                           ? 'border-cyan-400/40 bg-cyan-400/10 text-cyan-200'
                           : 'border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-600'
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name={`quiz-${moduleCode}-q${i}`}
-                        checked={isSelected}
-                        onChange={() => {
-                          const newAnswers = [...answers];
-                          newAnswers[i] = oi;
-                          setAnswers(newAnswers);
-                          setFeedback(null);
-                        }}
-                        className="sr-only"
-                      />
                       <span className="select-none">{opt}</span>
                     </label>
                   );
