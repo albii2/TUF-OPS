@@ -12,13 +12,20 @@ export default function DirectorHome() {
   const { data: organizations = [] } = useOrganizations({});
   const { data: opportunities = [] } = useOpportunities({});
 
-  // Coverage lifecycle: UNTOUCHED → CONTACTED (has activity) → OPPORTUNITY (has opp)
-  // Source: Activities for Contacted/Engaged, Opportunities for Opportunity+
+  // Territory metrics — separate sources, no collapsed proxy
+  // Contacted: from activities (outbound call, email, meeting)
+  // With Opportunities: orgs that have at least one opp
+  // Active Opportunities: opps not in CLOSED_WON/CLOSED_LOST
   const territoryOrgs = organizations;
-  const orgIdsWithOpps = new Set(opportunities.map(o => String(o.organizationId)));
-  const contacted = orgIdsWithOpps.size;
-  const untouched = territoryOrgs.length - contacted;
-  const coveragePct = territoryOrgs.length ? Math.round((contacted / territoryOrgs.length) * 100) : 0;
+  const closedStages = new Set(['CLOSED_WON', 'CLOSED_LOST']);
+  const activeOpps = opportunities.filter(o => !closedStages.has(o.stage));
+  const orgIdsWithOpps = new Set(activeOpps.map(o => String(o.organizationId)));
+  const orgsWithOpps = orgIdsWithOpps.size;
+  const activeOppCount = activeOpps.length;
+
+  // Contacted = orgs with logged outbound activity (source: activities table)
+  // Currently 0 — no activities have been logged yet
+  const contacted = 0;
 
   // Reps and their status
   const allUsers = listUsers();
@@ -66,8 +73,8 @@ export default function DirectorHome() {
     const names = needsCoaching.map(r => r.name.split(' ')[0]).join(', ');
     priorities.push(`Check in with ${names}`);
   }
-  if (untouched > 0) {
-    priorities.push(`Assign ${Math.min(untouched, 5)} untouched accounts to reps`);
+  if (territoryOrgs.length - orgsWithOpps > 0) {
+    priorities.push(`Expand pipeline — ${territoryOrgs.length - orgsWithOpps} schools have no opportunities`);
   }
   const staleOpps = getStaleOpportunities(opportunities, 14);
   if (staleOpps.length > 0) {
@@ -79,7 +86,7 @@ export default function DirectorHome() {
   }
 
   // Next high-value target
-  const untouchedOrgs = territoryOrgs.filter(o => o.coverageStatus === 'UNTOUCHED');
+  const untouchedOrgs = territoryOrgs.filter(o => !orgIdsWithOpps.has(String(o.id)));
   const nextTarget = untouchedOrgs[0];
 
   // Academy status for uncertified reps
@@ -145,12 +152,12 @@ export default function DirectorHome() {
             <p className="text-xs text-slate-500">Schools</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-emerald-300">{contacted}</p>
-            <p className="text-xs text-slate-500">Contacted</p>
+            <p className="text-2xl font-bold text-emerald-300">{orgsWithOpps}</p>
+            <p className="text-xs text-slate-500">With Opps</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-amber-300">{untouched}</p>
-            <p className="text-xs text-slate-500">Untouched</p>
+            <p className="text-2xl font-bold text-blue-300">{activeOppCount}</p>
+            <p className="text-xs text-slate-500">Active Opps</p>
           </div>
         </div>
         {nextTarget && (
