@@ -164,7 +164,7 @@ export function getOrderTitle(order: Order, opportunity?: Opportunity) {
 }
 
 function getLaneLabel(lane: Order['lane']) {
-  return lane
+  return (lane ?? '')
     .split('_')
     .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
     .join(' ');
@@ -188,9 +188,9 @@ export function getOrderDueDate(order: Order) {
 
 export function getOrderNextAction(order: Order) {
   const stage = getOrderStage(order);
-  if (stage === 'BLOCKED_ON_HOLD') return `Resolve blocker: ${order.missingInfo[0] ?? 'On hold'}`;
+  if (stage === 'BLOCKED_ON_HOLD') return `Resolve blocker: ${order.missingInfo?.[0] ?? 'On hold'}`;
   if (order.nextAction) return order.nextAction;
-  if (order.missingInfo.length) return `Clear ${order.missingInfo.length} blocker${order.missingInfo.length > 1 ? 's' : ''}`;
+  if ((order.missingInfo?.length ?? 0) > 0) return `Clear ${order.missingInfo!.length} blocker${order.missingInfo!.length > 1 ? 's' : ''}`;
   const nextStage = getNextOrderStage(order);
   if (!nextStage) return 'No next action';
   const actionByStage: Record<OrderStage, string> = {
