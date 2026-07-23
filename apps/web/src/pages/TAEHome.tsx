@@ -18,7 +18,9 @@ export default function TAEHome() {
   const staleOpps = getStaleOpportunities(opportunities, 14);
   const wonOpps = opportunities.filter(o => o.stage === 'CLOSED_WON');
   const wonCount = wonOpps.length;
-  const untouchedAccounts = organizations.filter(o => o.coverageStatus === 'UNTOUCHED');
+  // Coverage from real opportunities data
+  const orgsWithOpps = new Set(opportunities.map(o => String(o.organizationId)));
+  const untouchedAccounts = organizations.filter(o => !orgsWithOpps.has(String(o.id)));
   const contacted = organizations.length - untouchedAccounts.length;
 
   // Today's priorities
