@@ -123,6 +123,13 @@ export function AppShell({ user, setUser }: { user: AppUser; setUser: (u: AppUse
                 </select>
               ) : null}
               <button className="h-9 rounded-md border border-[#1FB6FF]/60 bg-[#10324a] px-3 text-xs text-[#dff5ff]" onClick={() => { logout(); setUser(null); navigate('/login'); }}>{user.name}</button>
+              <button
+                onClick={() => navigate('/issues/new')}
+                className="h-9 rounded-md border border-red-500/40 bg-red-500/10 px-3 text-xs font-semibold text-red-200 hover:bg-red-500/20 transition"
+                title="Report an issue"
+              >
+                🚩 Report Issue
+              </button>
             </div>
             {searchMessage ? <p className="mt-2 text-xs text-amber-200">{searchMessage}</p> : null}
           </header>

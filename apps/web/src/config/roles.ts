@@ -30,26 +30,27 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   certification_review: { label: 'Certifications', route: '/admin/certification' },
   documents: { label: 'Documents', route: '/documents' },
   production_requests: { label: 'Production', route: '/production-requests' },
+  issues: { label: 'Issues', route: '/issues' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'settings'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'issues', 'settings'],
     dashboardWidgets: ["Today's Priorities", 'Who Needs You', 'Territory Snapshot'],
     primaryActions: ['Create Status Check', 'Review Pipeline', 'Coach Directors'],
-    visiblePages: ['/command', '/organizations', '/opportunities', '/my-opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/intake', '/comms', '/settings', '/territory', '/users', '/admin/certification', '/daily-command', '/forge'],
+    visiblePages: ['/command', '/organizations', '/opportunities', '/my-opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/intake', '/comms', '/settings', '/territory', '/users', '/admin/certification', '/daily-command', '/forge', '/issues'],
   },
   REGIONAL_DIRECTOR: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'issues'],
     dashboardWidgets: ["Today's Priorities", 'Team Status', 'Territory Snapshot'],
     primaryActions: ['Coach Reps', 'Review Pipeline', 'Assign Accounts'],
-    visiblePages: ['/command', '/organizations', '/opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/territory', '/admin/certification'],
+    visiblePages: ['/command', '/organizations', '/opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/territory', '/admin/certification', '/issues'],
   },
   DIRECTOR: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'issues'],
     dashboardWidgets: ["Today's Priorities", 'Team Status', 'Territory Snapshot'],
     primaryActions: ['Coach Reps', 'Review Pipeline', 'Assign Accounts'],
-    visiblePages: ['/command', '/organizations', '/opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/territory', '/admin/certification'],
+    visiblePages: ['/command', '/organizations', '/opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/territory', '/admin/certification', '/issues'],
   },
   REP: {
     sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'settings'],

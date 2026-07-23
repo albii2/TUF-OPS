@@ -40,6 +40,9 @@ import LeadershipCommsPage from './pages/LeadershipCommsPage';
 import CEOHome from './pages/CEOHome';
 import DirectorHome from './pages/DirectorHome';
 import TAEHome from './pages/TAEHome';
+import IssuesPage from './pages/IssuesPage';
+import IssueNewPage from './pages/IssueNewPage';
+import IssueDetailPage from './pages/IssueDetailPage';
 import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
@@ -162,6 +165,9 @@ export default function App() {
         <Route path="/intake" element={<PageProtected user={user} path="/intake"><ExecutiveIntakePage /></PageProtected>} />
         <Route path="/people" element={<PageProtected user={user} path="/people"><PeopleOpsPage /></PageProtected>} />
         <Route path="/comms" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'REGIONAL_DIRECTOR']}><LeadershipCommsPage /></RoleProtected>} />
+        <Route path="/issues" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssuesPage /></PageProtected></CertificationProtected>} />
+        <Route path="/issues/new" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssueNewPage /></PageProtected></CertificationProtected>} />
+        <Route path="/issues/:id" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssueDetailPage /></PageProtected></CertificationProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/command' : '/login'} replace />} />
     </Routes>
