@@ -58,21 +58,21 @@ export default function TAEHome() {
   );
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-semibold text-white">
+        <h1 className="text-xl sm:text-2xl font-semibold text-white">
           Good Morning, {name}
         </h1>
       </div>
 
-      {/* Order Pace */}
+      {/* 4-Order Floor */}
       <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex items-center justify-between">
         <div>
           <p className="text-xs uppercase tracking-wider text-emerald-300 font-semibold">4-Order Floor</p>
-          <p className="text-2xl font-bold text-white">{wonCount}/{MONTHLY_ORDER_GOAL}</p>
+          <p className="text-xl sm:text-2xl font-bold text-white">{wonCount}/{MONTHLY_ORDER_GOAL}</p>
         </div>
-        <div className="w-32 h-2 bg-slate-800 rounded-full overflow-hidden">
+        <div className="w-24 sm:w-32 h-2 bg-slate-800 rounded-full overflow-hidden">
           <div
             className="h-full bg-emerald-500 rounded-full transition-all"
             style={{ width: `${Math.min(100, (wonCount / MONTHLY_ORDER_GOAL) * 100)}%` }}
@@ -81,41 +81,39 @@ export default function TAEHome() {
       </div>
 
       {/* Today's Priorities */}
-      <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+      <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-300 mb-3">
           Today's Priorities
         </h2>
         <ul className="space-y-2">
           {priorities.slice(0, 5).map((p, i) => (
-            <li key={i} className="flex items-start gap-2 text-slate-200">
+            <li key={i} className="flex items-start gap-2 text-slate-200 text-sm">
               <span className="text-cyan-400 mt-0.5">•</span>
               <span>{p}</span>
             </li>
           ))}
         </ul>
-        {nearClose.length > 0 && (
           <Link to="/my-opportunities" className="inline-block mt-3 text-xs text-cyan-400 hover:text-cyan-300">
-            View all near-close deals →
+            My Pipeline →
           </Link>
-        )}
       </div>
 
-      {/* Pipeline Progress */}
-      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
+      {/* Pipeline Progress Bar */}
+      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">
           Pipeline
         </h2>
-        <div className="flex items-center gap-1">
-          {stages.map((stage, i) => {
+        <div className="flex items-center gap-1 overflow-x-auto">
+          {stages.map((stage, idx) => {
             const count = stageCounts[stage.key] || 0;
             const isActive = count > 0;
             return (
-              <div key={stage.key} className="flex-1 flex items-center">
+              <div key={stage.key} className="flex-1 flex items-center min-w-[3rem]">
                 <div className={`flex-1 rounded-lg p-2 text-center ${isActive ? 'bg-cyan-500/10 border border-cyan-500/30' : 'bg-slate-900 border border-slate-800'}`}>
-                  <p className={`text-lg font-bold ${isActive ? 'text-cyan-300' : 'text-slate-600'}`}>{count}</p>
+                  <p className={`text-base sm:text-lg font-bold ${isActive ? 'text-cyan-300' : 'text-slate-600'}`}>{count}</p>
                   <p className="text-[9px] uppercase text-slate-500">{stage.label}</p>
                 </div>
-                {i < stages.length - 1 && (
+                {idx < stages.length - 1 && (
                   <div className={`w-2 h-px ${isActive ? 'bg-cyan-500/50' : 'bg-slate-800'}`} />
                 )}
               </div>
@@ -125,21 +123,23 @@ export default function TAEHome() {
       </div>
 
       {/* Who to Contact */}
-      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
+      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">
           Who to Contact
         </h2>
-        {untouchedAccounts.slice(0, 5).map(org => (
-          <div key={org.id} className="flex items-center justify-between py-1.5 border-b border-slate-800 last:border-0">
-            <div>
-              <p className="text-sm text-slate-200">{org.name}</p>
+        <div className="divide-y divide-slate-800">
+          {untouchedAccounts.slice(0, 5).map(org => (
+          <div key={org.id} className="flex items-center justify-between py-1.5">
+            <div className="min-w-0 flex-1 mr-2">
+              <p className="text-sm text-slate-200 truncate">{org.name}</p>
               <p className="text-xs text-slate-500">{org.city}, {org.state}</p>
             </div>
-            <Link to={`/organizations/${org.id}`} className="text-xs text-cyan-400 hover:text-cyan-300">
+            <Link to={`/organizations/${org.id}`} className="text-xs text-cyan-400 hover:text-cyan-300 shrink-0">
               Contact →
             </Link>
           </div>
-        ))}
+          ))}
+        </div>
         {untouchedAccounts.length === 0 && (
           <p className="text-sm text-emerald-400">All accounts contacted. Expand your territory!</p>
         )}

@@ -53,22 +53,22 @@ export default function CEOHome() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-semibold text-white">
+        <h1 className="text-xl sm:text-2xl font-semibold text-white">
           Good Morning, {name}
         </h1>
       </div>
 
       {/* Today's Priorities — Five Things Only You Should Work On */}
-      <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+      <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-300 mb-3">
           Five Things Only You Should Work On Today
         </h2>
         <ul className="space-y-2">
           {priorities.slice(0, 5).map((p, i) => (
-            <li key={i} className="flex items-start gap-2 text-slate-200">
+            <li key={i} className="flex items-start gap-2 text-slate-200 text-sm">
               <span className="text-cyan-400 mt-0.5">{i + 1}.</span>
               <span>{p}</span>
             </li>
@@ -80,7 +80,7 @@ export default function CEOHome() {
       </div>
 
       {/* Who Needs You */}
-      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
+      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">
           Who Needs You
         </h2>
@@ -88,11 +88,11 @@ export default function CEOHome() {
         {/* Directors pending status check */}
         {statusCheck.pending > 0 && (
           <div className="flex items-center justify-between py-2 border-b border-slate-800">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-sm text-slate-200">Leadership Status Check</p>
               <p className="text-xs text-red-300">{statusCheck.pending} director{statusCheck.pending > 1 ? 's' : ''} pending response</p>
             </div>
-            <Link to="/command" className="text-xs text-cyan-400 hover:text-cyan-300">
+            <Link to="/command" className="text-xs text-cyan-400 hover:text-cyan-300 shrink-0 ml-2">
               View →
             </Link>
           </div>
@@ -101,11 +101,11 @@ export default function CEOHome() {
         {/* Revenue at risk */}
         {staleOpps.length > 0 && (
           <div className="flex items-center justify-between py-2 border-b border-slate-800">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-sm text-slate-200">Revenue at Risk</p>
               <p className="text-xs text-amber-300">{staleOpps.length} stale opportunities</p>
             </div>
-            <Link to="/team-opportunities" className="text-xs text-cyan-400 hover:text-cyan-300">
+            <Link to="/team-opportunities" className="text-xs text-cyan-400 hover:text-cyan-300 shrink-0 ml-2">
               View →
             </Link>
           </div>
@@ -114,11 +114,11 @@ export default function CEOHome() {
         {/* Blocked / Near close */}
         {nearClose.length > 0 && (
           <div className="flex items-center justify-between py-2 border-b border-slate-800">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-sm text-slate-200">Near-Close Pipeline</p>
               <p className="text-xs text-emerald-300">{nearClose.length} deals · {formatCurrency(nearCloseValue)}</p>
             </div>
-            <Link to="/team-opportunities" className="text-xs text-cyan-400 hover:text-cyan-300">
+            <Link to="/team-opportunities" className="text-xs text-cyan-400 hover:text-cyan-300 shrink-0 ml-2">
               View →
             </Link>
           </div>
@@ -126,18 +126,18 @@ export default function CEOHome() {
 
         {/* Territory coverage */}
         <div className="flex items-center justify-between py-2">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-sm text-slate-200">Territory Coverage</p>
             <p className="text-xs text-slate-400">{contactedOrgs} contacted · {untouchedOrgs.length} untouched</p>
           </div>
-          <Link to="/territory" className="text-xs text-cyan-400 hover:text-cyan-300">
+          <Link to="/territory" className="text-xs text-cyan-400 hover:text-cyan-300 shrink-0 ml-2">
             View →
           </Link>
         </div>
       </div>
 
       {/* Quick Links */}
-      <div className="flex gap-3 text-xs">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 text-xs">
         <Link to="/command" className="text-cyan-400 hover:text-cyan-300">Command Center →</Link>
         <Link to="/intake" className="text-cyan-400 hover:text-cyan-300">Executive Intake →</Link>
         <Link to="/people" className="text-cyan-400 hover:text-cyan-300">People Pipeline →</Link>

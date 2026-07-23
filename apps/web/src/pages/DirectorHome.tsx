@@ -93,22 +93,22 @@ export default function DirectorHome() {
   const uncertifiedReps = reps.filter(r => !r.isCertified);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-semibold text-white">
+        <h1 className="text-xl sm:text-2xl font-semibold text-white">
           Good Morning, {name}
         </h1>
       </div>
 
       {/* Today's Priorities */}
-      <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-5">
+      <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-cyan-300 mb-3">
           Today's Priorities
         </h2>
         <ul className="space-y-2">
           {priorities.slice(0, 5).map((p, i) => (
-            <li key={i} className="flex items-start gap-2 text-slate-200">
+            <li key={i} className="flex items-start gap-2 text-slate-200 text-sm">
               <span className="text-cyan-400 mt-0.5">•</span>
               <span>{p}</span>
             </li>
@@ -117,7 +117,7 @@ export default function DirectorHome() {
       </div>
 
       {/* Your Team */}
-      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
+      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">
           Your Team
         </h2>
@@ -142,21 +142,21 @@ export default function DirectorHome() {
       </div>
 
       {/* Your Territory */}
-      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-5">
+      <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-4 sm:p-5">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">
           Your Territory
         </h2>
-        <div className="grid grid-cols-3 gap-4 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-3">
           <div className="text-center">
-            <p className="text-2xl font-bold text-white">{territoryOrgs.length}</p>
+            <p className="text-xl sm:text-2xl font-bold text-white">{territoryOrgs.length}</p>
             <p className="text-xs text-slate-500">Schools</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-emerald-300">{orgsWithOpps}</p>
+            <p className="text-xl sm:text-2xl font-bold text-emerald-300">{orgsWithOpps}</p>
             <p className="text-xs text-slate-500">With Opps</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-bold text-blue-300">{activeOppCount}</p>
+            <p className="text-xl sm:text-2xl font-bold text-blue-300">{activeOppCount}</p>
             <p className="text-xs text-slate-500">Active Opps</p>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function DirectorHome() {
       </div>
 
       {/* Quick Links */}
-      <div className="flex gap-3 text-xs">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 text-xs">
         <Link to="/organizations" className="text-cyan-400 hover:text-cyan-300">Organizations →</Link>
         <Link to="/team-opportunities" className="text-cyan-400 hover:text-cyan-300">Team Pipeline →</Link>
         <Link to="/territory" className="text-cyan-400 hover:text-cyan-300">Territory Map →</Link>
