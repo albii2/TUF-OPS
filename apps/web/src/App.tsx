@@ -128,7 +128,6 @@ export default function App() {
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />
-        <Route path="/orders" element={<PageProtected user={user} path="/orders"><OrdersPage /></PageProtected>} />
         <Route path="/organizations" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/new" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/:id" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected></CertificationProtected>} />
