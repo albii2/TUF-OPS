@@ -34,7 +34,46 @@ export async function listOrders(params: OrderListParams = {}): Promise<Order[]>
   const query: Record<string, string | undefined> = {};
   if (params.search) query.search = params.search;
   if (params.productionStatus && params.productionStatus !== 'ALL') query.productionStatus = params.productionStatus;
-  return apiClient<Order[]>('/orders', { query });
+  const raw = await apiClient<any[]>('/orders', { query });
+  return (raw || []).map(normalizeApiOrder);
+}
+
+function normalizeApiOrder(raw: any): Order {
+  return {
+    id: String(raw.id ?? ''),
+    organizationId: String(raw.organization_id ?? ''),
+    organizationName: raw.organization_name ?? raw.organizationName ?? '',
+    opportunityId: String(raw.opportunity_id ?? ''),
+    title: raw.title ?? raw.name ?? '',
+    lane: raw.lane ?? raw.deal_type ?? 'UNIFORM',
+    sport: raw.sport ?? '',
+    value: Number(raw.value ?? 0),
+    assignedRep: raw.assigned_rep_name ?? raw.assignedRep ?? 'Unassigned',
+    assignedDirector: raw.assigned_director_name ?? raw.assignedDirector ?? 'Unassigned',
+    productionStatus: mapApiStatus(raw.status ?? raw.productionStatus),
+    orderStage: raw.order_stage ?? raw.orderStage ?? undefined,
+    dueDate: raw.due_date ?? raw.dueDate ?? new Date().toISOString().slice(0, 10),
+    createdAt: raw.created_at ?? raw.createdAt ?? new Date().toISOString(),
+    updatedAt: raw.updated_at ?? raw.updatedAt ?? undefined,
+    vendor: raw.vendor ?? raw.vendor_name ?? 'Unassigned',
+    missingInfo: Array.isArray(raw.missing_info) ? raw.missing_info : Array.isArray(raw.missingInfo) ? raw.missingInfo : [],
+    notes: raw.notes ?? raw.production_notes ?? '',
+    trackingInfo: raw.tracking_info ?? raw.trackingInfo ?? undefined,
+    createdDate: raw.created_date ?? raw.createdDate ?? undefined,
+    vendorNotes: raw.vendor_notes ?? raw.vendorNotes ?? '',
+  } as unknown as Order;
+}
+
+function mapApiStatus(status: string): Order['productionStatus'] {
+  switch (status?.toUpperCase?.()) {
+    case 'CREATED':
+    case 'NEEDS_REVIEW': return 'NEEDS_REVIEW';
+    case 'READY_FOR_VENDOR': return 'READY_FOR_VENDOR';
+    case 'IN_PRODUCTION': return 'IN_PRODUCTION';
+    case 'BLOCKED': return 'BLOCKED';
+    case 'COMPLETED': return 'COMPLETED';
+    default: return 'NEEDS_REVIEW';
+  }
 }
 
 export async function getOrderById(id: string): Promise<Order | undefined> {
