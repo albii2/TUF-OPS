@@ -78,7 +78,7 @@ export async function createOrganization(input: {
   assignedDirector?: string;
   territory?: TerritoryId;
 }): Promise<Organization> {
-  return apiClient<Organization>('/organizations', {
+  const raw = await apiClient<any>('/organizations', {
     method: 'POST',
     body: {
       name: input.name,
@@ -90,17 +90,20 @@ export async function createOrganization(input: {
       priority: input.accountType === 'School' ? 'HIGH' : 'MEDIUM',
     },
   });
+  return normalizeApiOrganization(raw);
 }
 
 export async function updateOrganization(
   id: string,
   patch: Partial<{ assignedRep: string; assignedDirector: string; priority: Organization['priority']; leadTier: Organization['leadTier']; nextAction: string }>,
 ): Promise<Organization | null> {
-  return apiClient<Organization>(`/organizations/${id}`, { method: 'PUT', body: patch });
+  const raw = await apiClient<any>(`/organizations/${id}`, { method: 'PUT', body: patch });
+  return raw ? normalizeApiOrganization(raw) : null;
 }
 
 export async function getOrganizationById(id: string): Promise<Organization | undefined> {
-  return apiClient<Organization>(`/organizations/${id}`);
+  const raw = await apiClient<any>(`/organizations/${id}`);
+  return raw ? normalizeApiOrganization(raw) : undefined;
 }
 
 export async function deleteOrganization(id: string): Promise<boolean> {

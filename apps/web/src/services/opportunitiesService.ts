@@ -93,17 +93,19 @@ export async function createOpportunity(input: {
   value: number;
   organizationAssignedDirector?: string;
 }): Promise<Opportunity> {
-  return apiClient<Opportunity>('/opportunities', {
+  const raw = await apiClient<any>('/opportunities', {
     method: 'POST',
     body: input,
   });
+  return normalizeApiOpportunity(raw);
 }
 
 export async function updateOpportunity(
   id: string,
   patch: Partial<Opportunity>,
 ): Promise<Opportunity> {
-  return apiClient<Opportunity>(`/opportunities/${id}`, { method: 'PUT', body: patch });
+  const raw = await apiClient<any>(`/opportunities/${id}`, { method: 'PUT', body: patch });
+  return normalizeApiOpportunity(raw);
 }
 
 export async function deleteOpportunity(id: string): Promise<boolean> {
