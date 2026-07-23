@@ -12,10 +12,11 @@ export default function DirectorHome() {
   const { data: organizations = [] } = useOrganizations({});
   const { data: opportunities = [] } = useOpportunities({});
 
-  // Territory snapshot — coverage from real opportunities data, not timestamps
+  // Coverage lifecycle: UNTOUCHED → CONTACTED (has activity) → OPPORTUNITY (has opp)
+  // Source: Activities for Contacted/Engaged, Opportunities for Opportunity+
   const territoryOrgs = organizations;
   const orgIdsWithOpps = new Set(opportunities.map(o => String(o.organizationId)));
-  const contacted = territoryOrgs.filter(o => orgIdsWithOpps.has(String(o.id))).length;
+  const contacted = orgIdsWithOpps.size;
   const untouched = territoryOrgs.length - contacted;
   const coveragePct = territoryOrgs.length ? Math.round((contacted / territoryOrgs.length) * 100) : 0;
 
