@@ -17,6 +17,8 @@ PG_RESTORE="/opt/homebrew/opt/libpq/bin/pg_restore"
 SIZE=$(du -h "$OUT" | cut -f1)
 TABLES=$("$PG_RESTORE" --list "$OUT" | grep -c "TABLE DATA" || true)
 echo "Backup OK: $OUT ($SIZE, $TABLES tables with data)"
+# Update health-check timestamp
+railway variables set BACKUP_LAST_SUCCESS_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)" --service terrific-patience 2>/dev/null || true
 
 # Retention: keep last 14 backups
 ls -t "$BACKUP_DIR"/tuf-ops-*.dump 2>/dev/null | tail -n +15 | xargs rm -f 2>/dev/null || true

@@ -9,8 +9,16 @@ echo ""
 
 FAILURES=0
 
+# [0] Pre-deploy database backup
+echo -n "[0/7] Database backup... "
+if railway run --service Postgres -- bash scripts/backup-db.sh 2>/dev/null | grep -q "Backup OK"; then
+    echo "PASS"
+else
+    echo "WARN — backup skipped (Railway CLI may not be available locally)"
+fi
+
 # [1] TypeScript typecheck
-echo -n "[1/6] TypeScript typecheck... "
+echo -n "[1/7] TypeScript typecheck... "
 if npx tsc --noEmit -p apps/api/tsconfig.json 2>/dev/null && \
    npx tsc --noEmit -p apps/web/tsconfig.json 2>/dev/null; then
     echo "PASS"
@@ -20,7 +28,7 @@ else
 fi
 
 # [2] Production build
-echo -n "[2/6] Production build... "
+echo -n "[2/7] Production build... "
 if pnpm run build 2>&1 | grep -q "built in"; then
     echo "PASS"
 else
@@ -29,7 +37,7 @@ else
 fi
 
 # [3] Lint
-echo -n "[3/6] ESLint... "
+echo -n "[3/7] ESLint... "
 if npx eslint apps/web/src/services/organizationsService.ts \
             apps/web/src/services/opportunitiesService.ts \
             apps/web/src/services/ordersService.ts \
@@ -41,7 +49,7 @@ else
 fi
 
 # [4] API regression test
-echo -n "[4/6] API regression test... "
+echo -n "[4/7] API regression test... "
 if python3 scripts/regression_test.py 2>/dev/null; then
     echo "PASS"
 else
@@ -50,7 +58,7 @@ else
 fi
 
 # [5] API hardening test
-echo -n "[5/6] API hardening test... "
+echo -n "[5/7] API hardening test... "
 if python3 scripts/e2e_hardening_test.py 2>/dev/null; then
     echo "PASS"
 else
@@ -59,7 +67,7 @@ else
 fi
 
 # [6] API smoke test
-echo -n "[6/6] API smoke test... "
+echo -n "[6/7] API smoke test... "
 if python3 scripts/crm_smoke_test.py 2>/dev/null; then
     echo "PASS"
 else
