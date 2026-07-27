@@ -1,4 +1,4 @@
-import fastify, { type FastifyReply } from 'fastify';
+import fastify, { type FastifyInstance, type FastifyReply } from 'fastify';
 import cors from '@fastify/cors';
 import { createReadStream, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -20,7 +20,8 @@ import { peopleRoutes } from './modules/people/people.routes';
 import { dashboardRoutes } from './modules/dashboard/dashboard.routes';
 import { commsRoutes } from './modules/comms/comms.routes';
 import { workItemsRoutes } from './modules/work-items/work-items.routes';
-import { issuesRoutes } from './modules/issues/issues.routes';
+import { createIssueHandler, getIssueHandler, listIssuesHandler, updateIssueHandler, updateIssueStatusHandler } from './modules/issues/issues.controller';
+// [issuesRoutes removed — registered inline below at line ~151]
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -148,7 +149,14 @@ server.register(dashboardRoutes, { prefix: '/api/v1/dashboard' });
 server.register(commsRoutes, { prefix: '/api/v1/comms' });
 server.register(vendorRoutes, { prefix: '/api/v1/vendors' });
 server.register(workItemsRoutes, { prefix: '/api/v1/work-items' });
-server.register(issuesRoutes, { prefix: '/api/v1/issues' });
+// ── Issues — registered inline to guarantee route availability ──
+server.register(async function issuesRoutes(server: FastifyInstance) {
+  server.get('/api/v1/issues', listIssuesHandler);
+  server.get('/api/v1/issues/:id', getIssueHandler);
+  server.post('/api/v1/issues', createIssueHandler);
+  server.put('/api/v1/issues/:id', updateIssueHandler);
+  server.put('/api/v1/issues/:id/status', updateIssueStatusHandler);
+});
 server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(userRoutes, { prefix: '/api/v1' });  // frontend compat for /users paths
 
