@@ -24,11 +24,11 @@ exports.up = (pgm) => {
     resolved_at: { type: 'timestamptz' },
   }, { ifNotExists: true });
 
-  pgm.createIndex('issues', 'status', { name: 'idx_issues_status' });
-  pgm.createIndex('issues', 'severity', { name: 'idx_issues_severity' });
-  pgm.createIndex('issues', 'category', { name: 'idx_issues_category' });
-  pgm.createIndex('issues', 'submitted_by', { name: 'idx_issues_submitted_by' });
-  pgm.createIndex('issues', 'assigned_to', { name: 'idx_issues_assigned_to' });
+  pgm.createIndex('issues', 'status', { ifNotExists: true, name: 'idx_issues_status' });
+  pgm.createIndex('issues', 'severity', { ifNotExists: true, name: 'idx_issues_severity' });
+  pgm.createIndex('issues', 'category', { ifNotExists: true, name: 'idx_issues_category' });
+  pgm.createIndex('issues', 'submitted_by', { ifNotExists: true, name: 'idx_issues_submitted_by' });
+  pgm.createIndex('issues', 'assigned_to', { ifNotExists: true, name: 'idx_issues_assigned_to' });
 };
 
 exports.down = (pgm) => {
