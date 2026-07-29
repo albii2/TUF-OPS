@@ -6,7 +6,7 @@
  *   submitted_by, assigned_to, created_at, updated_at, resolved_at
  */
 exports.up = (pgm) => {
-  pgm.createTable('issues', { ifNotExists: true,
+  pgm.createTable('issues', {
     id: { type: 'serial', primaryKey: true },
     title: { type: 'text', notNull: true },
     description: { type: 'text', notNull: true, default: '' },
@@ -22,7 +22,7 @@ exports.up = (pgm) => {
     created_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
     updated_at: { type: 'timestamptz', notNull: true, default: pgm.func('NOW()') },
     resolved_at: { type: 'timestamptz' },
-  });
+  }, { ifNotExists: true });
 
   pgm.createIndex('issues', 'status', { name: 'idx_issues_status' });
   pgm.createIndex('issues', 'severity', { name: 'idx_issues_severity' });
