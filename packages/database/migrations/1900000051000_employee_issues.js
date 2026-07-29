@@ -6,7 +6,7 @@
  *   submitted_by, assigned_to, created_at, updated_at, resolved_at
  */
 exports.up = (pgm) => {
-  pgm.createTable('issues', {
+  pgm.createTable('issues', { ifNotExists: true,
     id: { type: 'serial', primaryKey: true },
     title: { type: 'text', notNull: true },
     description: { type: 'text', notNull: true, default: '' },
