@@ -28,6 +28,11 @@ import {
   ChangeCredentialPage,
 } from './pages/CrudPages';
 import AcademyPage from './pages/AcademyPage';
+import AcademyMissionPage from './pages/academy/AcademyMissionPage';
+import AcademyProgressPage from './pages/academy/AcademyProgressPage';
+import AcademyDirectorReview from './pages/academy/AcademyDirectorReview';
+import CertificationChecklist from './pages/academy/CertificationChecklist';
+import AcademyV2Page from './pages/academy-v2/AcademyV2Page';
 import LockerRoomSimulator from './components/academy/LockerRoomSimulator';
 import AdminCertificationPage from './pages/AdminCertificationPage';
 import DailyActivityCommand from './pages/DailyActivityCommand';
@@ -131,6 +136,11 @@ export default function App() {
         <Route path="/dashboard" element={<Navigate to="/command" replace />} />
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
+        <Route path="/academy/missions" element={<PageProtected user={user} path="/academy"><AcademyMissionPage /></PageProtected>} />
+        <Route path="/academy/progress" element={<PageProtected user={user} path="/academy"><AcademyProgressPage /></PageProtected>} />
+        <Route path="/academy/certification" element={<PageProtected user={user} path="/academy"><CertificationChecklist /></PageProtected>} />
+        <Route path="/academy/v2" element={<PageProtected user={user} path="/academy"><AcademyV2Page /></PageProtected>} />
+        <Route path="/academy/director-review" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AcademyDirectorReview /></RoleProtected>} />
         <Route path="/locker-room" element={<PageProtected user={user} path="/academy"><LockerRoomSimulator /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />
         <Route path="/organizations" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected></CertificationProtected>} />

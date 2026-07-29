@@ -1,0 +1,1281 @@
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { getStoredUser } from '../../auth';
+
+// ─── Types ────────────────────────────────────────────────────────
+
+interface QuizDef {
+  quizId: string;
+  name: string;
+  questionCount: number;
+}
+
+interface Phase1QuizStatus {
+  quizId: string;
+  name: string;
+  score: number | null;
+  passed: boolean;
+  attemptedAt: string | null;
+}
+
+interface WalkthroughStep {
+  stepId: string;
+  label: string;
+  description: string;
+  completed: boolean;
+  completedAt: string | null;
+}
+
+interface SandboxOrg {
+  id: number;
+  name: string;
+  website: string | null;
+  physical_address: string | null;
+  enrollment: number | null;
+  sports_programs: string[];
+  current_provider: string | null;
+  research_notes: string | null;
+  source_url: string | null;
+  lead_status: string;
+}
+
+interface SandboxContact {
+  id: number;
+  full_name: string;
+  title: string | null;
+  email: string | null;
+  phone: string | null;
+  source_citation: string | null;
+}
+
+interface SandboxOpportunity {
+  id: number;
+  name: string;
+  estimated_value: number;
+  target_close_date: string | null;
+  lane: string;
+  stage: string;
+  sport: string | null;
+  notes: string | null;
+}
+
+interface SandboxActivity {
+  id: number;
+  activity_type: string;
+  description: string | null;
+  notes: string | null;
+  template_used: string | null;
+  scheduled_at: string;
+}
+
+interface SalesExecution {
+  id: number;
+  execution_type: string;
+  notes: string;
+  objection_handled: string | null;
+  score: number | null;
+}
+
+interface LeadTaxonomy {
+  id: number;
+  lead_name: string;
+  lead_status: string;
+  claimed_by: number | null;
+}
+
+interface GraduationGates {
+  orgs: { current: number; required: number; met: boolean };
+  contacts: { current: number; required: number; met: boolean };
+  opps: { current: number; required: number; met: boolean };
+  activities: { current: number; required: number; met: boolean };
+  sales_executions: { current: number; required: number; met: boolean };
+  directorApproved: { met: boolean };
+}
+
+interface GraduationStatus {
+  phase1: { completed: boolean };
+  phase2: { completed: boolean };
+  phase3: { completed: boolean };
+  phase4: { completed: boolean };
+  phase5: { completed: boolean };
+  gates: GraduationGates;
+  all_passed: boolean;
+  ready_to_graduate: boolean;
+}
+
+// ─── Constants ─────────────────────────────────────────────────────
+
+const API_BASE = '/api/v1/academy-v2';
+
+const PHASE_1_QUIZZES: QuizDef[] = [
+  { quizId: 'philosophy', name: 'TUF Philosophy & Sales Principles', questionCount: 10 },
+  { quizId: 'prospecting', name: 'Prospecting & Territory Awareness', questionCount: 10 },
+  { quizId: 'discovery', name: 'Discovery & Needs Analysis', questionCount: 10 },
+  { quizId: 'proposal', name: 'Proposal Building & Pricing', questionCount: 10 },
+  { quizId: 'order_handoff', name: 'Order Handoff & Closed Won Standard', questionCount: 10 },
+  { quizId: 'product_knowledge', name: 'Product Knowledge & Collections', questionCount: 10 },
+  { quizId: 'pipeline_accelerator', name: 'Pipeline Accelerator & Tactics', questionCount: 10 },
+];
+
+const WALKTHROUGH_STEPS = [
+  { stepId: 'dashboard_overview', label: 'Dashboard Overview', description: 'Navigate the Command Center and understand key metrics' },
+  { stepId: 'organizations_list', label: 'Organizations List', description: 'Browse and search existing organizations in the CRM' },
+  { stepId: 'org_detail', label: 'Organization Detail', description: 'View a full organization profile with contacts, opps, and activities' },
+  { stepId: 'pipeline_view', label: 'Pipeline View', description: 'Understand the opportunity board and pipeline stages' },
+  { stepId: 'opp_detail', label: 'Opportunity Detail', description: 'Explore opportunity fields: value, stage, next actions' },
+  { stepId: 'activities_log', label: 'Activities Log', description: 'View logged activities and understand activity tracking' },
+  { stepId: 'territory_map', label: 'Territory Map', description: 'Explore territory assignment and account distribution' },
+  { stepId: 'orders_view', label: 'Orders View', description: 'Understand the order lifecycle and fulfillment flow' },
+];
+
+const LANES = ['Uniforms', 'Travel Gear', 'Team Store', 'Letterman'];
+const STAGES = ['LEAD', 'LEAD_ENGAGED', 'CONTACTED', 'DISCOVERY', 'PROPOSAL_SENT', 'NEGOTIATION', 'CLOSED_WON', 'CLOSED_LOST'];
+
+type Tab = 'phase1' | 'phase2' | 'phase3' | 'phase4' | 'graduation' | 'leads';
+
+// ─── Helper ────────────────────────────────────────────────────────
+
+async function apiFetch(path: string, options?: RequestInit) {
+  const user = getStoredUser();
+  const token = localStorage.getItem('tuf_token');
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': 'Bearer ' + token } : {}),
+      ...(options?.headers || {}),
+    },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || 'Request failed');
+  }
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MAIN COMPONENT
+// ═══════════════════════════════════════════════════════════════════
+
+export default function AcademyV2Page() {
+  const user = getStoredUser();
+  const userId = user?.id ? Number(user.id) : 1;
+  const [tab, setTab] = useState<Tab>('phase1');
+
+  return (
+    <div className="min-h-screen bg-[#070c13] text-white">
+      {/* Header */}
+      <div className="border-b border-slate-700 bg-[#0a1220] px-6 py-4">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-black text-white">TUF Academy v3</h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Sandbox-Based Training • 5 Phases • Quality-Gated Certification
+          </p>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="border-b border-slate-700 bg-[#0a1220]">
+        <div className="max-w-7xl mx-auto flex gap-0 overflow-x-auto">
+          {([
+            ['phase1', '🧠 Phase 1: Foundations'],
+            ['phase2', '🗺️ Phase 2: CRM Walkthrough'],
+            ['phase3', '🏗️ Phase 3: Sandbox Territory'],
+            ['phase4', '💰 Phase 4: Sales Execution'],
+            ['leads', '📋 Lead Taxonomy'],
+            ['graduation', '🎓 Graduation'],
+          ] as [Tab, string][]).map(([t, label]) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
+                tab === t
+                  ? 'border-emerald-400 text-emerald-400'
+                  : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Tab Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        {tab === 'phase1' && <Phase1Tab userId={userId} />}
+        {tab === 'phase2' && <Phase2Tab userId={userId} />}
+        {tab === 'phase3' && <Phase3Tab userId={userId} />}
+        {tab === 'phase4' && <Phase4Tab userId={userId} />}
+        {tab === 'leads' && <LeadsTab userId={userId} />}
+        {tab === 'graduation' && <GraduationTab userId={userId} />}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE 1: Foundations (Quizzes Only)
+// ═══════════════════════════════════════════════════════════════════
+
+function Phase1Tab({ userId }: { userId: number }) {
+  const [quizStatuses, setQuizStatuses] = useState<Phase1QuizStatus[]>([]);
+  const [activeQuiz, setActiveQuiz] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch(`/phase1-status?userId=${userId}`)
+      .then((data: any) => setQuizStatuses(data.quizzes || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  const allPassed = quizStatuses.length > 0 && quizStatuses.every((q) => q.passed);
+  const passedCount = quizStatuses.filter((q) => q.passed).length;
+
+  if (loading) return <div className="text-slate-400">Loading...</div>;
+
+  return (
+    <div>
+      <div className="bg-emerald-400/5 border border-emerald-400/20 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-bold text-emerald-300">Phase 1: Foundations</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          Knowledge-based quizzes only. No CRM access required. Master the TUF Sales Philosophy, Product
+          Knowledge, Territory Awareness, and Pipeline fundamentals before touching the CRM.
+        </p>
+        <div className="mt-3 flex items-center gap-4">
+          <div className="text-sm">
+            <span className="text-slate-400">Progress: </span>
+            <span className="font-bold text-white">{passedCount}/{PHASE_1_QUIZZES.length} quizzes passed</span>
+          </div>
+          {allPassed && (
+            <span className="text-xs bg-emerald-400/20 text-emerald-300 px-2 py-1 rounded font-bold">
+              ✓ PHASE COMPLETE
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Quiz Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {PHASE_1_QUIZZES.map((quiz) => {
+          const status = quizStatuses.find((s) => s.quizId === quiz.quizId);
+          const passed = status?.passed ?? false;
+
+          return (
+            <div
+              key={quiz.quizId}
+              className={`border rounded-lg p-4 transition-colors ${
+                passed
+                  ? 'border-emerald-400/30 bg-emerald-400/5'
+                  : status
+                  ? 'border-amber-400/30 bg-amber-400/5'
+                  : 'border-slate-700 bg-slate-800/30'
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-bold text-white">{quiz.name}</h3>
+                  <p className="text-xs text-slate-400 mt-1">{quiz.questionCount} questions · Pass: 80%</p>
+                  {status && (
+                    <p className="text-xs mt-1">
+                      {passed ? (
+                        <span className="text-emerald-300">Passed ({status.score}%)</span>
+                      ) : (
+                        <span className="text-amber-300">Attempted: {status.score}% (need 80%)</span>
+                      )}
+                    </p>
+                  )}
+                </div>
+                <span className={`text-2xl ${passed ? 'text-emerald-400' : status ? 'text-amber-400' : 'text-slate-600'}`}>
+                  {passed ? '✓' : status ? '↻' : '○'}
+                </span>
+              </div>
+              <button
+                onClick={() => setActiveQuiz(quiz.quizId)}
+                className="mt-3 w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600 transition-colors"
+              >
+                {passed ? 'Retake Quiz' : status ? 'Retry Quiz' : 'Take Quiz'}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Quiz Modal (simplified) */}
+      {activeQuiz && (
+        <QuizModal
+          quizId={activeQuiz}
+          userId={userId}
+          onClose={() => setActiveQuiz(null)}
+          onComplete={() => {
+            setActiveQuiz(null);
+            // Refresh
+            apiFetch(`/phase1-status?userId=${userId}`)
+              .then((data: any) => setQuizStatuses(data.quizzes || []))
+              .catch(console.error);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── Simple Quiz Modal ─────────────────────────────────────────────
+
+function QuizModal({
+  quizId,
+  userId,
+  onClose,
+  onComplete,
+}: {
+  quizId: string;
+  userId: number;
+  onClose: () => void;
+  onComplete: () => void;
+}) {
+  const [answers, setAnswers] = useState<number[]>([]);
+  const [submitted, setSubmitted] = useState(false);
+  const [score, setScore] = useState(0);
+
+  // Sample questions (simplified - uses existing quiz data patterns)
+  const questions = useMemo(() => {
+    // Generate 5 questions based on quiz topic
+    const bank: Record<string, { question: string; options: string[]; correct: number }[]> = {
+      philosophy: [
+        { question: 'Why does TUF exist?', options: [
+          'To absorb the uniform/apparel burden so coaches can focus on athletes',
+          'To manufacture the cheapest team uniforms available',
+          'To outsource athletic department purchasing',
+          'To compete with national retailers on style',
+        ], correct: 0 },
+        { question: 'What is the four-order baseline?', options: [
+          'Four healthy orders per month, every month — consistency over size',
+          'Four quotes per week to maintain pipeline velocity',
+          'Four orders max any rep can manage at one time',
+          'Only four largest programs generate meaningful revenue',
+        ], correct: 0 },
+        { question: 'What are the four revenue lanes?', options: [
+          'Uniforms, Travel Gear, Team Stores, Letterman Jackets',
+          'Football, Basketball, Baseball, Soccer',
+          'Jerseys, Pants, Shorts, Jackets',
+          'Varsity, JV, Freshman, Middle School',
+        ], correct: 0 },
+        { question: 'What does "We sell trust before apparel" mean?', options: [
+          'Coaches buy from people they trust — build relationships first',
+          'We give free samples before asking for orders',
+          'Trust is optional — product quality sells itself',
+          'Only sell to coaches you already know',
+        ], correct: 0 },
+        { question: 'A rep at 23% account penetration means:', options: [
+          '37 untapped revenue opportunities exist in accounts they already serve',
+          'The account is underperforming and should be dropped',
+          'They have captured the majority of available revenue',
+          'They need more accounts, not more lanes',
+        ], correct: 0 },
+      ],
+    };
+    return bank[quizId] || bank.philosophy;
+  }, [quizId]);
+
+  const handleSubmit = async () => {
+    if (answers.length < questions.length) return;
+    const correct = answers.filter((a, i) => a === questions[i].correct).length;
+    const pct = Math.round((correct / questions.length) * 100);
+    const passed = pct >= 80;
+    setScore(pct);
+    setSubmitted(true);
+
+    try {
+      await apiFetch('/quizzes', {
+        method: 'POST',
+        body: JSON.stringify({ userId, quizId, score: pct, passed, answers }),
+      });
+      onComplete();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-lg font-black text-white">Quiz: {quizId.replace('_', ' ')}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-xl">✕</button>
+        </div>
+
+        {submitted ? (
+          <div className={`p-4 rounded-lg border ${score >= 80 ? 'border-emerald-400/20 bg-emerald-400/5' : 'border-amber-400/20 bg-amber-400/5'}`}>
+            <p className="font-bold text-lg">{score >= 80 ? '🎉 Passed!' : '📚 Keep Studying'}</p>
+            <p className="text-slate-400">Score: {score}% (need 80%)</p>
+            <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-700 rounded-lg text-white text-sm">Close</button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {questions.map((q, qi) => (
+              <div key={qi}>
+                <p className="text-sm font-bold text-white mb-2">{qi + 1}. {q.question}</p>
+                <div className="space-y-2">
+                  {q.options.map((opt, oi) => (
+                    <label key={oi} className="flex items-center gap-2 p-2 rounded border border-slate-700 hover:bg-slate-800 cursor-pointer">
+                      <input
+                        type="radio"
+                        name={`q-${qi}`}
+                        checked={answers[qi] === oi}
+                        onChange={() => {
+                          const a = [...answers];
+                          a[qi] = oi;
+                          setAnswers(a);
+                        }}
+                      />
+                      <span className="text-xs text-slate-300">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+            <button
+              onClick={handleSubmit}
+              disabled={answers.length < questions.length || answers.some((a) => a === undefined)}
+              className="w-full py-2 bg-emerald-600 text-white rounded-lg font-bold disabled:opacity-50"
+            >
+              Submit Quiz
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE 2: CRM Walkthrough
+// ═══════════════════════════════════════════════════════════════════
+
+function Phase2Tab({ userId }: { userId: number }) {
+  const [steps, setSteps] = useState<WalkthroughStep[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch(`/phase2-status?userId=${userId}`)
+      .then((data: any) => setSteps(data.steps || []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  const completeStep = async (stepId: string) => {
+    try {
+      await apiFetch('/walkthrough', {
+        method: 'POST',
+        body: JSON.stringify({ userId, stepId }),
+      });
+      const data = await apiFetch(`/phase2-status?userId=${userId}`);
+      setSteps(data.steps || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const completedCount = steps.filter((s) => s.completed).length;
+  const allComplete = steps.length > 0 && steps.every((s) => s.completed);
+
+  if (loading) return <div className="text-slate-400">Loading...</div>;
+
+  return (
+    <div>
+      <div className="bg-blue-400/5 border border-blue-400/20 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-bold text-blue-300">Phase 2: CRM Orientation</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          Read-only guided tour of the production CRM. Learn the layout, data model, and workflow
+          before you create anything. No data is modified during this phase.
+        </p>
+        <div className="mt-3">
+          <span className="text-sm text-slate-400">Progress: </span>
+          <span className="font-bold text-white">{completedCount}/{WALKTHROUGH_STEPS.length} sections completed</span>
+          {allComplete && (
+            <span className="ml-2 text-xs bg-blue-400/20 text-blue-300 px-2 py-1 rounded font-bold">✓ PHASE COMPLETE</span>
+          )}
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {WALKTHROUGH_STEPS.map((step) => {
+          const status = steps.find((s) => s.stepId === step.stepId);
+          const completed = status?.completed ?? false;
+
+          return (
+            <div
+              key={step.stepId}
+              className={`border rounded-lg p-4 flex items-center justify-between ${
+                completed ? 'border-blue-400/30 bg-blue-400/5' : 'border-slate-700 bg-slate-800/30'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className={`text-xl ${completed ? 'text-blue-400' : 'text-slate-600'}`}>
+                  {completed ? '✓' : '○'}
+                </span>
+                <div>
+                  <h3 className="font-bold text-white text-sm">{step.label}</h3>
+                  <p className="text-xs text-slate-400">{step.description}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => completeStep(step.stepId)}
+                disabled={completed}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold ${
+                  completed
+                    ? 'bg-blue-400/20 text-blue-300 cursor-default'
+                    : 'bg-slate-700 text-white hover:bg-slate-600'
+                }`}
+              >
+                {completed ? 'Completed' : 'Mark Complete'}
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE 3: Sandbox Territory (Isolated CRUD)
+// ═══════════════════════════════════════════════════════════════════
+
+function Phase3Tab({ userId }: { userId: number }) {
+  const [orgs, setOrgs] = useState<SandboxOrg[]>([]);
+  const [contacts, setContacts] = useState<Record<number, SandboxContact[]>>({});
+  const [opps, setOpps] = useState<SandboxOpportunity[]>([]);
+  const [activities, setActivities] = useState<SandboxActivity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showNewOrg, setShowNewOrg] = useState(false);
+  const [showNewContact, setShowNewContact] = useState<number | null>(null);
+  const [showNewOpp, setShowNewOpp] = useState(false);
+  const [showNewActivity, setShowNewActivity] = useState(false);
+
+  const loadData = useCallback(async () => {
+    try {
+      const [orgsData, oppsData, actsData] = await Promise.all([
+        apiFetch(`/sandbox/orgs?userId=${userId}`),
+        apiFetch(`/sandbox/opportunities?userId=${userId}`),
+        apiFetch(`/sandbox/activities?userId=${userId}`),
+      ]);
+      setOrgs(orgsData || []);
+      setOpps(oppsData || []);
+      setActivities(actsData || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const loadContacts = async (orgId: number) => {
+    try {
+      const data = await apiFetch(`/sandbox/contacts?userId=${userId}&orgId=${orgId}`);
+      setContacts((prev) => ({ ...prev, [orgId]: data || [] }));
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const createOrg = async (name: string, website: string, address: string, research: string, sourceUrl: string) => {
+    await apiFetch('/sandbox/orgs', {
+      method: 'POST',
+      body: JSON.stringify({ userId, name, website, physical_address: address, research_notes: research, source_url: sourceUrl }),
+    });
+    setShowNewOrg(false);
+    loadData();
+  };
+
+  const createContact = async (orgId: number, fullName: string, title: string, email: string, phone: string, source: string) => {
+    await apiFetch('/sandbox/contacts', {
+      method: 'POST',
+      body: JSON.stringify({ userId, sandboxOrgId: orgId, fullName, title, email, phone, sourceCitation: source }),
+    });
+    setShowNewContact(null);
+    loadContacts(orgId);
+  };
+
+  const createOpp = async (orgId: number, lane: string, value: number, closeDate: string, sport: string, notes: string) => {
+    await apiFetch('/sandbox/opportunities', {
+      method: 'POST',
+      body: JSON.stringify({ userId, sandboxOrgId: orgId, lane, estimatedValue: value, targetCloseDate: closeDate, sport, notes }),
+    });
+    setShowNewOpp(false);
+    loadData();
+  };
+
+  const createActivity = async (type: string, notes: string, orgId: number | null, template: string) => {
+    await apiFetch('/sandbox/activities', {
+      method: 'POST',
+      body: JSON.stringify({ userId, activityType: type, notes, sandboxOrgId: orgId, templateUsed: template || null }),
+    });
+    setShowNewActivity(false);
+    loadData();
+  };
+
+  if (loading) return <div className="text-slate-400">Loading...</div>;
+
+  return (
+    <div>
+      <div className="bg-amber-400/5 border border-amber-400/20 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-bold text-amber-300">Phase 3: Territory Development (SANDBOX)</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          ⚠️ ALL work happens in your ISOLATED sandbox. Production CRM is NOT affected. Data is
+          promoted to production only after Director approval at graduation.
+        </p>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        {[
+          ['Organizations', orgs.length, '5 required'],
+          ['Contacts', Object.values(contacts).flat().length, '15 required'],
+          ['Opportunities', opps.length, '5 required'],
+          ['Activities', activities.length, '15 required'],
+        ].map(([label, count, req]) => (
+          <div key={label as string} className="border border-slate-700 rounded-lg p-3 bg-slate-800/30 text-center">
+            <div className="text-2xl font-black text-white">{count as number}</div>
+            <div className="text-xs text-slate-400">{label}</div>
+            <div className="text-xs text-slate-500">{req}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Orgs Section */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-white">Organizations</h3>
+          <button onClick={() => setShowNewOrg(true)} className="px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold">
+            + Add Org
+          </button>
+        </div>
+        {orgs.length === 0 ? (
+          <p className="text-sm text-slate-500 italic p-4 border border-dashed border-slate-700 rounded-lg text-center">
+            No organizations yet. Claim schools from the Lead Taxonomy or create new ones.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {orgs.map((org) => (
+              <div key={org.id} className="border border-slate-700 rounded-lg p-3 bg-slate-800/30">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-white">{org.name}</span>
+                    {org.website && <span className="text-xs text-slate-400 ml-2">{org.website}</span>}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setShowNewContact(org.id); loadContacts(org.id); }}
+                      className="text-xs text-blue-400 hover:underline"
+                    >
+                      + Contact
+                    </button>
+                  </div>
+                </div>
+                {org.research_notes && (
+                  <p className="text-xs text-slate-400 mt-1 line-clamp-2">{org.research_notes}</p>
+                )}
+                {/* Show contacts if loaded */}
+                {contacts[org.id] && contacts[org.id].length > 0 && (
+                  <div className="mt-2 pl-3 border-l border-slate-700">
+                    {contacts[org.id].map((c) => (
+                      <div key={c.id} className="text-xs text-slate-300 py-0.5">
+                        {c.full_name} — {c.title || 'No title'}
+                        {c.email && <span className="text-slate-500 ml-1">{c.email}</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Opps Section */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-white">Opportunities</h3>
+          <button onClick={() => setShowNewOpp(true)} className="px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold">
+            + Add Opportunity
+          </button>
+        </div>
+        {opps.length === 0 ? (
+          <p className="text-sm text-slate-500 italic p-4 border border-dashed border-slate-700 rounded-lg text-center">
+            No opportunities yet. Create your first from the sandbox organizations.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {opps.map((opp) => (
+              <div key={opp.id} className="border border-slate-700 rounded-lg p-3 bg-slate-800/30 flex justify-between items-center">
+                <div>
+                  <span className="font-bold text-white text-sm">{opp.lane}</span>
+                  <span className="text-xs text-slate-400 ml-2">{opp.sport || 'No sport'}</span>
+                  <span className={`ml-2 text-xs px-1.5 py-0.5 rounded ${opp.stage === 'CLOSED_WON' ? 'bg-emerald-400/20 text-emerald-300' : 'bg-slate-700 text-slate-300'}`}>
+                    {opp.stage}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-bold text-emerald-300">${opp.estimated_value?.toLocaleString() || '0'}</span>
+                  {opp.target_close_date && (
+                    <div className="text-xs text-slate-500">{new Date(opp.target_close_date).toLocaleDateString()}</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Activities Section */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-white">Activities ({activities.length})</h3>
+          <button onClick={() => setShowNewActivity(true)} className="px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold">
+            + Log Activity
+          </button>
+        </div>
+        {activities.length === 0 ? (
+          <p className="text-sm text-slate-500 italic p-4 border border-dashed border-slate-700 rounded-lg text-center">
+            No activities logged. Log calls, emails, meetings, and visits.
+          </p>
+        ) : (
+          <div className="space-y-1">
+            {activities.slice(0, 10).map((act) => (
+              <div key={act.id} className="flex items-center gap-2 text-sm py-1 border-b border-slate-800">
+                <span className={`text-xs px-1.5 py-0.5 rounded ${
+                  act.activity_type === 'call' ? 'bg-blue-400/20 text-blue-300' :
+                  act.activity_type === 'email' ? 'bg-purple-400/20 text-purple-300' :
+                  'bg-slate-700 text-slate-300'
+                }`}>{act.activity_type}</span>
+                <span className="text-slate-300 truncate flex-1">{act.notes || act.description || 'No notes'}</span>
+                <span className="text-xs text-slate-500">{new Date(act.scheduled_at).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* New Org Modal */}
+      {showNewOrg && (
+        <SimpleFormModal title="Add Sandbox Organization" onClose={() => setShowNewOrg(false)}>
+          {(setField) => {
+            const fields: any = {};
+            return (
+              <form onSubmit={(e) => { e.preventDefault(); createOrg(fields.name, fields.website, fields.address, fields.research, fields.sourceUrl); }}>
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="School Name *" onChange={(e) => fields.name = e.target.value} required />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Website *" onChange={(e) => fields.website = e.target.value} required />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Physical Address *" onChange={(e) => fields.address = e.target.value} required />
+                <textarea className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Research Notes (200+ chars) *" rows={3} onChange={(e) => fields.research = e.target.value} required />
+                <input className="w-full mb-3 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Source URL *" onChange={(e) => fields.sourceUrl = e.target.value} required />
+                <button type="submit" className="w-full py-2 bg-emerald-600 text-white rounded font-bold text-sm">Create Organization</button>
+              </form>
+            );
+          }}
+        </SimpleFormModal>
+      )}
+
+      {/* New Contact Modal */}
+      {showNewContact && (
+        <SimpleFormModal title="Add Contact" onClose={() => setShowNewContact(null)}>
+          {(setField) => {
+            const fields: any = {};
+            return (
+              <form onSubmit={(e) => { e.preventDefault(); createContact(showNewContact!, fields.fullName, fields.title, fields.email, fields.phone, fields.source); }}>
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Full Name *" onChange={(e) => fields.fullName = e.target.value} required />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Title *" onChange={(e) => fields.title = e.target.value} required />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Email" onChange={(e) => fields.email = e.target.value} />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Phone" onChange={(e) => fields.phone = e.target.value} />
+                <input className="w-full mb-3 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Source Citation" onChange={(e) => fields.source = e.target.value} />
+                <button type="submit" className="w-full py-2 bg-emerald-600 text-white rounded font-bold text-sm">Create Contact</button>
+              </form>
+            );
+          }}
+        </SimpleFormModal>
+      )}
+
+      {/* New Opp Modal */}
+      {showNewOpp && (
+        <SimpleFormModal title="Add Opportunity" onClose={() => setShowNewOpp(false)}>
+          {(setField) => {
+            const fields: any = {};
+            return (
+              <form onSubmit={(e) => { e.preventDefault(); createOpp(Number(fields.orgId), fields.lane, Number(fields.value), fields.closeDate, fields.sport, fields.notes); }}>
+                <select className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" onChange={(e) => fields.orgId = e.target.value} required>
+                  <option value="">Select Organization *</option>
+                  {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+                </select>
+                <select className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" onChange={(e) => fields.lane = e.target.value} required>
+                  <option value="">Select Lane *</option>
+                  {LANES.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" type="number" placeholder="Estimated Value ($) *" onChange={(e) => fields.value = e.target.value} required />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" type="date" placeholder="Target Close Date" onChange={(e) => fields.closeDate = e.target.value} />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Sport (e.g., Football)" onChange={(e) => fields.sport = e.target.value} />
+                <textarea className="w-full mb-3 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Notes *" rows={2} onChange={(e) => fields.notes = e.target.value} required />
+                <button type="submit" className="w-full py-2 bg-emerald-600 text-white rounded font-bold text-sm">Create Opportunity</button>
+              </form>
+            );
+          }}
+        </SimpleFormModal>
+      )}
+
+      {/* New Activity Modal */}
+      {showNewActivity && (
+        <SimpleFormModal title="Log Activity" onClose={() => setShowNewActivity(false)}>
+          {(setField) => {
+            const fields: any = {};
+            return (
+              <form onSubmit={(e) => { e.preventDefault(); createActivity(fields.type, fields.notes, fields.orgId ? Number(fields.orgId) : null, fields.template); }}>
+                <select className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" onChange={(e) => fields.type = e.target.value} required>
+                  <option value="">Activity Type *</option>
+                  <option value="call">Phone Call</option>
+                  <option value="email">Email</option>
+                  <option value="meeting">Meeting</option>
+                  <option value="visit">School Visit</option>
+                </select>
+                <select className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" onChange={(e) => fields.orgId = e.target.value}>
+                  <option value="">Link to Organization (optional)</option>
+                  {orgs.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+                </select>
+                {fields.type === 'email' && (
+                  <select className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" onChange={(e) => fields.template = e.target.value}>
+                    <option value="">Template Used (optional)</option>
+                    <option value="first_contact">First Contact</option>
+                    <option value="lane_expansion">Lane Expansion</option>
+                    <option value="follow_up">Follow-up</option>
+                  </select>
+                )}
+                <textarea className="w-full mb-3 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Notes *" rows={2} onChange={(e) => fields.notes = e.target.value} required />
+                <button type="submit" className="w-full py-2 bg-emerald-600 text-white rounded font-bold text-sm">Log Activity</button>
+              </form>
+            );
+          }}
+        </SimpleFormModal>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHASE 4: Sales Execution
+// ═══════════════════════════════════════════════════════════════════
+
+function Phase4Tab({ userId }: { userId: number }) {
+  const [executions, setExecutions] = useState<SalesExecution[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showNew, setShowNew] = useState(false);
+
+  const loadData = useCallback(async () => {
+    try {
+      const data = await apiFetch(`/sales-executions?userId=${userId}`);
+      setExecutions(data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => { loadData(); }, [loadData]);
+
+  const createExecution = async (type: string, notes: string, objection: string, score: number) => {
+    await apiFetch('/sales-executions', {
+      method: 'POST',
+      body: JSON.stringify({ userId, executionType: type, notes, objectionHandled: objection || null, score }),
+    });
+    setShowNew(false);
+    loadData();
+  };
+
+  const phoneCalls = executions.filter((e) => e.execution_type === 'phone_call').length;
+  const emailPitches = executions.filter((e) => e.execution_type === 'email_pitch').length;
+  const objections = executions.filter((e) => e.execution_type === 'objection_handling').length;
+
+  if (loading) return <div className="text-slate-400">Loading...</div>;
+
+  return (
+    <div>
+      <div className="bg-purple-400/5 border border-purple-400/20 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-bold text-purple-300">Phase 4: Sales Execution</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          Practice real selling: phone calls, pitch emails, and objection handling. Role-play with
+          your mentor before going live. This is where data entry becomes SELLING.
+        </p>
+      </div>
+
+      {/* Progress */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        {[
+          ['Phone Calls', phoneCalls, 'phone_call', '📞', 'min 1'],
+          ['Email Pitches', emailPitches, 'email_pitch', '✉️', 'min 1'],
+          ['Objection Handling', objections, 'objection_handling', '🛡️', 'min 1'],
+        ].map(([label, count, type, icon, req]) => (
+          <div key={label as string} className={`border rounded-lg p-3 text-center ${(count as number) >= 1 ? 'border-emerald-400/30 bg-emerald-400/5' : 'border-slate-700 bg-slate-800/30'}`}>
+            <div className="text-xl">{icon}</div>
+            <div className="text-2xl font-black text-white">{count as number}</div>
+            <div className="text-xs text-slate-400">{label}</div>
+            <div className="text-xs text-slate-500">{req}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Executions List */}
+      <div className="mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-white">Execution Log</h3>
+          <button onClick={() => setShowNew(true)} className="px-3 py-1 bg-purple-600 text-white rounded text-xs font-bold">
+            + Record Execution
+          </button>
+        </div>
+        {executions.length === 0 ? (
+          <p className="text-sm text-slate-500 italic p-4 border border-dashed border-slate-700 rounded-lg text-center">
+            No sales executions recorded. Make calls, send pitches, and handle objections.
+          </p>
+        ) : (
+          <div className="space-y-2">
+            {executions.map((exec) => (
+              <div key={exec.id} className="border border-slate-700 rounded-lg p-3 bg-slate-800/30">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`text-xs px-2 py-0.5 rounded font-bold ${
+                    exec.execution_type === 'phone_call' ? 'bg-blue-400/20 text-blue-300' :
+                    exec.execution_type === 'email_pitch' ? 'bg-emerald-400/20 text-emerald-300' :
+                    'bg-amber-400/20 text-amber-300'
+                  }`}>
+                    {exec.execution_type.replace('_', ' ')}
+                  </span>
+                  {exec.score && (
+                    <span className="text-xs text-slate-400">Score: {exec.score}/100</span>
+                  )}
+                </div>
+                <p className="text-sm text-slate-300">{exec.notes}</p>
+                {exec.objection_handled && (
+                  <p className="text-xs text-amber-300 mt-1">Objection: {exec.objection_handled}</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* New Execution Modal */}
+      {showNew && (
+        <SimpleFormModal title="Record Sales Execution" onClose={() => setShowNew(false)}>
+          {(setField) => {
+            const fields: any = {};
+            return (
+              <form onSubmit={(e) => { e.preventDefault(); createExecution(fields.type, fields.notes, fields.objection, Number(fields.score || 0)); }}>
+                <select className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" onChange={(e) => fields.type = e.target.value} required>
+                  <option value="">Execution Type *</option>
+                  <option value="phone_call">Phone Call</option>
+                  <option value="email_pitch">Email Pitch</option>
+                  <option value="objection_handling">Objection Handling</option>
+                  <option value="role_play">Role Play</option>
+                  <option value="shadow_session">Shadow Session</option>
+                </select>
+                <textarea className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Notes: What happened? What did you learn? *" rows={3} onChange={(e) => fields.notes = e.target.value} required />
+                <input className="w-full mb-2 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" placeholder="Objection Handled (if applicable)" onChange={(e) => fields.objection = e.target.value} />
+                <input className="w-full mb-3 p-2 bg-slate-800 border border-slate-600 rounded text-white text-sm" type="number" placeholder="Self Score (0-100)" onChange={(e) => fields.score = e.target.value} />
+                <button type="submit" className="w-full py-2 bg-purple-600 text-white rounded font-bold text-sm">Record Execution</button>
+              </form>
+            );
+          }}
+        </SimpleFormModal>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LEAD TAXONOMY
+// ═══════════════════════════════════════════════════════════════════
+
+function LeadsTab({ userId }: { userId: number }) {
+  const [leads, setLeads] = useState<LeadTaxonomy[]>([]);
+  const [dedupResult, setDedupResult] = useState<{ clusters: number; duplicates: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<string>('unclaimed');
+
+  const loadLeads = useCallback(async () => {
+    try {
+      const data = await apiFetch(`/leads?status=${statusFilter}&limit=50`);
+      setLeads(data || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter]);
+
+  useEffect(() => { loadLeads(); }, [loadLeads]);
+
+  const claimLead = async (leadId: number) => {
+    try {
+      await apiFetch('/leads/claim', {
+        method: 'POST',
+        body: JSON.stringify({ userId, leadId }),
+      });
+      loadLeads();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const runDedup = async () => {
+    try {
+      const result = await apiFetch('/leads/dedup-scan', { method: 'POST', body: JSON.stringify({ userId }) });
+      setDedupResult(result);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  if (loading) return <div className="text-slate-400">Loading...</div>;
+
+  return (
+    <div>
+      <div className="bg-cyan-400/5 border border-cyan-400/20 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-bold text-cyan-300">Lead Taxonomy</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          296 existing leads from the production CRM. Claim schools for your sandbox territory.
+          Run dedup scan to find and merge duplicates.
+        </p>
+      </div>
+
+      {/* Dedup */}
+      <div className="mb-4 flex gap-3 items-center">
+        <button
+          onClick={runDedup}
+          className="px-4 py-2 bg-cyan-600 text-white rounded text-sm font-bold"
+        >
+          Run Dedup Scan
+        </button>
+        {dedupResult && (
+          <span className="text-sm text-slate-300">
+            Found <span className="font-bold text-amber-300">{dedupResult.duplicates} duplicates</span> in {dedupResult.clusters} clusters
+          </span>
+        )}
+      </div>
+
+      {/* Status Filter */}
+      <div className="flex gap-2 mb-4">
+        {(['unclaimed', 'claimed', 'active', 'closed', 'stale'] as string[]).map((s) => (
+          <button
+            key={s}
+            onClick={() => { setStatusFilter(s); setLoading(true); }}
+            className={`px-3 py-1 rounded text-xs font-bold capitalize ${
+              statusFilter === s
+                ? 'bg-cyan-600 text-white'
+                : 'bg-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {/* Lead Table */}
+      <div className="border border-slate-700 rounded-lg overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-800">
+            <tr>
+              <th className="text-left p-3 text-slate-400 font-bold">Lead Name</th>
+              <th className="text-left p-3 text-slate-400 font-bold">Status</th>
+              <th className="text-left p-3 text-slate-400 font-bold">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {leads.length === 0 ? (
+              <tr><td colSpan={3} className="p-4 text-center text-slate-500">No leads found</td></tr>
+            ) : (
+              leads.map((lead) => (
+                <tr key={lead.id} className="border-t border-slate-800 hover:bg-slate-800/30">
+                  <td className="p-3 text-white">{lead.lead_name}</td>
+                  <td className="p-3">
+                    <span className={`text-xs px-2 py-0.5 rounded font-bold capitalize ${
+                      lead.lead_status === 'unclaimed' ? 'bg-slate-700 text-slate-300' :
+                      lead.lead_status === 'claimed' ? 'bg-blue-400/20 text-blue-300' :
+                      'bg-emerald-400/20 text-emerald-300'
+                    }`}>{lead.lead_status}</span>
+                  </td>
+                  <td className="p-3">
+                    {lead.lead_status === 'unclaimed' && (
+                      <button
+                        onClick={() => claimLead(lead.id)}
+                        className="px-3 py-1 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-500"
+                      >
+                        Claim
+                      </button>
+                    )}
+                    {lead.claimed_by === userId && (
+                      <span className="text-xs text-emerald-300">Your Lead</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GRADUATION
+// ═══════════════════════════════════════════════════════════════════
+
+function GraduationTab({ userId }: { userId: number }) {
+  const [status, setStatus] = useState<GraduationStatus | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [approving, setApproving] = useState(false);
+
+  const loadStatus = useCallback(async () => {
+    try {
+      const data = await apiFetch(`/graduation-status?userId=${userId}`);
+      setStatus(data);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => { loadStatus(); }, [loadStatus]);
+
+  const approveGraduation = async () => {
+    setApproving(true);
+    try {
+      await apiFetch('/graduation/director-approve', {
+        method: 'POST',
+        body: JSON.stringify({ userId, directorId: userId }),
+      });
+      loadStatus();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  if (loading) return <div className="text-slate-400">Loading...</div>;
+  if (!status) return <div className="text-slate-400">No graduation data yet.</div>;
+
+  return (
+    <div>
+      <div className="bg-emerald-400/5 border border-emerald-400/20 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-bold text-emerald-300">Graduation Status</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          Quality-gated certification. All phases must be complete and quality gates passed.
+          Director approval is sample-based, not 100% review.
+        </p>
+      </div>
+
+      {/* Phase Progress */}
+      <div className="grid grid-cols-5 gap-4 mb-6">
+        {[
+          ['Phase 1', status.phase1.completed, 'Foundations'],
+          ['Phase 2', status.phase2.completed, 'CRM Walkthrough'],
+          ['Phase 3', status.phase3.completed, 'Sandbox Territory'],
+          ['Phase 4', status.phase4.completed, 'Sales Execution'],
+          ['Phase 5', status.phase5.completed, 'Graduation'],
+        ].map(([label, completed, desc]) => (
+          <div key={label as string} className={`border rounded-lg p-3 text-center ${completed ? 'border-emerald-400/30 bg-emerald-400/5' : 'border-slate-700 bg-slate-800/30'}`}>
+            <div className={`text-xl ${completed ? 'text-emerald-400' : 'text-slate-600'}`}>
+              {completed ? '✓' : '○'}
+            </div>
+            <div className="text-sm font-bold text-white">{label}</div>
+            <div className="text-xs text-slate-500">{desc}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quality Gates */}
+      <h3 className="font-bold text-white mb-3">Quality Gates</h3>
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        {/* Count-based gates */}
+        {([
+          ['Organizations', status.gates.orgs.current, status.gates.orgs.required, status.gates.orgs.met],
+          ['Contacts', status.gates.contacts.current, status.gates.contacts.required, status.gates.contacts.met],
+          ['Opportunities', status.gates.opps.current, status.gates.opps.required, status.gates.opps.met],
+          ['Activities', status.gates.activities.current, status.gates.activities.required, status.gates.activities.met],
+          ['Sales Executions', status.gates.sales_executions.current, status.gates.sales_executions.required, status.gates.sales_executions.met],
+        ] as [string, number, number, boolean][]).map(([label, current, required, met]) => (
+          <div key={label} className={`border rounded-lg p-3 flex justify-between items-center ${met ? 'border-emerald-400/30 bg-emerald-400/5' : 'border-slate-700 bg-slate-800/30'}`}>
+            <span className="text-sm text-white">{label}</span>
+            <div className="text-right">
+              <span className="text-sm font-bold">
+                <span className={met ? 'text-emerald-300' : 'text-amber-300'}>{current}</span>
+                <span className="text-slate-500">/{required}</span>
+              </span>
+              <span className={`ml-2 text-xs ${met ? 'text-emerald-400' : 'text-slate-600'}`}>{met ? '✓' : '✗'}</span>
+            </div>
+          </div>
+        ))}
+        {/* Director Approval gate */}
+        <div className={`border rounded-lg p-3 flex justify-between items-center ${status.gates.directorApproved.met ? 'border-emerald-400/30 bg-emerald-400/5' : 'border-slate-700 bg-slate-800/30'}`}>
+          <span className="text-sm text-white">Director Approved</span>
+          <span className={`text-xs ${status.gates.directorApproved.met ? 'text-emerald-400' : 'text-slate-600'}`}>
+            {status.gates.directorApproved.met ? '✓' : '✗'}
+          </span>
+        </div>
+      </div>
+
+      {/* Actions */}
+      {status.ready_to_graduate ? (
+        <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-lg p-4 text-center">
+          <p className="text-emerald-300 font-bold mb-2">🎓 Ready to Graduate!</p>
+          <p className="text-sm text-slate-400 mb-3">All phases complete, all quality gates passed, Director approved.</p>
+        </div>
+      ) : (
+        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+          {status.all_passed && !status.gates.directorApproved.met && (
+            <div className="text-center">
+              <p className="text-amber-300 font-bold mb-2">Quality Gates Passed — Awaiting Director Approval</p>
+              <button
+                onClick={approveGraduation}
+                disabled={approving}
+                className="px-6 py-2 bg-emerald-600 text-white rounded-lg font-bold text-sm disabled:opacity-50"
+              >
+                {approving ? 'Approving...' : 'Approve Graduation (Director)'}
+              </button>
+            </div>
+          )}
+          {!status.all_passed && (
+            <p className="text-slate-400 text-sm text-center">
+              Complete all phases and quality gates to unlock graduation.
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REUSABLE MODAL
+// ═══════════════════════════════════════════════════════════════════
+
+function SimpleFormModal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: (setField: (field: string, value: string) => void) => React.ReactNode;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+      <div className="relative w-full max-w-md rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-bold text-white">{title}</h2>
+          <button onClick={onClose} className="text-slate-400 hover:text-white text-xl">✕</button>
+        </div>
+        {children(() => {})}
+      </div>
+    </div>
+  );
+}
