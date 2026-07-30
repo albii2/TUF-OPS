@@ -22,8 +22,7 @@ export type SidebarKey =
   | 'people'
   | 'certification_review'
   | 'documents'
-  | 'issues'
-  | 'email_inbox';
+  | 'issues';
 
 export type AppUser = {
   id: string;

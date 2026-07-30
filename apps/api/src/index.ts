@@ -23,8 +23,6 @@ import { workItemsRoutes } from './modules/work-items/work-items.routes';
 import { academyRoutes } from './modules/academy/academy.routes';
 import { academyV2Routes } from './modules/academy-v2/academy-v2.routes';
 import { emailRoutes } from './modules/email/email.routes';
-import { startEmailPolling, stopEmailPolling } from './modules/email/email-ingestion.service';
-import { processUnprocessedEmails } from './modules/email/email-analysis.service';
 import { createIssueHandler, getIssueHandler, listIssuesHandler, updateIssueHandler, updateIssueStatusHandler } from './modules/issues/issues.controller';
 // [issuesRoutes removed — registered inline below at line ~151]
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
@@ -38,7 +36,7 @@ const webDistPath = process.env.WEB_DIST_PATH
     ? path.resolve(__dirname, 'public')
     : path.resolve(__dirname, '../../web/dist'));
 const indexHtmlPath = path.join(webDistPath, 'index.html');
-const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|daily-command(?:\/.*)?|command(?:\/.*)?|recruiting(?:\/.*)?|intake(?:\/.*)?|people(?:\/.*)?|academy(?:\/.*)?|admin\/certification(?:\/.*)?|forge(?:\/.*)?|comms(?:\/.*)?|issues(?:\/.*)?|email-inbox(?:\/.*)?)/;
+const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|daily-command(?:\/.*)?|command(?:\/.*)?|recruiting(?:\/.*)?|intake(?:\/.*)?|people(?:\/.*)?|academy(?:\/.*)?|admin\/certification(?:\/.*)?|forge(?:\/.*)?|comms(?:\/.*)?|issues(?:\/.*)?)/;
 const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,https://ops.tufsports.us,https://tufops.app')
   .split(',')
   .map((origin) => origin.trim())
@@ -251,20 +249,6 @@ const start = async () => {
     } else {
       server.log.warn('Skipping initial owner seed because database configuration is missing');
     }
-
-    // Start email ingestion polling (configurable via EMAIL_POLL_INTERVAL_MS env)
-    const pollIntervalMs = Number(process.env.EMAIL_POLL_INTERVAL_MS) || 5 * 60 * 1000;
-    startEmailPolling(pollIntervalMs);
-
-    // Process any unprocessed emails on startup
-    processUnprocessedEmails(50).then((result) => {
-      if (result.processed > 0) {
-        console.log(`[email] Startup: processed ${result.processed} pending emails`);
-      }
-    }).catch((err) => {
-      console.error('[email] Startup processing error:', err.message);
-    });
-
     await server.listen({ port, host: '0.0.0.0' });
     console.log(`Server listening on port ${port}`);
   } catch (err) {
