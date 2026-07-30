@@ -2,7 +2,6 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { getStoredUser } from '../auth';
 import { LighthousePanel } from '../components/LighthousePanel';
-import { EmailComposeModal } from '../components/EmailComposeModal';
 import { Button, Card, EmptyState, Input, LaneBadge, LaneStatusBadge, Select } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOrganizationById } from '../hooks/useOrganizations';
@@ -25,7 +24,6 @@ export function OrganizationDetailPage() {
   const [laneMessage, setLaneMessage] = useState('');
   const [referralMessage, setReferralMessage] = useState('');
   const [referralRefreshKey, setReferralRefreshKey] = useState(0);
-  const [showEmailModal, setShowEmailModal] = useState(false);
   const [referralForm, setReferralForm] = useState({
     referralSourceContact: '',
     referralSourceRole: '',
@@ -149,7 +147,6 @@ export function OrganizationDetailPage() {
   };
 
   return (
-    <>
     <div className="space-y-3 min-w-0">
       <Card title="Account Penetration Console">
         <div className="flex items-center justify-between">
@@ -184,12 +181,6 @@ export function OrganizationDetailPage() {
             )}
           </div>
           <p className="text-xl font-semibold text-cyan-300">{formatCurrency(org.pipelineValue)}</p>
-          <button
-            onClick={() => setShowEmailModal(true)}
-            className="ml-3 rounded-lg border border-cyan-500/60 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/20"
-          >
-            ✉ Send Email
-          </button>
         </div>
       </Card>
 
@@ -326,28 +317,5 @@ export function OrganizationDetailPage() {
         </div>
       </Card>
     </div>
-
-    <EmailComposeModal
-      isOpen={showEmailModal}
-      onClose={() => setShowEmailModal(false)}
-      defaultTo={org.athleticDirectorEmail || org.headCoachEmail || ''}
-      defaultSubject={`TUF Sports — Team Gear & Uniforms for ${org.name}`}
-      entityType="ORGANIZATION"
-      entityId={id}
-      contextVars={{
-        org_name: org.name,
-        contact_name: org.athleticDirectorName || org.headCoachName || 'Coach',
-        rep_name: org.assignedRep || 'TUF Sports',
-        rep_email: '',
-        season: String(new Date().getFullYear()),
-        order_summary: '',
-        tracking_url: '',
-        proposal_date: '',
-        recap_items: '',
-        subject: '',
-        body: '',
-      }}
-    />
-    </>
   );
 }
