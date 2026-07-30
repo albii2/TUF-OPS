@@ -22,6 +22,7 @@ import { commsRoutes } from './modules/comms/comms.routes';
 import { workItemsRoutes } from './modules/work-items/work-items.routes';
 import { academyRoutes } from './modules/academy/academy.routes';
 import { academyV2Routes } from './modules/academy-v2/academy-v2.routes';
+import { emailRoutes } from './modules/email/email.routes';
 import { createIssueHandler, getIssueHandler, listIssuesHandler, updateIssueHandler, updateIssueStatusHandler } from './modules/issues/issues.controller';
 // [issuesRoutes removed — registered inline below at line ~151]
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
@@ -153,6 +154,7 @@ server.register(vendorRoutes, { prefix: '/api/v1/vendors' });
 server.register(workItemsRoutes, { prefix: '/api/v1/work-items' });
 server.register(academyRoutes, { prefix: '/api/v1/academy' });
 server.register(academyV2Routes, { prefix: '/api/v1/academy-v2' });
+server.register(emailRoutes, { prefix: '/api/v1/email' });
 // ── Issues — registered inline to guarantee route availability ──
 server.register(async function issuesRoutes(server: FastifyInstance) {
   server.get('/api/v1/issues', listIssuesHandler);
