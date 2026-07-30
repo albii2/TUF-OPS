@@ -31,14 +31,15 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   documents: { label: 'Documents', route: '/documents' },
   production_requests: { label: 'Production', route: '/production-requests' },
   issues: { label: 'Issues', route: '/issues' },
+  email_inbox: { label: 'Email Inbox', route: '/email-inbox' },
 };
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'issues', 'settings'],
+    sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'issues', 'email_inbox', 'settings'],
     dashboardWidgets: ["Today's Priorities", 'Who Needs You', 'Territory Snapshot'],
     primaryActions: ['Create Status Check', 'Review Pipeline', 'Coach Directors'],
-    visiblePages: ['/command', '/organizations', '/opportunities', '/my-opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/intake', '/comms', '/settings', '/territory', '/users', '/admin/certification', '/daily-command', '/forge', '/issues'],
+    visiblePages: ['/command', '/organizations', '/opportunities', '/my-opportunities', '/team-opportunities', '/orders', '/academy', '/people', '/recruiting', '/intake', '/comms', '/settings', '/territory', '/users', '/admin/certification', '/daily-command', '/forge', '/issues', '/email-inbox'],
   },
   REGIONAL_DIRECTOR: {
     sidebarItems: ['command', 'organizations', 'pipeline', 'orders', 'territory', 'academy', 'people', 'recruiting', 'issues'],

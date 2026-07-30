@@ -48,6 +48,7 @@ import TAEHome from './pages/TAEHome';
 import IssuesPage from './pages/IssuesPage';
 import IssueNewPage from './pages/IssueNewPage';
 import IssueDetailPage from './pages/IssueDetailPage';
+import EmailInboxPage from './pages/EmailInboxPage';
 import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
@@ -178,6 +179,7 @@ export default function App() {
         <Route path="/issues" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssuesPage /></PageProtected></CertificationProtected>} />
         <Route path="/issues/new" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssueNewPage /></PageProtected></CertificationProtected>} />
         <Route path="/issues/:id" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssueDetailPage /></PageProtected></CertificationProtected>} />
+        <Route path="/email-inbox" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR']}><EmailInboxPage /></RoleProtected>} />
       </Route>
       <Route path="*" element={<Navigate to={user ? '/command' : '/login'} replace />} />
     </Routes>
