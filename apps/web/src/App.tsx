@@ -48,6 +48,7 @@ import TAEHome from './pages/TAEHome';
 import IssuesPage from './pages/IssuesPage';
 import IssueNewPage from './pages/IssueNewPage';
 import IssueDetailPage from './pages/IssueDetailPage';
+import { ProductionTrackerPage } from './pages/ProductionTrackerPage';
 import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
@@ -133,7 +134,8 @@ export default function App() {
             </PageProtected>
           </CertificationProtected>
         } />
-        <Route path="/dashboard" element={<Navigate to="/command" replace />} />
+        <Route path="/dashboard" element={<PageProtected user={user} path="/dashboard"><ExecutiveCommandCenter /></PageProtected>} />
+        <Route path="/vendor-ops" element={<PageProtected user={user} path="/vendor-ops"><ProductionTrackerPage /></PageProtected>} />
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
         <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
         <Route path="/academy/missions" element={<PageProtected user={user} path="/academy"><AcademyMissionPage /></PageProtected>} />
