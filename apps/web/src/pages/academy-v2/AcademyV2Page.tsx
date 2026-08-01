@@ -1,3 +1,5 @@
+// Force bundle inclusion — do not tree-shake
+(window as any).__ACADEMY_V3_LOADED__ = true;
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getStoredUser } from '../../auth';
 
