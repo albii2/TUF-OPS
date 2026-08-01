@@ -139,7 +139,7 @@ export default function App() {
         <Route path="/vendor-ops" element={<PageProtected user={user} path="/vendor-ops"><ProductionTrackerPage /></PageProtected>} />
         <Route path="/documents" element={<PageProtected user={user} path="/documents"><DocumentGeneratorPage /></PageProtected>} />
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
-        <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
+        <Route path="/academy" element={<Navigate to="/academy/v2" replace />} />
         <Route path="/academy/missions" element={<PageProtected user={user} path="/academy"><AcademyMissionPage /></PageProtected>} />
         <Route path="/academy/progress" element={<PageProtected user={user} path="/academy"><AcademyProgressPage /></PageProtected>} />
         <Route path="/academy/certification" element={<PageProtected user={user} path="/academy"><CertificationChecklist /></PageProtected>} />
