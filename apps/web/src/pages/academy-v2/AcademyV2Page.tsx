@@ -295,7 +295,7 @@ function Phase1Tab({ userId }: { userId: number }) {
                 onClick={() => setActiveQuiz(quiz.quizId)}
                 className="mt-3 w-full rounded-lg border border-slate-600 bg-slate-700/50 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600 transition-colors"
               >
-                {passed ? 'Retake Quiz' : status ? 'Retry Quiz' : 'Take Quiz'}
+                {passed ? 'Retake Quiz' : (status && status.attemptedAt) ? 'Retry Quiz' : 'Take Quiz'}
               </button>
             </div>
           );
@@ -372,6 +372,36 @@ function QuizModal({
           'The account is underperforming and should be dropped',
           'They have captured the majority of available revenue',
           'They need more accounts, not more lanes',
+        ], correct: 0 },
+        { question: 'What is the 7 Sales Philosophy principle about "activity"?', options: [
+          'Activity creates opportunity — volume of quality outreach is the leading indicator',
+          'Only call when you have a new product to pitch',
+          'Send emails in bulk to save time',
+          'Wait for coaches to contact you first',
+        ], correct: 0 },
+        { question: 'A Director runs territory health every Monday. Which metric matters most?', options: [
+          'Account coverage — percentage of assigned accounts with real activity',
+          'Total revenue closed this month',
+          'Number of reps on the team',
+          'How many vendors are in rotation',
+        ], correct: 0 },
+        { question: 'What defines a "healthy pipeline" for a TAE?', options: [
+          'At least 4 active opportunities at different stages, progressing weekly',
+          'Having the most opportunities of anyone on the team',
+          'One very large deal that will close eventually',
+          'Waiting for the Director to assign more leads',
+        ], correct: 0 },
+        { question: 'You discover a coach already has a vendor. What do you say?', options: [
+          '"Coach, I would love the chance to earn a spot in your rotation — not replace anyone, just compete."',
+          '"Our prices are lower — switch immediately."',
+          '"Your current provider is overcharging you."',
+          'Move on to the next school without engaging.',
+        ], correct: 0 },
+        { question: 'Lane penetration is defined as:', options: [
+          'The percentage of an account revenue lanes that are active — it is the leading indicator of account health',
+          'Having at least one order in every sport at every school',
+          'The total dollar value of all active opportunities',
+          'The number of accounts assigned per territory zone',
         ], correct: 0 },
       ],
     };
