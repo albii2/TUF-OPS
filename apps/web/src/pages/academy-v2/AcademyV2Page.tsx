@@ -776,6 +776,7 @@ function QuizModal({
           'Forget about them until they call you',
         ], correct: 0 },
       ],
+    };
     return bank[quizId] || bank.philosophy;
   }, [quizId]);
 
