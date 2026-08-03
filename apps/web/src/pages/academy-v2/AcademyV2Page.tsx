@@ -116,6 +116,8 @@ const PHASE_1_QUIZZES: QuizDef[] = [
   { quizId: 'order_handoff', name: 'Order Handoff & Closed Won Standard', questionCount: 10 },
   { quizId: 'product_knowledge', name: 'Product Knowledge & Collections', questionCount: 10 },
   { quizId: 'pipeline_accelerator', name: 'Pipeline Accelerator & Tactics', questionCount: 10 },
+  { quizId: 'resilience', name: 'Rejection Resilience & Territory Mindset', questionCount: 10 },
+  { quizId: 'time_management', name: 'Time Management & Territory Routing', questionCount: 10 },
 ];
 
 const WALKTHROUGH_STEPS = [
@@ -138,7 +140,7 @@ type Tab = 'phase1' | 'phase2' | 'phase3' | 'phase4' | 'graduation' | 'leads';
 
 async function apiFetch(path: string, options?: RequestInit) {
   const user = getStoredUser();
-  const token = localStorage.getItem('tuf_token');
+  const token = localStorage.getItem('tuf_ops_token_v1');
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers: {
