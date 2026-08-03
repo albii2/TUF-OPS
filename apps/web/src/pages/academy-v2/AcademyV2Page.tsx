@@ -136,6 +136,16 @@ const STAGES = ['LEAD', 'LEAD_ENGAGED', 'CONTACTED', 'DISCOVERY', 'PROPOSAL_SENT
 
 type Tab = 'phase1' | 'phase2' | 'phase3' | 'phase4' | 'graduation' | 'leads';
 
+// Phase locking definitions: which phase must be completed to unlock each tab
+const PHASE_LOCKS: Record<Tab, { requires: string | null; label: string }> = {
+  phase1:      { requires: null, label: '🧠 Phase 1: Foundations' },
+  phase2:      { requires: 'phase1', label: '🗺️ Phase 2: CRM Walkthrough' },
+  phase3:      { requires: 'phase2', label: '🏗️ Phase 3: Sandbox Territory' },
+  phase4:      { requires: 'phase3', label: '💰 Phase 4: Sales Execution' },
+  leads:       { requires: null, label: '📋 Lead Taxonomy' },
+  graduation:  { requires: 'phase4', label: '🎓 Graduation' },
+};
+
 // ─── Helper ────────────────────────────────────────────────────────
 
 async function apiFetch(path: string, options?: RequestInit) {
@@ -164,6 +174,36 @@ export default function AcademyV2Page() {
   const user = getStoredUser();
   const userId = user?.id ? Number(user.id) : 1;
   const [tab, setTab] = useState<Tab>('phase1');
+  const [phaseLocks, setPhaseLocks] = useState<Record<string, boolean>>({
+    phase1: false, phase2: false, phase3: false, phase4: false,
+  });
+
+  // Load phase completions to determine which tabs are locked
+  useEffect(() => {
+    apiFetch(`/graduation-status?userId=${userId}`)
+      .then((data: any) => {
+        setPhaseLocks({
+          phase1: data.phase1?.completed ?? false,
+          phase2: data.phase2?.completed ?? false,
+          phase3: data.phase3?.completed ?? false,
+          phase4: data.phase4?.completed ?? false,
+        });
+      })
+      .catch(console.error);
+  }, [userId]);
+
+  const isTabLocked = (t: Tab): boolean => {
+    const lock = PHASE_LOCKS[t];
+    if (!lock.requires) return false;
+    // graduation requires phase4
+    if (lock.requires === 'phase4') return !phaseLocks.phase4;
+    // phase2 requires phase1, phase3 requires phase2, phase4 requires phase3
+    return !phaseLocks[lock.requires];
+  };
+
+  const handleTabClick = (t: Tab) => {
+    if (!isTabLocked(t)) setTab(t);
+  };
 
   return (
     <div className="min-h-screen bg-[#070c13] text-white">
@@ -180,26 +220,25 @@ export default function AcademyV2Page() {
       {/* Tab Navigation */}
       <div className="border-b border-slate-700 bg-[#0a1220]">
         <div className="max-w-7xl mx-auto flex gap-0 overflow-x-auto">
-          {([
-            ['phase1', '🧠 Phase 1: Foundations'],
-            ['phase2', '🗺️ Phase 2: CRM Walkthrough'],
-            ['phase3', '🏗️ Phase 3: Sandbox Territory'],
-            ['phase4', '💰 Phase 4: Sales Execution'],
-            ['leads', '📋 Lead Taxonomy'],
-            ['graduation', '🎓 Graduation'],
-          ] as [Tab, string][]).map(([t, label]) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
-                tab === t
-                  ? 'border-emerald-400 text-emerald-400'
-                  : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+          {(Object.entries(PHASE_LOCKS) as [Tab, { requires: string | null; label: string }][]).map(([t, { label }]) => {
+            const locked = isTabLocked(t);
+            return (
+              <button
+                key={t}
+                onClick={() => handleTabClick(t)}
+                disabled={locked}
+                className={`px-4 py-3 text-sm font-bold whitespace-nowrap border-b-2 transition-colors ${
+                  tab === t
+                    ? 'border-emerald-400 text-emerald-400'
+                    : locked
+                    ? 'border-transparent text-slate-600 cursor-not-allowed'
+                    : 'border-transparent text-slate-400 hover:text-white hover:border-slate-600'
+                }`}
+              >
+                {locked ? '🔒 ' : ''}{label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

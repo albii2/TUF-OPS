@@ -342,6 +342,8 @@ export const PHASE_1_QUIZZES = [
   { quizId: 'order_handoff', name: 'Order Handoff & Closed Won Standard', questionCount: 10 },
   { quizId: 'product_knowledge', name: 'Product Knowledge & Collections', questionCount: 10 },
   { quizId: 'pipeline_accelerator', name: 'Pipeline Accelerator & Emergency Tactics', questionCount: 10 },
+  { quizId: 'resilience', name: 'Rejection Resilience & Territory Mindset', questionCount: 10 },
+  { quizId: 'time_management', name: 'Time Management & Territory Routing', questionCount: 10 },
 ];
 
 // ─── Phase 2 CRM Walkthrough Steps ───

@@ -693,7 +693,90 @@ async function syncGraduationCounts(userId: number): Promise<void> {
   }
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// Auto-detection of Phase 2-5 completion
+// ═══════════════════════════════════════════════════════════════════
+
+async function detectPhase2Complete(userId: number): Promise<boolean> {
+  const steps = await getWalkthroughSteps(userId);
+  const completedCount = steps.filter((s) => s.completed).length;
+  return completedCount >= CRM_WALKTHROUGH_STEPS.length;
+}
+
+async function detectPhase3Complete(userId: number): Promise<boolean> {
+  const [orgs, contacts, opps, activities] = await Promise.all([
+    pool.query('SELECT COUNT(*)::int AS c FROM academy_v3_sandbox_orgs WHERE user_id = $1', [userId]),
+    pool.query('SELECT COUNT(*)::int AS c FROM academy_v3_sandbox_contacts WHERE user_id = $1', [userId]),
+    pool.query('SELECT COUNT(*)::int AS c FROM academy_v3_sandbox_opportunities WHERE user_id = $1', [userId]),
+    pool.query('SELECT COUNT(*)::int AS c FROM academy_v3_sandbox_activities WHERE user_id = $1', [userId]),
+  ]);
+  return (
+    orgs.rows[0].c >= GRADUATION_REQUIREMENTS.orgs.min_count &&
+    contacts.rows[0].c >= GRADUATION_REQUIREMENTS.contacts.min_count &&
+    opps.rows[0].c >= GRADUATION_REQUIREMENTS.opps.min_count &&
+    activities.rows[0].c >= GRADUATION_REQUIREMENTS.activities.min_count
+  );
+}
+
+async function detectPhase4Complete(userId: number): Promise<boolean> {
+  const execCheck = await pool.query(
+    `SELECT execution_type, COUNT(*)::int FROM academy_v3_sales_executions
+     WHERE user_id = $1 GROUP BY execution_type`,
+    [userId]
+  );
+  const execMap = new Map(execCheck.rows.map((r: any) => [r.execution_type, r.count]));
+  return (
+    (execMap.get('phone_call') || 0) >= 1 &&
+    (execMap.get('email_pitch') || 0) >= 1 &&
+    (execMap.get('objection_handling') || 0) >= 1
+  );
+}
+
+async function autoUpdatePhaseCompletions(userId: number): Promise<void> {
+  const grad = await ensureGraduation(userId);
+
+  // Only auto-detect if not already marked complete
+  if (!grad.phase2_completed) {
+    const phase2Done = await detectPhase2Complete(userId);
+    if (phase2Done) {
+      await pool.query(
+        `UPDATE academy_v3_graduation SET phase2_completed = true, updated_at = NOW()
+         WHERE user_id = $1`,
+        [userId]
+      );
+      grad.phase2_completed = true;
+    }
+  }
+
+  if (!grad.phase3_completed) {
+    const phase3Done = await detectPhase3Complete(userId);
+    if (phase3Done) {
+      await pool.query(
+        `UPDATE academy_v3_graduation SET phase3_completed = true, updated_at = NOW()
+         WHERE user_id = $1`,
+        [userId]
+      );
+      grad.phase3_completed = true;
+    }
+  }
+
+  if (!grad.phase4_completed) {
+    const phase4Done = await detectPhase4Complete(userId);
+    if (phase4Done) {
+      await pool.query(
+        `UPDATE academy_v3_graduation SET phase4_completed = true, updated_at = NOW()
+         WHERE user_id = $1`,
+        [userId]
+      );
+      grad.phase4_completed = true;
+    }
+  }
+}
+
 export async function getGraduationStatus(userId: number): Promise<GraduationStatus> {
+  // Auto-detect phase completions before returning status
+  await autoUpdatePhaseCompletions(userId);
+
   const grad = await ensureGraduation(userId);
 
   // Count entities
@@ -755,6 +838,13 @@ export async function directorApproveGraduation(
   if (result.rows.length === 0) {
     throw new Error('Approval failed: gates not passed');
   }
+
+  // Certify the user upon director approval — this connects Academy graduation
+  // to the CRM unlock that CertificationProtected checks
+  await pool.query(
+    "UPDATE users SET is_certified = true, certification_source = 'ACADEMY_V3' WHERE id = $1",
+    [userId]
+  );
 
   return result.rows[0];
 }
