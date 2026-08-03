@@ -778,6 +778,130 @@ function QuizModal({
           'Forget about them until they call you',
         ], correct: 0 },
       ],
+      resilience: [
+        { question: 'A coach abruptly says "We\'re all set — not interested" and hangs up. What\'s your move?', options: [
+          'Log the call, note any context you caught, and move to the next dial within 5 minutes — momentum beats rumination',
+          'Call back immediately and demand to know why they hung up',
+          'Take a break for the rest of the day to recover emotionally',
+          'Mark the entire school district as a dead zone and avoid it',
+        ], correct: 0 },
+        { question: 'You\'ve been rejected by 8 schools in a row this morning. What\'s the healthiest next action?', options: [
+          'Take a 10-minute walk reset, review your opener for improvement, then make the next call — rejection is a volume game',
+          'Stop calling for the week and wait for the Director to assign warmer leads',
+          'Switch to email-only outreach because calls are clearly not working',
+          'Complain to your teammates about how rude the coaches are',
+        ], correct: 0 },
+        { question: 'A coach tells you "No" for the third time this season. How do you reframe this mentally?', options: [
+          '"Not yet" — this coach has a current provider and a buying cycle. You\'re building familiarity so when their contract opens, you\'re the first call',
+          '"This coach hates TUF" — blacklist them permanently',
+          '"I\'m a terrible salesperson" — internalize the rejection as personal failure',
+          '"They\'ll come around eventually" — keep calling weekly with the same pitch',
+        ], correct: 0 },
+        { question: 'What distinguishes persistence from being annoying in sales follow-up?', options: [
+          'Persistent reps add value with every touch (new insight, relevant example, season-specific timing). Annoying reps repeat the same "just checking in" message.',
+          'Persistent reps call daily; annoying reps call weekly',
+          'There is no difference — all follow-up is annoying to coaches',
+          'Persistence means sending more emails; annoyance means making more calls',
+        ], correct: 0 },
+        { question: 'You\'re in a 2-week dry spell with no new opportunities advancing. What\'s the best way to maintain energy?', options: [
+          'Double down on activity volume — more calls and research create more at-bats. Dry spells end when activity creates luck.',
+          'Wait for the Director to give you a hot lead',
+          'Reduce activity to conserve energy until the market improves',
+          'Focus exclusively on existing deals and stop prospecting entirely',
+        ], correct: 0 },
+        { question: 'A coach says "We went with someone else." What is the most productive response?', options: [
+          '"I appreciate you letting me know, Coach. Would you be open to me checking back next season? I\'d love to earn a spot in your rotation down the road."',
+          '"You made a mistake — our product is better."',
+          '"Who did you go with and how much did they charge?"',
+          'Say nothing, hang up, and delete the contact from the CRM',
+        ], correct: 0 },
+        { question: 'How should you view rejection in a territory-based sales role?', options: [
+          'Rejection is data — every "no" teaches you about timing, decision-makers, or positioning. Track patterns and adjust your approach.',
+          'Rejection means you are bad at sales and should consider a different career',
+          'Rejection is always personal — coaches judge you, not the product',
+          'Rejection is meaningless — ignore it completely and never change your approach',
+        ], correct: 0 },
+        { question: 'What is the best mental framework for sales longevity in a role with high rejection rates?', options: [
+          'Focus on process goals (calls made, research completed) rather than outcome goals (deals closed). Control what you can control.',
+          'Only count the days you close a deal as successful',
+          'Expect to close every deal — anything less is failure',
+          'Compete with teammates for the lowest rejection rate',
+        ], correct: 0 },
+        { question: 'A coach says "Call me back in 6 months." How do you insulate yourself from the letdown of a long delay?', options: [
+          'Celebrate the "not yet" — you earned a future at-bat. Schedule the follow-up, log detailed notes, and immediately prospect the next school.',
+          'Assume they\'re just being polite and will never actually buy',
+          'Call back in 2 weeks anyway — they probably didn\'t mean 6 months',
+          'Mark the opportunity as CLOSED_LOST and forget about it',
+        ], correct: 0 },
+        { question: 'What\'s the difference between a rep who burns out in 6 months and one who thrives for years?', options: [
+          'The thriving rep treats rejection as a necessary step in the process, keeps activity high through dry spells, and measures success by effort — not daily outcomes.',
+          'The thriving rep gets luckier with territory assignment',
+          'The thriving rep never gets rejected because they only call warm leads',
+          'The thriving rep has a Director who shields them from all rejection',
+        ], correct: 0 },
+      ],
+      time_management: [
+        { question: 'What are "selling hours" and why do they matter?', options: [
+          '9am to 2pm — the window when coaches and ADs are most reachable by phone. Protect these hours exclusively for live outreach.',
+          'Any hours you spend on sales-related tasks',
+          '6am to 8am before school starts',
+          'The total number of hours you work in a week',
+        ], correct: 0 },
+        { question: 'What is the ideal structure for a TAE\'s weekly schedule?', options: [
+          'Monday: prep + territory research. Tue-Thu: selling hours (calls 9am-2pm) + CRM updates. Friday: admin, pipeline review, next-week planning.',
+          'Make calls whenever you feel motivated — rigid schedules kill creativity',
+          'Spend every day 8am-5pm making cold calls with no breaks',
+          'Monday-Wednesday: prospecting. Thursday-Friday: take off early',
+        ], correct: 0 },
+        { question: 'How should you route geographically through your territory to minimize windshield time?', options: [
+          'Cluster in-person visits by ZIP code — visit all schools in one area on the same day rather than criss-crossing the territory',
+          'Visit schools in alphabetical order regardless of location',
+          'Drive to whichever coach responds first each day',
+          'Only visit schools within 5 miles of your home',
+        ], correct: 0 },
+        { question: 'What is CRM discipline and why is it critical for time management?', options: [
+          'Logging every interaction immediately after it happens — a messy CRM creates duplicate work, missed follow-ups, and wasted time re-researching accounts',
+          'Only logging deals that are about to close',
+          'Delegating all CRM entry to an assistant',
+          'Updating the CRM once a month in a marathon session',
+        ], correct: 0 },
+        { question: 'You have 15 minutes before selling hours end. What should you prioritize?', options: [
+          'Make 3-4 rapid calls to warm leads — every dial in the selling window counts. Save CRM notes for the admin block after 2pm.',
+          'Start organizing your desk for tomorrow',
+          'Write detailed CRM notes on the calls you already made',
+          'Leave early — 15 minutes won\'t make a difference',
+        ], correct: 0 },
+        { question: 'What is "pipeline hygiene" and how often should it be performed?', options: [
+          'Reviewing every opportunity weekly to update stages, remove stalled deals, and reprioritize — keeps your pipeline accurate and actionable',
+          'Deleting all old opportunities at the end of the quarter',
+          'Only updating the pipeline when the Director asks for a report',
+          'Adding as many new opportunities as possible regardless of quality',
+        ], correct: 0 },
+        { question: 'How should you prioritize your daily task list as a TAE?', options: [
+          'Revenue at risk first (invoices overdue, deals stalling) → near-close deals → follow-ups → new outreach. Protect revenue before chasing new revenue.',
+          'New outreach always comes first — you need fresh leads',
+          'Whatever the Director emails you about that morning',
+          'Easiest tasks first to build momentum',
+        ], correct: 0 },
+        { question: 'What is time blocking and how should a TAE apply it?', options: [
+          'Assigning fixed blocks of time to specific activity types — e.g., 9am-12pm calls, 12pm-1pm lunch/break, 1pm-2pm calls, 2pm-4pm CRM/admin. No multitasking within blocks.',
+          'Blocking off your calendar so no one can schedule meetings with you',
+          'Working on whatever feels urgent in the moment',
+          'Only making calls when you have a full 4-hour block available',
+        ], correct: 0 },
+        { question: 'A coach asks you to drive 90 minutes for a 15-minute drop-off. How do you handle this?', options: [
+          '"I\'d be happy to. Let me check which other schools I can visit in your area on the same day to make the trip efficient for everyone."',
+          'Refuse — it\'s not worth the windshield time',
+          'Drive there immediately regardless of other priorities',
+          'Mail the materials instead without telling the coach',
+        ], correct: 0 },
+        { question: 'What\'s the biggest time-management mistake new TAEs make?', options: [
+          'Confusing activity with productivity — answering emails and organizing files feels busy but doesn\'t advance opportunities. Selling hours must be spent selling.',
+          'Taking lunch breaks during the day',
+          'Using a CRM to track activities',
+          'Making too many phone calls',
+        ], correct: 0 },
+      ],
     };
     return bank[quizId] || bank.philosophy;
   }, [quizId]);
