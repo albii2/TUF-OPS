@@ -48,7 +48,9 @@ export async function academyV2Routes(server: FastifyInstance) {
 
     const requestedUserId = queryUserId ? parseInt(queryUserId, 10) : bodyUserId ? parseInt(bodyUserId, 10) : null;
 
-    if (requestedUserId && request.currentUser.id !== requestedUserId) {
+    // Directors and admins can view any user's academy data
+    const directorRoles = ['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN'];
+    if (requestedUserId && request.currentUser.id !== requestedUserId && !directorRoles.includes(request.currentUser.role)) {
       return reply.code(403).send({ error: 'You can only access your own academy data' });
     }
   });
