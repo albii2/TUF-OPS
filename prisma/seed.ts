@@ -4,9 +4,7 @@ import { prisma } from "@/lib/prisma"
 const baselineUsers = [
   { email: "abradshaw@tufsports.us", password: "8188", full_name: "A Bradshaw VP", role: "admin" },
   { email: "primeau.hill@tufsports.us", password: "7428", full_name: "Primeau Hill", role: "director" },
-  { email: "jvmulder@gmail.com", password: "6187", full_name: "Jason Mulder", role: "sales_rep" },
   { email: "lundbergdave18@gmail.com", password: "6243", full_name: "David Lundberg", role: "sales_rep" },
-  { email: "shaylahilliard17@gmail.com", password: "5219", full_name: "Shayla Hilliard", role: "sales_rep" },
   { email: "jhoffman@kipsu.com", password: "5080", full_name: "Josh Hoffman", role: "sales_rep" },
 ]
 

@@ -125,8 +125,6 @@ export const teamMembers: TeamMember[] = [
   { id: 'u-owner-coach-bradshaw', name: 'Coach Bradshaw', role: 'OWNER', territoryIds: ['metro', 'north', 'west', 'south'], active: true },
   { id: 'u-director-primeau-hill', name: 'Primeau Hill', role: 'DIRECTOR', territoryIds: ['metro', 'south', 'west', 'north'], active: true },
   { id: 'u-rep-josh-hoffman', name: 'Josh Hoffman', role: 'REP', territoryIds: ['metro'], active: true },
-  { id: 'u-rep-shayla-hilliard', name: 'Shayla Hilliard', role: 'REP', territoryIds: ['metro'], active: true },
-  { id: 'u-rep-jason-mulder', name: 'Jason Mulder', role: 'REP', territoryIds: ['south'], active: true },
   { id: 'u-rep-david-lundberg', name: 'David Lundberg', role: 'REP', territoryIds: ['west', 'north'], active: true },
 ];
 
@@ -687,7 +685,7 @@ export const organizations: Organization[] = [
   name: 'Visitation High School',
   city: 'Mendota Heights',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-683-1700',
@@ -712,7 +710,7 @@ export const organizations: Organization[] = [
   name: 'Glencoe-Silver Lake High School',
   city: 'Glencoe',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '320-510-2652',
@@ -737,7 +735,7 @@ export const organizations: Organization[] = [
   name: 'Hinckley-Finlayson High School',
   city: 'Main',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '320-384-6132',
@@ -762,7 +760,7 @@ export const organizations: Organization[] = [
   name: 'St. Paul Como Park H.S.',
   city: 'West St. Paul',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-744-3050',
@@ -787,7 +785,7 @@ export const organizations: Organization[] = [
   name: 'Red Wing High School',
   city: 'Red Wing',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651.385.4691',
@@ -812,7 +810,7 @@ export const organizations: Organization[] = [
   name: 'Cristo Rey Jesuit High School',
   city: 'Minneapolis',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '612-545-9700',
@@ -837,7 +835,7 @@ export const organizations: Organization[] = [
   name: 'Nova Classical Academy',
   city: 'St. Paul',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-209-6320',
@@ -862,7 +860,7 @@ export const organizations: Organization[] = [
   name: 'Hmong College Prep Academy',
   city: 'St Paul',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '6512098002',
@@ -887,7 +885,7 @@ export const organizations: Organization[] = [
   name: 'Math and Science Academy',
   city: 'Woodbury',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-578-7507',
@@ -912,7 +910,7 @@ export const organizations: Organization[] = [
   name: 'Great River School',
   city: 'St. Paul',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-305-2780',
@@ -937,7 +935,7 @@ export const organizations: Organization[] = [
   name: 'Twin Cities Academy High School',
   city: 'St. Paul',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-205-4797',
@@ -962,7 +960,7 @@ export const organizations: Organization[] = [
   name: 'Mounds Park Academy',
   city: 'St. Paul',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-777-2555',
@@ -987,7 +985,7 @@ export const organizations: Organization[] = [
   name: 'St. Paul Washington Technology Magnet',
   city: 'St. Paul',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '(651) 744-1407',
@@ -1012,7 +1010,7 @@ export const organizations: Organization[] = [
   name: 'Goodhue High School',
   city: 'Goodhue',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-923-4447',
@@ -1037,7 +1035,7 @@ export const organizations: Organization[] = [
   name: 'Braham High School',
   city: 'Braham',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '320-396-5209',
@@ -1062,7 +1060,7 @@ export const organizations: Organization[] = [
   name: 'Lakes International Language Academy',
   city: 'Forest Lake',
   state: 'MN',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   territory: 'metro',
   schoolPhone: '651-464-8989',
@@ -1087,7 +1085,7 @@ export const organizations: Organization[] = [
   name: 'Waseca High School',
   city: 'Waseca',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-835-5470',
@@ -1112,7 +1110,7 @@ export const organizations: Organization[] = [
   name: 'Jackson County Central High School',
   city: 'Unknown',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-847-5310',
@@ -1137,7 +1135,7 @@ export const organizations: Organization[] = [
   name: 'Rochester Century High School',
   city: 'Rochester',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-328-5140',
@@ -1162,7 +1160,7 @@ export const organizations: Organization[] = [
   name: 'Belle Plaine High School',
   city: 'Belle Plaine',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '952-873-2403',
@@ -1187,7 +1185,7 @@ export const organizations: Organization[] = [
   name: 'Shattuck-Saint Mary\'s',
   city: 'Unknown',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-333-1500',
@@ -1212,7 +1210,7 @@ export const organizations: Organization[] = [
   name: 'Albert Lea High School',
   city: 'Albert Lea',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-379-5340',
@@ -1237,7 +1235,7 @@ export const organizations: Organization[] = [
   name: 'Winona High School',
   city: 'Winona',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-494-1527',
@@ -1262,7 +1260,7 @@ export const organizations: Organization[] = [
   name: 'Blooming Prairie High School',
   city: 'Prairie',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-583-4426',
@@ -1287,7 +1285,7 @@ export const organizations: Organization[] = [
   name: 'Chatfield High School',
   city: 'Chatfield',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-867-4210',
@@ -1312,7 +1310,7 @@ export const organizations: Organization[] = [
   name: 'St. Charles High School',
   city: 'St. Charles',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '5072597397',
@@ -1337,7 +1335,7 @@ export const organizations: Organization[] = [
   name: 'Waterville-Elysian-Morristown H.S.',
   city: 'Waterville',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-362-4403',
@@ -1362,7 +1360,7 @@ export const organizations: Organization[] = [
   name: 'Windom Area High School',
   city: 'Windom',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-831-6901',
@@ -1387,7 +1385,7 @@ export const organizations: Organization[] = [
   name: 'New Ulm High School',
   city: 'New Ulm',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '5072336400',
@@ -1412,7 +1410,7 @@ export const organizations: Organization[] = [
   name: 'Owatonna High School',
   city: 'Owatonna',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-444-8800',
@@ -1437,7 +1435,7 @@ export const organizations: Organization[] = [
   name: 'Minnesota Valley Lutheran',
   city: 'New Ulm',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-354-6851',
@@ -1462,7 +1460,7 @@ export const organizations: Organization[] = [
   name: 'Janesville-Waldorf-Pemberton High School',
   city: 'East',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-234-5181',
@@ -1487,7 +1485,7 @@ export const organizations: Organization[] = [
   name: 'Mankato West High School',
   city: 'Riverfront',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-207-3921',
@@ -1512,7 +1510,7 @@ export const organizations: Organization[] = [
   name: 'Triton High School',
   city: 'Center',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-418-7520',
@@ -1537,7 +1535,7 @@ export const organizations: Organization[] = [
   name: 'Plainview-Elgin-Millville High School',
   city: 'Plainview',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-534-3128',
@@ -1562,7 +1560,7 @@ export const organizations: Organization[] = [
   name: 'Blue Earth Area High School',
   city: 'Blue Earth',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-526-3201',
@@ -1587,7 +1585,7 @@ export const organizations: Organization[] = [
   name: 'Stewartville High School',
   city: 'Stewartville',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-533-1697',
@@ -1612,7 +1610,7 @@ export const organizations: Organization[] = [
   name: 'New Prague High School',
   city: 'New Prague',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '952-758-1200',
@@ -1637,7 +1635,7 @@ export const organizations: Organization[] = [
   name: 'Rochester Mayo High School',
   city: 'Rochester',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-328-5577',
@@ -1662,7 +1660,7 @@ export const organizations: Organization[] = [
   name: 'LeSueur-Henderson High School',
   city: 'LeSueur',
   state: 'MN',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   territory: 'south',
   schoolPhone: '507-665-5800',
@@ -3111,7 +3109,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 21000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 21000,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3133,7 +3131,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 3000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 3000,
   nextAction: 'Monitor Letterman delivery and plan re-engagement',
@@ -3155,7 +3153,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_WON',
   value: 11500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 11500,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3177,7 +3175,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'CLOSED_WON',
   value: 5500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 5500,
   nextAction: 'Monitor Team Store delivery and plan re-engagement',
@@ -3199,7 +3197,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_WON',
   value: 7000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 7000,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3221,7 +3219,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_WON',
   value: 8500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 8500,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3243,7 +3241,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_WON',
   value: 8500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 8500,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3265,7 +3263,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 8500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 8500,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3287,7 +3285,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'LEAD_ENGAGED',
   value: 2500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2500,
   nextAction: 'Call to schedule discovery meeting for Basketball',
@@ -3309,7 +3307,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'INVOICE_SENT',
   value: 2000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2000,
   nextAction: 'Confirm PO number for Basketball order processing',
@@ -3331,7 +3329,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'DISCOVERY',
   value: 1500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 1500,
   nextAction: 'Follow up on Lacrosse roster count for accurate quote',
@@ -3353,7 +3351,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'MOCKUP_STAGE',
   value: 2000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2000,
   nextAction: 'Send mockup designs for Football Team Store approval',
@@ -3375,7 +3373,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'DISCOVERY',
   value: 3000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 3000,
   nextAction: 'Send sizing guide and fabric samples for Track',
@@ -3397,7 +3395,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'LEAD_ENGAGED',
   value: 6500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 6500,
   nextAction: 'Call to schedule discovery meeting for Cheer',
@@ -3419,7 +3417,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'LEAD_ENGAGED',
   value: 2500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2500,
   nextAction: 'Send introductory email and TUF catalog for Basketball',
@@ -3441,7 +3439,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'INVOICE_SENT',
   value: 2000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2000,
   nextAction: 'Address any invoice questions from AD for Cheer',
@@ -3463,7 +3461,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'MOCKUP_STAGE',
   value: 4500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 4500,
   nextAction: 'Send mockup designs for Softball Team Store approval',
@@ -3485,7 +3483,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'LEAD_ENGAGED',
   value: 3000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 3000,
   nextAction: 'Send introductory email and TUF catalog for Cheer',
@@ -3507,7 +3505,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'INVOICE_SENT',
   value: 3000,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 3000,
   nextAction: 'Send payment link reminder for Cheer order',
@@ -3529,7 +3527,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'LEAD_ENGAGED',
   value: 2500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2500,
   nextAction: 'Call to schedule discovery meeting for Basketball',
@@ -3551,7 +3549,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'CLOSED_WON',
   value: 24500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 24500,
   nextAction: 'Monitor Team Store delivery and plan re-engagement',
@@ -3573,7 +3571,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 10000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 10000,
   nextAction: 'Monitor Team Store delivery and plan re-engagement',
@@ -3595,7 +3593,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 12000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 12000,
   nextAction: 'Monitor Team Store delivery and plan re-engagement',
@@ -3617,7 +3615,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_WON',
   value: 4500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 4500,
   nextAction: 'Monitor Letterman delivery and plan re-engagement',
@@ -3639,7 +3637,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_WON',
   value: 5500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 5500,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3661,7 +3659,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_WON',
   value: 15500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 15500,
   nextAction: 'Monitor Letterman delivery and plan re-engagement',
@@ -3683,7 +3681,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'CLOSED_WON',
   value: 8000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 8000,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3705,7 +3703,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 9000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 9000,
   nextAction: 'Monitor Letterman delivery and plan re-engagement',
@@ -3727,7 +3725,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 4500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 4500,
   nextAction: 'Monitor Team Store delivery and plan re-engagement',
@@ -3749,7 +3747,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'CLOSED_WON',
   value: 5500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 5500,
   nextAction: 'Monitor Uniform delivery and plan re-engagement',
@@ -3771,7 +3769,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'MOCKUP_STAGE',
   value: 8000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 8000,
   nextAction: 'Send mockup designs for Football Uniform approval',
@@ -3793,7 +3791,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'LEAD_ENGAGED',
   value: 20500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 20500,
   nextAction: 'Call to schedule discovery meeting for Basketball',
@@ -3815,7 +3813,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'INVOICE_SENT',
   value: 4500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 4500,
   nextAction: 'Follow up on Hockey invoice – awaiting payment',
@@ -3837,7 +3835,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'LEAD_ENGAGED',
   value: 14500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 14500,
   nextAction: 'Call to schedule discovery meeting for Softball',
@@ -3859,7 +3857,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'LEAD_ENGAGED',
   value: 1500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 1500,
   nextAction: 'Send TUF capabilities deck highlighting Football programs',
@@ -3881,7 +3879,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'MOCKUP_STAGE',
   value: 1000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 1000,
   nextAction: 'Send mockup designs for Volleyball Letterman approval',
@@ -3903,7 +3901,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'MOCKUP_STAGE',
   value: 3000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 3000,
   nextAction: 'Send mockup designs for Basketball Uniform approval',
@@ -3925,7 +3923,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'INVOICE_SENT',
   value: 8000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 8000,
   nextAction: 'Confirm PO number for Volleyball order processing',
@@ -3947,7 +3945,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'MOCKUP_STAGE',
   value: 1500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 1500,
   nextAction: 'Send mockup designs for Hockey Letterman approval',
@@ -3969,7 +3967,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'INVOICE_SENT',
   value: 6500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 6500,
   nextAction: 'Confirm PO number for Hockey order processing',
@@ -3991,7 +3989,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'LEAD_ENGAGED',
   value: 2500,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2500,
   nextAction: 'Follow up with AD about Football Uniform needs',
@@ -4013,7 +4011,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'INVOICE_SENT',
   value: 2000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 2000,
   nextAction: 'Confirm PO number for Softball order processing',
@@ -4035,7 +4033,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'LEAD_ENGAGED',
   value: 3000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 3000,
   nextAction: 'Follow up with AD about Baseball Uniform needs',
@@ -4057,7 +4055,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'LEAD_ENGAGED',
   value: 8000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 8000,
   nextAction: 'Follow up with AD about Baseball Team Store needs',
@@ -4079,7 +4077,7 @@ export const opportunities: Opportunity[] = [
   season: 'SP',
   stage: 'MOCKUP_STAGE',
   value: 3000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 3000,
   nextAction: 'Revise mockup based on coach feedback for Softball',
@@ -4607,7 +4605,7 @@ export const opportunities: Opportunity[] = [
   season: 'WI',
   stage: 'CLOSED_LOST',
   value: 11000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 11000,
   nextAction: 'Re-engage in 90 days with revised pricing',
@@ -4629,7 +4627,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_LOST',
   value: 6500,
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 6500,
   nextAction: 'Re-engage in 90 days with revised pricing',
@@ -4651,7 +4649,7 @@ export const opportunities: Opportunity[] = [
   season: 'FA',
   stage: 'CLOSED_LOST',
   value: 11000,
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   estimatedValue: 11000,
   nextAction: 'Re-engage in 90 days with revised pricing',
@@ -5073,7 +5071,7 @@ export const orders: Order[] = [
   sport: 'Baseball',
   quantity: 71,
   dueDate: '2026-10-03',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5104,7 +5102,7 @@ export const orders: Order[] = [
   sport: 'Baseball',
   quantity: 37,
   dueDate: '2026-10-09',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5135,7 +5133,7 @@ export const orders: Order[] = [
   sport: 'Soccer',
   quantity: 98,
   dueDate: '2026-09-12',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5166,7 +5164,7 @@ export const orders: Order[] = [
   sport: 'Hockey',
   quantity: 52,
   dueDate: '2026-09-24',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5197,7 +5195,7 @@ export const orders: Order[] = [
   sport: 'Football',
   quantity: 102,
   dueDate: '2026-09-18',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5228,7 +5226,7 @@ export const orders: Order[] = [
   sport: 'Volleyball',
   quantity: 34,
   dueDate: '2026-09-14',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5259,7 +5257,7 @@ export const orders: Order[] = [
   sport: 'Cheer',
   quantity: 72,
   dueDate: '2026-10-18',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5290,7 +5288,7 @@ export const orders: Order[] = [
   sport: 'Baseball',
   quantity: 37,
   dueDate: '2026-09-10',
-  assignedRep: 'Shayla Hilliard',
+  assignedRep: 'Josh Hoffman',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5321,7 +5319,7 @@ export const orders: Order[] = [
   sport: 'Basketball',
   quantity: 62,
   dueDate: '2026-09-28',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5352,7 +5350,7 @@ export const orders: Order[] = [
   sport: 'Baseball',
   quantity: 91,
   dueDate: '2026-09-20',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Review order details and confirm production timeline',
   paymentStatus: 'PAID',
@@ -5383,7 +5381,7 @@ export const orders: Order[] = [
   sport: 'Baseball',
   quantity: 103,
   dueDate: '2026-10-03',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5414,7 +5412,7 @@ export const orders: Order[] = [
   sport: 'Football',
   quantity: 83,
   dueDate: '2026-09-16',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PENDING',
@@ -5445,7 +5443,7 @@ export const orders: Order[] = [
   sport: 'Football',
   quantity: 36,
   dueDate: '2026-09-28',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5476,7 +5474,7 @@ export const orders: Order[] = [
   sport: 'Football',
   quantity: 49,
   dueDate: '2026-09-12',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5507,7 +5505,7 @@ export const orders: Order[] = [
   sport: 'Basketball',
   quantity: 41,
   dueDate: '2026-09-23',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5538,7 +5536,7 @@ export const orders: Order[] = [
   sport: 'Track',
   quantity: 103,
   dueDate: '2026-09-12',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5569,7 +5567,7 @@ export const orders: Order[] = [
   sport: 'Softball',
   quantity: 46,
   dueDate: '2026-09-17',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PAID',
@@ -5600,7 +5598,7 @@ export const orders: Order[] = [
   sport: 'Baseball',
   quantity: 101,
   dueDate: '2026-10-18',
-  assignedRep: 'Jason Mulder',
+  assignedRep: 'David Lundberg',
   assignedDirector: 'Primeau Hill',
   nextAction: 'Monitor production progress',
   paymentStatus: 'PENDING',
@@ -5922,7 +5920,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0071',
   message: 'Left voicemail for LeSueur-Henderson High School head Soccer coach',
   timestamp: '2026-08-25T15:41:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0267',
@@ -5930,7 +5928,7 @@ export const activities: Activity[] = [
   entityId: 'org-0024',
   message: 'Introductory email sent to Glencoe-Silver Lake High School introducing TUF Team Store program',
   timestamp: '2026-08-25T13:44:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0101',
@@ -5946,7 +5944,7 @@ export const activities: Activity[] = [
   entityId: 'org-0060',
   message: 'Cold email sent to AD at New Prague High School highlighting TUF uniform program',
   timestamp: '2026-08-25T09:47:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0413',
@@ -5954,7 +5952,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0063',
   message: 'Introductory email sent to Jackson County Central High School introducing TUF Travel Gear program',
   timestamp: '2026-08-25T09:21:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0143',
@@ -5986,7 +5984,7 @@ export const activities: Activity[] = [
   entityId: 'org-0051',
   message: 'Left voicemail for New Ulm High School head Basketball coach',
   timestamp: '2026-08-24T15:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0538',
@@ -6034,7 +6032,7 @@ export const activities: Activity[] = [
   entityId: 'org-0027',
   message: 'Initial outreach call placed to Red Wing High School AD regarding Baseball',
   timestamp: '2026-08-24T11:17:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0381',
@@ -6042,7 +6040,7 @@ export const activities: Activity[] = [
   entityId: 'org-0047',
   message: 'Voicemail left for AD at Chatfield High School – will follow up in 3 days',
   timestamp: '2026-08-24T11:01:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0021',
@@ -6058,7 +6056,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'Sent TUF capabilities overview to Shattuck-Saint Mary\'s',
   timestamp: '2026-08-24T10:06:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0181',
@@ -6066,7 +6064,7 @@ export const activities: Activity[] = [
   entityId: 'org-0029',
   message: 'Research completed on Nova Classical Academy Football program – identified decision maker',
   timestamp: '2026-08-24T09:05:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0301',
@@ -6074,7 +6072,7 @@ export const activities: Activity[] = [
   entityId: 'org-0060',
   message: 'Sent TUF capabilities overview to New Prague High School',
   timestamp: '2026-08-24T08:41:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0387',
@@ -6082,7 +6080,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0056',
   message: 'Left voicemail for Winona High School head Wrestling coach',
   timestamp: '2026-08-24T08:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0404',
@@ -6090,7 +6088,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'LinkedIn connection request sent to Shattuck-Saint Mary\'s AD',
   timestamp: '2026-08-24T08:11:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0361',
@@ -6098,7 +6096,7 @@ export const activities: Activity[] = [
   entityId: 'org-0061',
   message: 'Initial outreach call placed to Rochester Mayo High School AD regarding Wrestling',
   timestamp: '2026-08-24T08:07:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0242',
@@ -6106,7 +6104,7 @@ export const activities: Activity[] = [
   entityId: 'org-0030',
   message: 'Connected with Hmong College Prep Academy athletic department about upcoming Softball season',
   timestamp: '2026-08-24T08:02:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0107',
@@ -6122,7 +6120,7 @@ export const activities: Activity[] = [
   entityId: 'org-0044',
   message: 'LinkedIn connection request sent to Albert Lea High School AD',
   timestamp: '2026-08-23T17:32:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0199',
@@ -6130,7 +6128,7 @@ export const activities: Activity[] = [
   entityId: 'org-0035',
   message: 'Initial outreach call placed to St. Paul Washington Technology Magnet AD regarding Track',
   timestamp: '2026-08-23T16:12:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0234',
@@ -6138,7 +6136,7 @@ export const activities: Activity[] = [
   entityId: 'org-0023',
   message: 'Connected with Visitation High School athletic department about upcoming Wrestling season',
   timestamp: '2026-08-23T16:09:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0405',
@@ -6146,7 +6144,7 @@ export const activities: Activity[] = [
   entityId: 'org-0051',
   message: 'Introductory email sent to New Ulm High School introducing TUF Team Store program',
   timestamp: '2026-08-23T15:50:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0110',
@@ -6170,7 +6168,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'Left voicemail for Shattuck-Saint Mary\'s head Baseball coach',
   timestamp: '2026-08-23T13:29:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0201',
@@ -6178,7 +6176,7 @@ export const activities: Activity[] = [
   entityId: 'org-0024',
   message: 'Voicemail left for AD at Glencoe-Silver Lake High School – will follow up in 3 days',
   timestamp: '2026-08-23T11:10:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0279',
@@ -6186,7 +6184,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0036',
   message: 'Connected with Goodhue High School athletic department about upcoming Baseball season',
   timestamp: '2026-08-23T11:10:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0296',
@@ -6194,7 +6192,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'Sent TUF capabilities overview to Triton High School',
   timestamp: '2026-08-23T09:48:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0364',
@@ -6202,7 +6200,7 @@ export const activities: Activity[] = [
   entityId: 'org-0055',
   message: 'Research completed on Mankato West High School Track program – identified decision maker',
   timestamp: '2026-08-23T09:05:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0246',
@@ -6210,7 +6208,7 @@ export const activities: Activity[] = [
   entityId: 'org-0028',
   message: 'Voicemail left for AD at Cristo Rey Jesuit High School – will follow up in 3 days',
   timestamp: '2026-08-23T08:10:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0469',
@@ -6266,7 +6264,7 @@ export const activities: Activity[] = [
   entityId: 'org-0061',
   message: 'Introductory email sent to Rochester Mayo High School introducing TUF Team Store program',
   timestamp: '2026-08-22T11:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0342',
@@ -6274,7 +6272,7 @@ export const activities: Activity[] = [
   entityId: 'org-0045',
   message: 'Connected with Winona High School athletic department about upcoming Wrestling season',
   timestamp: '2026-08-22T11:08:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0115',
@@ -6290,7 +6288,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0070',
   message: 'Sent TUF capabilities overview to Blooming Prairie High School',
   timestamp: '2026-08-22T08:38:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0220',
@@ -6298,7 +6296,7 @@ export const activities: Activity[] = [
   entityId: 'org-0027',
   message: 'Cold email sent to AD at Red Wing High School highlighting TUF uniform program',
   timestamp: '2026-08-22T08:33:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0452',
@@ -6330,7 +6328,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0059',
   message: 'Cold email sent to AD at Albert Lea High School highlighting TUF uniform program',
   timestamp: '2026-08-21T14:37:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0012',
@@ -6354,7 +6352,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'LinkedIn connection request sent to Math and Science Academy AD',
   timestamp: '2026-08-21T11:53:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0417',
@@ -6362,7 +6360,7 @@ export const activities: Activity[] = [
   entityId: 'org-0044',
   message: 'LinkedIn connection request sent to Albert Lea High School AD',
   timestamp: '2026-08-21T09:53:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0521',
@@ -6386,7 +6384,7 @@ export const activities: Activity[] = [
   entityId: 'org-0038',
   message: 'Initial outreach call placed to Lakes International Language Academy AD regarding Wrestling',
   timestamp: '2026-08-21T09:02:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0209',
@@ -6394,7 +6392,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0045',
   message: 'Cold email sent to AD at St. Paul Washington Technology Magnet highlighting TUF uniform program',
   timestamp: '2026-08-20T17:30:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0319',
@@ -6402,7 +6400,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0061',
   message: 'Cold email sent to AD at Winona High School highlighting TUF uniform program',
   timestamp: '2026-08-20T16:03:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0544',
@@ -6418,7 +6416,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0033',
   message: 'Sent TUF capabilities overview to Lakes International Language Academy',
   timestamp: '2026-08-20T15:11:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0434',
@@ -6450,7 +6448,7 @@ export const activities: Activity[] = [
   entityId: 'org-0034',
   message: 'Research completed on Mounds Park Academy Baseball program – identified decision maker',
   timestamp: '2026-08-20T11:54:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0466',
@@ -6498,7 +6496,7 @@ export const activities: Activity[] = [
   entityId: 'org-0027',
   message: 'Cold email sent to AD at Red Wing High School highlighting TUF uniform program',
   timestamp: '2026-08-19T16:26:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0422',
@@ -6522,7 +6520,7 @@ export const activities: Activity[] = [
   entityId: 'org-0044',
   message: 'Connected with Albert Lea High School athletic department about upcoming Hockey season',
   timestamp: '2026-08-19T14:07:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0442',
@@ -6570,7 +6568,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'Left voicemail for Shattuck-Saint Mary\'s head Football coach',
   timestamp: '2026-08-19T10:36:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0043',
@@ -6618,7 +6616,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'Initial outreach call placed to Waseca High School AD regarding Lacrosse',
   timestamp: '2026-08-18T15:39:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0315',
@@ -6626,7 +6624,7 @@ export const activities: Activity[] = [
   entityId: 'org-0053',
   message: 'Connected with Minnesota Valley Lutheran athletic department about upcoming Lacrosse season',
   timestamp: '2026-08-18T14:50:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0042',
@@ -6650,7 +6648,7 @@ export const activities: Activity[] = [
   entityId: 'org-0034',
   message: 'Introductory email sent to Mounds Park Academy introducing TUF Team Store program',
   timestamp: '2026-08-18T14:06:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0479',
@@ -6666,7 +6664,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0066',
   message: 'Initial outreach call placed to New Prague High School AD regarding Volleyball',
   timestamp: '2026-08-18T13:51:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0208',
@@ -6674,7 +6672,7 @@ export const activities: Activity[] = [
   entityId: 'org-0026',
   message: 'LinkedIn connection request sent to St. Paul Como Park H.S. AD',
   timestamp: '2026-08-18T09:25:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0432',
@@ -6690,7 +6688,7 @@ export const activities: Activity[] = [
   entityId: 'org-0027',
   message: 'Cold email sent to AD at Red Wing High School highlighting TUF uniform program',
   timestamp: '2026-08-17T18:45:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0118',
@@ -6706,7 +6704,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0037',
   message: 'Voicemail left for AD at Hmong College Prep Academy – will follow up in 3 days',
   timestamp: '2026-08-17T17:51:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0457',
@@ -6762,7 +6760,7 @@ export const activities: Activity[] = [
   entityId: 'org-0052',
   message: 'Connected with Owatonna High School athletic department about upcoming Wrestling season',
   timestamp: '2026-08-17T13:04:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0418',
@@ -6770,7 +6768,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'Research completed on Triton High School Volleyball program – identified decision maker',
   timestamp: '2026-08-17T11:39:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0270',
@@ -6778,7 +6776,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0047',
   message: 'Voicemail left for AD at Mounds Park Academy – will follow up in 3 days',
   timestamp: '2026-08-17T09:46:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0003',
@@ -6818,7 +6816,7 @@ export const activities: Activity[] = [
   entityId: 'org-0026',
   message: 'Sent TUF capabilities overview to St. Paul Como Park H.S.',
   timestamp: '2026-08-16T12:22:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0129',
@@ -6866,7 +6864,7 @@ export const activities: Activity[] = [
   entityId: 'org-0023',
   message: 'Left voicemail for Visitation High School head Soccer coach',
   timestamp: '2026-08-15T15:19:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0532',
@@ -6882,7 +6880,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0098',
   message: 'Deal lost – Cristo Rey Jesuit High School went with Adidas on pricing for Football Uniform',
   timestamp: '2026-08-15T14:30:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0158',
@@ -6906,7 +6904,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0037',
   message: 'Left voicemail for Hmong College Prep Academy head Hockey coach',
   timestamp: '2026-08-15T11:18:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0217',
@@ -6914,7 +6912,7 @@ export const activities: Activity[] = [
   entityId: 'org-0026',
   message: 'LinkedIn connection request sent to St. Paul Como Park H.S. AD',
   timestamp: '2026-08-15T10:44:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0353',
@@ -6922,7 +6920,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0051',
   message: 'Introductory email sent to Albert Lea High School introducing TUF Uniform program',
   timestamp: '2026-08-15T09:15:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0239',
@@ -6930,7 +6928,7 @@ export const activities: Activity[] = [
   entityId: 'org-0027',
   message: 'Initial outreach call placed to Red Wing High School AD regarding Volleyball',
   timestamp: '2026-08-15T08:35:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0216',
@@ -6938,7 +6936,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Connected with Math and Science Academy athletic department about upcoming Softball season',
   timestamp: '2026-08-14T18:53:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0106',
@@ -6954,7 +6952,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Initial outreach call placed to Math and Science Academy AD regarding Softball',
   timestamp: '2026-08-14T15:34:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0128',
@@ -6970,7 +6968,7 @@ export const activities: Activity[] = [
   entityId: 'org-0050',
   message: 'Left voicemail for Windom Area High School head Hockey coach',
   timestamp: '2026-08-14T13:11:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0512',
@@ -6986,7 +6984,7 @@ export const activities: Activity[] = [
   entityId: 'org-0045',
   message: 'LinkedIn connection request sent to Winona High School AD',
   timestamp: '2026-08-14T11:24:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0473',
@@ -7002,7 +7000,7 @@ export const activities: Activity[] = [
   entityId: 'org-0042',
   message: 'LinkedIn connection request sent to Belle Plaine High School AD',
   timestamp: '2026-08-13T18:21:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0505',
@@ -7018,7 +7016,7 @@ export const activities: Activity[] = [
   entityId: 'org-0023',
   message: 'Voicemail left for AD at Visitation High School – will follow up in 3 days',
   timestamp: '2026-08-13T13:02:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0237',
@@ -7026,7 +7024,7 @@ export const activities: Activity[] = [
   entityId: 'org-0032',
   message: 'Connected with Great River School athletic department about upcoming Lacrosse season',
   timestamp: '2026-08-13T12:53:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0330',
@@ -7034,7 +7032,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'LinkedIn connection request sent to Shattuck-Saint Mary\'s AD',
   timestamp: '2026-08-12T18:10:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0185',
@@ -7042,7 +7040,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Sent TUF capabilities overview to Math and Science Academy',
   timestamp: '2026-08-12T18:05:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0373',
@@ -7050,7 +7048,7 @@ export const activities: Activity[] = [
   entityId: 'org-0048',
   message: 'Introductory email sent to St. Charles High School introducing TUF Travel Gear program',
   timestamp: '2026-08-12T15:57:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0410',
@@ -7058,7 +7056,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'Research completed on Triton High School Wrestling program – identified decision maker',
   timestamp: '2026-08-12T14:39:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0547',
@@ -7066,7 +7064,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0097',
   message: 'Deal lost – Blue Earth Area High School went with Adidas on pricing for Hockey Team Store',
   timestamp: '2026-08-12T14:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0445',
@@ -7090,7 +7088,7 @@ export const activities: Activity[] = [
   entityId: 'org-0040',
   message: 'Voicemail left for AD at Jackson County Central High School – will follow up in 3 days',
   timestamp: '2026-08-12T12:45:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0104',
@@ -7106,7 +7104,7 @@ export const activities: Activity[] = [
   entityId: 'org-0049',
   message: 'Voicemail left for AD at Waterville-Elysian-Morristown H.S. – will follow up in 3 days',
   timestamp: '2026-08-12T12:35:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0509',
@@ -7154,7 +7152,7 @@ export const activities: Activity[] = [
   entityId: 'org-0057',
   message: 'Sent TUF capabilities overview to Plainview-Elgin-Millville High School',
   timestamp: '2026-08-10T18:58:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0446',
@@ -7170,7 +7168,7 @@ export const activities: Activity[] = [
   entityId: 'org-0048',
   message: 'Initial outreach call placed to St. Charles High School AD regarding Baseball',
   timestamp: '2026-08-10T16:57:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0154',
@@ -7202,7 +7200,7 @@ export const activities: Activity[] = [
   entityId: 'org-0024',
   message: 'Left voicemail for Glencoe-Silver Lake High School head Track coach',
   timestamp: '2026-08-10T14:24:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0105',
@@ -7226,7 +7224,7 @@ export const activities: Activity[] = [
   entityId: 'org-0026',
   message: 'Initial outreach call placed to St. Paul Como Park H.S. AD regarding Soccer',
   timestamp: '2026-08-10T11:48:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0165',
@@ -7242,7 +7240,7 @@ export const activities: Activity[] = [
   entityId: 'org-0033',
   message: 'Research completed on Twin Cities Academy High School Track program – identified decision maker',
   timestamp: '2026-08-10T10:55:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0453',
@@ -7298,7 +7296,7 @@ export const activities: Activity[] = [
   entityId: 'org-0050',
   message: 'Cold email sent to AD at Windom Area High School highlighting TUF uniform program',
   timestamp: '2026-08-09T16:42:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0351',
@@ -7306,7 +7304,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'Research completed on Triton High School Track program – identified decision maker',
   timestamp: '2026-08-09T15:31:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0497',
@@ -7322,7 +7320,7 @@ export const activities: Activity[] = [
   entityId: 'org-0028',
   message: 'Introductory email sent to Cristo Rey Jesuit High School introducing TUF Travel Gear program',
   timestamp: '2026-08-09T11:37:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0346',
@@ -7330,7 +7328,7 @@ export const activities: Activity[] = [
   entityId: 'org-0044',
   message: 'Connected with Albert Lea High School athletic department about upcoming Basketball season',
   timestamp: '2026-08-09T10:20:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0334',
@@ -7338,7 +7336,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0066',
   message: 'Left voicemail for New Prague High School head Cheer coach',
   timestamp: '2026-08-09T08:26:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0421',
@@ -7354,7 +7352,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0036',
   message: 'Left voicemail for Goodhue High School head Lacrosse coach',
   timestamp: '2026-08-08T18:41:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0336',
@@ -7362,7 +7360,7 @@ export const activities: Activity[] = [
   entityId: 'org-0059',
   message: 'Introductory email sent to Stewartville High School introducing TUF Uniform program',
   timestamp: '2026-08-08T18:29:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0061',
@@ -7394,7 +7392,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0071',
   message: 'Introductory email sent to LeSueur-Henderson High School introducing TUF Uniform program',
   timestamp: '2026-08-08T14:22:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0322',
@@ -7402,7 +7400,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'LinkedIn connection request sent to Shattuck-Saint Mary\'s AD',
   timestamp: '2026-08-08T14:08:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0028',
@@ -7458,7 +7456,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'Left voicemail for Waseca High School head Track coach',
   timestamp: '2026-08-07T15:57:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0333',
@@ -7466,7 +7464,7 @@ export const activities: Activity[] = [
   entityId: 'org-0040',
   message: 'Sent TUF capabilities overview to Jackson County Central High School',
   timestamp: '2026-08-07T15:49:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0235',
@@ -7474,7 +7472,7 @@ export const activities: Activity[] = [
   entityId: 'org-0028',
   message: 'Initial outreach call placed to Cristo Rey Jesuit High School AD regarding Softball',
   timestamp: '2026-08-07T12:42:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0212',
@@ -7482,7 +7480,7 @@ export const activities: Activity[] = [
   entityId: 'org-0038',
   message: 'Connected with Lakes International Language Academy athletic department about upcoming Baseball season',
   timestamp: '2026-08-07T11:05:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0231',
@@ -7490,7 +7488,7 @@ export const activities: Activity[] = [
   entityId: 'org-0035',
   message: 'Sent TUF capabilities overview to St. Paul Washington Technology Magnet',
   timestamp: '2026-08-07T09:48:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0339',
@@ -7498,7 +7496,7 @@ export const activities: Activity[] = [
   entityId: 'org-0059',
   message: 'Initial outreach call placed to Stewartville High School AD regarding Track',
   timestamp: '2026-08-07T08:42:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0365',
@@ -7506,7 +7504,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0050',
   message: 'Connected with New Ulm High School athletic department about upcoming Volleyball season',
   timestamp: '2026-08-06T18:34:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0130',
@@ -7522,7 +7520,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0057',
   message: 'LinkedIn connection request sent to Janesville-Waldorf-Pemberton High School AD',
   timestamp: '2026-08-06T14:57:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0349',
@@ -7530,7 +7528,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0065',
   message: 'Cold email sent to AD at Waseca High School highlighting TUF uniform program',
   timestamp: '2026-08-06T14:15:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0526',
@@ -7554,7 +7552,7 @@ export const activities: Activity[] = [
   entityId: 'org-0030',
   message: 'Research completed on Hmong College Prep Academy Football program – identified decision maker',
   timestamp: '2026-08-06T11:06:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0292',
@@ -7562,7 +7560,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0051',
   message: 'Cold email sent to AD at Albert Lea High School highlighting TUF uniform program',
   timestamp: '2026-08-06T11:00:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0327',
@@ -7570,7 +7568,7 @@ export const activities: Activity[] = [
   entityId: 'org-0049',
   message: 'Voicemail left for AD at Waterville-Elysian-Morristown H.S. – will follow up in 3 days',
   timestamp: '2026-08-06T10:36:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0537',
@@ -7586,7 +7584,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0071',
   message: 'Introductory email sent to LeSueur-Henderson High School introducing TUF Uniform program',
   timestamp: '2026-08-05T18:53:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0161',
@@ -7674,7 +7672,7 @@ export const activities: Activity[] = [
   entityId: 'org-0052',
   message: 'Sent TUF capabilities overview to Owatonna High School',
   timestamp: '2026-08-05T13:36:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0005',
@@ -7690,7 +7688,7 @@ export const activities: Activity[] = [
   entityId: 'org-0033',
   message: 'Connected with Twin Cities Academy High School athletic department about upcoming Hockey season',
   timestamp: '2026-08-05T11:02:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0204',
@@ -7698,7 +7696,7 @@ export const activities: Activity[] = [
   entityId: 'org-0027',
   message: 'Left voicemail for Red Wing High School head Cheer coach',
   timestamp: '2026-08-05T10:26:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0328',
@@ -7706,7 +7704,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0063',
   message: 'LinkedIn connection request sent to Jackson County Central High School AD',
   timestamp: '2026-08-05T08:47:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0517',
@@ -7722,7 +7720,7 @@ export const activities: Activity[] = [
   entityId: 'org-0032',
   message: 'LinkedIn connection request sent to Great River School AD',
   timestamp: '2026-08-04T16:28:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0090',
@@ -7738,7 +7736,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0071',
   message: 'Voicemail left for AD at LeSueur-Henderson High School – will follow up in 3 days',
   timestamp: '2026-08-04T13:05:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0141',
@@ -7754,7 +7752,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0036',
   message: 'Left voicemail for Goodhue High School head Wrestling coach',
   timestamp: '2026-08-04T12:28:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0049',
@@ -7770,7 +7768,7 @@ export const activities: Activity[] = [
   entityId: 'org-0042',
   message: 'Connected with Belle Plaine High School athletic department about upcoming Cheer season',
   timestamp: '2026-08-04T11:38:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0073',
@@ -7786,7 +7784,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'LinkedIn connection request sent to Triton High School AD',
   timestamp: '2026-08-04T10:28:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0169',
@@ -7818,7 +7816,7 @@ export const activities: Activity[] = [
   entityId: 'org-0046',
   message: 'Cold email sent to AD at Blooming Prairie High School highlighting TUF uniform program',
   timestamp: '2026-08-03T17:25:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0148',
@@ -7842,7 +7840,7 @@ export const activities: Activity[] = [
   entityId: 'org-0059',
   message: 'Introductory email sent to Stewartville High School introducing TUF Travel Gear program',
   timestamp: '2026-08-03T10:00:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0298',
@@ -7850,7 +7848,7 @@ export const activities: Activity[] = [
   entityId: 'org-0042',
   message: 'Voicemail left for AD at Belle Plaine High School – will follow up in 3 days',
   timestamp: '2026-08-02T18:31:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0051',
@@ -7898,7 +7896,7 @@ export const activities: Activity[] = [
   entityId: 'org-0029',
   message: 'Research completed on Nova Classical Academy Wrestling program – identified decision maker',
   timestamp: '2026-08-02T14:47:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0456',
@@ -7914,7 +7912,7 @@ export const activities: Activity[] = [
   entityId: 'org-0025',
   message: 'Initial outreach call placed to Hinckley-Finlayson High School AD regarding Football',
   timestamp: '2026-08-02T12:26:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0435',
@@ -7946,7 +7944,7 @@ export const activities: Activity[] = [
   entityId: 'org-0061',
   message: 'Initial outreach call placed to Rochester Mayo High School AD regarding Baseball',
   timestamp: '2026-08-01T18:20:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0224',
@@ -7954,7 +7952,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0043',
   message: 'Cold email sent to AD at Cristo Rey Jesuit High School highlighting TUF uniform program',
   timestamp: '2026-08-01T17:54:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0471',
@@ -7970,7 +7968,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'LinkedIn connection request sent to Waseca High School AD',
   timestamp: '2026-08-01T15:29:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0531',
@@ -7986,7 +7984,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0047',
   message: 'Research completed on Mounds Park Academy Cheer program – identified decision maker',
   timestamp: '2026-08-01T12:54:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0379',
@@ -7994,7 +7992,7 @@ export const activities: Activity[] = [
   entityId: 'org-0051',
   message: 'Voicemail left for AD at New Ulm High School – will follow up in 3 days',
   timestamp: '2026-08-01T12:53:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0314',
@@ -8002,7 +8000,7 @@ export const activities: Activity[] = [
   entityId: 'org-0042',
   message: 'Left voicemail for Belle Plaine High School head Track coach',
   timestamp: '2026-08-01T12:34:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0268',
@@ -8010,7 +8008,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0046',
   message: 'Introductory email sent to Visitation High School introducing TUF Uniform program',
   timestamp: '2026-08-01T10:35:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0149',
@@ -8042,7 +8040,7 @@ export const activities: Activity[] = [
   entityId: 'org-0050',
   message: 'Voicemail left for AD at Windom Area High School – will follow up in 3 days',
   timestamp: '2026-07-31T12:07:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0015',
@@ -8066,7 +8064,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0068',
   message: 'Left voicemail for Owatonna High School head Volleyball coach',
   timestamp: '2026-07-30T17:03:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0124',
@@ -8082,7 +8080,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0099',
   message: 'Deal lost – Triton High School went with Nike on pricing for Football Uniform',
   timestamp: '2026-07-30T14:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0454',
@@ -8122,7 +8120,7 @@ export const activities: Activity[] = [
   entityId: 'org-0059',
   message: 'Sent TUF capabilities overview to Stewartville High School',
   timestamp: '2026-07-29T17:46:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0426',
@@ -8162,7 +8160,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Voicemail left for AD at Math and Science Academy – will follow up in 3 days',
   timestamp: '2026-07-29T14:23:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0384',
@@ -8170,7 +8168,7 @@ export const activities: Activity[] = [
   entityId: 'org-0050',
   message: 'Introductory email sent to Windom Area High School introducing TUF Uniform program',
   timestamp: '2026-07-29T11:49:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0172',
@@ -8186,7 +8184,7 @@ export const activities: Activity[] = [
   entityId: 'org-0023',
   message: 'Introductory email sent to Visitation High School introducing TUF Uniform program',
   timestamp: '2026-07-29T10:04:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0382',
@@ -8194,7 +8192,7 @@ export const activities: Activity[] = [
   entityId: 'org-0042',
   message: 'Research completed on Belle Plaine High School Track program – identified decision maker',
   timestamp: '2026-07-29T08:54:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0123',
@@ -8210,7 +8208,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'Research completed on Triton High School Football program – identified decision maker',
   timestamp: '2026-07-29T08:07:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0406',
@@ -8218,7 +8216,7 @@ export const activities: Activity[] = [
   entityId: 'org-0053',
   message: 'Left voicemail for Minnesota Valley Lutheran head Volleyball coach',
   timestamp: '2026-07-28T16:34:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0225',
@@ -8226,7 +8224,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Initial outreach call placed to Math and Science Academy AD regarding Hockey',
   timestamp: '2026-07-28T16:22:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0520',
@@ -8242,7 +8240,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0034',
   message: 'Left voicemail for Twin Cities Academy High School head Basketball coach',
   timestamp: '2026-07-28T13:32:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0486',
@@ -8258,7 +8256,7 @@ export const activities: Activity[] = [
   entityId: 'org-0054',
   message: 'Introductory email sent to Janesville-Waldorf-Pemberton High School introducing TUF Team Store program',
   timestamp: '2026-07-28T11:40:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0166',
@@ -8274,7 +8272,7 @@ export const activities: Activity[] = [
   entityId: 'org-0023',
   message: 'Research completed on Visitation High School Baseball program – identified decision maker',
   timestamp: '2026-07-27T18:16:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0174',
@@ -8306,7 +8304,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0044',
   message: 'Connected with Math and Science Academy athletic department about upcoming Soccer season',
   timestamp: '2026-07-27T14:40:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0023',
@@ -8322,7 +8320,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Connected with Math and Science Academy athletic department about upcoming Cheer season',
   timestamp: '2026-07-27T12:13:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0496',
@@ -8346,7 +8344,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0060',
   message: 'Introductory email sent to Rochester Mayo High School introducing TUF Letterman program',
   timestamp: '2026-07-26T18:41:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0095',
@@ -8386,7 +8384,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'Left voicemail for Waseca High School head Wrestling coach',
   timestamp: '2026-07-26T10:57:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0313',
@@ -8394,7 +8392,7 @@ export const activities: Activity[] = [
   entityId: 'org-0061',
   message: 'Sent TUF capabilities overview to Rochester Mayo High School',
   timestamp: '2026-07-26T09:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0285',
@@ -8402,7 +8400,7 @@ export const activities: Activity[] = [
   entityId: 'org-0062',
   message: 'Introductory email sent to LeSueur-Henderson High School introducing TUF Letterman program',
   timestamp: '2026-07-26T08:56:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0057',
@@ -8418,7 +8416,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Initial outreach call placed to Math and Science Academy AD regarding Soccer',
   timestamp: '2026-07-25T15:53:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0395',
@@ -8426,7 +8424,7 @@ export const activities: Activity[] = [
   entityId: 'org-0060',
   message: 'Cold email sent to AD at New Prague High School highlighting TUF uniform program',
   timestamp: '2026-07-25T14:07:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0286',
@@ -8434,7 +8432,7 @@ export const activities: Activity[] = [
   entityId: 'org-0046',
   message: 'Connected with Blooming Prairie High School athletic department about upcoming Football season',
   timestamp: '2026-07-25T12:49:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0393',
@@ -8442,7 +8440,7 @@ export const activities: Activity[] = [
   entityId: 'org-0055',
   message: 'Left voicemail for Mankato West High School head Basketball coach',
   timestamp: '2026-07-25T12:10:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0256',
@@ -8450,7 +8448,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0041',
   message: 'Voicemail left for AD at Glencoe-Silver Lake High School – will follow up in 3 days',
   timestamp: '2026-07-25T11:02:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0214',
@@ -8458,7 +8456,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0030',
   message: 'Sent TUF capabilities overview to Great River School',
   timestamp: '2026-07-25T08:21:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0444',
@@ -8490,7 +8488,7 @@ export const activities: Activity[] = [
   entityId: 'org-0046',
   message: 'Initial outreach call placed to Blooming Prairie High School AD regarding Lacrosse',
   timestamp: '2026-07-24T15:51:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0398',
@@ -8498,7 +8496,7 @@ export const activities: Activity[] = [
   entityId: 'org-0053',
   message: 'Cold email sent to AD at Minnesota Valley Lutheran highlighting TUF uniform program',
   timestamp: '2026-07-24T15:43:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0511',
@@ -8530,7 +8528,7 @@ export const activities: Activity[] = [
   entityId: 'org-0061',
   message: 'Voicemail left for AD at Rochester Mayo High School – will follow up in 3 days',
   timestamp: '2026-07-24T09:04:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0391',
@@ -8538,7 +8536,7 @@ export const activities: Activity[] = [
   entityId: 'org-0048',
   message: 'Connected with St. Charles High School athletic department about upcoming Basketball season',
   timestamp: '2026-07-23T18:22:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0205',
@@ -8546,7 +8544,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0029',
   message: 'Sent TUF capabilities overview to St. Paul Como Park H.S.',
   timestamp: '2026-07-23T16:31:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0099',
@@ -8586,7 +8584,7 @@ export const activities: Activity[] = [
   entityId: 'org-0054',
   message: 'Connected with Janesville-Waldorf-Pemberton High School athletic department about upcoming Lacrosse season',
   timestamp: '2026-07-23T13:22:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0262',
@@ -8594,7 +8592,7 @@ export const activities: Activity[] = [
   entityId: 'org-0025',
   message: 'Left voicemail for Hinckley-Finlayson High School head Cheer coach',
   timestamp: '2026-07-23T13:13:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0275',
@@ -8602,7 +8600,7 @@ export const activities: Activity[] = [
   entityId: 'org-0023',
   message: 'Left voicemail for Visitation High School head Basketball coach',
   timestamp: '2026-07-23T12:22:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0063',
@@ -8618,7 +8616,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Sent TUF capabilities overview to Math and Science Academy',
   timestamp: '2026-07-23T11:26:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0116',
@@ -8634,7 +8632,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0032',
   message: 'Introductory email sent to Braham High School introducing TUF Letterman program',
   timestamp: '2026-07-23T09:50:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0527',
@@ -8650,7 +8648,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'Sent TUF capabilities overview to Waseca High School',
   timestamp: '2026-07-22T17:15:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0320',
@@ -8658,7 +8656,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'Sent TUF capabilities overview to Waseca High School',
   timestamp: '2026-07-22T16:13:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0218',
@@ -8666,7 +8664,7 @@ export const activities: Activity[] = [
   entityId: 'org-0028',
   message: 'Connected with Cristo Rey Jesuit High School athletic department about upcoming Basketball season',
   timestamp: '2026-07-22T12:28:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0257',
@@ -8674,7 +8672,7 @@ export const activities: Activity[] = [
   entityId: 'org-0030',
   message: 'Sent TUF capabilities overview to Hmong College Prep Academy',
   timestamp: '2026-07-22T11:33:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0193',
@@ -8682,7 +8680,7 @@ export const activities: Activity[] = [
   entityId: 'org-0024',
   message: 'Research completed on Glencoe-Silver Lake High School Cheer program – identified decision maker',
   timestamp: '2026-07-22T08:37:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0495',
@@ -8698,7 +8696,7 @@ export const activities: Activity[] = [
   entityId: 'org-0024',
   message: 'Research completed on Glencoe-Silver Lake High School Hockey program – identified decision maker',
   timestamp: '2026-07-21T18:01:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0488',
@@ -8722,7 +8720,7 @@ export const activities: Activity[] = [
   entityId: 'org-0060',
   message: 'Research completed on New Prague High School Track program – identified decision maker',
   timestamp: '2026-07-21T16:43:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0307',
@@ -8730,7 +8728,7 @@ export const activities: Activity[] = [
   entityId: 'org-0045',
   message: 'Left voicemail for Winona High School head Track coach',
   timestamp: '2026-07-21T16:07:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0142',
@@ -8746,7 +8744,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0044',
   message: 'Cold email sent to AD at Math and Science Academy highlighting TUF uniform program',
   timestamp: '2026-07-21T15:44:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0318',
@@ -8754,7 +8752,7 @@ export const activities: Activity[] = [
   entityId: 'org-0060',
   message: 'LinkedIn connection request sent to New Prague High School AD',
   timestamp: '2026-07-21T15:12:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0126',
@@ -8770,7 +8768,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0067',
   message: 'Voicemail left for AD at Blue Earth Area High School – will follow up in 3 days',
   timestamp: '2026-07-21T14:11:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0523',
@@ -8794,7 +8792,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0036',
   message: 'LinkedIn connection request sent to Goodhue High School AD',
   timestamp: '2026-07-21T11:33:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0121',
@@ -8810,7 +8808,7 @@ export const activities: Activity[] = [
   entityId: 'org-0031',
   message: 'Connected with Math and Science Academy athletic department about upcoming Wrestling season',
   timestamp: '2026-07-21T10:30:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0323',
@@ -8818,7 +8816,7 @@ export const activities: Activity[] = [
   entityId: 'org-0041',
   message: 'LinkedIn connection request sent to Rochester Century High School AD',
   timestamp: '2026-07-21T10:27:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0069',
@@ -8834,7 +8832,7 @@ export const activities: Activity[] = [
   entityId: 'org-0047',
   message: 'Initial outreach call placed to Chatfield High School AD regarding Cheer',
   timestamp: '2026-07-21T08:16:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0151',
@@ -8850,7 +8848,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0043',
   message: 'Cold email sent to AD at Cristo Rey Jesuit High School highlighting TUF uniform program',
   timestamp: '2026-07-20T15:54:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0159',
@@ -8866,7 +8864,7 @@ export const activities: Activity[] = [
   entityId: 'org-0026',
   message: 'Initial outreach call placed to St. Paul Como Park H.S. AD regarding Cheer',
   timestamp: '2026-07-20T13:27:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0535',
@@ -8890,7 +8888,7 @@ export const activities: Activity[] = [
   entityId: 'org-0035',
   message: 'Connected with St. Paul Washington Technology Magnet athletic department about upcoming Softball season',
   timestamp: '2026-07-20T08:24:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0078',
@@ -8914,7 +8912,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0031',
   message: 'Voicemail left for AD at Hmong College Prep Academy – will follow up in 3 days',
   timestamp: '2026-07-18T18:42:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0171',
@@ -8938,7 +8936,7 @@ export const activities: Activity[] = [
   entityId: 'org-0035',
   message: 'Left voicemail for St. Paul Washington Technology Magnet head Volleyball coach',
   timestamp: '2026-07-18T16:16:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0060',
@@ -8962,7 +8960,7 @@ export const activities: Activity[] = [
   entityId: 'org-0035',
   message: 'Initial outreach call placed to St. Paul Washington Technology Magnet AD regarding Soccer',
   timestamp: '2026-07-18T12:19:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0058',
@@ -8986,7 +8984,7 @@ export const activities: Activity[] = [
   entityId: 'org-0042',
   message: 'Sent TUF capabilities overview to Belle Plaine High School',
   timestamp: '2026-07-18T10:38:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0197',
@@ -8994,7 +8992,7 @@ export const activities: Activity[] = [
   entityId: 'org-0029',
   message: 'Introductory email sent to Nova Classical Academy introducing TUF Team Store program',
   timestamp: '2026-07-18T10:20:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0017',
@@ -9034,7 +9032,7 @@ export const activities: Activity[] = [
   entityId: 'org-0048',
   message: 'Cold email sent to AD at St. Charles High School highlighting TUF uniform program',
   timestamp: '2026-07-17T15:41:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0080',
@@ -9050,7 +9048,7 @@ export const activities: Activity[] = [
   entityId: 'org-0052',
   message: 'Introductory email sent to Owatonna High School introducing TUF Team Store program',
   timestamp: '2026-07-17T15:11:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0018',
@@ -9066,7 +9064,7 @@ export const activities: Activity[] = [
   entityId: 'org-0025',
   message: 'Sent TUF capabilities overview to Hinckley-Finlayson High School',
   timestamp: '2026-07-17T13:39:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0277',
@@ -9074,7 +9072,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0043',
   message: 'Introductory email sent to Cristo Rey Jesuit High School introducing TUF Team Store program',
   timestamp: '2026-07-17T13:20:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0091',
@@ -9114,7 +9112,7 @@ export const activities: Activity[] = [
   entityId: 'org-0059',
   message: 'Voicemail left for AD at Stewartville High School – will follow up in 3 days',
   timestamp: '2026-07-16T18:59:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0059',
@@ -9146,7 +9144,7 @@ export const activities: Activity[] = [
   entityId: 'org-0060',
   message: 'Left voicemail for New Prague High School head Track coach',
   timestamp: '2026-07-15T18:08:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0295',
@@ -9154,7 +9152,7 @@ export const activities: Activity[] = [
   entityId: 'org-0040',
   message: 'Voicemail left for AD at Jackson County Central High School – will follow up in 3 days',
   timestamp: '2026-07-15T17:36:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0528',
@@ -9178,7 +9176,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0045',
   message: 'Left voicemail for St. Paul Washington Technology Magnet head Basketball coach',
   timestamp: '2026-07-15T16:48:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0487',
@@ -9242,7 +9240,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0048',
   message: 'Sent TUF capabilities overview to Nova Classical Academy',
   timestamp: '2026-07-15T12:46:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0366',
@@ -9250,7 +9248,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'Initial outreach call placed to Shattuck-Saint Mary\'s AD regarding Hockey',
   timestamp: '2026-07-15T11:04:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0369',
@@ -9258,7 +9256,7 @@ export const activities: Activity[] = [
   entityId: 'org-0050',
   message: 'Left voicemail for Windom Area High School head Track coach',
   timestamp: '2026-07-15T10:11:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0368',
@@ -9266,7 +9264,7 @@ export const activities: Activity[] = [
   entityId: 'org-0048',
   message: 'Sent TUF capabilities overview to St. Charles High School',
   timestamp: '2026-07-15T08:09:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0465',
@@ -9298,7 +9296,7 @@ export const activities: Activity[] = [
   entityId: 'org-0033',
   message: 'Sent TUF capabilities overview to Twin Cities Academy High School',
   timestamp: '2026-07-14T14:48:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0156',
@@ -9322,7 +9320,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0056',
   message: 'Research completed on Winona High School Softball program – identified decision maker',
   timestamp: '2026-07-14T11:34:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0008',
@@ -9362,7 +9360,7 @@ export const activities: Activity[] = [
   entityId: 'org-0036',
   message: 'Cold email sent to AD at Goodhue High School highlighting TUF uniform program',
   timestamp: '2026-07-13T11:58:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0475',
@@ -9378,7 +9376,7 @@ export const activities: Activity[] = [
   entityId: 'org-0033',
   message: 'Introductory email sent to Twin Cities Academy High School introducing TUF Uniform program',
   timestamp: '2026-07-13T11:33:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0362',
@@ -9386,7 +9384,7 @@ export const activities: Activity[] = [
   entityId: 'org-0051',
   message: 'Left voicemail for New Ulm High School head Track coach',
   timestamp: '2026-07-12T18:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0001',
@@ -9442,7 +9440,7 @@ export const activities: Activity[] = [
   entityId: 'org-0061',
   message: 'Cold email sent to AD at Rochester Mayo High School highlighting TUF uniform program',
   timestamp: '2026-07-12T09:01:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0050',
@@ -9466,7 +9464,7 @@ export const activities: Activity[] = [
   entityId: 'org-0025',
   message: 'Initial outreach call placed to Hinckley-Finlayson High School AD regarding Baseball',
   timestamp: '2026-07-11T17:03:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0283',
@@ -9474,7 +9472,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0049',
   message: 'Sent TUF capabilities overview to Rochester Mayo High School',
   timestamp: '2026-07-11T12:26:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0127',
@@ -9490,7 +9488,7 @@ export const activities: Activity[] = [
   entityId: 'org-0023',
   message: 'Sent TUF capabilities overview to Visitation High School',
   timestamp: '2026-07-11T11:29:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0007',
@@ -9506,7 +9504,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0045',
   message: 'Initial outreach call placed to St. Paul Washington Technology Magnet AD regarding Hockey',
   timestamp: '2026-07-11T11:09:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0340',
@@ -9514,7 +9512,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0050',
   message: 'Introductory email sent to New Ulm High School introducing TUF Team Store program',
   timestamp: '2026-07-11T09:36:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0423',
@@ -9538,7 +9536,7 @@ export const activities: Activity[] = [
   entityId: 'org-0058',
   message: 'LinkedIn connection request sent to Blue Earth Area High School AD',
   timestamp: '2026-07-10T15:29:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0494',
@@ -9554,7 +9552,7 @@ export const activities: Activity[] = [
   entityId: 'org-0025',
   message: 'Initial outreach call placed to Hinckley-Finlayson High School AD regarding Baseball',
   timestamp: '2026-07-10T14:41:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0540',
@@ -9586,7 +9584,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0042',
   message: 'Research completed on Red Wing High School Soccer program – identified decision maker',
   timestamp: '2026-07-09T18:22:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0375',
@@ -9594,7 +9592,7 @@ export const activities: Activity[] = [
   entityId: 'org-0055',
   message: 'Introductory email sent to Mankato West High School introducing TUF Travel Gear program',
   timestamp: '2026-07-09T17:38:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0350',
@@ -9602,7 +9600,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0051',
   message: 'Introductory email sent to Albert Lea High School introducing TUF Uniform program',
   timestamp: '2026-07-09T17:23:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0450',
@@ -9618,7 +9616,7 @@ export const activities: Activity[] = [
   entityId: 'org-0050',
   message: 'Research completed on Windom Area High School Track program – identified decision maker',
   timestamp: '2026-07-09T13:08:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0112',
@@ -9650,7 +9648,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0029',
   message: 'Left voicemail for St. Paul Como Park H.S. head Lacrosse coach',
   timestamp: '2026-07-08T17:38:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0188',
@@ -9658,7 +9656,7 @@ export const activities: Activity[] = [
   entityId: 'org-0034',
   message: 'LinkedIn connection request sent to Mounds Park Academy AD',
   timestamp: '2026-07-08T15:37:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0461',
@@ -9682,7 +9680,7 @@ export const activities: Activity[] = [
   entityId: 'org-0038',
   message: 'Left voicemail for Lakes International Language Academy head Track coach',
   timestamp: '2026-07-08T10:13:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0356',
@@ -9690,7 +9688,7 @@ export const activities: Activity[] = [
   entityId: 'org-0040',
   message: 'Research completed on Jackson County Central High School Volleyball program – identified decision maker',
   timestamp: '2026-07-07T18:39:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0093',
@@ -9722,7 +9720,7 @@ export const activities: Activity[] = [
   entityId: 'org-0045',
   message: 'Sent TUF capabilities overview to Winona High School',
   timestamp: '2026-07-07T17:02:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0441',
@@ -9738,7 +9736,7 @@ export const activities: Activity[] = [
   entityId: 'org-0061',
   message: 'Left voicemail for Rochester Mayo High School head Basketball coach',
   timestamp: '2026-07-07T14:02:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0478',
@@ -9754,7 +9752,7 @@ export const activities: Activity[] = [
   entityId: 'org-0050',
   message: 'Connected with Windom Area High School athletic department about upcoming Volleyball season',
   timestamp: '2026-07-07T09:19:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0075',
@@ -9778,7 +9776,7 @@ export const activities: Activity[] = [
   entityId: 'org-0032',
   message: 'Introductory email sent to Great River School introducing TUF Team Store program',
   timestamp: '2026-07-06T11:57:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0354',
@@ -9786,7 +9784,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0071',
   message: 'Initial outreach call placed to LeSueur-Henderson High School AD regarding Softball',
   timestamp: '2026-07-06T10:24:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0462',
@@ -9810,7 +9808,7 @@ export const activities: Activity[] = [
   entityId: 'org-0024',
   message: 'Voicemail left for AD at Glencoe-Silver Lake High School – will follow up in 3 days',
   timestamp: '2026-07-05T18:27:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0070',
@@ -9826,7 +9824,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'Cold email sent to AD at Triton High School highlighting TUF uniform program',
   timestamp: '2026-07-05T17:05:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0108',
@@ -9898,7 +9896,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'Left voicemail for Shattuck-Saint Mary\'s head Cheer coach',
   timestamp: '2026-07-04T10:49:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0182',
@@ -9906,7 +9904,7 @@ export const activities: Activity[] = [
   entityId: 'org-0035',
   message: 'Left voicemail for St. Paul Washington Technology Magnet head Wrestling coach',
   timestamp: '2026-07-04T10:36:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0439',
@@ -9922,7 +9920,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'Initial outreach call placed to Waseca High School AD regarding Soccer',
   timestamp: '2026-07-04T08:04:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0191',
@@ -9930,7 +9928,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0039',
   message: 'Cold email sent to AD at Great River School highlighting TUF uniform program',
   timestamp: '2026-07-03T16:41:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0352',
@@ -9938,7 +9936,7 @@ export const activities: Activity[] = [
   entityId: 'org-0044',
   message: 'Sent TUF capabilities overview to Albert Lea High School',
   timestamp: '2026-07-03T16:11:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0024',
@@ -9970,7 +9968,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0073',
   message: 'Voicemail left for AD at Chatfield High School – will follow up in 3 days',
   timestamp: '2026-07-03T11:39:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0131',
@@ -9986,7 +9984,7 @@ export const activities: Activity[] = [
   entityId: 'org-0056',
   message: 'Sent TUF capabilities overview to Triton High School',
   timestamp: '2026-07-02T12:41:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0447',
@@ -10002,7 +10000,7 @@ export const activities: Activity[] = [
   entityId: 'org-0025',
   message: 'Voicemail left for AD at Hinckley-Finlayson High School – will follow up in 3 days',
   timestamp: '2026-07-02T11:42:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0305',
@@ -10010,7 +10008,7 @@ export const activities: Activity[] = [
   entityId: 'org-0058',
   message: 'Research completed on Blue Earth Area High School Baseball program – identified decision maker',
   timestamp: '2026-07-02T11:23:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0206',
@@ -10018,7 +10016,7 @@ export const activities: Activity[] = [
   entityId: 'org-0029',
   message: 'Initial outreach call placed to Nova Classical Academy AD regarding Hockey',
   timestamp: '2026-07-02T09:46:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0103',
@@ -10034,7 +10032,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'Sent TUF capabilities overview to Shattuck-Saint Mary\'s',
   timestamp: '2026-07-01T17:48:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0186',
@@ -10042,7 +10040,7 @@ export const activities: Activity[] = [
   entityId: 'org-0029',
   message: 'Left voicemail for Nova Classical Academy head Softball coach',
   timestamp: '2026-07-01T16:25:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0089',
@@ -10058,7 +10056,7 @@ export const activities: Activity[] = [
   entityId: 'org-0062',
   message: 'Research completed on LeSueur-Henderson High School Softball program – identified decision maker',
   timestamp: '2026-07-01T15:31:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0255',
@@ -10066,7 +10064,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0041',
   message: 'Introductory email sent to Glencoe-Silver Lake High School introducing TUF Travel Gear program',
   timestamp: '2026-07-01T09:38:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0210',
@@ -10074,7 +10072,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0032',
   message: 'Initial outreach call placed to Braham High School AD regarding Lacrosse',
   timestamp: '2026-07-01T08:45:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0507',
@@ -10090,7 +10088,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0073',
   message: 'Sent TUF capabilities overview to Chatfield High School',
   timestamp: '2026-06-30T18:58:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0294',
@@ -10098,7 +10096,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0068',
   message: 'Connected with Owatonna High School athletic department about upcoming Basketball season',
   timestamp: '2026-06-30T18:22:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0211',
@@ -10106,7 +10104,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0031',
   message: 'Left voicemail for Hmong College Prep Academy head Wrestling coach',
   timestamp: '2026-06-30T16:54:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0084',
@@ -10138,7 +10136,7 @@ export const activities: Activity[] = [
   entityId: 'org-0040',
   message: 'Connected with Jackson County Central High School athletic department about upcoming Cheer season',
   timestamp: '2026-06-30T11:37:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0196',
@@ -10146,7 +10144,7 @@ export const activities: Activity[] = [
   entityId: 'org-0026',
   message: 'Introductory email sent to St. Paul Como Park H.S. introducing TUF Letterman program',
   timestamp: '2026-06-30T10:08:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0324',
@@ -10154,7 +10152,7 @@ export const activities: Activity[] = [
   entityId: 'org-0058',
   message: 'Left voicemail for Blue Earth Area High School head Lacrosse coach',
   timestamp: '2026-06-29T17:30:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0097',
@@ -10202,7 +10200,7 @@ export const activities: Activity[] = [
   entityId: 'org-0053',
   message: 'LinkedIn connection request sent to Minnesota Valley Lutheran AD',
   timestamp: '2026-06-28T16:09:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0433',
@@ -10218,7 +10216,7 @@ export const activities: Activity[] = [
   entityId: 'org-0043',
   message: 'Voicemail left for AD at Shattuck-Saint Mary\'s – will follow up in 3 days',
   timestamp: '2026-06-28T15:05:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0343',
@@ -10226,7 +10224,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0053',
   message: 'Left voicemail for Jackson County Central High School head Football coach',
   timestamp: '2026-06-28T13:50:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0308',
@@ -10234,7 +10232,7 @@ export const activities: Activity[] = [
   entityId: 'org-0039',
   message: 'Introductory email sent to Waseca High School introducing TUF Team Store program',
   timestamp: '2026-06-28T12:40:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0289',
@@ -10242,7 +10240,7 @@ export const activities: Activity[] = [
   entityId: 'org-0057',
   message: 'LinkedIn connection request sent to Plainview-Elgin-Millville High School AD',
   timestamp: '2026-06-28T10:29:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0380',
@@ -10250,7 +10248,7 @@ export const activities: Activity[] = [
   entityId: 'org-0057',
   message: 'Connected with Plainview-Elgin-Millville High School athletic department about upcoming Track season',
   timestamp: '2026-06-28T08:09:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0046',
@@ -10282,7 +10280,7 @@ export const activities: Activity[] = [
   entityId: 'opp-0072',
   message: 'Cold email sent to AD at Mankato West High School highlighting TUF uniform program',
   timestamp: '2026-06-27T12:28:00Z',
-  user: 'Jason Mulder'
+  user: 'David Lundberg'
 },
 {
   id: 'act-0251',
@@ -10290,7 +10288,7 @@ export const activities: Activity[] = [
   entityId: 'org-0025',
   message: 'Introductory email sent to Hinckley-Finlayson High School introducing TUF Team Store program',
   timestamp: '2026-06-27T11:44:00Z',
-  user: 'Shayla Hilliard'
+  user: 'Josh Hoffman'
 },
 {
   id: 'act-0474',
@@ -10306,7 +10304,7 @@ export const reportsSummary = {
 weeklySummary: {'pipelineAdded': 18500, 'closedWon': 178500, 'newOrganizations': 44, 'blockedOrders': 5},
 monthlySummary: {'pipelineTotal': 397000, 'closedWon': 406000, 'winRate': 91, 'averageDeal': 10410},
 lanePerformance: [{'lane': 'UNIFORM', 'pipeline': 263000, 'won': 228000, 'winRate': 85}, {'lane': 'TRAVEL_GEAR', 'pipeline': 22000, 'won': 3000, 'winRate': 100}, {'lane': 'TEAM_STORE', 'pipeline': 89500, 'won': 141000, 'winRate': 94}, {'lane': 'LETTERMAN', 'pipeline': 22500, 'won': 34000, 'winRate': 100}],
-repPerformance: [{'rep': 'Josh Hoffman', 'pin': '5080', 'territory': 'metro', 'totalSchools': 55, 'organizationsCreated': 22, 'territoryCoverage': 40, 'activeOpportunities': 16, 'closedWon': 12, 'closedLost': 1, 'totalRevenue': 143000, 'pipelineValue': 204500, 'activities': 176, 'performance': 'top', 'productMix': {'UNIFORM': 0.5, 'TRAVEL_GEAR': 0.05, 'TEAM_STORE': 0.3, 'LETTERMAN': 0.15}}, {'rep': 'Shayla Hilliard', 'pin': '5219', 'territory': 'metro', 'totalSchools': 71, 'organizationsCreated': 16, 'territoryCoverage': 23, 'activeOpportunities': 12, 'closedWon': 8, 'closedLost': 1, 'totalRevenue': 73500, 'pipelineValue': 35000, 'activities': 106, 'performance': 'ramping', 'productMix': {'UNIFORM': 0.55, 'TRAVEL_GEAR': 0.02, 'TEAM_STORE': 0.28, 'LETTERMAN': 0.15}}, {'rep': 'Jason Mulder', 'pin': '6187', 'territory': 'south', 'totalSchools': 48, 'organizationsCreated': 24, 'territoryCoverage': 50, 'activeOpportunities': 15, 'closedWon': 10, 'closedLost': 2, 'totalRevenue': 99000, 'pipelineValue': 87500, 'activities': 140, 'performance': 'solid', 'productMix': {'UNIFORM': 0.45, 'TRAVEL_GEAR': 0.05, 'TEAM_STORE': 0.35, 'LETTERMAN': 0.15}}, {'rep': 'David Lundberg', 'pin': '6243', 'territory': 'west', 'totalSchools': 67, 'organizationsCreated': 14, 'territoryCoverage': 21, 'activeOpportunities': 8, 'closedWon': 5, 'closedLost': 0, 'totalRevenue': 38500, 'pipelineValue': 29000, 'activities': 72, 'performance': 'building', 'productMix': {'UNIFORM': 0.7, 'TRAVEL_GEAR': 0.05, 'TEAM_STORE': 0.15, 'LETTERMAN': 0.1}}, {'rep': 'Primeau Hill', 'pin': '7288', 'territory': 'metro', 'totalSchools': 32, 'organizationsCreated': 18, 'territoryCoverage': 56, 'activeOpportunities': 6, 'closedWon': 4, 'closedLost': 0, 'totalRevenue': 52000, 'pipelineValue': 41000, 'activities': 56, 'performance': 'director', 'productMix': {'UNIFORM': 0.45, 'TRAVEL_GEAR': 0.1, 'TEAM_STORE': 0.3, 'LETTERMAN': 0.15}}]
+repPerformance: [{'rep': 'Josh Hoffman', 'pin': '5080', 'territory': 'metro', 'totalSchools': 55, 'organizationsCreated': 22, 'territoryCoverage': 40, 'activeOpportunities': 16, 'closedWon': 12, 'closedLost': 1, 'totalRevenue': 143000, 'pipelineValue': 204500, 'activities': 176, 'performance': 'top', 'productMix': {'UNIFORM': 0.5, 'TRAVEL_GEAR': 0.05, 'TEAM_STORE': 0.3, 'LETTERMAN': 0.15}}, {'rep': 'Josh Hoffman', 'pin': '5219', 'territory': 'metro', 'totalSchools': 71, 'organizationsCreated': 16, 'territoryCoverage': 23, 'activeOpportunities': 12, 'closedWon': 8, 'closedLost': 1, 'totalRevenue': 73500, 'pipelineValue': 35000, 'activities': 106, 'performance': 'ramping', 'productMix': {'UNIFORM': 0.55, 'TRAVEL_GEAR': 0.02, 'TEAM_STORE': 0.28, 'LETTERMAN': 0.15}}, {'rep': 'David Lundberg', 'pin': '6187', 'territory': 'south', 'totalSchools': 48, 'organizationsCreated': 24, 'territoryCoverage': 50, 'activeOpportunities': 15, 'closedWon': 10, 'closedLost': 2, 'totalRevenue': 99000, 'pipelineValue': 87500, 'activities': 140, 'performance': 'solid', 'productMix': {'UNIFORM': 0.45, 'TRAVEL_GEAR': 0.05, 'TEAM_STORE': 0.35, 'LETTERMAN': 0.15}}, {'rep': 'David Lundberg', 'pin': '6243', 'territory': 'west', 'totalSchools': 67, 'organizationsCreated': 14, 'territoryCoverage': 21, 'activeOpportunities': 8, 'closedWon': 5, 'closedLost': 0, 'totalRevenue': 38500, 'pipelineValue': 29000, 'activities': 72, 'performance': 'building', 'productMix': {'UNIFORM': 0.7, 'TRAVEL_GEAR': 0.05, 'TEAM_STORE': 0.15, 'LETTERMAN': 0.1}}, {'rep': 'Primeau Hill', 'pin': '7288', 'territory': 'metro', 'totalSchools': 32, 'organizationsCreated': 18, 'territoryCoverage': 56, 'activeOpportunities': 6, 'closedWon': 4, 'closedLost': 0, 'totalRevenue': 52000, 'pipelineValue': 41000, 'activities': 56, 'performance': 'director', 'productMix': {'UNIFORM': 0.45, 'TRAVEL_GEAR': 0.1, 'TEAM_STORE': 0.3, 'LETTERMAN': 0.15}}]
 };
 
 export const opsWorkspaceQueue = {

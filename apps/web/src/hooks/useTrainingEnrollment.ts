@@ -599,12 +599,12 @@ export function useTrainingModule(moduleId: number, enrollmentId: number | strin
 
   const getUserIdFromLocalStorage = (): string | number => {
     const raw = localStorage.getItem('tuf_ops_user_v3');
-    if (!raw) return 'u-rep-jason-mulder'; // fallback
+    if (!raw) return 'u-rep-josh-hoffman'; // fallback
     try {
       const parsed = JSON.parse(raw);
-      return parsed.id || 'u-rep-jason-mulder';
+      return parsed.id || 'u-rep-josh-hoffman';
     } catch {
-      return 'u-rep-jason-mulder';
+      return 'u-rep-josh-hoffman';
     }
   };
 

@@ -22,7 +22,7 @@
     "test:e2e:prod": "pnpm --filter web build && playwright test",
     "db:seed:leads": "dotenv -e .env -- node packages/database/seed_leads_from_csv.js",
     "deploy:check:web": "pnpm --filter web build",
-    "db:migrate:railway:prod": "node-pg-migrate --no-check-order -m packages/database/migrations up",
+    "db:migrate:railway:prod": "node-pg-migrate --no-check-order -m packages/database/migrations up || echo 'Migration skipped (DB not available during build)'",
     "dev": "pnpm --parallel --filter web --filter @apps/api dev",
     "predev": "echo '▶ Starting TUF Ops local dev...' && pnpm typecheck:v1",
     "db:seed:test-accounts": "dotenv -e .env -- node packages/database/seed_test_training_accounts.js",
@@ -34,6 +34,16 @@
     "validate:v090:launch-assignments": "node scripts/validate-v090-launch-assignments.js",
     "validate:v090:launch-user-display": "node scripts/validate-v090-launch-user-display.js",
     "validate:api-routes": "node scripts/validate-api-route-registration.js"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "esbuild",
+      "prisma",
+      "puppeteer",
+      "unrs-resolver"
+    ]
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",

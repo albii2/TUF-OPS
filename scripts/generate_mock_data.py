@@ -39,8 +39,8 @@ REP_CONFIG = {
         'top_schools': ['Edina High School', 'Wayzata High School', 'Minnetonka High School', 'Cretin-Derham Hall High School'],
         'performance': 'top',
     },
-    'Shayla Hilliard': {
-        'id': 'rep-shayla-hilliard',
+    'Josh Hoffman': {
+        'id': 'rep-josh-hoffman',
         'pin': '5219',
         'zone': 'metro',
         'tier_focus': '2-3',
@@ -55,8 +55,8 @@ REP_CONFIG = {
         'top_schools': ['Stillwater Area High School', 'White Bear Lake Area High School', 'Roseville Area High School'],
         'performance': 'ramping',
     },
-    'Jason Mulder': {
-        'id': 'rep-jason-mulder',
+    'David Lundberg': {
+        'id': 'rep-david-lundberg',
         'pin': '6187',
         'zone': 'south',
         'tier_focus': '2-3',
@@ -1247,8 +1247,8 @@ export const teamMembers: TeamMember[] = [
   { id: 'u-owner-coach-bradshaw', name: 'Coach Bradshaw', role: 'OWNER', territoryIds: ['metro', 'north', 'west', 'south'], active: true },
   { id: 'u-director-primeau-hill', name: 'Primeau Hill', role: 'DIRECTOR', territoryIds: ['metro', 'south', 'west', 'north'], active: true },
   { id: 'u-rep-josh-hoffman', name: 'Josh Hoffman', role: 'REP', territoryIds: ['metro'], active: true },
-  { id: 'u-rep-shayla-hilliard', name: 'Shayla Hilliard', role: 'REP', territoryIds: ['metro'], active: true },
-  { id: 'u-rep-jason-mulder', name: 'Jason Mulder', role: 'REP', territoryIds: ['south'], active: true },
+  { id: 'u-rep-josh-hoffman', name: 'Josh Hoffman', role: 'REP', territoryIds: ['metro'], active: true },
+  { id: 'u-rep-david-lundberg', name: 'David Lundberg', role: 'REP', territoryIds: ['south'], active: true },
   { id: 'u-rep-david-lundberg', name: 'David Lundberg', role: 'REP', territoryIds: ['west', 'north'], active: true },
 ];
 

@@ -212,6 +212,29 @@ const start = async () => {
     assertAuthTokenSecretConfigured();
     if (hasDatabaseConfig()) {
       await seedInitialOwnerIfEmpty();
+      // Auto-migrate Academy Command schema (idempotent DDL)
+      try {
+        await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS login_count INTEGER NOT NULL DEFAULT 0');
+        await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS cohort VARCHAR(80)');
+        await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS enrollment_date TIMESTAMP');
+        await pool.query(`
+          CREATE TABLE IF NOT EXISTS academy_activity_events (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            event_type VARCHAR(80) NOT NULL,
+            entity_type VARCHAR(80),
+            entity_id INTEGER,
+            metadata JSONB NOT NULL DEFAULT '{}',
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          )
+        `);
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_academy_events_user_time ON academy_activity_events(user_id, created_at)');
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_academy_events_type_time ON academy_activity_events(event_type, created_at)');
+        await pool.query('CREATE INDEX IF NOT EXISTS idx_academy_events_time ON academy_activity_events(created_at)');
+        console.log('Auto-migration: Academy Command schema ready');
+      } catch (migrationErr: any) {
+        console.warn('Auto-migration warning:', migrationErr.message);
+      }
     } else {
       server.log.warn('Skipping initial owner seed because database configuration is missing');
     }

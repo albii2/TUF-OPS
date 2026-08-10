@@ -180,10 +180,8 @@ For the corrected David/Cody launch files, expected rep counts are:
 
 | Rep | Expected schools | Assignment intent |
 |---|---:|---|
-| Jason Mulder | 30 | South / Southwest Metro schools |
-| Josh Hoffman | 30 | West Metro / Minneapolis inner-ring schools |
-| Shayla Hilliard | 30 | Northwest / North Metro schools |
-| David Lundberg | 30 | North/outstate/remote-prospecting schools |
+| Josh Hoffman | 136 | Metro + urban/suburban schools |
+| David Lundberg | 115 | West + North + South schools |
 | Primeau Hill | Director pool / overflow | East Metro hold and overflow, no rep assignment |
 
 David Lundberg is Cody / remote. His assignment rationale must reference remote, outstate, north-corridor, phone, or email-first work and must not assign the St. Paul/Woodbury/East Metro cluster to him.

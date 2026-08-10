@@ -47,7 +47,7 @@ export default function LockerRoomSimulator() {
       setSubmitting(true);
       const rawUser = localStorage.getItem('tuf_ops_user_v3');
       const userObj = rawUser ? JSON.parse(rawUser) : null;
-      const userId = userObj?.id || 'u-rep-jason-mulder';
+      const userId = userObj?.id || 'u-rep-josh-hoffman';
       
       const response = await fetch(`${getApiBaseUrl()}/training/assessments/evaluate-script`, {
         method: 'POST',

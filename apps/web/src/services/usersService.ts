@@ -1,10 +1,8 @@
 import type { AppUser, Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
 import { DATA_MODE } from './dataMode';
-import { apiClient } from './apiClient';
-import { getApiBaseUrl } from './apiBaseUrl';
 
-const TRAINING_API_BASE_URL = `${getApiBaseUrl()}/training`;
+const TRAINING_API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL || '/api/v1'}/training`;
 
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
@@ -63,7 +61,7 @@ const seedRows: StoredManagedUser[] = [
     firstName: 'A Bradshaw',
     lastName: 'VP',
     displayName: 'A Bradshaw VP',
-    email: 'owner@tuf.local',
+    email: 'abradshaw@tufsports.us',
     role: 'ADMIN',
     rank: 'Admin',
     region: 'National',
@@ -107,7 +105,7 @@ const seedRows: StoredManagedUser[] = [
     directorSignedOff: true,
     isCertified: true,
     credentialSalt: 'seed-primeau',
-    credentialHash: '00399ec96c4d81818f40f802315d89ad77c3e37cf3f46681eff3a77a0e661601',
+    credentialHash: '1ae172702387440e02923886c5b0513aff04861cd4f9fb23bfd934a927c0428b',
   },
   {
     id: 'u-rep-david-lundberg',
@@ -160,62 +158,10 @@ const seedRows: StoredManagedUser[] = [
     lockedUntil: null,
     loginCount: 0,
     hrDocsCompleted: false,
-    directorSignedOff: true,
-    isCertified: true,
+    directorSignedOff: false,
+    isCertified: false,
     credentialSalt: 'seed-josh',
     credentialHash: '5b8880ceb089c547b15bb8b1144dca8e2b4c09164e54e28325f1c7137415a5e2',
-  },
-  {
-    id: 'u-test-director',
-    firstName: 'Test',
-    lastName: 'Director',
-    displayName: 'Test Director',
-    email: 'test.director@tufsports.us',
-    role: 'DIRECTOR',
-    rank: 'TAE',
-    tier: 'TAE',
-    region: 'Midwest',
-    state_market: 'MN',
-    division: 'General',
-    territory: 'Minnesota',
-    assignedDirectorId: '',
-    status: 'ACTIVE',
-    avatarColor: COLORS[3],
-    mustChangeCredential: false,
-    failedCredentialAttempts: 0,
-    lockedUntil: null,
-    loginCount: 0,
-    hrDocsCompleted: false,
-    directorSignedOff: true,
-    isCertified: true,
-    credentialSalt: 'seed-test',
-    credentialHash: 'e3043a23587faa0e84c35fb70a04d945570f17e3c5b206f97a280a3d0d06262d',
-  },
-  {
-    id: 'u-test-rep',
-    firstName: 'Test',
-    lastName: 'Rep',
-    displayName: 'Test Rep',
-    email: 'test.rep@tufsports.us',
-    role: 'REP',
-    rank: 'TAE',
-    tier: 'TAE',
-    region: 'Midwest',
-    state_market: 'MN',
-    division: 'General',
-    territory: 'Minnesota',
-    assignedDirectorId: 'u-test-director',
-    status: 'ACTIVE',
-    avatarColor: COLORS[2],
-    mustChangeCredential: false,
-    failedCredentialAttempts: 0,
-    lockedUntil: null,
-    loginCount: 0,
-    hrDocsCompleted: false,
-    directorSignedOff: false,
-    isCertified: true,
-    credentialSalt: 'seed-test',
-    credentialHash: 'e3043a23587faa0e84c35fb70a04d945570f17e3c5b206f97a280a3d0d06262d',
   }
 ];
 
@@ -233,11 +179,11 @@ function sanitize(row: StoredManagedUser): ManagedUser {
   };
 }
 
-export function saveStoredUsers(rows: StoredManagedUser[]) {
+function saveStoredUsers(rows: StoredManagedUser[]) {
   localStorage.setItem(KEY, JSON.stringify(rows));
 }
 
-export function readStoredUsers(): StoredManagedUser[] {
+function readStoredUsers(): StoredManagedUser[] {
   LEGACY_USER_KEYS.forEach((key) => localStorage.removeItem(key));
   const raw = localStorage.getItem(KEY);
   if (!raw) {
@@ -565,52 +511,6 @@ async function recordSuccessfulLogin(user: StoredManagedUser, users: StoredManag
 }
 
 export async function authenticateWithPin(pin: string): Promise<AppUser | null> {
-  // In API mode, try backend login for a token; fall back to localStorage
-  if (DATA_MODE === 'api') {
-    const users = readStoredUsers();
-    let localUser: StoredManagedUser | null = null;
-    for (const u of users.filter((u) => u.status === 'ACTIVE')) {
-      const hash = await digest(`${u.credentialSalt}:${pin}`);
-      if (hash === u.credentialHash) { localUser = u; break; }
-    }
-    if (localUser) {
-      try {
-        const result = await apiClient<{ user: Record<string, unknown>; token: string }>('/auth/login', {
-          method: 'POST',
-          body: { email: localUser.email, credential: pin },
-        });
-        // Transform backend SafeUser (numeric id, snake_case) to frontend AppUser (string id, camelCase)
-        const backendUser = result.user;
-        const appUser: AppUser = {
-          id: String(backendUser.id),
-          name: String(backendUser.name ?? localUser.displayName ?? ''),
-          email: String(backendUser.email ?? localUser.email ?? ''),
-          role: (backendUser.role === 'OWNER' ? 'ADMIN' : String(backendUser.role ?? localUser.role)) as AppUser['role'],
-          rank: (backendUser.rank ?? localUser.rank ?? null) as string | null,
-          tier: (backendUser.tier ?? localUser.tier ?? null) as string | null,
-          region: (backendUser.region ?? localUser.region ?? null) as string | null,
-          state_market: (backendUser.state_market ?? localUser.state_market ?? null) as string | null,
-          division: (backendUser.division ?? localUser.division ?? null) as string | null,
-          territory: (backendUser.territory ?? localUser.territory ?? null) as string | null,
-          subterritory: (backendUser.subterritory ?? localUser.subterritory ?? null) as string | null,
-          sport_focus: (backendUser.sport_focus ?? localUser.sport_focus ?? null) as string | null,
-          assigned_director_id: typeof backendUser.assigned_director_id === 'number' ? backendUser.assigned_director_id : null,
-          reports_to_user_id: typeof backendUser.reports_to_user_id === 'number' ? backendUser.reports_to_user_id : null,
-          mustChangeCredential: Boolean(backendUser.must_change_credential ?? localUser.mustChangeCredential),
-          hrDocsCompleted: Boolean(backendUser.hr_docs_completed ?? localUser.hrDocsCompleted),
-          directorSignedOff: Boolean(backendUser.director_signed_off ?? localUser.directorSignedOff),
-          practicalExerciseCompleted: Boolean(backendUser.practical_exercise_completed ?? localUser.practicalExerciseCompleted),
-          isCertified: Boolean(backendUser.is_certified ?? localUser.isCertified),
-        };
-        (appUser as any).token = result.token;
-        return appUser;
-      } catch {
-        console.warn('[auth] Backend unreachable, falling back to localStorage');
-      }
-    }
-  }
-  // v25000 — build marker: API auth active
-  console.log('[auth] TUF Ops v25000 — API mode:', DATA_MODE);
   validateTemporaryCredential(pin);
   const users = readStoredUsers();
   const now = new Date().toISOString();
