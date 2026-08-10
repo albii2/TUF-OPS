@@ -17,6 +17,7 @@ const creative_requests_routes_1 = require("./modules/creative-requests/creative
 const training_routes_1 = require("./modules/training/training.routes");
 const announcements_routes_1 = require("./modules/announcements/announcements.routes");
 const users_routes_1 = require("./modules/users/users.routes");
+const academy_command_routes_1 = require("./modules/academy-command/academy-command.routes");
 const users_service_1 = require("./modules/users/users.service");
 const database_1 = require("@packages/database");
 const auth_1 = require("./auth");
@@ -24,11 +25,20 @@ const server = (0, fastify_1.default)();
 const port = Number(process.env.PORT || 4000);
 const webDistPath = process.env.WEB_DIST_PATH || node_path_1.default.resolve(__dirname, '../../web/dist');
 const indexHtmlPath = node_path_1.default.join(webDistPath, 'index.html');
-const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?)/;
+const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|academy(?:\/.*)?)/;
 const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,https://ops.tufsports.us,https://tufops.app')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
+// Also allow Vercel preview deployments
+function resolveOrigin(origin, callback) {
+    if (!origin || corsOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+    }
+    else {
+        callback(new Error('Not allowed by CORS'), false);
+    }
+}
 const mimeTypes = {
     '.css': 'text/css; charset=utf-8',
     '.html': 'text/html; charset=utf-8',
@@ -78,7 +88,7 @@ function emptyDataHealthPayload(status, reason) {
     };
 }
 server.register(cors_1.default, {
-    origin: corsOrigins,
+    origin: resolveOrigin,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 });
 server.addHook('onRequest', auth_1.authMiddleware);
@@ -111,6 +121,7 @@ server.register(production_requests_routes_1.productionRequestRoutes, { prefix: 
 server.register(orders_routes_1.orderRoutes, { prefix: '/api/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/api' });
 server.register(users_routes_1.userRoutes, { prefix: '/api/auth' });
+server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/api/v1/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/api/v1/opportunities' });
 server.register(activities_routes_1.activityRoutes, { prefix: '/api/v1/activities' });
@@ -118,8 +129,8 @@ server.register(reporting_routes_1.reportingRoutes, { prefix: '/api/v1/reporting
 server.register(production_requests_routes_1.productionRequestRoutes, { prefix: '/api/v1/production-requests' });
 server.register(orders_routes_1.orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/api/v1' });
-server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
 server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' });
+server.register(academy_command_routes_1.academyCommandRoutes, { prefix: '/api/v1/academy' });
 server.register(announcements_routes_1.announcementRoutes, { prefix: '/api/v1' });
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/opportunities' });
@@ -187,6 +198,30 @@ const start = async () => {
         (0, users_service_1.assertAuthTokenSecretConfigured)();
         if (hasDatabaseConfig()) {
             await (0, users_service_1.seedInitialOwnerIfEmpty)();
+            // Auto-migrate Academy Command schema (idempotent DDL)
+            try {
+                await database_1.pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS login_count INTEGER NOT NULL DEFAULT 0');
+                await database_1.pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS cohort VARCHAR(80)');
+                await database_1.pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS enrollment_date TIMESTAMP');
+                await database_1.pool.query(`
+          CREATE TABLE IF NOT EXISTS academy_activity_events (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            event_type VARCHAR(80) NOT NULL,
+            entity_type VARCHAR(80),
+            entity_id INTEGER,
+            metadata JSONB NOT NULL DEFAULT '{}',
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+          )
+        `);
+                await database_1.pool.query('CREATE INDEX IF NOT EXISTS idx_academy_events_user_time ON academy_activity_events(user_id, created_at)');
+                await database_1.pool.query('CREATE INDEX IF NOT EXISTS idx_academy_events_type_time ON academy_activity_events(event_type, created_at)');
+                await database_1.pool.query('CREATE INDEX IF NOT EXISTS idx_academy_events_time ON academy_activity_events(created_at)');
+                console.log('Auto-migration: Academy Command schema ready');
+            }
+            catch (migrationErr) {
+                console.warn('Auto-migration warning:', migrationErr.message);
+            }
         }
         else {
             server.log.warn('Skipping initial owner seed because database configuration is missing');
