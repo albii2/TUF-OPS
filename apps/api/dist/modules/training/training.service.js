@@ -271,9 +271,7 @@ async function resolveUserId(id) {
     const emailMap = {
         'u-owner-coach-bradshaw': 'abradshaw@tufsports.us',
         'u-director-primeau-hill': 'primeau.hill@tufsports.us',
-        'u-rep-jason-mulder': 'jvmulder@gmail.com', // Production database mapping
         'u-rep-david-lundberg': 'lundbergdave18@gmail.com',
-        'u-rep-shayla-hilliard': 'shaylahilliard17@gmail.com',
         'u-rep-josh-hoffman': 'jhoffman@kipsu.com',
     };
     const emailOrEmails = emailMap[String(id)];
@@ -288,13 +286,6 @@ async function resolveUserId(id) {
     const result = await database_1.pool.query('SELECT id FROM users WHERE LOWER(name) = LOWER($1)', [namePart]);
     if (result.rows[0]) {
         return result.rows[0].id;
-    }
-    // Fallback email lookup for Jason Mulder
-    if (namePart.includes('jason mulder')) {
-        const resFallback = await database_1.pool.query("SELECT id FROM users WHERE LOWER(email) = 'jvmulder@gmail.com'");
-        if (resFallback.rows[0]) {
-            return resFallback.rows[0].id;
-        }
     }
     throw new Error('User not found');
 }
