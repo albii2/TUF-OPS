@@ -23,6 +23,40 @@ import { listOpportunities } from '../services/opportunitiesService';
 import { listActivities } from '../services/activitiesService';
 import { getStoredUser } from '../auth';
 
+// ─── Activity Event Instrumentation ──────────────────────────────────────────
+
+/**
+ * Fire an activity event to the backend for executive visibility.
+ * Async, fire-and-forget — never blocks the user.
+ */
+function logAcademyEvent(
+  eventType: string,
+  entityType?: string,
+  metadata?: Record<string, unknown>,
+): void {
+  try {
+    const rawUser = localStorage.getItem('tuf_ops_user_v3');
+    if (!rawUser) return;
+    const parsed = JSON.parse(rawUser);
+    const token = parsed?.token;
+    if (!token) return;
+
+    const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || '/api';
+    fetch(`${apiBase}/v1/academy/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ event_type: eventType, entity_type: entityType, metadata }),
+    }).catch(() => {
+      // fire-and-forget — never surface errors to the user
+    });
+  } catch {
+    // fire-and-forget
+  }
+}
+
 // ─── Module Definitions ─────────────────────────────────────────────────────
 
 export type AcademyModuleCode = 'ACAD-101' | 'ACAD-102' | 'ACAD-103' | 'ACAD-104' | 'ACAD-105' | 'ACAD-106';
@@ -794,6 +828,14 @@ export function gradeQuiz(
   };
 
   saveQuizResult(result);
+
+  // Fire instrumentation event
+  if (passed) {
+    logAcademyEvent('QUIZ_PASSED', code, { score, attempts });
+  } else {
+    logAcademyEvent('QUIZ_FAILED', code, { score, attempts });
+  }
+
   return result;
 }
 
@@ -818,6 +860,9 @@ export function saveMissionStatement(userId: string, text: string): void {
     const data = raw ? (JSON.parse(raw) as Record<string, string>) : {};
     data[userId] = text;
     localStorage.setItem(MISSION_KEY, JSON.stringify(data));
+
+    // Fire instrumentation event
+    logAcademyEvent('MISSION_STATEMENT_SAVED', 'ACAD-101');
   } catch {
     // fail silently
   }
@@ -851,6 +896,9 @@ export function saveCoachReview(code: AcademyModuleCode, review: CoachReview): v
     const reviews = getCoachReviews();
     reviews[code] = review;
     localStorage.setItem(COACH_REVIEWS_KEY, JSON.stringify(reviews));
+
+    // Fire instrumentation event
+    logAcademyEvent('COACH_REVIEW_RECEIVED', code, { reviewedBy: review.reviewedBy });
   } catch {
     // fail silently
   }
@@ -883,6 +931,9 @@ export function acknowledgeModule(userId: string, code: AcademyModuleCode): void
     acked.add(code);
     data[userId] = [...acked];
     localStorage.setItem(ACKNOWLEDGMENTS_KEY, JSON.stringify(data));
+
+    // Fire instrumentation event
+    logAcademyEvent('MODULE_ACKNOWLEDGED', code);
   } catch {
     // fail silently
   }
@@ -1520,6 +1571,11 @@ export function markPageVisited(page: string): void {
   const visited = getVisitedPages();
   visited.add(page);
   localStorage.setItem(VISITED_PAGES_KEY, JSON.stringify([...visited]));
+
+  // Fire instrumentation event for Academy visits
+  if (page === 'academy') {
+    logAcademyEvent('PAGE_VISITED', 'academy');
+  }
 }
 
 // ─── Certification Reset (clear all cert data for fresh start) ───────────────

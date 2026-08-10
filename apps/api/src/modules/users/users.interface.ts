@@ -22,6 +22,10 @@ export type SafeUser = {
   hr_docs_completed: boolean;
   director_signed_off: boolean;
   practical_exercise_completed: boolean;
+  last_login_at: string | null;
+  login_count: number;
+  cohort: string | null;
+  enrollment_date: string | null;
   created_at: string;
   updated_at: string;
 };
