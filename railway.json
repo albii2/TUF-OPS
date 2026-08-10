@@ -5,7 +5,7 @@
     "buildCommand": "cd apps/api && npx tsc"
   },
   "deploy": {
-    "startCommand": "node apps/api/dist/index.js",
+    "startCommand": "cd apps/api && npx tsc && node dist/index.js",
     "preDeployCommand": "echo 'Skipping pre-deploy migration (run manually via Railway shell)'",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
