@@ -10,7 +10,14 @@ export declare function updateCandidate(id: number, input: UpdateCandidateInput)
 export declare function setResumeUrl(id: number, url: string): Promise<Candidate | null>;
 export declare function getCandidateActivities(candidateId: number): Promise<CandidateActivity[]>;
 export declare function getRecruitingDashboard(directorId?: number): Promise<{
-    stages: any;
-    academy: any;
+    stages: {
+        stage: string;
+        count: number;
+    }[];
+    academy: {
+        id: number;
+        name: string;
+        progress: any;
+    }[];
 }>;
 //# sourceMappingURL=recruiting.service.d.ts.map

@@ -4,7 +4,7 @@ export declare function getPipelineCandidates(filters?: {
     stage?: string;
     status?: string;
     assigned_hr?: string;
-}): Promise<any>;
+}): Promise<any[]>;
 export declare function createPipelineCandidate(data: {
     candidate_name: string;
     email?: string;

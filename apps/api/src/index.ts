@@ -14,6 +14,7 @@ import { vendorRoutes } from './modules/vendors/vendors.routes';
 import { announcementRoutes } from './modules/announcements/announcements.routes';
 import { userRoutes } from './modules/users/users.routes';
 import { academyCommandRoutes } from './modules/academy-command/academy-command.routes';
+import { academyV2Routes } from './modules/academy-v2/academy-v2.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -133,6 +134,7 @@ server.register(orderRoutes, { prefix: '/api/v1/orders' });
 server.register(creativeRequestRoutes, { prefix: '/api/v1' });
 server.register(trainingRoutes, { prefix: '/api/v1/training' });
 server.register(academyCommandRoutes, { prefix: '/api/v1/academy' });
+server.register(academyV2Routes, { prefix: '/api/v1/academy-v2' });
 server.register(announcementRoutes, { prefix: '/api/v1' });
 server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(userRoutes, { prefix: '/api/v1' });  // frontend compat for /users paths
