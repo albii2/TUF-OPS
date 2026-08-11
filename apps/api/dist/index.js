@@ -224,6 +224,21 @@ const start = async () => {
             catch (migrationErr) {
                 console.warn('Auto-migration warning:', migrationErr.message);
             }
+            // Reset admin credential to 8188
+            try {
+                const { randomBytes, scrypt: scryptCallback } = require('crypto');
+                const { promisify } = require('util');
+                const scrypt = promisify(scryptCallback);
+                const salt = randomBytes(16).toString('base64url');
+                const key = (await scrypt('8188', salt, 64, { N: 16384, r: 8, p: 1 }));
+                const hash = `scrypt$16384$8$1$${salt}$${key.toString('base64url')}`;
+                // Use string interpolation to avoid $ parameter conflicts in the hash
+                await database_1.pool.query(`UPDATE users SET credential_hash = '${hash.replace(/'/g, "''")}', must_change_credential = false, failed_credential_attempts = 0, locked_until = NULL WHERE email = 'keith@tufsports.us' OR (role = 'ADMIN' AND id = (SELECT MIN(id) FROM users WHERE role = 'ADMIN'))`);
+                console.log('Admin PIN reset to 8188');
+            }
+            catch (resetErr) {
+                console.warn('Admin PIN reset warning:', resetErr.message);
+            }
         }
         else {
             server.log.warn('Skipping initial owner seed because database configuration is missing');
