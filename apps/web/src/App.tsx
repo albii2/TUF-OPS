@@ -33,6 +33,7 @@ import AcademyProgressPage from './pages/academy/AcademyProgressPage';
 import AcademyDirectorReview from './pages/academy/AcademyDirectorReview';
 import CertificationChecklist from './pages/academy/CertificationChecklist';
 import AcademyV2Page from './pages/academy-v2/AcademyV2Page';
+import AcademyCommandPage from './pages/AcademyCommandPage';
 import LockerRoomSimulator from './components/academy/LockerRoomSimulator';
 import AdminCertificationPage from './pages/AdminCertificationPage';
 import DailyActivityCommand from './pages/DailyActivityCommand';
@@ -144,6 +145,7 @@ export default function App() {
         <Route path="/academy/progress" element={<PageProtected user={user} path="/academy"><AcademyProgressPage /></PageProtected>} />
         <Route path="/academy/certification" element={<PageProtected user={user} path="/academy"><CertificationChecklist /></PageProtected>} />
         <Route path="/academy/v2" element={<PageProtected user={user} path="/academy"><AcademyV2Page /></PageProtected>} />
+        <Route path="/academy/command" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'DIRECTOR', 'REGIONAL_DIRECTOR']}><AcademyCommandPage /></RoleProtected>} />
         <Route path="/academy/director-review" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AcademyDirectorReview /></RoleProtected>} />
         <Route path="/locker-room" element={<PageProtected user={user} path="/academy"><LockerRoomSimulator /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />
