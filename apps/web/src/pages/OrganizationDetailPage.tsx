@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { getStoredUser } from '../auth';
 import { LighthousePanel } from '../components/LighthousePanel';
@@ -8,20 +8,19 @@ import { useOrganizationById } from '../hooks/useOrganizations';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useOrders } from '../hooks/useOrders';
 import { useActivities } from '../hooks/useReports';
-import { createMockOpportunity, getRevenueLanes } from '../services/opportunitiesService';
-import { createOpportunityAsync } from '../services/ordersService';
-import { updateOrganization, updateOrganizationAsync } from '../services/organizationsService';
+import { createOpportunity, getRevenueLanes } from '../services/opportunitiesService';
+import { updateOrganization, deleteOrganization } from '../services/organizationsService';
 import { createEcosystemReferral, referredOrganizationTypes, warmIntroductionStatuses, type ReferredOrganizationType, type WarmIntroductionStatus } from '../services/ecosystemReferralsService';
 import { useEcosystemReferrals } from '../hooks/useEcosystemReferrals';
-import { createActivity, createActivityAsync } from '../services/activitiesService';
-import { DATA_MODE } from '../services/dataMode';
-import type { RevenueLane } from '../data/mockSalesData';
+import { createActivity } from '../services/activitiesService';
+import type { RevenueLane } from '@tuf/shared';
 
 export function OrganizationDetailPage() {
   const { id } = useParams();
-  const org = useOrganizationById(id);
+  const navigate = useNavigate();
+  const { data: org } = useOrganizationById(id);
   const user = getStoredUser();
-  const allOpportunities = useOpportunities({});
+  const { data: allOpportunities = [] } = useOpportunities({});
   const [laneMessage, setLaneMessage] = useState('');
   const [referralMessage, setReferralMessage] = useState('');
   const [referralRefreshKey, setReferralRefreshKey] = useState(0);
@@ -38,8 +37,9 @@ export function OrganizationDetailPage() {
     linkedOpportunityId: '',
   });
   const activeOpportunities = allOpportunities.filter((o) => o.organizationId === id && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage));
-  const orgOrders = useOrders({}).filter((o) => o.organizationId === id);
-  const orgActivity = useActivities({ entityType: 'ORGANIZATION', entityId: id, limit: 5 });
+  const { data: allOrdersForOrg = [] } = useOrders({});
+  const orgOrders = allOrdersForOrg.filter((o) => o.organizationId === id);
+  const { data: orgActivity = [] } = useActivities({ entityType: 'ORGANIZATION', entityId: id, limit: 5 });
   const orgReferrals = useEcosystemReferrals({ sourceOrganizationId: id, refreshKey: referralRefreshKey });
   const revenueLanes = getRevenueLanes();
 
@@ -54,11 +54,12 @@ export function OrganizationDetailPage() {
   const activeSports = laneCoverageBySport.map((x) => x.sport).filter(Boolean);
   const closedRevenue = allOpportunities.filter((o) => o.organizationId === id && o.stage === 'CLOSED_WON').reduce((sum, o) => sum + o.value, 0);
   const pipelineRevenue = allOpportunities.filter((o) => o.organizationId === id && !['CLOSED_WON', 'CLOSED_LOST'].includes(o.stage)).reduce((sum, o) => sum + o.value, 0);
+  const laneData = org.laneStatuses || {};
   const laneStates = [
-    { lane: 'UNIFORM', status: org.laneStatuses.UNIFORM.status },
-    { lane: 'TEAM_STORE', status: org.laneStatuses.TEAM_STORE.status },
-    { lane: 'TRAVEL_GEAR', status: org.laneStatuses.TRAVEL_GEAR.status },
-    { lane: 'LETTERMAN', status: org.laneStatuses.LETTERMAN.status },
+    { lane: 'UNIFORM', status: laneData.UNIFORM?.status || 'OPEN' },
+    { lane: 'TEAM_STORE', status: laneData.TEAM_STORE?.status || 'OPEN' },
+    { lane: 'TRAVEL_GEAR', status: laneData.TRAVEL_GEAR?.status || 'OPEN' },
+    { lane: 'LETTERMAN', status: laneData.LETTERMAN?.status || 'OPEN' },
   ];
   const missingLanes = laneStates.filter((x) => x.status === 'OPEN').map((x) => x.lane);
   const suggestedNextLane = missingLanes[0] ?? 'Maintain active lane pressure';
@@ -75,45 +76,27 @@ export function OrganizationDetailPage() {
     if (existingActiveLaneOpportunity) {
       setLaneMessage(`${lane.replace(/_/g, ' ')} already has an active opportunity: ${existingActiveLaneOpportunity.title}. Open it below and advance the next step.`);
       const activityMsg = `Reviewed ${lane.replace(/_/g, ' ')} lane; active opportunity already exists.`;
-      if (DATA_MODE === 'api') {
-        createActivityAsync({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
-      } else {
-        createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg });
-      }
+      createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
       return;
     }
 
-    const laneData = org.laneStatuses[lane];
-    const createdOpportunity = DATA_MODE === 'api'
-      ? await createOpportunityAsync({
-          organizationId: id,
-          organizationName: org.name,
-          programLevel: 'Varsity',
-          sport: activeSports[0] ?? 'Football',
-          seasonCode: String(new Date().getFullYear()),
-          lane,
-          assignedRep: org.assignedRep,
-          value: laneData.estimatedValue || 5000,
-          organizationAssignedDirector: org.assignedDirector,
-        })
-      : createMockOpportunity({
-          organizationId: id,
-          organizationName: org.name,
-          programLevel: 'Varsity',
-          sport: activeSports[0] ?? 'Football',
-          seasonCode: String(new Date().getFullYear()),
-          lane,
-          assignedRep: org.assignedRep,
-          value: laneData.estimatedValue || 5000,
-          organizationAssignedDirector: org.assignedDirector,
-        });
+    const laneData = (org.laneStatuses || {})[lane];
+    const laneInfo = laneData || { estimatedValue: 5000 };
+    const createdOpportunity = await createOpportunity({
+      name: `${org.name} - ${lane.replace(/_/g, ' ')}`,
+      organizationId: id,
+      organizationName: org.name,
+      programLevel: 'Varsity',
+      sport: activeSports[0] ?? 'Football',
+      seasonCode: String(new Date().getFullYear()),
+      lane,
+      assignedRep: org.assignedRep,
+      value: laneInfo.estimatedValue || 5000,
+      organizationAssignedDirector: org.assignedDirector,
+    });
 
     const activityMsg = `Created ${lane.replace(/_/g, ' ')} lane opportunity: ${createdOpportunity.title}.`;
-    if (DATA_MODE === 'api') {
-      createActivityAsync({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
-    } else {
-      createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg });
-    }
+    createActivity({ entityType: 'ORGANIZATION', entityId: id, message: activityMsg }).catch(console.error);
     setLaneMessage(`${lane.replace(/_/g, ' ')} opportunity created. Open ${createdOpportunity.title} below to contact the coach and start Discovery.`);
   };
 
@@ -152,6 +135,17 @@ export function OrganizationDetailPage() {
     setReferralMessage('Ecosystem referral captured and added to the dedicated Ecosystem Pipeline.');
   };
 
+  const removeOrganization = async () => {
+    if (!id || !org) return;
+    if (!window.confirm(`PERMANENTLY DELETE "${org.name}"? This removes the organization and all related opportunities, activities, and orders. This cannot be undone.`)) return;
+    try {
+      await deleteOrganization(id);
+      navigate('/organizations');
+    } catch {
+      alert('Failed to delete organization. You may not have permission.');
+    }
+  };
+
   return (
     <div className="space-y-3 min-w-0">
       <Card title="Account Penetration Console">
@@ -160,6 +154,12 @@ export function OrganizationDetailPage() {
             <p className="text-lg font-semibold">{org.name}</p>
             <p className="text-sm text-slate-400">{org.city}, {org.state} · {zoneLabel}</p>
             <p className="text-xs text-slate-400">Rep {org.assignedRep} · Director {org.assignedDirector} · Lead Tier {org.leadTier ?? 'UNASSIGNED'}</p>
+            {(user && (user.role === 'ADMIN' || user.role === 'DIRECTOR')) && (
+              <button
+                className="mt-2 rounded border border-rose-500/50 bg-rose-500/10 px-3 py-1 text-xs text-rose-300 hover:bg-rose-500/20"
+                onClick={removeOrganization}
+              >Delete Organization</button>
+            )}
             {(user && (user.role === 'DIRECTOR' || user.role === 'ADMIN')) && (
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-xs text-slate-500">Reassign Rep:</span>
@@ -168,16 +168,12 @@ export function OrganizationDetailPage() {
                   value={org.assignedRep}
                   onChange={(e) => {
                     const patch = { assignedRep: e.target.value };
-                    if (DATA_MODE === 'api') {
-                      updateOrganizationAsync(org.id, patch).catch(console.error);
-                    } else {
-                      updateOrganization(org.id, patch);
-                    }
+                    updateOrganization(org.id, patch).catch(console.error);
                     window.dispatchEvent(new Event('tuf:org-updated'));
                   }}
                 >
                   <option value="Unassigned">Unassigned</option>
-                  {['Josh Hoffman', 'David Lundberg', 'Primeau Hill'].map((rep) => (
+                  {['Josh Hoffman', 'Primeau Hill', 'William Denzer', 'Ryan Streetar'].map((rep) => (
                     <option key={rep} value={rep}>{rep}</option>
                   ))}
                 </select>
@@ -220,15 +216,16 @@ export function OrganizationDetailPage() {
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         {revenueLanes.map((lane) => {
-          const laneData = org.laneStatuses[lane];
+          const laneData = (org.laneStatuses || {})[lane];
+          const laneInfo = laneData || { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Not set' };
           return (
             <Card key={lane}>
               <div className="space-y-2">
                 <LaneBadge lane={lane} />
-                <LaneStatusBadge status={laneData.status} />
-                <p className="text-lg font-semibold text-cyan-300">{formatCurrency(laneData.estimatedValue)}</p>
-                <p className="text-xs text-slate-400">Active Opps: {laneData.activeOpportunityCount}</p>
-                <p className="text-xs text-slate-300">Next: {laneData.nextAction}</p>
+                <LaneStatusBadge status={laneInfo.status} />
+                <p className="text-lg font-semibold text-cyan-300">{formatCurrency(laneInfo.estimatedValue)}</p>
+                <p className="text-xs text-slate-400">Active Opps: {laneInfo.activeOpportunityCount}</p>
+                <p className="text-xs text-slate-300">Next: {laneInfo.nextAction}</p>
                 <Button className="w-full" onClick={() => attackLane(lane)}>Attack This Lane</Button>
               </div>
             </Card>

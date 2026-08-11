@@ -6,10 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --max-warnings 0",
+    "test": "jest --passWithNoTests",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.101.2",
+    "@tanstack/react-query-devtools": "^5.101.2",
+    "@tuf/shared": "workspace:*",
     "axios": "^1.7.2",
     "csv-parse": "^6.2.1",
     "leaflet": "^1.9.4",

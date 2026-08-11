@@ -48,14 +48,14 @@ function stageOrder(stage: string): number {
   return map[stage] || 0;
 }
 
-export function getForgeMission(): ForgeMission {
+export async function getForgeMission(): Promise<ForgeMission> {
   const user = getStoredUser();
   const repName = user?.name || 'Rep';
   const territory = user?.territory || 'Unknown';
   
-  const orgs = listOrganizations({});
-  const opps = listOpportunities({});
-  const activities = listActivities({});
+  const orgs = await listOrganizations({});
+  const opps = await listOpportunities({});
+  const activities = await listActivities({});
   
   // Latest activity per org
   const latest: Record<string, { date: string; days: number }> = {};

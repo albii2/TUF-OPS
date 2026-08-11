@@ -20,7 +20,8 @@ import {
   type CoachReview,
 } from '../lib/academy';
 import type { ManagedUser } from '../services/usersService';
-import { readStoredUsers, saveStoredUsers } from '../services/usersService';
+// Note: readStoredUsers/saveStoredUsers removed — localStorage mock mode is killed.
+// Admin certification now operates via API-backed listUsers().
 
 // ─── Coach Review Form Component ──────────────────────────────────────────
 
@@ -158,6 +159,46 @@ export default function AdminCertificationPage() {
   const [sendingBulkReminder, setSendingBulkReminder] = useState(false);
   const [reminderSent, setReminderSent] = useState<string | null>(null);
 
+  // Academy V2 — Live Progress
+  interface AcademyV2PhaseStatus {
+    completed: boolean;
+  }
+  interface AcademyV2QuizResult {
+    quizId: string;
+    name: string;
+    score: number | null;
+    passed: boolean;
+    attemptedAt: string | null;
+  }
+  interface AcademyV2RepProgress {
+    graduationStatus: {
+      phase1: AcademyV2PhaseStatus;
+      phase2: AcademyV2PhaseStatus;
+      phase3: AcademyV2PhaseStatus;
+      phase4: AcademyV2PhaseStatus;
+      phase5: AcademyV2PhaseStatus;
+      gates: {
+        orgs: { current: number; required: number; met: boolean };
+        contacts: { current: number; required: number; met: boolean };
+        opps: { current: number; required: number; met: boolean };
+        activities: { current: number; required: number; met: boolean };
+        sales_executions: { current: number; required: number; met: boolean };
+        directorApproved: { met: boolean };
+      };
+      all_passed: boolean;
+      ready_to_graduate: boolean;
+    } | null;
+    phase1Status: {
+      completed: boolean;
+      quizzes: AcademyV2QuizResult[];
+    } | null;
+    loading: boolean;
+    error: string | null;
+  }
+  const [academyV2Data, setAcademyV2Data] = useState<Record<string, AcademyV2RepProgress>>({});
+  const [academyV2Loading, setAcademyV2Loading] = useState(false);
+  const [academyV2Error, setAcademyV2Error] = useState<string | null>(null);
+
   useEffect(() => {
     refreshData();
   }, []);
@@ -169,6 +210,75 @@ export default function AdminCertificationPage() {
     setRecords(loadedRecords);
     const loadedSubmissions = getAllSubmissions();
     setSubmissions(loadedSubmissions);
+  };
+
+  const fetchAcademyV2Progress = async () => {
+    setAcademyV2Loading(true);
+    setAcademyV2Error(null);
+    const token = localStorage.getItem('tuf_ops_token_v1');
+
+    const repUsers = allUsers.filter((u) => u.role === 'REP' && u.status === 'ACTIVE');
+
+    // Initialize loading state for each rep
+    const initialData: Record<string, AcademyV2RepProgress> = {};
+    repUsers.forEach((rep) => {
+      initialData[rep.id] = {
+        graduationStatus: null,
+        phase1Status: null,
+        loading: true,
+        error: null,
+      };
+    });
+    setAcademyV2Data(initialData);
+
+    const fetchForRep = async (rep: ManagedUser) => {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      try {
+        const [gradRes, phase1Res] = await Promise.all([
+          fetch(`/api/v1/academy-v2/graduation-status?userId=${rep.id}`, { headers }),
+          fetch(`/api/v1/academy-v2/phase1-status?userId=${rep.id}`, { headers }),
+        ]);
+
+        let graduationStatus = null;
+        let phase1Status = null;
+        let error: string | null = null;
+
+        if (gradRes.ok) {
+          graduationStatus = await gradRes.json();
+        } else {
+          const errText = await gradRes.text().catch(() => 'Unknown error');
+          error = `graduation-status: ${gradRes.status} ${errText}`;
+        }
+
+        if (phase1Res.ok) {
+          phase1Status = await phase1Res.json();
+        } else if (!error) {
+          const errText = await phase1Res.text().catch(() => 'Unknown error');
+          error = `phase1-status: ${phase1Res.status} ${errText}`;
+        }
+
+        setAcademyV2Data((prev) => ({
+          ...prev,
+          [rep.id]: { graduationStatus, phase1Status, loading: false, error },
+        }));
+      } catch (e: any) {
+        setAcademyV2Data((prev) => ({
+          ...prev,
+          [rep.id]: {
+            graduationStatus: null,
+            phase1Status: null,
+            loading: false,
+            error: e.message || 'Network error',
+          },
+        }));
+      }
+    };
+
+    // Fire all fetches in parallel
+    await Promise.all(repUsers.map(fetchForRep));
+    setAcademyV2Loading(false);
   };
 
   const handleApprove = async (repUser: ManagedUser) => {
@@ -190,14 +300,6 @@ export default function AdminCertificationPage() {
   const forceCertifyRep = (repUser: ManagedUser) => {
     // Update the current user session
     updateUserCertificationStatus(repUser.id, true);
-    // Also update the stored users seed data
-    const users = readStoredUsers();
-    const idx = users.findIndex(u => u.id === repUser.id);
-    if (idx >= 0) {
-      users[idx].isCertified = true;
-      users[idx].directorSignedOff = true;
-      saveStoredUsers(users);
-    }
     refreshData();
   };
 
@@ -476,6 +578,244 @@ export default function AdminCertificationPage() {
           >
             {sendingBulkReminder ? 'Sending...' : `Send Reminder to All Uncertified (${uncertifiedCount})`}
           </button>
+        </div>
+
+        {/* ─── Academy V2 — Live Progress ─── */}
+        <div className="rounded-xl border border-purple-400/20 bg-[#0d1520] p-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-black text-white">
+                🎓 Academy V2 — Live Progress
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Real-time phase completion and quiz progress for each TAE enrolled in Academy V2.
+              </p>
+            </div>
+            <button
+              onClick={fetchAcademyV2Progress}
+              disabled={academyV2Loading}
+              className="rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/20 disabled:opacity-40 transition-colors"
+            >
+              {academyV2Loading ? '⟳ Loading...' : '⟳ Refresh Progress'}
+            </button>
+          </div>
+
+          {academyV2Error && (
+            <div className="mb-3 rounded-lg border border-red-400/30 bg-red-400/5 p-3 text-xs text-red-300">
+              {academyV2Error}
+            </div>
+          )}
+
+          {Object.keys(academyV2Data).length === 0 && !academyV2Loading ? (
+            <div className="text-center py-8">
+              <p className="text-sm text-slate-500 mb-3">
+                No Academy V2 progress data loaded yet.
+              </p>
+              <button
+                onClick={fetchAcademyV2Progress}
+                className="rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-xs font-bold text-cyan-200 hover:bg-cyan-400/20 transition-colors"
+              >
+                Load Progress
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {reps
+                .filter((r) => academyV2Data[r.id])
+                .map((rep) => {
+                  const v2 = academyV2Data[rep.id];
+                  if (v2.loading) {
+                    return (
+                      <div
+                        key={rep.id}
+                        className="rounded-lg border border-slate-800 bg-slate-900/30 p-4 flex items-center gap-3"
+                      >
+                        <div className="w-4 h-4 border-2 border-slate-600 border-t-cyan-400 rounded-full animate-spin" />
+                        <span className="text-sm text-slate-400">
+                          Loading {rep.displayName}...
+                        </span>
+                      </div>
+                    );
+                  }
+                  if (v2.error) {
+                    return (
+                      <div
+                        key={rep.id}
+                        className="rounded-lg border border-red-400/20 bg-red-400/5 p-4"
+                      >
+                        <p className="text-sm font-bold text-red-300">{rep.displayName}</p>
+                        <p className="text-xs text-red-400/70 mt-1">{v2.error}</p>
+                      </div>
+                    );
+                  }
+
+                  const gs = v2.graduationStatus;
+                  const ps = v2.phase1Status;
+                  const phases = [
+                    { num: 1, completed: gs?.phase1?.completed ?? false, label: 'P1' },
+                    { num: 2, completed: gs?.phase2?.completed ?? false, label: 'P2' },
+                    { num: 3, completed: gs?.phase3?.completed ?? false, label: 'P3' },
+                    { num: 4, completed: gs?.phase4?.completed ?? false, label: 'P4' },
+                    { num: 5, completed: gs?.phase5?.completed ?? false, label: 'P5' },
+                  ];
+                  const completedPhases = phases.filter((p) => p.completed).length;
+                  const totalPhases = phases.length;
+                  const passedQuizzes = ps?.quizzes.filter((q) => q.passed).length ?? 0;
+                  const totalQuizzes = ps?.quizzes.length ?? 0;
+                  const isGraduated = gs?.ready_to_graduate && gs?.phase5?.completed;
+
+                  // Determine current phase and next step
+                  let currentPhaseLabel = '';
+                  let nextStep = '';
+                  if (isGraduated) {
+                    currentPhaseLabel = 'Graduated';
+                    nextStep = 'CRM Unlocked';
+                  } else if (!gs?.phase1?.completed) {
+                    currentPhaseLabel = 'Phase 1';
+                    nextStep = 'Complete all 9 quizzes';
+                  } else if (!gs?.phase2?.completed) {
+                    currentPhaseLabel = 'Phase 2';
+                    nextStep = 'Complete CRM walkthrough';
+                  } else if (!gs?.phase3?.completed) {
+                    currentPhaseLabel = 'Phase 3';
+                    nextStep = 'Build sandbox territory';
+                  } else if (!gs?.phase4?.completed) {
+                    currentPhaseLabel = 'Phase 4';
+                    nextStep = 'Complete sales executions';
+                  } else if (!gs?.phase5?.completed) {
+                    currentPhaseLabel = 'Phase 5';
+                    nextStep = 'Director approval needed';
+                  }
+
+                  return (
+                    <div
+                      key={rep.id}
+                      className="rounded-lg border border-slate-800 bg-slate-900/30 p-4 hover:border-slate-700 transition-colors"
+                    >
+                      <div className="flex items-center justify-between">
+                        {/* Left: Name + Phase Bar */}
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-white truncate">
+                              {rep.displayName}
+                            </p>
+                            <p className="text-[10px] text-slate-500">
+                              {rep.subterritory || rep.territory || '—'}
+                            </p>
+                          </div>
+
+                          {/* Phase Progress Bar */}
+                          <div className="flex items-center gap-1.5">
+                            {phases.map((p) => (
+                              <div
+                                key={p.num}
+                                className="flex flex-col items-center gap-0.5"
+                                title={`Phase ${p.num}: ${p.completed ? 'Complete' : 'Incomplete'}`}
+                              >
+                                <div
+                                  className={`w-7 h-7 rounded-full border text-[9px] font-bold flex items-center justify-center transition-colors ${
+                                    p.completed
+                                      ? 'bg-emerald-400/20 border-emerald-400/40 text-emerald-300'
+                                      : 'bg-slate-800 border-slate-700 text-slate-600'
+                                  }`}
+                                >
+                                  {p.completed ? '✓' : p.num}
+                                </div>
+                                <span className="text-[8px] text-slate-500">{p.label}</span>
+                              </div>
+                            ))}
+                            {/* Connector bar */}
+                            <div className="flex items-center ml-1">
+                              <div className="w-16 h-1 bg-slate-800 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-emerald-400/50 rounded-full transition-all"
+                                  style={{ width: `${(completedPhases / totalPhases) * 100}%` }}
+                                />
+                              </div>
+                              <span className="text-[9px] text-slate-400 ml-1.5 font-mono">
+                                {completedPhases}/{totalPhases}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right: Status Badge */}
+                        <div className="flex items-center gap-3 shrink-0">
+                          {/* Quiz Count */}
+                          <div className="text-center">
+                            <span className="text-xs text-slate-400">
+                              Quizzes:{' '}
+                              <span
+                                className={
+                                  passedQuizzes === totalQuizzes && totalQuizzes > 0
+                                    ? 'text-emerald-300 font-bold'
+                                    : 'text-amber-300'
+                                }
+                              >
+                                {passedQuizzes}/{totalQuizzes}
+                              </span>
+                            </span>
+                          </div>
+
+                          {/* Status Badge */}
+                          {isGraduated ? (
+                            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/20 px-3 py-1 text-xs font-bold text-emerald-200">
+                              ✅ Certified — CRM Unlocked
+                            </span>
+                          ) : (
+                            <div className="text-right">
+                              <span className="inline-flex items-center gap-1 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-200">
+                                {currentPhaseLabel}
+                              </span>
+                              {nextStep && (
+                                <p className="text-[10px] text-slate-500 mt-0.5">{nextStep}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Quality Gates (if in progress) */}
+                      {gs && !isGraduated && gs.gates && (
+                        <div className="mt-3 pt-3 border-t border-slate-800/60">
+                          <div className="flex flex-wrap gap-x-5 gap-y-1 text-[10px]">
+                            {[
+                              { label: 'Orgs', gate: gs.gates.orgs },
+                              { label: 'Contacts', gate: gs.gates.contacts },
+                              { label: 'Opps', gate: gs.gates.opps },
+                              { label: 'Activities', gate: gs.gates.activities },
+                              { label: 'Sales Exec', gate: gs.gates.sales_executions },
+                            ].map(({ label, gate }) => (
+                              <span
+                                key={label}
+                                className={
+                                  gate.met
+                                    ? 'text-emerald-400'
+                                    : 'text-slate-500'
+                                }
+                              >
+                                {gate.met ? '✓' : '○'} {label}: {gate.current}/{gate.required}
+                              </span>
+                            ))}
+                            {gs.gates?.directorApproved && (
+                              <span
+                                className={
+                                  gs.gates.directorApproved.met
+                                    ? 'text-emerald-400'
+                                    : 'text-slate-500'
+                                }
+                              >
+                                {gs.gates.directorApproved.met ? '✓' : '○'} Director
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
 
         {/* TAEs Table */}

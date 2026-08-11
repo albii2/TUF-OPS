@@ -10,8 +10,7 @@ import {
   checkAndAwardQualifications,
 } from '../lib/achievements';
 import { BadgeLocker } from '../components/BadgeLocker';
-import { listOrganizations, listOrganizationsAsync } from '../services/organizationsService';
-import { DATA_MODE } from '../services/dataMode';
+import { listOrganizations } from '../services/organizationsService';
 import {
   listOpportunities,
 } from '../services/opportunitiesService';
@@ -100,7 +99,7 @@ export function SettingsPage() {
     async function computeStats() {
       try {
         const [orgs, opps] = await Promise.all([
-          DATA_MODE === 'api' ? listOrganizationsAsync({}) : listOrganizations({}),
+          listOrganizations({}),
           listOpportunities({}),
         ]);
 

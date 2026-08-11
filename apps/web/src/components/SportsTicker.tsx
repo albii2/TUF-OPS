@@ -141,6 +141,9 @@ export function SportsTicker() {
   const [scoreSlots, setScoreSlots] = useState<GameSlot[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>('—');
   const [selectedLeagues, setSelectedLeagues] = useState<League[]>(DEFAULT_LEAGUES);
+  const [collapsed, setCollapsed] = useState(() => {
+    try { return localStorage.getItem('tuf_ticker_collapsed') === 'true'; } catch { return false; }
+  });
 
   // Inject CSS
   useEffect(() => {
@@ -390,11 +393,28 @@ export function SportsTicker() {
   }, [tickerItems]);
 
   if (selectedLeagues.length === 0 && tickerItems.filter((t) => t.type === 'game').length === 0) {
-    return null; // Don't show ticker if no leagues selected
+    return null;
   }
+
+  const toggleTicker = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    try { localStorage.setItem('tuf_ticker_collapsed', String(next)); } catch {}
+  };
 
   return (
     <div className="mb-2 w-full min-w-0 overflow-hidden rounded-md border border-[#12314a] bg-[#07111b] text-xs text-slate-200">
+      {collapsed ? (
+        <div className="flex items-center px-3 py-1.5">
+          <span className="text-[10px] text-slate-500">Sports ticker hidden</span>
+          <button
+            onClick={toggleTicker}
+            className="ml-2 text-[10px] text-cyan-400 hover:text-cyan-300"
+          >
+            Show →
+          </button>
+        </div>
+      ) : (
       <div className="flex items-center">
         {/* Left fixed elements */}
         <a
@@ -415,7 +435,17 @@ export function SportsTicker() {
             {marqueeContent}
           </div>
         </div>
+
+        {/* Collapse button */}
+        <button
+          onClick={toggleTicker}
+          className="shrink-0 border-l border-[#12314a] px-2 py-2 text-[10px] text-slate-500 hover:text-slate-300 z-10"
+          title="Hide sports ticker"
+        >
+          ✕
+        </button>
       </div>
+      )}
     </div>
   );
 }

@@ -17,7 +17,7 @@ export function getDirectorTerritorySet(directorName: string) {
 
 export function canViewOrganization(org: Organization) {
   const user = getViewer();
-  if (!user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR') return true;
+  if (!user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'OPERATIONS') return true;
   if (user.role === 'REP') return org.assignedRep === user.name;
   if (user.role === 'DIRECTOR') {
     const territories = getDirectorTerritorySet(user.name);
@@ -29,7 +29,7 @@ export function canViewOrganization(org: Organization) {
 
 export function canViewOpportunity(opp: Opportunity) {
   const user = getViewer();
-  if (!user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR') return true;
+  if (!user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'OPERATIONS') return true;
   if (user.role === 'REP') return opp.assignedRep === user.name;
   if (user.role === 'DIRECTOR') {
     const reps = getDirectorRepSet(user.name);
@@ -40,7 +40,7 @@ export function canViewOpportunity(opp: Opportunity) {
 
 export function canViewOrder(order: Order, linkedOpportunity?: Opportunity) {
   const user = getViewer();
-  if (!user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR') return true;
+  if (!user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'OPERATIONS') return true;
   const orderRep = order.assignedRep ?? linkedOpportunity?.assignedRep;
   const orderDirector = order.assignedDirector ?? linkedOpportunity?.assignedDirector;
   if (user.role === 'REP') return orderRep === user.name;
@@ -49,13 +49,14 @@ export function canViewOrder(order: Order, linkedOpportunity?: Opportunity) {
 }
 
 export function isRepCertified(user: AppUser | null) {
-  return true;
+  if (!user) return false;
+  return user.isCertified === true;
 }
 
 export function canCreateOpportunity() {
   const user = getViewer();
   if (!user) return false;
-  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR') return true;
+  if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR' || user.role === 'OPERATIONS') return true;
   const isSandboxActive = typeof window !== 'undefined' && localStorage.getItem('tuf_combine_sandbox_active') === 'true';
   if (user.role === 'REP') return isRepCertified(user) || isSandboxActive;
   return false;
@@ -64,12 +65,14 @@ export function canCreateOpportunity() {
 export function canAdvanceOpportunity(opp: Opportunity) {
   const user = getViewer();
   if (!user) return false;
-  const isSandboxActive = typeof window !== 'undefined' && localStorage.getItem('tuf_combine_sandbox_active') === 'true';
-  if (!isRepCertified(user) && !isSandboxActive) return false;
   if (user.role === 'ADMIN') return true;
   if (user.role === 'REP') return opp.assignedRep === user.name;
-  // DIRECTOR can advance opportunities assigned to them (personal book) or to their reps
-  if (user.role === 'DIRECTOR') return opp.assignedRep === user.name;
+  // DIRECTOR can advance their own or any of their reps' opportunities
+  if (user.role === 'DIRECTOR') {
+    if (opp.assignedRep === user.name) return true;
+    const managedRepNames = getManagedRepNamesForDirector(user.name);
+    return managedRepNames.includes(opp.assignedRep);
+  }
   return false;
 }
 

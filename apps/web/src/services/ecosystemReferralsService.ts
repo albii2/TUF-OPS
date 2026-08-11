@@ -1,3 +1,17 @@
+/**
+ * NOTE: Ecosystem Referrals are currently stored in localStorage only.
+ * There is no backend API endpoint for referrals yet (no /api/ecosystem-referrals
+ * or equivalent route in the API server). All CRUD operations operate on the
+ * local `tuf_ops_ecosystem_referrals_v3` key.
+ *
+ * When a backend endpoint becomes available, the following functions should be
+ * updated to use apiClient:
+ *   - listEcosystemReferrals → GET /api/ecosystem-referrals
+ *   - createEcosystemReferral → POST /api/ecosystem-referrals
+ *   - getEcosystemReferralSummary, getReferralSourceEffectiveness,
+ *     getReferralRepEffectiveness → derived from listEcosystemReferrals
+ */
+
 import { getStoredUser } from '../auth';
 import { listOrganizations } from './organizationsService';
 import { listOpportunities } from './opportunitiesService';
@@ -93,7 +107,7 @@ export function listEcosystemReferrals(params: ReferralPipelineParams = {}): Eco
       referral.contactEmail,
       referral.assignedRep,
     ].join(' ').toLowerCase().includes((params.search ?? '').toLowerCase());
-    const roleScoped = !user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR'
+    const roleScoped = !user || user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'OPERATIONS'
       ? true
       : user.role === 'DIRECTOR'
         ? getManagedRepNamesForDirector(user.name).includes(referral.assignedRep)
@@ -102,7 +116,7 @@ export function listEcosystemReferrals(params: ReferralPipelineParams = {}): Eco
   });
 }
 
-export function createEcosystemReferral(input: {
+export async function createEcosystemReferral(input: {
   referralSourceOrganizationId: string;
   referralSourceContact: string;
   referralSourceRole: string;
@@ -115,8 +129,10 @@ export function createEcosystemReferral(input: {
   warmIntroductionStatus: WarmIntroductionStatus;
   linkedOpportunityId?: string;
 }) {
-  const source = listOrganizations({}).find((org) => org.id === input.referralSourceOrganizationId);
-  const linkedOpportunity = input.linkedOpportunityId ? listOpportunities({}).find((opp) => opp.id === input.linkedOpportunityId) : undefined;
+  const orgs = await listOrganizations({});
+  const source = orgs.find((org) => org.id === input.referralSourceOrganizationId);
+  const opps = await listOpportunities({});
+  const linkedOpportunity = input.linkedOpportunityId ? opps.find((opp) => opp.id === input.linkedOpportunityId) : undefined;
   const user = getStoredUser();
   const row: EcosystemReferral = {
     id: `ref-local-${Date.now()}`,

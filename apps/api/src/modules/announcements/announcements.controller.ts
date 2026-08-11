@@ -1,16 +1,6 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { pool } from '@packages/database';
 
-const BROADCASTER_ROLES = ['ADMIN', 'DIRECTOR', 'REGIONAL_DIRECTOR'];
-
-function extractUserFromHeaders(request: FastifyRequest): { id: string; name: string; role: string } | null {
-  const userId = request.headers['x-user-id'] as string;
-  const userName = request.headers['x-user-name'] as string;
-  const userRole = request.headers['x-user-role'] as string;
-  if (!userId || !userName || !userRole) return null;
-  return { id: userId, name: userName, role: userRole };
-}
-
 export async function listAnnouncementsHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
     const { limit } = request.query as { limit?: string };
@@ -28,12 +18,9 @@ export async function listAnnouncementsHandler(request: FastifyRequest, reply: F
 
 export async function createAnnouncementHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const user = extractUserFromHeaders(request);
+    const user = request.currentUser;
     if (!user) {
-      return reply.code(401).send({ message: 'Missing user identity headers (x-user-id, x-user-name, x-user-role)' });
-    }
-    if (!BROADCASTER_ROLES.includes(user.role.toUpperCase())) {
-      return reply.code(403).send({ message: 'Only Admins, Directors, and Regional Directors can create announcements.' });
+      return reply.code(401).send({ message: 'Authentication required' });
     }
 
     const { title, content, importance } = request.body as { title?: string; content?: string; importance?: string };
@@ -59,11 +46,6 @@ export async function createAnnouncementHandler(request: FastifyRequest, reply: 
 
 export async function deleteAnnouncementHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const user = extractUserFromHeaders(request);
-    if (!user || !BROADCASTER_ROLES.includes(user.role.toUpperCase())) {
-      return reply.code(403).send({ message: 'Insufficient permissions' });
-    }
-
     const { id } = request.params as { id: string };
     const result = await pool.query('DELETE FROM announcements WHERE id = $1 RETURNING id', [id]);
     if (result.rowCount === 0) {

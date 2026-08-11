@@ -192,7 +192,7 @@ async function checkAndUpdateCertification(userId) {
         return false;
     const user = userRes.rows[0];
     // Admin, Regional Director, Director are exempt
-    if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR') {
+    if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR' || user.role === 'OPERATIONS') {
         await database_1.pool.query('UPDATE users SET is_certified = true WHERE id = $1', [userId]);
         return true;
     }
@@ -375,7 +375,7 @@ async function getUserEnrollment(userId) {
         if (role === 'SALES_REP') {
             role = 'REP';
         }
-        else if (role === 'ADMIN' || role === 'OWNER') {
+        else if (role === 'ADMIN' || role === 'OWNER' || role === 'OPERATIONS' || role === 'OPS') {
             role = 'ADMIN';
         }
         else if (role === 'REGIONAL_DIRECTOR') {

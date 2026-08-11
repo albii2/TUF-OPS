@@ -1,16 +1,18 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getForgeMission, type ForgeMission } from '../services/forgeEngine';
 
 export const ForgePanel: React.FC = () => {
   const [mission, setMission] = useState<ForgeMission | null>(null);
   const [collapsed, setCollapsed] = useState(false);
 
-  useMemo(() => {
-    try {
-      setMission(getForgeMission());
-    } catch {
-      setMission(null);
-    }
+  useEffect(() => {
+    let cancelled = false;
+    getForgeMission().then((m) => {
+      if (!cancelled) setMission(m);
+    }).catch(() => {
+      if (!cancelled) setMission(null);
+    });
+    return () => { cancelled = true; };
   }, []);
 
   if (!mission || mission.topAccounts.length === 0) {

@@ -1,22 +1,18 @@
 import { REVENUE_LANES as revenueLanes } from '../config/business';
-export type RevenueLane = 'UNIFORM' | 'TRAVEL_GEAR' | 'TEAM_STORE' | 'LETTERMAN';
-export type LaneStatus = 'OPEN' | 'ACTIVE' | 'WON' | 'LOST';
-export type OpportunityStage =
-  | 'LEAD_ENGAGED'
-  | 'DISCOVERY'
-  | 'MOCKUP_STAGE'
-  | 'INVOICE_SENT'
-  | 'CLOSED_WON'
-  | 'CLOSED_LOST'
-  | 'LEAD_ASSIGNED'
-  | 'CONTACTED'
-  | 'MOCKUP_REQUESTED'
-  | 'MOCKUP_DELIVERED'
-  | 'DECISION_PENDING'
-  | 'PAYMENT_RECEIVED';
+import type { TeamMember, Organization, Opportunity, Order, Activity } from '@tuf/shared';
 
-export type CoverageStatus = 'UNTOUCHED' | 'CONTACTED' | 'ACTIVE' | 'CLOSED';
-export type TerritoryId = 'metro' | 'north' | 'west' | 'south';
+export type {
+  RevenueLane,
+  LaneStatus,
+  OpportunityStage,
+  CoverageStatus,
+  TerritoryId,
+  TeamMember,
+  Organization,
+  Opportunity,
+  Order,
+  Activity,
+} from '@tuf/shared';
 
 export type TeamMember = {
   id: string;

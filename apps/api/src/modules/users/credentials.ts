@@ -19,17 +19,25 @@ export async function verifyCredential(credential: string, storedHash: string): 
   return expected.length === actual.length && timingSafeEqual(expected, actual);
 }
 
-export function generateTemporaryCredential(): string {
-  return String(Math.floor(100000 + Math.random() * 900000));
+/** Generate a random 4-digit PIN (0000–9999). */
+export function generateRandomPin(): string {
+  return String(Math.floor(Math.random() * 10000)).padStart(4, '0');
 }
 
-export function validateTemporaryCredential(credential: string) {
-  if (!credential || !credential.trim()) throw new Error('Credential is required');
-  if (!/^\d{4,}$/.test(credential)) throw new Error('Credential must be at least 4 numbers');
+/**
+ * Generate a unique 4-digit PIN not used by any active user.
+ * Verifies uniqueness by checking every active user's stored hash.
+ */
+export async function generateUniquePin(verifyAgainstUser: (pin: string) => Promise<boolean>): Promise<string> {
+  for (let attempt = 0; attempt < 50; attempt++) {
+    const pin = generateRandomPin();
+    const taken = await verifyAgainstUser(pin);
+    if (!taken) return pin;
+  }
+  throw new Error('Could not generate a unique PIN after 50 attempts');
 }
 
-export function validatePermanentCredential(credential: string) {
-  validateTemporaryCredential(credential);
-  const weak = new Set(['0000', '1111', '1234', '4321', '1212', '2222', '3333', '4444', '5555', '6666', '7777', '8888', '9999']);
-  if (weak.has(credential) || /^(\d)\1+$/.test(credential)) throw new Error('Choose a less obvious credential');
+export function validatePin(pin: string) {
+  if (!pin || !pin.trim()) throw new Error('PIN is required');
+  if (!/^\d{4}$/.test(pin)) throw new Error('PIN must be exactly 4 digits');
 }

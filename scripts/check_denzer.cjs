@@ -1,0 +1,20 @@
+const { Client } = require('pg');
+(async () => {
+  const c = new Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+  await c.connect();
+  const u = await c.query("SELECT id, name, email, role, state_market, territory, region FROM users WHERE id = 58");
+  console.log('USER:', JSON.stringify(u.rows[0], null, 2));
+  const orgCount = await c.query("SELECT COUNT(*) FROM organizations WHERE assigned_rep_id = 58");
+  console.log('Orgs with assigned_rep_id=58:', orgCount.rows[0].count);
+  const orgCountDir = await c.query("SELECT COUNT(*) FROM organizations WHERE assigned_director_id = 58");
+  console.log('Orgs with assigned_director_id=58:', orgCountDir.rows[0].count);
+  const allByState = await c.query("SELECT state, COUNT(*) FROM organizations GROUP BY state ORDER BY count DESC");
+  console.log('All orgs by state:', JSON.stringify(allByState.rows));
+  const sampleOrgs = await c.query("SELECT id, name, state, assigned_rep_id, assigned_director_id FROM organizations WHERE state='WI' LIMIT 5");
+  console.log('Sample WI orgs:', JSON.stringify(sampleOrgs.rows));
+  const sampleMNorgs = await c.query("SELECT id, name, state, assigned_rep_id, assigned_director_id FROM organizations WHERE state='MN' AND assigned_rep_id IS NOT NULL LIMIT 5");
+  console.log('Sample MN orgs with rep:', JSON.stringify(sampleMNorgs.rows));
+  const unassignedOrgs = await c.query("SELECT COUNT(*) FROM organizations WHERE state='MN' AND assigned_rep_id IS NULL");
+  console.log('Unassigned MN orgs:', unassignedOrgs.rows[0].count);
+  await c.end();
+})().catch(e => { console.error(e.message); process.exit(1); });

@@ -17,11 +17,6 @@ import {
 } from './training.service';
 import { TrainingRole } from './training.interface';
 
-
-function canManageRepCertification(actorRole?: string) {
-  return ['DIRECTOR', 'ADMIN', 'REGIONAL_DIRECTOR'].includes(String(actorRole || '').toUpperCase());
-}
-
 export async function getModulesByRoleHandler(request: FastifyRequest, reply: FastifyReply) {
   try {
     const { role, phase } = request.query as any;
@@ -214,12 +209,8 @@ export async function toggleHrDocsHandler(request: FastifyRequest, reply: Fastif
 
 export async function togglePracticalExerciseHandler(request: FastifyRequest, reply: FastifyReply) {
   const { id } = request.params as any;
-  const { practicalExerciseCompleted, actorRole } = request.body as any;
+  const { practicalExerciseCompleted } = request.body as any;
   try {
-    if (!canManageRepCertification(actorRole)) {
-      return reply.code(403).send({ message: 'Only director, admin, owner, or ops roles can mark practical exercises complete' });
-    }
-
     if (id === undefined || practicalExerciseCompleted === undefined) {
       return reply.code(400).send({ message: 'User id and practicalExerciseCompleted are required' });
     }

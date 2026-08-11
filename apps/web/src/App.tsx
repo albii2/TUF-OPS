@@ -1,9 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from './components/AppShell';
-import { getStoredUser } from './auth';
+import { getStoredUser, fetchCurrentUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
-import { DashboardPage } from './pages/DashboardPage';
 import { ForgePage } from './pages/ForgePage';
 import {
   OpportunitiesPage,
@@ -29,8 +28,29 @@ import {
   ChangeCredentialPage,
 } from './pages/CrudPages';
 import AcademyPage from './pages/AcademyPage';
+import AcademyMissionPage from './pages/academy/AcademyMissionPage';
+import AcademyProgressPage from './pages/academy/AcademyProgressPage';
+import AcademyDirectorReview from './pages/academy/AcademyDirectorReview';
+import CertificationChecklist from './pages/academy/CertificationChecklist';
+import AcademyV2Page from './pages/academy-v2/AcademyV2Page';
+import LockerRoomSimulator from './components/academy/LockerRoomSimulator';
 import AdminCertificationPage from './pages/AdminCertificationPage';
-import type { AppUser, Role } from './types';
+import DailyActivityCommand from './pages/DailyActivityCommand';
+import RecruitingPage from './pages/RecruitingPage';
+import CandidateDetailPage from './pages/CandidateDetailPage';
+import ExecutiveIntakePage from './pages/ExecutiveIntakePage';
+import PeopleOpsPage from './pages/PeopleOpsPage';
+import ExecutiveCommandCenter from './pages/ExecutiveCommandCenter';
+import LeadershipCommsPage from './pages/LeadershipCommsPage';
+import CEOHome from './pages/CEOHome';
+import DirectorHome from './pages/DirectorHome';
+import TAEHome from './pages/TAEHome';
+import IssuesPage from './pages/IssuesPage';
+import IssueNewPage from './pages/IssueNewPage';
+import IssueDetailPage from './pages/IssueDetailPage';
+import { ProductionTrackerPage } from './pages/ProductionTrackerPage';
+import { DocumentGeneratorPage } from './pages/DocumentGeneratorPage';
+import type { AppUser, Role } from '@tuf/shared';
 import { roleConfig } from './config/roles';
 
 // Routes that are always accessible regardless of certification status
@@ -49,50 +69,46 @@ function Protected({ user, children }: { user: AppUser | null; children: JSX.Ele
 function RoleProtected({ user, allowedRoles, children }: { user: AppUser | null; allowedRoles: Role[]; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential) return <Navigate to="/change-credential" replace />;
-  if (!allowedRoles.includes(user.role)) return <Navigate to="/dashboard" replace />;
+  if (!allowedRoles.includes(user.role)) return <Navigate to="/command" replace />;
   return children;
 }
 
 function PageProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
-  if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/academy' && path !== '/admin/certification') return <Navigate to="/dashboard" replace />;
+  if (!roleConfig[user.role].visiblePages.includes(path) && path !== '/academy' && path !== '/admin/certification') return <Navigate to="/command" replace />;
   return children;
 }
 
 /**
  * Certification gate: uncertified REP users are redirected to the Academy.
- * Non-REP roles (ADMIN, DIRECTOR, REGIONAL_DIRECTOR) bypass this gate.
+ * Non-REP roles (ADMIN, DIRECTOR, REGIONAL_DIRECTOR, OPERATIONS) bypass this gate.
  * Training, login, change-credential, and dashboard paths are always accessible.
  */
 function CertificationProtected({ user, path, children }: { user: AppUser | null; path: string; children: JSX.Element }) {
   if (!user) return <Navigate to="/login" replace />;
   if (user.mustChangeCredential && path !== '/change-credential') return <Navigate to="/change-credential" replace />;
 
-  // ADMIN bypasses certification gate
-  if (user.role === 'ADMIN') return children;
-
-  // Allow access to Academy and cert review
-  if (UNCERTIFIED_ACCESSIBLE_PATHS.has(path)) return children;
-
-  // REP and DIRECTOR: gate CRM access behind full certification + Director approval
-  if (!user.isCertified) return <Navigate to="/academy" replace />;
-
+  // Certification no longer gates CRM access — uncertified reps build pipeline
+  // WHILE completing Academy. Certification status is shown in the UI instead.
   return children;
 }
 
 export default function App() {
-  const [user, setUser] = useState<AppUser | null>(() => getStoredUser());
-  const dashboard = useMemo(() => <DashboardPage role={user?.role ?? 'ADMIN'} />, [user?.role]);
+  const [user, setUser] = useState<AppUser | null>(null);
+
+  // Fetch current user from server on mount — server-authoritative identity
+  useEffect(() => {
+    fetchCurrentUser().then(setUser);
+  }, []);
 
   useEffect(() => {
-    const syncUser = () => setUser(getStoredUser());
-    window.addEventListener('tuf:user-updated', syncUser);
-    window.addEventListener('storage', syncUser);
-    return () => {
-      window.removeEventListener('tuf:user-updated', syncUser);
-      window.removeEventListener('storage', syncUser);
+    const syncUser = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setUser(detail ?? getStoredUser());
     };
+    window.addEventListener('tuf:user-updated', syncUser);
+    return () => window.removeEventListener('tuf:user-updated', syncUser);
   }, []);
 
   return (
@@ -106,11 +122,31 @@ export default function App() {
         }
       >
         <Route path="/change-credential" element={<Protected user={user}><ChangeCredentialPage setUser={setUser} /></Protected>} />
-        <Route path="/dashboard" element={<CertificationProtected user={user} path="/dashboard"><PageProtected user={user} path="/dashboard">{dashboard}</PageProtected></CertificationProtected>} />
+        {/* Single landing page: Command Center — role-filtered daily briefing */}
+        <Route path="/command" element={
+          <CertificationProtected user={user} path="/command">
+            <PageProtected user={user} path="/command">
+              {user?.role === 'ADMIN' || user?.role === 'REGIONAL_DIRECTOR'
+                ? <CEOHome />
+                : user?.role === 'DIRECTOR'
+                  ? <DirectorHome />
+                  : <TAEHome />
+              }
+            </PageProtected>
+          </CertificationProtected>
+        } />
+        <Route path="/dashboard" element={<PageProtected user={user} path="/dashboard"><ExecutiveCommandCenter /></PageProtected>} />
+        <Route path="/vendor-ops" element={<PageProtected user={user} path="/vendor-ops"><ProductionTrackerPage /></PageProtected>} />
+        <Route path="/documents" element={<PageProtected user={user} path="/documents"><DocumentGeneratorPage /></PageProtected>} />
         <Route path="/forge" element={<CertificationProtected user={user} path="/forge"><PageProtected user={user} path="/forge"><ForgePage /></PageProtected></CertificationProtected>} />
-        <Route path="/academy" element={<PageProtected user={user} path="/academy"><AcademyPage /></PageProtected>} />
+        <Route path="/academy" element={<Navigate to="/academy/v2" replace />} />
+        <Route path="/academy/missions" element={<PageProtected user={user} path="/academy"><AcademyMissionPage /></PageProtected>} />
+        <Route path="/academy/progress" element={<PageProtected user={user} path="/academy"><AcademyProgressPage /></PageProtected>} />
+        <Route path="/academy/certification" element={<PageProtected user={user} path="/academy"><CertificationChecklist /></PageProtected>} />
+        <Route path="/academy/v2" element={<PageProtected user={user} path="/academy"><AcademyV2Page /></PageProtected>} />
+        <Route path="/academy/director-review" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AcademyDirectorReview /></RoleProtected>} />
+        <Route path="/locker-room" element={<PageProtected user={user} path="/academy"><LockerRoomSimulator /></PageProtected>} />
         <Route path="/admin/certification" element={<RoleProtected user={user} allowedRoles={['DIRECTOR', 'REGIONAL_DIRECTOR', 'ADMIN']}><AdminCertificationPage /></RoleProtected>} />
-        <Route path="/orders" element={<PageProtected user={user} path="/orders"><OrdersPage /></PageProtected>} />
         <Route path="/organizations" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationsPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/new" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationNewPage /></PageProtected></CertificationProtected>} />
         <Route path="/organizations/:id" element={<CertificationProtected user={user} path="/organizations"><PageProtected user={user} path="/organizations"><OrganizationDetailPage /></PageProtected></CertificationProtected>} />
@@ -137,8 +173,17 @@ export default function App() {
         <Route path="/territory/static" element={<CertificationProtected user={user} path="/territory"><PageProtected user={user} path="/territory"><TerritoryPage /></PageProtected></CertificationProtected>} />
         <Route path="/settings" element={<CertificationProtected user={user} path="/settings"><PageProtected user={user} path="/settings"><SettingsPage /></PageProtected></CertificationProtected>} />
         <Route path="/users" element={<CertificationProtected user={user} path="/users"><PageProtected user={user} path="/users"><UsersPage /></PageProtected></CertificationProtected>} />
+        <Route path="/daily-command" element={<CertificationProtected user={user} path="/daily-command"><PageProtected user={user} path="/daily-command"><DailyActivityCommand /></PageProtected></CertificationProtected>} />
+        <Route path="/recruiting" element={<CertificationProtected user={user} path="/recruiting"><PageProtected user={user} path="/recruiting"><RecruitingPage /></PageProtected></CertificationProtected>} />
+        <Route path="/recruiting/:id" element={<CertificationProtected user={user} path="/recruiting"><PageProtected user={user} path="/recruiting"><CandidateDetailPage /></PageProtected></CertificationProtected>} />
+        <Route path="/intake" element={<PageProtected user={user} path="/intake"><ExecutiveIntakePage /></PageProtected>} />
+        <Route path="/people" element={<PageProtected user={user} path="/people"><PeopleOpsPage /></PageProtected>} />
+        <Route path="/comms" element={<RoleProtected user={user} allowedRoles={['ADMIN', 'REGIONAL_DIRECTOR']}><LeadershipCommsPage /></RoleProtected>} />
+        <Route path="/issues" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssuesPage /></PageProtected></CertificationProtected>} />
+        <Route path="/issues/new" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssueNewPage /></PageProtected></CertificationProtected>} />
+        <Route path="/issues/:id" element={<CertificationProtected user={user} path="/issues"><PageProtected user={user} path="/issues"><IssueDetailPage /></PageProtected></CertificationProtected>} />
       </Route>
-      <Route path="*" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
+      <Route path="*" element={<Navigate to={user ? '/command' : '/login'} replace />} />
     </Routes>
   );
 }

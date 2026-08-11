@@ -2,7 +2,7 @@ import { FormEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginWithPin } from '../auth';
 import { TufLogo } from '../components/ui';
-import type { AppUser } from '../types';
+import type { AppUser } from '@tuf/shared';
 import TufMarkSvg from '../assets/tuf-mark.svg';
 
 export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void }) {
@@ -41,6 +41,7 @@ export function LoginPage({ setUser }: { setUser: (u: AppUser | null) => void })
         {error ? <p className="mt-3 text-xs text-rose-300">{error}</p> : <p className="mt-3 text-xs text-slate-500">Use your assigned 4-digit PIN.</p>}
       </form>
       <img src={TufMarkSvg} alt="TUF mark" className="pointer-events-none mt-6 h-10 w-10 object-contain opacity-90" />
+      <p className="mt-4 text-[10px] text-slate-600">{__TUF_VERSION__}</p>
     </div>
   );
 }

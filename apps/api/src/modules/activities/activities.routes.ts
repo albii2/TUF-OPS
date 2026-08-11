@@ -1,8 +1,9 @@
 import { FastifyInstance } from 'fastify';
-import { createActivityHandler, getActivitiesByOpportunityHandler, getActivitiesByOrganizationHandler, markActivityCompleteHandler, createRepActivityHandler, getRepActivitiesByOpportunityHandler } from './activities.controller';
+import { createActivityHandler, getActivitiesByOpportunityHandler, getActivitiesByOrganizationHandler, markActivityCompleteHandler, createRepActivityHandler, getRepActivitiesByOpportunityHandler, listActivitiesHandler } from './activities.controller';
 import { requireCertification, requirePermission, permissions } from '../../auth';
 
 export async function activityRoutes(server: FastifyInstance) {
+  server.get('/', { preHandler: [requireCertification()] }, listActivitiesHandler);
   server.post('/', { preHandler: [requireCertification()] }, createActivityHandler);
   server.get('/opportunity/:opportunityId', { preHandler: [requireCertification()] }, getActivitiesByOpportunityHandler);
   server.get('/organization/:organizationId', { preHandler: [requireCertification()] }, getActivitiesByOrganizationHandler);

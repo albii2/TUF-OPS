@@ -10,10 +10,10 @@ export function TeamOpportunitiesPage() {
   const navigate = useNavigate();
   const user = getStoredUser();
   const [rep, setRep] = useState('ALL'); const [stage, setStage] = useState('ALL'); const [lane, setLane] = useState('ALL'); const [sport, setSport] = useState('ALL'); const [focus, setFocus] = useState('ALL');
-  const all = useOpportunities({});
+  const { data: all = [] } = useOpportunities({});
   const reps = Array.from(new Set(all.map((o) => o.assignedRep)));
   const sports = Array.from(new Set(all.map((o) => o.sport)));
-  const stages = useOpportunityStages(); const lanes = useRevenueLanes();
+  const { data: stages = [] } = useOpportunityStages(); const { data: lanes = [] } = useRevenueLanes();
   let rows = all.filter((o) => user?.role === 'ADMIN' || user?.role === 'DIRECTOR');
   if (rep !== 'ALL') rows = rows.filter((o) => o.assignedRep === rep);
   if (stage !== 'ALL') rows = rows.filter((o) => o.stage === stage);

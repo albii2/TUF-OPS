@@ -24,6 +24,9 @@ jest.mock('../services/opportunitiesService', () => ({
 jest.mock('../services/activitiesService', () => ({
   listActivities: () => [],
 }));
+jest.mock('../services/recruitingService', () => ({
+  getCandidates: () => [],
+}));
 jest.mock('../auth', () => ({ getStoredUser: () => null }));
 
 import {
@@ -71,14 +74,14 @@ function clearStorage() {
 // ─── Module Definitions ───────────────────────────────────────────────────
 
 describe('LEVEL_1_MODULES — TUF Sales System', () => {
-  it('defines exactly 5 Level 1 modules', () => {
-    expect(LEVEL_1_MODULES).toHaveLength(5);
+  it('defines exactly 7 Level 1 modules', () => {
+    expect(LEVEL_1_MODULES).toHaveLength(7);
   });
 
   it('has unique codes for each module', () => {
     const codes = LEVEL_1_MODULES.map((m) => m.code);
     const unique = new Set(codes);
-    expect(unique.size).toBe(5);
+    expect(unique.size).toBe(7);
   });
 
   it('modules are named for TUF Sales System, not CRM', () => {
@@ -89,6 +92,8 @@ describe('LEVEL_1_MODULES — TUF Sales System', () => {
       'Discovery',
       'Proposal',
       'Order Handoff',
+      'Product Knowledge',
+      'Emergency Pipeline Accelerator',
     ]);
   });
 
@@ -118,13 +123,15 @@ describe('LEVEL_1_MODULES — TUF Sales System', () => {
     });
   });
 
-  it('module order is Philosophy → Prospecting → Discovery → Proposal → Order Handoff', () => {
+  it('module order is Philosophy → Prospecting → Discovery → Proposal → Order Handoff → Product Knowledge → Pipeline Accelerator', () => {
     expect(MODULE_ORDER).toEqual([
       'ACAD-101',
       'ACAD-102',
       'ACAD-103',
       'ACAD-104',
       'ACAD-105',
+      'ACAD-106',
+      'ACAD-107',
     ]);
   });
 
@@ -142,13 +149,17 @@ describe('LEVEL_1_MODULES — TUF Sales System', () => {
 // ─── Quiz Definitions ─────────────────────────────────────────────────────
 
 describe('QUIZZES — TUF Sales System', () => {
-  it('defines quizzes for all 5 modules', () => {
-    expect(Object.keys(QUIZZES)).toHaveLength(5);
+  it('defines quizzes for all modules (TAE + Director)', () => {
+    expect(Object.keys(QUIZZES).length).toBeGreaterThanOrEqual(13);
   });
 
-  it('each quiz has exactly 4 questions', () => {
+  it('each TAE quiz has exactly 10 questions, each Director quiz has 5', () => {
     Object.entries(QUIZZES).forEach(([code, questions]) => {
-      expect(questions.length).toBe(4);
+      if (code.startsWith('ACAD-')) {
+        expect(questions.length).toBe(10);
+      } else if (code.startsWith('DIR-')) {
+        expect(questions.length).toBe(5);
+      }
     });
   });
 
@@ -168,12 +179,12 @@ describe('QUIZZES — TUF Sales System', () => {
     expect(QUIZ_PASS_THRESHOLD).toBe(80);
   });
 
-  it('ACAD-101 quiz covers TUF philosophy: why TUF exists, four-order baseline, lane penetration', () => {
+  it('ACAD-101 quiz covers TUF philosophy: why TUF exists, four-order baseline, account penetration', () => {
     const questions = QUIZZES['ACAD-101'];
     const allText = questions.map((q) => q.question).join(' ');
     expect(allText).toMatch(/exist/i);
     expect(allText).toMatch(/four-order|baseline/i);
-    expect(allText).toMatch(/lane penetration/i);
+    expect(allText).toMatch(/account penetration/i);
   });
 
   it('ACAD-105 quiz covers Director QA question and Closed Won standard', () => {
@@ -217,12 +228,15 @@ describe('gradeQuiz', () => {
     expect(result2.passed).toBe(true);
   });
 
-  it('fails below 80% on ACAD-101 (3/4 correct = 75%)', () => {
+  it('fails below 80% on ACAD-101 (7/10 correct = 70%)', () => {
     const questions = QUIZZES['ACAD-101'];
     const answers = [...questions.map((q) => q.correctIndex)];
-    answers[0] = (answers[0] + 1) % 4; // Make one wrong
+    // Make 3 answers wrong: 7/10 = 70% — below the 80% threshold
+    answers[0] = (answers[0] + 1) % 4;
+    answers[1] = (answers[1] + 1) % 4;
+    answers[2] = (answers[2] + 1) % 4;
     const result = gradeQuiz('ACAD-101', answers);
-    expect(result.score).toBe(75);
+    expect(result.score).toBe(70);
     expect(result.passed).toBe(false);
   });
 
@@ -251,20 +265,20 @@ describe('gradeQuiz', () => {
 describe('MODULE_ORDER — sequential gating via Coach Review acknowledgment', () => {
   beforeEach(clearStorage);
 
-  it('MODULE_ORDER contains exactly 5 modules', () => {
-    expect(MODULE_ORDER).toHaveLength(5);
+  it('MODULE_ORDER contains exactly 7 modules', () => {
+    expect(MODULE_ORDER).toHaveLength(7);
   });
 
   it('ACAD-101 is the first module (Philosophy)', () => {
     expect(MODULE_ORDER[0]).toBe('ACAD-101');
   });
 
-  it('ACAD-105 is the last module (Order Handoff)', () => {
-    expect(MODULE_ORDER[MODULE_ORDER.length - 1]).toBe('ACAD-105');
+  it('ACAD-107 is the last module (Pipeline Accelerator)', () => {
+    expect(MODULE_ORDER[MODULE_ORDER.length - 1]).toBe('ACAD-107');
   });
 
-  it('detectAllModules shows ACAD-101 with learn phase and ACAD-102 locked', () => {
-    const progress = detectAllModules();
+  it('detectAllModules shows ACAD-101 with learn phase and ACAD-102 locked', async () => {
+    const progress = await detectAllModules();
     const mod101 = progress.find((p) => p.code === 'ACAD-101')!;
     const mod102 = progress.find((p) => p.code === 'ACAD-102')!;
     expect(mod101.phase).toBe('learn');
@@ -650,6 +664,8 @@ describe('ModuleProgress type validation', () => {
       'ACAD-103',
       'ACAD-104',
       'ACAD-105',
+      'ACAD-106',
+      'ACAD-107',
     ];
     const progressItems: ModuleProgress[] = validCodes.map((code) => ({
       code,
@@ -658,7 +674,7 @@ describe('ModuleProgress type validation', () => {
       targetValue: 1,
       label: 'test',
     }));
-    expect(progressItems).toHaveLength(5);
+    expect(progressItems).toHaveLength(7);
     progressItems.forEach((item) => {
       expect(validCodes).toContain(item.code);
     });
@@ -672,6 +688,8 @@ describe('ModuleProgress type validation', () => {
       'ACAD-103',
       'ACAD-104',
       'ACAD-105',
+      'ACAD-106',
+      'ACAD-107',
     ];
     expect(moduleCodes).toEqual(expected.sort());
   });
@@ -732,27 +750,27 @@ describe('detectAcad101 (Mission Statement)', () => {
 describe('detectAllModules — phase computation', () => {
   beforeEach(clearStorage);
 
-  it('returns all 5 modules', () => {
-    const progress = detectAllModules();
-    expect(progress).toHaveLength(5);
+  it('returns all 7 modules', async () => {
+    const progress = await detectAllModules();
+    expect(progress).toHaveLength(7);
   });
 
-  it('ACAD-101 starts in learn phase (first module)', () => {
-    const progress = detectAllModules();
+  it('ACAD-101 starts in learn phase (first module)', async () => {
+    const progress = await detectAllModules();
     const mod101 = progress.find((p) => p.code === 'ACAD-101')!;
     expect(mod101.phase).toBe('learn');
   });
 
-  it('modules after ACAD-101 are locked until ACAD-101 is acknowledged', () => {
-    const progress = detectAllModules();
-    // ACAD-102 through ACAD-105 should all be locked
-    ['ACAD-102', 'ACAD-103', 'ACAD-104', 'ACAD-105'].forEach((code) => {
+  it('modules after ACAD-101 are locked until ACAD-101 is acknowledged', async () => {
+    const progress = await detectAllModules();
+    // ACAD-102 through ACAD-107 should all be locked
+    ['ACAD-102', 'ACAD-103', 'ACAD-104', 'ACAD-105', 'ACAD-106', 'ACAD-107'].forEach((code) => {
       const mod = progress.find((p) => p.code === code)!;
       expect(mod.phase).toBe('locked');
     });
   });
 
-  it('coachReview field is included when a review exists', () => {
+  it('coachReview field is included when a review exists', async () => {
     const review: CoachReview = {
       strengths: 'Good work',
       corrections: 'Review pricing',
@@ -761,7 +779,7 @@ describe('detectAllModules — phase computation', () => {
       reviewedAt: new Date().toISOString(),
     };
     saveCoachReview('ACAD-101', review);
-    const progress = detectAllModules();
+    const progress = await detectAllModules();
     const mod101 = progress.find((p) => p.code === 'ACAD-101')!;
     expect(mod101.coachReview).toBeDefined();
     expect(mod101.coachReview!.strengths).toBe('Good work');

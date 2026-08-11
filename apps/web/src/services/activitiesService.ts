@@ -1,7 +1,5 @@
-import { activities, type Activity } from '../data/mockSalesData';
-import { getStoredUser } from '../auth';
+import type { Activity } from '../data/mockSalesData';
 import { apiClient } from './apiClient';
-import { DATA_MODE } from './dataMode';
 
 export type ActivityParams = {
   entityType?: Activity['entityType'];
@@ -9,66 +7,60 @@ export type ActivityParams = {
   limit?: number;
 };
 
-const LOCAL_ACTIVITIES_KEY = 'tuf_ops_mock_activities_v1';
+/**
+ * Normalize a raw API response object into the canonical Activity shape.
+ *
+ * The backend may return snake_case database columns (organization_id, created_at,
+ * description, etc.) and numeric IDs — this function maps every field to its
+ * camelCase counterpart on the front-end Activity type and supplies safe defaults
+ * so the rest of the app never sees a bare API row.
+ */
+export function normalizeApiActivity(raw: Record<string, unknown>): Activity {
+  const entityType = (
+    raw.entity_type ??
+    raw.entityType ??
+    'ORGANIZATION'
+  ) as Activity['entityType'];
 
-function readLocalActivities(): Activity[] {
-  try {
-    return JSON.parse(localStorage.getItem(LOCAL_ACTIVITIES_KEY) || '[]') as Activity[];
-  } catch {
-    return [];
-  }
-}
-
-function writeLocalActivities(rows: Activity[]) {
-  localStorage.setItem(LOCAL_ACTIVITIES_KEY, JSON.stringify(rows));
-  window.dispatchEvent(new CustomEvent('tuf:activity-updated'));
-}
-
-export function createActivity(input: {
-  entityType: Activity['entityType'];
-  entityId: string;
-  message: string;
-  timestamp?: string;
-  user?: string;
-}): Activity {
-  const user = getStoredUser();
-  const row: Activity = {
-    id: `act-local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    entityType: input.entityType,
-    entityId: input.entityId,
-    message: input.message.trim(),
-    timestamp: input.timestamp ?? new Date().toISOString(),
-    user: input.user ?? user?.name ?? 'System',
+  return {
+    id: String(raw.id ?? ''),
+    entityType: (['ORGANIZATION', 'OPPORTUNITY', 'ORDER'] as const).includes(
+      entityType as (typeof entityType & string),
+    )
+      ? (entityType as Activity['entityType'])
+      : 'ORGANIZATION',
+    entityId: String(
+      raw.entity_id ??
+        raw.entityId ??
+        raw.organization_id ??
+        raw.opportunity_id ??
+        '',
+    ),
+    message: String(raw.message ?? raw.description ?? ''),
+    timestamp: String(raw.timestamp ?? raw.created_at ?? new Date().toISOString()),
+    user: String(raw.user ?? raw.created_by ?? 'Unknown'),
   };
-  writeLocalActivities([row, ...readLocalActivities()]);
-  return row;
 }
 
-export function listActivities(params: ActivityParams = {}): Activity[] {
-  const activityRows = [...readLocalActivities(), ...activities];
-  const filtered = activityRows.filter((activity) => {
-    const matchesType = !params.entityType || activity.entityType === params.entityType;
-    const matchesEntityId = !params.entityId || activity.entityId === params.entityId;
-    return matchesType && matchesEntityId;
-  });
-
-  const sorted = filtered.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  return params.limit ? sorted.slice(0, params.limit) : sorted;
-}
-
-// ============================================================================
-// ASYNC API WRAPPERS — use these when DATA_MODE === 'api'
-// ============================================================================
-
-export async function createActivityAsync(input: {
+export async function createActivity(input: {
   entityType: Activity['entityType'];
   entityId: string;
   message: string;
   timestamp?: string;
   user?: string;
 }): Promise<Activity> {
-  if (DATA_MODE === 'api') {
-    return apiClient<Activity>('/activities', { method: 'POST', body: input });
-  }
-  return createActivity(input);
+  const raw = await apiClient<Record<string, unknown>>('/activities', {
+    method: 'POST',
+    body: input,
+  });
+  return normalizeApiActivity(raw);
+}
+
+export async function listActivities(params: ActivityParams = {}): Promise<Activity[]> {
+  const query: Record<string, string | undefined> = {};
+  if (params.entityType) query.entityType = params.entityType;
+  if (params.entityId) query.entityId = params.entityId;
+  if (params.limit) query.limit = String(params.limit);
+  const raw = await apiClient<Record<string, unknown>[]>('/activities', { query });
+  return (raw ?? []).map(normalizeApiActivity);
 }

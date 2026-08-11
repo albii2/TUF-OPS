@@ -24,7 +24,11 @@ import {
 // Vendor Management
 export async function createVendorController(request: FastifyRequest, reply: FastifyReply) {
   try {
-    const vendor = await createVendor(request.body as any);
+    const body = request.body as any;
+    if (!body.name?.trim()) {
+      return reply.code(400).send({ error: 'Vendor name is required' });
+    }
+    const vendor = await createVendor(body);
     return reply.code(201).send(vendor);
   } catch (error) {
     return reply.code(400).send({ error: (error as Error).message });

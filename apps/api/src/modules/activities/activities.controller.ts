@@ -1,14 +1,52 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { createActivity, getActivitiesByOpportunity, getActivitiesByOrganization, markActivityComplete, createRepActivity, getRepActivitiesByOpportunity } from './activities.service';
+import { createActivity, getActivitiesByOpportunity, getActivitiesByOrganization, getAllActivities, markActivityComplete, createRepActivity, getRepActivitiesByOpportunity } from './activities.service';
 import { ActivityType } from './activities.interface';
 
 export async function createActivityHandler(request: FastifyRequest, reply: FastifyReply) {
-  const { type, organization_id, opportunity_id, description, created_by, due_date, completed } = request.body as any;
+  const body = request.body as any;
+
+  // Accept both camelCase (frontend) and snake_case (backend) field names
+  const type = body.type || body.activity_type;
+  const organization_id = body.organization_id ?? body.organizationId;
+  const opportunity_id = body.opportunity_id ?? body.opportunityId;
+  const description = body.description || body.notes;
+  const created_by = body.created_by ?? body.createdBy;
+  const due_date = body.due_date ?? body.dueDate;
+  const completed = body.completed;
+
+  if (!type) {
+    return reply.code(400).send({ message: 'Activity type is required' });
+  }
+
   if (!Object.values(ActivityType).includes(type)) {
     return reply.code(400).send({ message: 'Invalid activity type' });
   }
-  const activity = await createActivity({ type, organization_id, opportunity_id, description, created_by, due_date, completed });
-  return reply.code(201).send(activity);
+
+  if (!organization_id) {
+    return reply.code(400).send({ message: 'organization_id is required' });
+  }
+
+  if (!description?.trim()) {
+    return reply.code(400).send({ message: 'description is required' });
+  }
+
+  try {
+    const activity = await createActivity({
+      type,
+      organization_id,
+      opportunity_id,
+      description,
+      created_by,
+      due_date,
+      completed,
+    });
+    return reply.code(201).send(activity);
+  } catch (error: any) {
+    if (error.message?.includes('required') || error.message?.includes('does not exist')) {
+      return reply.code(400).send({ message: error.message });
+    }
+    return reply.code(500).send({ message: 'Internal Server Error' });
+  }
 }
 
 export async function getActivitiesByOpportunityHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -46,6 +84,13 @@ export async function createRepActivityHandler(request: FastifyRequest, reply: F
 
   const { opportunity_id, activity_type, notes } = request.body as any;
 
+  if (!opportunity_id) {
+    return reply.code(400).send({ message: 'opportunity_id is required' });
+  }
+  if (!activity_type) {
+    return reply.code(400).send({ message: 'activity_type is required' });
+  }
+
   try {
     const activity = await createRepActivity({
       user_id: currentUser.id,
@@ -74,4 +119,28 @@ export async function getRepActivitiesByOpportunityHandler(request: FastifyReque
 
   const activities = await getRepActivitiesByOpportunity(Number(opportunity_id));
   return reply.send(activities);
+}
+
+// Generic list handler — supports ?entityType=ORGANIZATION&entityId=123&limit=5
+// Also supports ?limit=8 (returns all recent activities)
+export async function listActivitiesHandler(request: FastifyRequest, reply: FastifyReply) {
+  const { entityType, entityId, limit } = request.query as any;
+  
+  if (entityType === 'ORGANIZATION' && entityId) {
+    const activities = await getActivitiesByOrganization(Number(entityId));
+    return reply.send(activities.slice(0, limit ? Number(limit) : undefined));
+  }
+  
+  if (entityType === 'OPPORTUNITY' && entityId) {
+    const activities = await getActivitiesByOpportunity(Number(entityId));
+    return reply.send(activities.slice(0, limit ? Number(limit) : undefined));
+  }
+  
+  // No entityType specified — return all recent activities
+  if (!entityType && !entityId) {
+    const activities = await getAllActivities(limit ? Number(limit) : 100);
+    return reply.send(activities);
+  }
+  
+  return reply.code(400).send({ message: 'entityType and entityId required' });
 }

@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP' | 'sales_rep' | 'OPS' | 'OWNER';
+export type UserRole = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP' | 'sales_rep' | 'OPS' | 'OWNER' | 'OPERATIONS';
 export type UserStatus = 'ACTIVE' | 'INACTIVE';
 
 export type SafeUser = {
@@ -24,6 +24,7 @@ export type SafeUser = {
   practical_exercise_completed: boolean;
   last_login_at: string | null;
   login_count: number;
+  credential_version: number;
   cohort: string | null;
   enrollment_date: string | null;
   created_at: string;
@@ -40,7 +41,7 @@ export type CredentialAuditAction =
 
 export type CreateUserPayload = {
   name: string;
-  email: string;
+  email?: string;
   role: UserRole;
   rank?: string;
   tier?: string;
@@ -52,12 +53,11 @@ export type CreateUserPayload = {
   sport_focus?: string;
   assigned_director_id?: number;
   reports_to_user_id?: number;
-  temporary_credential?: string;
 };
 
 export type LoginPayload = {
-  email: string;
   credential: string;
+  email?: string;
 };
 
 export type ChangeCredentialPayload = {
@@ -67,5 +67,6 @@ export type ChangeCredentialPayload = {
 
 export type AuthSession = {
   userId: number;
+  credentialVersion: number;
   expiresAt: number;
 };

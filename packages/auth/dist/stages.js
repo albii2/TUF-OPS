@@ -22,12 +22,15 @@ exports.STAGES = {
     CLOSED_LOST: 'closed_lost',
 };
 // Valid transitions per SOS 6.3. CLOSED_LOST is reachable from any sales stage.
+// Includes shortcut transitions to support the simplified 5-stage frontend flow:
+//   LEAD_ENGAGED(lead) → DISCOVERY(proposal_sent) → MOCKUP_STAGE(negotiation)
+//   → INVOICE_SENT(order_assembly) → CLOSED_WON(closed_won)
 exports.VALID_TRANSITIONS = {
-    [exports.STAGES.LEAD]: [exports.STAGES.CONTACTED, exports.STAGES.CLOSED_LOST],
+    [exports.STAGES.LEAD]: [exports.STAGES.CONTACTED, exports.STAGES.PROPOSAL_SENT, exports.STAGES.CLOSED_LOST],
     [exports.STAGES.CONTACTED]: [exports.STAGES.PROPOSAL_SENT, exports.STAGES.CLOSED_LOST],
     [exports.STAGES.PROPOSAL_SENT]: [exports.STAGES.NEGOTIATION, exports.STAGES.CLOSED_LOST],
     [exports.STAGES.NEGOTIATION]: [exports.STAGES.ORDER_ASSEMBLY, exports.STAGES.CLOSED_LOST],
-    [exports.STAGES.ORDER_ASSEMBLY]: [exports.STAGES.DIRECTOR_QA, exports.STAGES.CLOSED_LOST],
+    [exports.STAGES.ORDER_ASSEMBLY]: [exports.STAGES.DIRECTOR_QA, exports.STAGES.CLOSED_WON, exports.STAGES.CLOSED_LOST],
     [exports.STAGES.DIRECTOR_QA]: [exports.STAGES.CLOSED_WON, exports.STAGES.CLOSED_LOST],
     [exports.STAGES.CLOSED_WON]: [exports.STAGES.READY_FOR_OPS],
     [exports.STAGES.READY_FOR_OPS]: [exports.STAGES.IN_PRODUCTION],

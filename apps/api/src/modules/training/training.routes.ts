@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { requireCertification, requirePermission, permissions } from '../../auth';
 import {
   getModulesByRoleHandler,
   enrollUserHandler,
@@ -16,47 +17,28 @@ import {
   evaluateScriptHandler,
 } from './training.controller';
 
+// Director+ only preHandler for cert-management endpoints
+const directorAuth = [requireCertification(), requirePermission(permissions.INVITE_USER)];
+
 export async function trainingRoutes(server: FastifyInstance) {
-  // Get modules by role (with optional phase filter)
+  // Onboarding endpoints — open for uncertified users (no certification gate)
   server.get('/modules', getModulesByRoleHandler);
-
-  // Get user's current enrollment + progress
   server.get('/enrollment', getEnrollmentHandler);
-
-  // Enroll user in training
   server.post('/enrollment/start', enrollUserHandler);
-
-  // Start a module
   server.post('/progress/start', startModuleHandler);
-
-  // Complete a module
   server.post('/progress/complete', completeModuleHandler);
-
-  // Submit module quiz / knowledge check
   server.post('/assessments/submit', submitModuleAssessmentHandler);
-
-  // Evaluate simulator verbal objections pitch response
   server.post('/assessments/evaluate-script', evaluateScriptHandler);
-
-  // Get detailed progress for an enrollment
   server.get('/progress/:enrollmentId', getProgressHandler);
-
-  // Record a friction point
   server.post('/friction-point', recordFrictionPointHandler);
 
-  // Get all friction points
-  server.get('/friction-points', getFrictionPointsHandler);
+  // Authenticated endpoints — require certification
+  server.get('/friction-points', { preHandler: [requireCertification()] }, getFrictionPointsHandler);
 
-  // Toggle HR documents completion
-  server.post('/reps/:id/hr-docs', toggleHrDocsHandler);
-
-  // Toggle practical exercise completion
-  server.post('/reps/:id/practical-exercise', togglePracticalExerciseHandler);
-
-  // Toggle Director sign-off
-  server.post('/reps/:id/director-signoff', toggleDirectorSignoffHandler);
-
-  // Retrieve certification status
-  server.get('/reps/:id/certification-status', getCertificationStatusHandler);
+  // Director+ certification management
+  server.post('/reps/:id/hr-docs', { preHandler: directorAuth }, toggleHrDocsHandler);
+  server.post('/reps/:id/practical-exercise', { preHandler: directorAuth }, togglePracticalExerciseHandler);
+  server.post('/reps/:id/director-signoff', { preHandler: directorAuth }, toggleDirectorSignoffHandler);
+  server.get('/reps/:id/certification-status', { preHandler: directorAuth }, getCertificationStatusHandler);
 }
 

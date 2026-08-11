@@ -23,7 +23,10 @@ const database_1 = require("@packages/database");
 const auth_1 = require("./auth");
 const server = (0, fastify_1.default)();
 const port = Number(process.env.PORT || 4000);
-const webDistPath = process.env.WEB_DIST_PATH || node_path_1.default.resolve(__dirname, '../../web/dist');
+const webDistPath = process.env.WEB_DIST_PATH
+    || (process.env.NODE_ENV === 'production'
+        ? node_path_1.default.resolve(__dirname, 'public')
+        : node_path_1.default.resolve(__dirname, '../../web/dist'));
 const indexHtmlPath = node_path_1.default.join(webDistPath, 'index.html');
 const frontendRoutePattern = /^\/($|dashboard(?:\/.*)?|orders(?:\/.*)?|settings(?:\/.*)?|opportunities(?:\/.*)?|organizations(?:\/.*)?|login(?:\/.*)?|change-credential(?:\/.*)?|my-opportunities(?:\/.*)?|team-opportunities(?:\/.*)?|team-performance(?:\/.*)?|reports(?:\/.*)?|earnings(?:\/.*)?|territory(?:\/.*)?|users(?:\/.*)?|data-health(?:\/.*)?|ecosystem-pipeline(?:\/.*)?|ops-workspace(?:\/.*)?|academy(?:\/.*)?)/;
 const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,https://ops.tufsports.us,https://tufops.app')
@@ -113,15 +116,7 @@ server.addHook('onRequest', async (request, reply) => {
         return sendStaticFile(reply, indexHtmlPath);
     }
 });
-server.register(organizations_routes_1.organizationRoutes, { prefix: '/api/organizations' });
-server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/api/opportunities' });
-server.register(activities_routes_1.activityRoutes, { prefix: '/api/activities' });
-server.register(reporting_routes_1.reportingRoutes, { prefix: '/api/reporting' });
-server.register(production_requests_routes_1.productionRequestRoutes, { prefix: '/api/production-requests' });
-server.register(orders_routes_1.orderRoutes, { prefix: '/api/orders' });
-server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/api' });
-server.register(users_routes_1.userRoutes, { prefix: '/api/auth' });
-server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
+// ── API v1 Routes ──────────────────────────────────────────────
 server.register(organizations_routes_1.organizationRoutes, { prefix: '/api/v1/organizations' });
 server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/api/v1/opportunities' });
 server.register(activities_routes_1.activityRoutes, { prefix: '/api/v1/activities' });
@@ -132,18 +127,25 @@ server.register(creative_requests_routes_1.creativeRequestRoutes, { prefix: '/ap
 server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' });
 server.register(academy_command_routes_1.academyCommandRoutes, { prefix: '/api/v1/academy' });
 server.register(announcements_routes_1.announcementRoutes, { prefix: '/api/v1' });
-server.register(organizations_routes_1.organizationRoutes, { prefix: '/organizations' });
-server.register(opportunities_routes_1.opportunityRoutes, { prefix: '/opportunities' });
-server.register(activities_routes_1.activityRoutes, { prefix: '/activities' });
-server.register(reporting_routes_1.reportingRoutes, { prefix: '/reporting' });
-server.register(production_requests_routes_1.productionRequestRoutes, { prefix: '/production-requests' });
-server.register(orders_routes_1.orderRoutes, { prefix: '/orders' });
-server.register(creative_requests_routes_1.creativeRequestRoutes);
-server.register(users_routes_1.userRoutes, { prefix: '/auth' });
+server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
+server.register(users_routes_1.userRoutes, { prefix: '/api/v1' }); // frontend compat for /users paths
+// ── Legacy compat: keep /api/auth for identity refactor ─────────
+server.register(users_routes_1.userRoutes, { prefix: '/api/auth' });
+// ── Legacy API route logging ────────────────────────────────────
+server.addHook('onRequest', async (request) => {
+    const requestPath = request.url.split('?')[0];
+    if (requestPath.startsWith('/api/') &&
+        !requestPath.startsWith('/api/v1/') &&
+        !requestPath.startsWith('/api/auth/') &&
+        requestPath !== '/api/health') {
+        request.log.warn({ url: request.url }, 'Legacy /api/* route accessed — migrate to /api/v1/*');
+    }
+});
 const healthHandler = async () => ({
     status: 'ok',
     service: 'tuf-ops-api',
     timestamp: new Date().toISOString(),
+    commit: process.env.RAILWAY_GIT_COMMIT_SHA || process.env.GIT_COMMIT || 'unknown',
 });
 server.get('/health', healthHandler);
 server.get('/api/health', healthHandler);

@@ -1,10 +1,11 @@
 import { FastifyInstance } from 'fastify';
 import { permissions, requireCertification, requirePermission, requireStageAwareEditPermission, requireStageAwareAdvancePermission } from '../../auth';
-import { createOpportunityHandler, getOpportunitiesHandler, getOpportunitiesByOrganizationHandler, updateOpportunityStageHandler, updateOpportunityHandler } from './opportunities.controller';
+import { createOpportunityHandler, getOpportunitiesHandler, getOpportunitiesByOrganizationHandler, updateOpportunityStageHandler, updateOpportunityHandler, getOpportunityByIdHandler } from './opportunities.controller';
 
 export async function opportunityRoutes(server: FastifyInstance) {
   server.get('/', { preHandler: [requireCertification(), requirePermission(permissions.VIEW_OPPORTUNITY_OWN)] }, getOpportunitiesHandler);
   server.post('/', { preHandler: [requireCertification(), requirePermission(permissions.CREATE_OPPORTUNITY)] }, createOpportunityHandler);
+  server.get('/:id', { preHandler: [requireCertification(), requirePermission(permissions.VIEW_OPPORTUNITY_OWN)] }, getOpportunityByIdHandler);
   server.get('/organization/:organizationId', { preHandler: [requireCertification(), requirePermission(permissions.VIEW_OPPORTUNITY_OWN)] }, getOpportunitiesByOrganizationHandler);
 
   // Stage advancement: TAE cannot advance beyond Closed Won.

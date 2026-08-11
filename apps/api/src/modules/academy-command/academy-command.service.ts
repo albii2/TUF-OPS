@@ -122,7 +122,7 @@ export async function getParticipants(actor?: SafeUser | null): Promise<Particip
 
   if (users.length === 0) return [];
 
-  const userIds = users.map((u) => u.id);
+  const userIds = users.map((u: any) => u.id);
 
   // Get latest academy activity per user
   const academyActivityResult = await pool.query(
@@ -214,7 +214,7 @@ export async function getParticipants(actor?: SafeUser | null): Promise<Particip
     // training_enrollments may not exist for all users
   }
 
-  return users.map((user) => {
+  return users.map((user: any) => {
     const activities = userActivity[user.id] || [];
     const lastAcademy = activities.length > 0 ? activities[0].created_at : null;
     const lastActivity = lastAcademy || user.last_login_at;

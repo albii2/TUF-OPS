@@ -6,7 +6,7 @@ import { useOrderById } from '../hooks/useOrders';
 import { useOpportunityById } from '../hooks/useOpportunities';
 import { useOrganizationById } from '../hooks/useOrganizations';
 import { useActivities } from '../hooks/useReports';
-import { updateMockOrder } from '../services/ordersService';
+import { updateOrder } from '../services/ordersService';
 import type { Order } from '../data/mockSalesData';
 import { notify } from '../services/feedbackService';
 import {
@@ -89,7 +89,7 @@ function buildPatchForStage(stage: OrderStage, form: Record<string, string>, exi
 
 export function OrderDetailPage() {
   const { id } = useParams();
-  const order = useOrderById(id);
+  const { data: order } = useOrderById(id);
   const [localOrder, setLocalOrder] = useState<Order | undefined>();
   const [showAdvanceDrawer, setShowAdvanceDrawer] = useState(false);
   const [blockingMode, setBlockingMode] = useState(false);
@@ -97,9 +97,9 @@ export function OrderDetailPage() {
   const [showNotes, setShowNotes] = useState(false);
   const [message, setMessage] = useState('');
   const activeOrder = localOrder ?? order;
-  const linkedOpportunity = useOpportunityById(activeOrder?.opportunityId);
-  const organization = useOrganizationById(activeOrder?.organizationId);
-  const orderActivities = useActivities({ entityType: 'ORDER', entityId: id, limit: 20 });
+  const { data: linkedOpportunity } = useOpportunityById(activeOrder?.opportunityId);
+  const { data: organization } = useOrganizationById(activeOrder?.organizationId);
+  const { data: orderActivities = [] } = useActivities({ entityType: 'ORDER', entityId: id, limit: 20 });
 
   const activityTimeline = useMemo(() => [...orderActivities].sort((a, b) => b.timestamp.localeCompare(a.timestamp)), [orderActivities]);
 
@@ -127,7 +127,7 @@ export function OrderDetailPage() {
     setShowAdvanceDrawer(true);
   };
 
-  const submitAdvance = () => {
+  const submitAdvance = async () => {
     if (!drawerTargetStage) return;
     const missing = fields.filter((field) => field.required && !(form[field.key] ?? '').trim());
     if (missing.length) {
@@ -140,10 +140,10 @@ export function OrderDetailPage() {
       return;
     }
     try {
-      const updated = updateMockOrder(activeOrder.id, {
+      const updated = await updateOrder(activeOrder.id, {
         ...buildPatchForStage(drawerTargetStage, form, activeOrder),
         advancementNotes: form.notes || form.resolutionNotes || form.blockerReason,
-      });
+      } as Partial<Order>);
       setLocalOrder(updated);
       setMessage(`${blockingMode ? 'Order placed on hold' : `Advanced to ${getOrderStageLabel(drawerTargetStage)}`}.`);
       notify(blockingMode ? 'Order blocked / on hold.' : 'Order advanced.', 'success');

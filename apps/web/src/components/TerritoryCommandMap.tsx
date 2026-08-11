@@ -16,6 +16,8 @@ const zoneTone: Record<TerritoryId, { label: string; color: string; grid: string
   west: { label: 'West', color: '#f09323', grid: 'col-span-2 row-span-3' },
   metro: { label: 'Metro', color: '#de2d3d', grid: 'col-span-4 row-span-2' },
   south: { label: 'South', color: '#6ea53a', grid: 'col-span-4 row-span-1' },
+  il: { label: 'Illinois', color: '#8b5cf6', grid: 'col-span-3 row-span-2' },
+  wi: { label: 'Wisconsin', color: '#0ea5e9', grid: 'col-span-3 row-span-2' },
 };
 
 type ZoneMetric = {
@@ -74,9 +76,9 @@ function MiniStat({ label, value }: { label: string; value: string }) {
 }
 
 export function TerritoryCommandMap({ title = 'TERRITORY COMMAND MAP', fullMapLink = true }: { title?: string; fullMapLink?: boolean }) {
-  const territories = useTerritories();
-  const organizations = useOrganizations({});
-  const opportunities = useOpportunities({});
+  const { data: territories = [] } = useTerritories();
+  const { data: organizations = [] } = useOrganizations({});
+  const { data: opportunities = [] } = useOpportunities({});
   const [activeZone, setActiveZone] = useState<TerritoryId>('metro');
 
   const zoneMetrics = useMemo<ZoneMetric[]>(() => {

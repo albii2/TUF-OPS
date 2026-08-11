@@ -11,6 +11,8 @@ const zoneColor: Record<TerritoryId, string> = {
   west: '#DF7B05',
   metro: '#C8192A',
   south: '#5A8D2B',
+  il: '#6D28D9',
+  wi: '#0369A1',
 };
 
 const zoneActiveColor: Record<TerritoryId, string> = {
@@ -18,12 +20,14 @@ const zoneActiveColor: Record<TerritoryId, string> = {
   west: '#F09323',
   metro: '#DE2D3D',
   south: '#6EA53A',
+  il: '#8B5CF6',
+  wi: '#0EA5E9',
 };
 
 export function TerritoryMapPage() {
-  const territories = useTerritories();
-  const organizations = useOrganizations({});
-  const opportunities = useOpportunities({});
+  const { data: territories = [] } = useTerritories();
+  const { data: organizations = [] } = useOrganizations({});
+  const { data: opportunities = [] } = useOpportunities({});
   const [activeZone, setActiveZone] = useState<TerritoryId>('metro');
 
   const zoneMetrics = useMemo(() => {

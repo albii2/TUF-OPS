@@ -5,6 +5,7 @@ import { getStoredUser } from '../auth';
 import { markPageVisited } from '../lib/academy';
 import { ForgePanel } from '../components/ForgePanel';
 import type { Role } from '../types';
+import type { Activity } from '../data/mockSalesData';
 import { useActivities } from '../hooks/useReports';
 import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
 import { useOpportunities } from '../hooks/useOpportunities';
@@ -61,7 +62,7 @@ function StagePipeline({ counts, values }: { counts: Record<string, number>; val
   );
 }
 
-function ActivityFeed({ title, activities }: { title: string; activities: ReturnType<typeof useActivities> }) {
+function ActivityFeed({ title, activities }: { title: string; activities: Activity[] }) {
   return (
     <GlassCard title={title}>
       <div className="space-y-2">
@@ -78,10 +79,10 @@ function ActivityFeed({ title, activities }: { title: string; activities: Return
 
 export function DashboardPage({ role }: { role: Role }) {
   useEffect(() => { markPageVisited('dashboard'); }, []);
-  const opportunities = useOpportunities({});
-  const organizations = useOrganizations({});
-  const orders = useOrders({});
-  const activities = useActivities({ limit: 8 });
+  const { data: opportunities = [] } = useOpportunities({});
+  const { data: organizations = [] } = useOrganizations({});
+  const { data: orders = [] } = useOrders({});
+  const { data: activities = [] } = useActivities({ limit: 8 });
   const currentUser = getStoredUser();
   const { metrics: backendMetrics, error: dashboardMetricsError, isApiBacked } = useDashboardMetrics(role, currentUser?.id, currentUser?.email);
 
@@ -184,6 +185,32 @@ export function DashboardPage({ role }: { role: Role }) {
         <div className="grid gap-3 lg:grid-cols-2">
           <GlassCard title="REP COACHING QUEUE"><div className="space-y-2">{repCoachingRows.slice(0, 8).map((row) => <Link key={row.rep} to="/team-opportunities" className="block rounded-lg border border-slate-800 bg-slate-950/70 p-3"><p className="font-semibold text-slate-100">{row.rep}</p><p className="text-xs text-slate-400">Open {row.open} · stale {row.stale} · near-close {row.nearClose}</p><p className="text-xs text-cyan-200">Pipeline: {formatCurrency(row.pipeline)}</p></Link>)}</div></GlassCard>
           <ActivityFeed title="RECENT TEAM ACTIVITY" activities={activities} />
+        </div>
+      </div>
+    );
+  }
+
+  if (role === 'OPERATIONS') {
+    const inProduction = needsReviewOrders.length + readyForVendorOrders.length;
+    const opsMission = blockedOrders.length
+      ? { title: 'Unblock production immediately', reason: `${blockedOrders.length} blocked orders are waiting on missing package items.`, to: '/orders', cta: 'Open blocked orders' }
+      : needsReviewOrders.length
+        ? { title: 'Collect missing handoff information', reason: `${needsReviewOrders.length} orders need review before vendor routing.`, to: '/production-requests', cta: 'Open production queue' }
+        : { title: 'Prepare vendor packets', reason: `${readyForVendorOrders.length} orders are ready for vendor release.`, to: '/orders', cta: 'Open orders' };
+
+    return (
+      <div className="space-y-3">
+        <h1 className="text-2xl font-semibold text-white">Operations Fulfillment Control</h1>
+        <div className="grid gap-3 md:grid-cols-4">
+          <MetricTile value={String(inProduction)} label="In Production" tone="border-cyan-500/40 bg-cyan-500/10" to="/production-requests" />
+          <MetricTile value={String(needsReviewOrders.length)} label="Needs QC Review" tone="border-amber-500/40 bg-amber-500/10" to="/production-requests" />
+          <MetricTile value={String(readyForVendorOrders.length)} label="Ready for Vendor" tone="border-emerald-500/40 bg-emerald-500/10" to="/orders" />
+          <MetricTile value={String(blockedOrders.length)} label="Blocked Orders" tone="border-rose-500/40 bg-rose-500/10" to="/orders" />
+        </div>
+        <GlassCard title="MISSION PRIORITY"><p className="text-sm font-semibold text-white">{opsMission.title}</p><p className="text-sm text-slate-300">{opsMission.reason}</p><Link to={opsMission.to} className="mt-2 inline-block rounded-md border border-cyan-400/40 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-100">{opsMission.cta}</Link></GlassCard>
+        <div className="grid gap-3 lg:grid-cols-2">
+          <GlassCard title="PRODUCTION QUEUE"><div className="space-y-2">{[...needsReviewOrders, ...readyForVendorOrders].slice(0, 8).map((order) => <DealRow key={order.id} title={`Order #${order.id}`} meta={`${order.organizationName} · ${order.productionStatus.replace(/_/g, ' ')}`} value={order.value} to={`/orders/${order.id}`} />)}</div></GlassCard>
+          <GlassCard title="COMPLETED THIS MONTH"><p className="text-2xl font-semibold text-white">{completedOrders.length}</p><p className="text-sm text-slate-400">Orders shipped</p></GlassCard>
         </div>
       </div>
     );

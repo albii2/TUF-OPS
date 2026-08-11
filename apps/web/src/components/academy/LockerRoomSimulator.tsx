@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getApiBaseUrl } from '../../services/apiBaseUrl';
+import { getStoredUser } from '../../auth';
 
 export type LockerRoomScenario = {
   title: string;
@@ -74,10 +75,9 @@ export default function LockerRoomSimulator() {
           console.warn('Failed to submit practical exercise on backend:', e);
         }
         
-        if (userObj) {
-          userObj.practicalExerciseCompleted = true;
-          localStorage.setItem('tuf_ops_user_v3', JSON.stringify(userObj));
-          window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: userObj }));
+        const user = getStoredUser();
+        if (user) {
+          window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: { ...user, practicalExerciseCompleted: true } }));
         }
       }
     } catch (err) {
@@ -108,12 +108,9 @@ export default function LockerRoomSimulator() {
       });
 
       if (passed) {
-        const rawUser = localStorage.getItem('tuf_ops_user_v3');
-        const userObj = rawUser ? JSON.parse(rawUser) : null;
-        if (userObj) {
-          userObj.practicalExerciseCompleted = true;
-          localStorage.setItem('tuf_ops_user_v3', JSON.stringify(userObj));
-          window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: userObj }));
+        const user = getStoredUser();
+        if (user) {
+          window.dispatchEvent(new CustomEvent('tuf:user-updated', { detail: { ...user, practicalExerciseCompleted: true } }));
         }
       }
     } finally {

@@ -10,7 +10,7 @@ import type { Order } from '../data/mockSalesData';
 export function RepOrdersPage() {
   const navigate = useNavigate();
   const user = getStoredUser();
-  const allOrders = useOrders({});
+  const { data: allOrders = [] } = useOrders({});
 
   const myOrders = useMemo(() => {
     if (!user) return [];

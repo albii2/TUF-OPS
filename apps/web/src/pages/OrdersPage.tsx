@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Card, EmptyState, Input, Pagination } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
-import { createMockOrderFromOpportunity, createOrderAsync } from '../services/ordersService';
+import { createOrder } from '../services/ordersService';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { notify } from '../services/feedbackService';
-import { DATA_MODE } from '../services/dataMode';
 import {
   canSeeOrderValue,
   getOrderDueDate,
@@ -50,9 +49,9 @@ export function OrdersPage() {
   const [message, setMessage] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const allOrders = useOrders({ refreshKey });
-  const searchedOrders = useOrders({ search, refreshKey });
-  const opportunities = useOpportunities({ refreshKey });
+  const { data: allOrders = [] } = useOrders({ refreshKey });
+  const { data: searchedOrders = [] } = useOrders({ search, refreshKey });
+  const { data: opportunities = [] } = useOpportunities({ refreshKey });
   const canShowValue = canSeeOrderValue();
 
   const filtered = useMemo(
@@ -71,13 +70,12 @@ export function OrdersPage() {
   const safePage = Math.min(page, totalPages);
   const paged = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
-  const createOrder = async () => {
+  const handleCreateOrder = async () => {
     try {
       const existingOpportunityIds = new Set(allOrders.map((order) => order.opportunityId));
       const sourceOpportunity = opportunities.find((opportunity) => opportunity.stage === 'CLOSED_WON' && !existingOpportunityIds.has(opportunity.id));
-      const created = DATA_MODE === 'api'
-        ? await createOrderAsync(sourceOpportunity!)
-        : createMockOrderFromOpportunity(sourceOpportunity);
+      if (!sourceOpportunity) throw new Error('No closed opportunities available');
+      const created = await createOrder(sourceOpportunity);
       setMessage(`Order created from ${created.organizationName}.`);
       setRefreshKey((value) => value + 1);
       notify('Order created.', 'success');
@@ -120,7 +118,7 @@ export function OrdersPage() {
         {/* Search + Create */}
         <div className="mb-4 grid gap-2 md:grid-cols-[1fr_auto]">
           <Input placeholder="Search orders by organization or vendor" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
-          <Button onClick={createOrder}>Create Order From Closed-Won</Button>
+          <Button onClick={handleCreateOrder}>Create Order From Closed-Won</Button>
         </div>
 
         {message ? (

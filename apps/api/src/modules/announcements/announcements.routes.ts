@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import { requireCertification, requirePermission, permissions } from '../../auth';
 import {
   listAnnouncementsHandler,
   createAnnouncementHandler,
@@ -6,12 +7,12 @@ import {
 } from './announcements.controller';
 
 export async function announcementRoutes(server: FastifyInstance) {
-  // List announcements (all authenticated users)
-  server.get('/announcements', listAnnouncementsHandler);
+  // List announcements (all certified users)
+  server.get('/announcements', { preHandler: [requireCertification()] }, listAnnouncementsHandler);
 
-  // Create announcement (Admin / Director / Regional Director only)
-  server.post('/announcements', createAnnouncementHandler);
+  // Create announcement (Director+ only)
+  server.post('/announcements', { preHandler: [requireCertification(), requirePermission(permissions.INVITE_USER)] }, createAnnouncementHandler);
 
-  // Delete announcement (Admin / Director / Regional Director only)
-  server.delete('/announcements/:id', deleteAnnouncementHandler);
+  // Delete announcement (Director+ only)
+  server.delete('/announcements/:id', { preHandler: [requireCertification(), requirePermission(permissions.INVITE_USER)] }, deleteAnnouncementHandler);
 }

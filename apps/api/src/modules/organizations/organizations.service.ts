@@ -1,13 +1,7 @@
 import { pool } from '@packages/database';
-import { OpportunityChannelType } from '../opportunities/opportunities.interface';
 import { STAGES } from '@packages/auth';
-
-const REQUIRED_CHANNELS: OpportunityChannelType[] = [
-  OpportunityChannelType.UNIFORM,
-  OpportunityChannelType.TRAVEL_GEAR,
-  OpportunityChannelType.TEAM_STORE,
-  OpportunityChannelType.LETTERMAN,
-];
+import { resolveUserId } from '../shared/resolve-user';
+import { auditLog } from '../shared/audit-log';
 
 function normalizeName(value: unknown) {
   return typeof value === 'string' ? value.trim() : '';
@@ -19,12 +13,6 @@ function normalizeState(value: unknown) {
 
 function isUniqueViolation(error: unknown) {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
-}
-
-async function resolveUserId(name: string): Promise<number | null> {
-  if (!name || name === 'Unassigned') return null;
-  const result = await pool.query('SELECT id FROM users WHERE name ILIKE $1 OR CONCAT(first_name, \' \', last_name) ILIKE $1 LIMIT 1', [name]);
-  return result.rows[0]?.id ?? null;
 }
 
 export async function createOrganization(organization: any) {
@@ -41,63 +29,36 @@ export async function createOrganization(organization: any) {
   const directorName = organization.assignedDirector || organization.assigned_director_name;
   const assigned_rep_id = organization.assigned_rep_id ?? (repName ? await resolveUserId(repName) : null);
   const assigned_director_id = organization.assigned_director_id ?? (directorName ? await resolveUserId(directorName) : null);
-  const territory_id = organization.territory_id ?? null;
-  const created_by = organization.created_by ?? assigned_rep_id ?? 1;
-  const updated_by = organization.updated_by ?? created_by;
+  const territory_id = organization.territory_id ?? organization.territoryId ?? null;
+  const city = organization.city ?? null;
+  const created_by = organization.created_by ?? organization.createdBy ?? assigned_rep_id ?? 1;
+  const updated_by = organization.updated_by ?? organization.updatedBy ?? created_by;
 
   const client = await pool.connect();
 
   try {
+    // Insert organization — immediate, don't wait for auto-opportunities
     await client.query('BEGIN');
-
     const orgResult = await client.query(
-      'INSERT INTO organizations (name, state, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-      [name, state, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by]
+      'INSERT INTO organizations (name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by, assigned_rep_name, assigned_director_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *',
+      [name, state, city, assigned_rep_id, assigned_director_id, territory_id, created_by, updated_by, repName || null, directorName || null]
     );
-
     const createdOrganization = orgResult.rows[0];
-
-    for (const channelType of REQUIRED_CHANNELS) {
-      await client.query(
-        `
-        INSERT INTO opportunities (
-          name,
-          organization_id,
-          sport,
-          season,
-          year,
-          status,
-          value,
-          created_by,
-          updated_by,
-          stage,
-          last_activity_date,
-          assigned_rep_id,
-          assigned_director_id,
-          deal_type,
-          channel_type
-        ) VALUES ($1, $2, 'FOOTBALL', 'FALL', 2026, $3, $4, $5, $6, $7, current_timestamp, $8, $9, $10, $11)
-        `,
-        [
-          `${name} - ${channelType}`,
-          createdOrganization.id,
-          'open',
-          0.00,
-          created_by,
-          updated_by,
-          STAGES.LEAD,
-          assigned_rep_id,
-          assigned_director_id,
-          channelType,
-          channelType,
-        ]
-      );
-    }
-
     await client.query('COMMIT');
+
+    // Audit log
+    auditLog({
+      action: 'CREATE',
+      user_id: created_by,
+      resource_type: 'organization',
+      resource_id: createdOrganization.id,
+      metadata: { name, state },
+    }).catch(() => {});
+
     return createdOrganization;
   } catch (error) {
     await client.query('ROLLBACK');
+    console.error('createOrganization DB error:', error, 'Stack:', (error as any)?.stack);
     if (isUniqueViolation(error)) {
       throw new Error('Organization already exists for this name and state');
     }
@@ -120,18 +81,36 @@ export async function getOrganizationById(id: string) {
 export async function updateOrganization(id: string, organization: any) {
   const name = normalizeName(organization.name);
   const state = normalizeState(organization.state);
-  const { assigned_rep_id, assigned_director_id, territory_id, updated_by } = organization;
 
   if (!name) {
     throw new Error('Organization name is required');
   }
 
+  // Resolve rep/director names to IDs — frontend sends camelCase names,
+  // backend expects snake_case numeric IDs
+  const repName = organization.assignedRep || organization.assigned_rep_name;
+  const directorName = organization.assignedDirector || organization.assigned_director_name;
+  const assigned_rep_id = organization.assigned_rep_id ?? (repName ? await resolveUserId(repName) : null);
+  const assigned_director_id = organization.assigned_director_id ?? (directorName ? await resolveUserId(directorName) : null);
+  const territory_id = organization.territory_id ?? organization.territoryId ?? null;
+  const updated_by = organization.updated_by ?? organization.updatedBy ?? assigned_rep_id ?? 1;
+
   try {
     const result = await pool.query(
-      'UPDATE organizations SET name = $1, state = $2, assigned_rep_id = $3, assigned_director_id = $4, territory_id = $5, updated_by = $6, updated_at = NOW() WHERE id = $7 RETURNING *',
-      [name, state, assigned_rep_id, assigned_director_id, territory_id, updated_by, id]
+      'UPDATE organizations SET name = $1, state = $2, assigned_rep_id = $3, assigned_director_id = $4, territory_id = $5, updated_by = $6, updated_at = NOW(), assigned_rep_name = $7, assigned_director_name = $8 WHERE id = $9 RETURNING *',
+      [name, state, assigned_rep_id, assigned_director_id, territory_id, updated_by, repName || null, directorName || null, id]
     );
-    return result.rows[0];
+    const updatedOrg = result.rows[0];
+
+    auditLog({
+      action: 'UPDATE',
+      user_id: updated_by,
+      resource_type: 'organization',
+      resource_id: id,
+      metadata: { name, state },
+    }).catch(() => {});
+
+    return updatedOrg;
   } catch (error) {
     if (isUniqueViolation(error)) {
       throw new Error('Organization already exists for this name and state');
@@ -140,6 +119,15 @@ export async function updateOrganization(id: string, organization: any) {
   }
 }
 
-export async function deleteOrganization(id: string) {
+export async function deleteOrganization(id: string, userId?: number | null) {
+  // Cascade: delete related records before the organization
+  await pool.query('DELETE FROM activities WHERE organization_id = $1', [id]);
+  await pool.query('DELETE FROM opportunities WHERE organization_id = $1', [id]);
   await pool.query('DELETE FROM organizations WHERE id = $1', [id]);
+  auditLog({
+    action: 'DELETE',
+    user_id: userId ?? null,
+    resource_type: 'organization',
+    resource_id: id,
+  }).catch(() => {});
 }
