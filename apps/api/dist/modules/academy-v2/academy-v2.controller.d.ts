@@ -1,0 +1,28 @@
+import { FastifyRequest, FastifyReply } from 'fastify';
+export declare function postQuizAttemptHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getPhase1StatusHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function postWalkthroughStepHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getPhase2StatusHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getSandboxOrgsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function createSandboxOrgHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function updateSandboxOrgHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getSandboxContactsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function createSandboxContactHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getSandboxOppsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function createSandboxOppHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getSandboxActivitiesHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function createSandboxActivityHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getSandboxSummaryHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function createSalesExecutionHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getSalesExecutionsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getLeadsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function postDedupScanHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function postClaimLeadHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getClaimedLeadsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getQualityChecksHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function postRandomAuditHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getVerificationAuditsHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function getGraduationStatusHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function postDirectorApprovalHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+export declare function postPromoteSandboxDataHandler(request: FastifyRequest, reply: FastifyReply): Promise<never>;
+//# sourceMappingURL=academy-v2.controller.d.ts.map
