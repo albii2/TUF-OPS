@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.__test = void 0;
 exports.assertAuthTokenSecretConfigured = assertAuthTokenSecretConfigured;
 exports.createAuthToken = createAuthToken;
 exports.verifyAuthToken = verifyAuthToken;
@@ -38,6 +39,11 @@ function getAuthTokenSecret() {
 function assertAuthTokenSecretConfigured() {
     getAuthTokenSecret();
 }
+/** Test-only access to internals (kept intentionally minimal). */
+exports.__test = {
+    sanitizeUser,
+    getAuthTokenSecret,
+};
 function getBootstrapOwnerCredential() {
     const credential = process.env.INITIAL_OWNER_CREDENTIAL;
     if (credential) {

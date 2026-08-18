@@ -171,7 +171,7 @@ async function toggleHrDocsHandler(request, reply) {
             return reply.code(400).send({ message: 'User id and hrDocsCompleted are required' });
         }
         const dbUserId = await (0, training_service_1.resolveUserId)(id);
-        const result = await (0, training_service_1.toggleHrDocs)(dbUserId, !!hrDocsCompleted);
+        const result = await (0, training_service_1.toggleHrDocs)(dbUserId, !!hrDocsCompleted, request.currentUser?.id);
         return reply.send(result);
     }
     catch (error) {
@@ -197,7 +197,7 @@ async function togglePracticalExerciseHandler(request, reply) {
             return reply.code(400).send({ message: 'User id and practicalExerciseCompleted are required' });
         }
         const dbUserId = await (0, training_service_1.resolveUserId)(id);
-        const result = await (0, training_service_1.togglePracticalExercise)(dbUserId, !!practicalExerciseCompleted);
+        const result = await (0, training_service_1.togglePracticalExercise)(dbUserId, !!practicalExerciseCompleted, request.currentUser?.id);
         return reply.send(result);
     }
     catch (error) {
@@ -223,7 +223,7 @@ async function toggleDirectorSignoffHandler(request, reply) {
             return reply.code(400).send({ message: 'User id and directorSignedOff are required' });
         }
         const dbUserId = await (0, training_service_1.resolveUserId)(id);
-        const result = await (0, training_service_1.toggleDirectorSignoff)(dbUserId, !!directorSignedOff);
+        const result = await (0, training_service_1.toggleDirectorSignoff)(dbUserId, !!directorSignedOff, request.currentUser?.id);
         return reply.send(result);
     }
     catch (error) {

@@ -7,10 +7,10 @@ export declare function markModuleCompleted(enrollmentId: number, moduleId: numb
     progress: TrainingProgress;
     enrollment: TrainingEnrollment;
 }>;
-export declare function checkAndUpdateCertification(userId: number): Promise<boolean>;
-export declare function toggleHrDocs(userId: number, hrDocsCompleted: boolean): Promise<any>;
-export declare function togglePracticalExercise(userId: number, practicalExerciseCompleted: boolean): Promise<any>;
-export declare function toggleDirectorSignoff(userId: number, directorSignedOff: boolean): Promise<any>;
+export declare function checkAndUpdateCertification(userId: number, actorId?: number): Promise<boolean>;
+export declare function toggleHrDocs(userId: number, hrDocsCompleted: boolean, actorId?: number): Promise<any>;
+export declare function togglePracticalExercise(userId: number, practicalExerciseCompleted: boolean, actorId?: number): Promise<any>;
+export declare function toggleDirectorSignoff(userId: number, directorSignedOff: boolean, actorId?: number): Promise<any>;
 export declare function submitModuleAssessment(enrollmentId: number, moduleId: number, answers: string[]): Promise<any>;
 export declare function resolveUserId(id: string | number): Promise<number>;
 export declare function getCertificationStatus(userId: number | string): Promise<any>;

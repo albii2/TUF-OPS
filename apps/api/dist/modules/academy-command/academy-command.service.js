@@ -86,7 +86,8 @@ async function getParticipants(actor) {
     // Get all non-ADMIN active users (TAEs, REPs, DIRECTORs in training)
     const usersResult = await database_1.pool.query(`SELECT id, name, email, role, territory, state_market, cohort, enrollment_date,
             last_login_at, COALESCE(login_count, 0) as login_count,
-            is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed
+            is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed,
+            certified_at, certified_by, academy_version
      FROM users
      WHERE status = 'ACTIVE' AND role IN ('REP', 'DIRECTOR', 'REGIONAL_DIRECTOR')
      ORDER BY name`);
@@ -115,10 +116,11 @@ async function getParticipants(actor) {
      FROM activities
      WHERE created_by = ANY($1)
      GROUP BY created_by`, [userIds]);
-    const orderStatsResult = await database_1.pool.query(`SELECT o.created_by as user_id, COUNT(*) as count
+    const orderStatsResult = await database_1.pool.query(`SELECT opp.created_by as user_id, COUNT(DISTINCT o.id) as count
      FROM orders o
-     WHERE o.created_by = ANY($1)
-     GROUP BY o.created_by`, [userIds]);
+     JOIN opportunities opp ON opp.id = o.opportunity_id
+     WHERE opp.created_by = ANY($1)
+     GROUP BY opp.created_by`, [userIds]);
     // Build lookup maps
     const orgMap = {};
     orgStatsResult.rows.forEach((r) => { orgMap[r.user_id] = Number(r.count); });
@@ -197,6 +199,9 @@ async function getParticipants(actor) {
             pipelineValue: opps.value,
             certificationStatus: user.is_certified ? 'CERTIFIED' : 'NOT_CERTIFIED',
             isCertified: user.is_certified,
+            certifiedAt: user.certified_at,
+            certifiedBy: user.certified_by,
+            academyVersion: user.academy_version,
         };
     });
 }
@@ -239,6 +244,40 @@ async function getParticipantDetail(userId, actor) {
     }
     catch {
         // no training data
+    }
+    // Module-level learning progress (Learn → Quiz path)
+    let moduleProgress = [];
+    let trainingEnrollmentId = null;
+    try {
+        const enrollmentRes = await database_1.pool.query('SELECT id FROM training_enrollments WHERE user_id = $1', [userId]);
+        if (enrollmentRes.rows.length > 0) {
+            trainingEnrollmentId = enrollmentRes.rows[0].id;
+            const moduleProgressResult = await database_1.pool.query(`SELECT tm.id AS module_id, tm.title, tm.phase, tm.order_index,
+                tp.status, tp.started_at, tp.completed_at,
+                ta.score, ta.passed, ta.taken_at AS last_attempt
+         FROM training_modules tm
+         LEFT JOIN training_progress tp ON tp.enrollment_id = $1 AND tp.module_id = tm.id
+         LEFT JOIN LATERAL (
+           SELECT score, passed, taken_at FROM training_assessments
+           WHERE enrollment_id = $1 AND module_id = tm.id
+           ORDER BY taken_at DESC NULLS LAST, created_at DESC LIMIT 1
+         ) ta ON true
+         WHERE tm.role = 'REP' AND tm.phase IN ('LEVEL_1_OPERATOR', 'LEVEL_2_PRODUCT')
+         ORDER BY tm.order_index ASC`, [trainingEnrollmentId]);
+            moduleProgress = moduleProgressResult.rows;
+        }
+    }
+    catch {
+        // no training data
+    }
+    // Phase completion from module progress
+    const phaseProgress = {};
+    for (const m of moduleProgress) {
+        if (!phaseProgress[m.phase])
+            phaseProgress[m.phase] = { completed: 0, total: 0 };
+        phaseProgress[m.phase].total += 1;
+        if (m.status === 'COMPLETED' && m.passed === true)
+            phaseProgress[m.phase].completed += 1;
     }
     // Build summary
     const summary = await getParticipants(actor);
@@ -288,7 +327,11 @@ async function getParticipantDetail(userId, actor) {
         pipelineValue: Number(oppTotalResult.rows[0]?.total_value || 0),
         certificationStatus: user.is_certified ? 'CERTIFIED' : 'NOT_CERTIFIED',
         isCertified: user.is_certified,
-        phaseProgress: {},
+        certifiedAt: user.certified_at || null,
+        certifiedBy: user.certified_by || null,
+        academyVersion: user.academy_version || null,
+        phaseProgress,
+        moduleProgress,
         quizResults: quizResults.map((q) => ({
             module: q.module || 'Unknown',
             score: q.score || 0,
@@ -305,7 +348,7 @@ async function getParticipantDetail(userId, actor) {
         hrDocsCompleted: user.hr_docs_completed || false,
         directorSignedOff: user.director_signed_off || false,
         practicalExerciseCompleted: user.practical_exercise_completed || false,
-        certificationDate: user.is_certified ? user.updated_at : null,
+        certificationDate: user.certified_at || (user.is_certified ? user.updated_at : null),
         attentionFlags: flags,
     };
 }
