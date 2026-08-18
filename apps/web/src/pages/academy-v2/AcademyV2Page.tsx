@@ -2,6 +2,7 @@
 (window as any).__ACADEMY_V3_LOADED__ = true;
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { getStoredUser } from '../../auth';
+import { apiClient } from '../../services/apiClient';
 
 // ─── Types ────────────────────────────────────────────────────────
 
@@ -134,11 +135,13 @@ const WALKTHROUGH_STEPS = [
 const LANES = ['Uniforms', 'Travel Gear', 'Team Store', 'Letterman'];
 const STAGES = ['LEAD', 'LEAD_ENGAGED', 'CONTACTED', 'DISCOVERY', 'PROPOSAL_SENT', 'NEGOTIATION', 'CLOSED_WON', 'CLOSED_LOST'];
 
-type Tab = 'phase1' | 'phase2' | 'phase3' | 'phase4' | 'graduation' | 'leads';
+type Tab = 'learn' | 'resources' | 'phase1' | 'phase2' | 'phase3' | 'phase4' | 'graduation' | 'leads';
 
 // Phase locking definitions: which phase must be completed to unlock each tab
 const PHASE_LOCKS: Record<Tab, { requires: string | null; label: string }> = {
-  phase1:      { requires: null, label: '🧠 Phase 1: Foundations' },
+  learn:       { requires: null, label: '📚 Learn & Certify' },
+  resources:   { requires: null, label: '📎 Resources' },
+  phase1:      { requires: null, label: '🧠 Knowledge Quizzes' },
   phase2:      { requires: 'phase1', label: '🗺️ Phase 2: CRM Walkthrough' },
   phase3:      { requires: 'phase2', label: '🏗️ Phase 3: Sandbox Territory' },
   phase4:      { requires: 'phase3', label: '💰 Phase 4: Sales Execution' },
@@ -173,7 +176,7 @@ async function apiFetch(path: string, options?: RequestInit) {
 export default function AcademyV2Page() {
   const user = getStoredUser();
   const userId = user?.id ? Number(user.id) : 1;
-  const [tab, setTab] = useState<Tab>('phase1');
+  const [tab, setTab] = useState<Tab>('learn');
   const [phaseLocks, setPhaseLocks] = useState<Record<string, boolean>>({
     phase1: false, phase2: false, phase3: false, phase4: false,
   });
@@ -210,9 +213,9 @@ export default function AcademyV2Page() {
       {/* Header */}
       <div className="border-b border-slate-700 bg-[#0a1220] px-6 py-4">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl font-black text-white">TUF Academy v3</h1>
+          <h1 className="text-2xl font-black text-white">TUF Academy</h1>
           <p className="text-sm text-slate-400 mt-1">
-            Sandbox-Based Training • 5 Phases • Quality-Gated Certification
+            Learn → Quiz → Certify • Sandbox-Based Field Training
           </p>
         </div>
       </div>
@@ -244,6 +247,8 @@ export default function AcademyV2Page() {
 
       {/* Tab Content */}
       <div className="max-w-7xl mx-auto p-6">
+        {tab === 'learn' && <LearnTab userId={userId} />}
+        {tab === 'resources' && <ResourcesTab />}
         {tab === 'phase1' && <Phase1Tab userId={userId} />}
         {tab === 'phase2' && <Phase2Tab userId={userId} />}
         {tab === 'phase3' && <Phase3Tab userId={userId} />}
@@ -1849,3 +1854,609 @@ function SimpleFormModal({
   );
 }
 // v3 deploy trigger Thu Jul 30 15:47:43 CDT 2026
+
+// ═══════════════════════════════════════════════════════════════════
+// LEARN & CERTIFY — the certification path (Learn → Quiz)
+// Backed by /api/v1/training (training_modules content + server-verified quizzes)
+// ═══════════════════════════════════════════════════════════════════
+
+interface TrainingQuizQuestion { question: string; options: string[]; correctAnswer: string; }
+interface TrainingModule {
+  id: number; title: string; description: string; role: string; phase: string;
+  order_index: number; content_markdown: string; estimated_duration_minutes: number;
+  module_type: string; quiz_json: TrainingQuizQuestion[] | null; passing_score: number;
+}
+interface TrainingProgressRow {
+  id: number; enrollment_id: number; module_id: number;
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';
+  started_at: string | null; completed_at: string | null; time_spent_seconds: number | null;
+}
+interface TrainingAssessmentRow { id: number; module_id: number; enrollment_id: number; score: number; passed: boolean; taken_at: string; }
+interface TrainingEnrollmentData {
+  enrollment: { id: number; user_id: number; role: string; status: string; current_phase: string; enrolled_at: string; };
+  modules: TrainingModule[];
+  progress: TrainingProgressRow[];
+  assessments: TrainingAssessmentRow[];
+  completionMetrics: {
+    totalModules: number; completedModules: number; percentComplete: number;
+    phaseCompletionStatus: Record<string, { completed: number; total: number; percentComplete: number }>;
+  };
+}
+interface AcademyResource {
+  id: number; slug: string; title: string; kind: string;
+  body_markdown: string | null; external_url: string | null;
+  sort_order: number; is_active: boolean; updated_at: string;
+}
+
+const PHASE_LABEL: Record<string, string> = {
+  LEVEL_1_OPERATOR: 'Level 1 — Operator',
+  LEVEL_2_PRODUCT: 'Level 2 — Product',
+};
+
+function fmtDateShort(iso: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' ' +
+    d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}
+
+function LearnTab({ userId }: { userId: number }) {
+  const user = getStoredUser();
+  const [data, setData] = useState<TrainingEnrollmentData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeModule, setActiveModule] = useState<TrainingModule | null>(null);
+  const [learningMarked, setLearningMarked] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Enrollment exists?
+      let enrollment: TrainingEnrollmentData;
+      try {
+        enrollment = await apiClient<TrainingEnrollmentData>(`/api/v1/training/enrollment?userId=${userId}`);
+      } catch {
+        // No enrollment yet — create one (role canonicalized server-side)
+        await apiClient('/api/v1/training/enrollment/start', {
+          method: 'POST',
+          body: { userId, role: user?.role || 'REP' },
+        });
+        enrollment = await apiClient<TrainingEnrollmentData>(`/api/v1/training/enrollment?userId=${userId}`);
+      }
+      setData(enrollment);
+    } catch (e: any) {
+      setError(e.message || 'Failed to load Academy enrollment');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, user?.role]);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <div className="text-slate-400">Loading...</div>;
+  if (error) return <div className="text-red-400">{error}</div>;
+  if (!data) return <div className="text-slate-400">No enrollment data.</div>;
+
+  const { enrollment, modules, progress, assessments, completionMetrics } = data;
+  const progressByModule = new Map(progress.map((p) => [p.module_id, p]));
+  const assessmentByModule = new Map(assessments.map((a) => [a.module_id, a]));
+
+  // Certification readiness from the user record
+  const certChecks = [
+    { label: 'HR paperwork + NDA on file', done: Boolean((user as any)?.hrDocsCompleted) },
+    { label: 'Practical exercise completed', done: Boolean((user as any)?.practicalExerciseCompleted) },
+    { label: 'Director sign-off', done: Boolean((user as any)?.directorSignedOff) },
+  ];
+  const allModulesDone = completionMetrics.completedModules >= completionMetrics.totalModules && completionMetrics.totalModules > 0;
+  const certified = Boolean((user as any)?.isCertified);
+
+  return (
+    <div>
+      {/* Certification progress banner */}
+      <div className="bg-emerald-400/5 border border-emerald-400/20 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h2 className="text-lg font-bold text-emerald-300">Your Certification Path</h2>
+            <p className="text-sm text-slate-400 mt-1">
+              {modules.length === 0
+                ? 'No certification modules for your role. Leadership uses Academy Command for oversight.'
+                : 'Study the material, then pass each quiz (85% or higher) to progress. Learn first — the quiz only counts once the material is on the page before it.'}
+            </p>
+          </div>
+          {certified ? (
+            <span className="text-xs bg-emerald-400/20 text-emerald-300 px-3 py-1.5 rounded font-black">
+              ✓ CERTIFIED — Academy v2
+            </span>
+          ) : (
+            <span className="text-2xl font-black text-white">{completionMetrics.percentComplete}%</span>
+          )}
+        </div>
+        {/* Progress bar */}
+        <div className="mt-3 h-2 rounded-full bg-slate-800 overflow-hidden">
+          <div
+            className="h-full bg-emerald-400 transition-all"
+            style={{ width: `${completionMetrics.percentComplete}%` }}
+          />
+        </div>
+        <div className="mt-2 text-xs text-slate-400">
+          {completionMetrics.completedModules}/{completionMetrics.totalModules} modules complete
+        </div>
+      </div>
+
+      {/* Certification requirements */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+        {certChecks.map((c) => (
+          <div key={c.label} className={`border rounded-lg p-3 flex items-center gap-2 ${c.done ? 'border-emerald-400/30 bg-emerald-400/5' : 'border-slate-700 bg-slate-800/30'}`}>
+            <span className={`text-lg ${c.done ? 'text-emerald-400' : 'text-slate-600'}`}>{c.done ? '✓' : '○'}</span>
+            <span className="text-xs text-slate-300">{c.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Module list */}
+      <h3 className="font-bold text-white mb-3">Certification Modules</h3>
+      {modules.length === 0 ? (
+        <p className="text-sm text-slate-500 italic p-4 border border-dashed border-slate-700 rounded-lg text-center">
+          No modules available.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {modules.map((mod) => {
+            const prog = progressByModule.get(mod.id);
+            const assess = assessmentByModule.get(mod.id);
+            const status = prog?.status || 'NOT_STARTED';
+            const passed = assess?.passed === true;
+            const inProgress = status === 'IN_PROGRESS';
+            const completed = status === 'COMPLETED';
+            const isActive = activeModule?.id === mod.id;
+
+            return (
+              <div
+                key={mod.id}
+                className={`border rounded-lg p-4 transition-colors ${
+                  passed
+                    ? 'border-emerald-400/30 bg-emerald-400/5'
+                    : inProgress
+                    ? 'border-amber-400/30 bg-amber-400/5'
+                    : completed
+                    ? 'border-sky-400/30 bg-sky-400/5'
+                    : 'border-slate-700 bg-slate-800/30'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs px-2 py-0.5 rounded bg-slate-700 text-slate-300 font-bold">
+                        {PHASE_LABEL[mod.phase] || mod.phase}
+                      </span>
+                      <span className="text-xs text-slate-500">~{mod.estimated_duration_minutes} min</span>
+                    </div>
+                    <h4 className="font-bold text-white mt-1">{mod.title}</h4>
+                    <p className="text-xs text-slate-400 mt-0.5">{mod.description}</p>
+                    {assess && (
+                      <p className={`text-xs mt-1 ${passed ? 'text-emerald-300' : 'text-amber-300'}`}>
+                        Quiz: {assess.score}% ({passed ? 'PASSED' : 'needs 85%'} · {fmtDateShort(assess.taken_at)})
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xl ${passed ? 'text-emerald-400' : inProgress ? 'text-amber-400' : 'text-slate-600'}`}>
+                      {passed ? '✓' : inProgress ? '→' : completed ? '📖' : '○'}
+                    </span>
+                    <button
+                      onClick={() => { setActiveModule(isActive ? null : mod); setLearningMarked(false); }}
+                      className={`rounded-lg border px-3 py-2 text-xs font-bold whitespace-nowrap transition-colors ${
+                        isActive
+                          ? 'border-emerald-400 bg-emerald-600 text-white'
+                          : passed
+                          ? 'border-emerald-400/40 text-emerald-300 hover:bg-emerald-400/10'
+                          : 'border-slate-600 bg-slate-700/50 text-white hover:bg-slate-600'
+                      }`}
+                    >
+                      {passed ? 'Review Module' : inProgress ? 'Continue Learning' : 'Start Module'}
+                    </button>
+                  </div>
+                </div>
+
+                {isActive && (
+                  <ModuleStudyView
+                    userId={userId}
+                    enrollmentId={enrollment.id}
+                    module={mod}
+                    learningMarked={learningMarked}
+                    setLearningMarked={setLearningMarked}
+                    onProgress={() => load()}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {allModulesDone && !certified && (
+        <div className="mt-6 bg-sky-400/10 border border-sky-400/30 rounded-lg p-4">
+          <p className="text-sky-300 font-bold">🎓 All modules complete!</p>
+          <p className="text-sm text-slate-400 mt-1">
+            Certification is granted once your HR paperwork, practical exercise, and Director sign-off are recorded.
+            Your Director can update these from Academy Command.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Module study view: Learning material → Mark complete → Quiz ───
+
+function ModuleStudyView({
+  userId, enrollmentId, module, learningMarked, setLearningMarked, onProgress,
+}: {
+  userId: number;
+  enrollmentId: number;
+  module: TrainingModule;
+  learningMarked: boolean;
+  setLearningMarked: (v: boolean) => void;
+  onProgress: () => void;
+}) {
+  const [marking, setMarking] = useState(false);
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ score: number; passed: boolean } | null>(null);
+
+  const hasQuiz = Array.isArray(module.quiz_json) && module.quiz_json.length > 0;
+
+  const markComplete = async () => {
+    setMarking(true);
+    try {
+      await apiClient('/api/v1/training/progress/start', {
+        method: 'POST',
+        body: { enrollmentId, moduleId: module.id },
+      });
+      await apiClient('/api/v1/training/progress/complete', {
+        method: 'POST',
+        body: { enrollmentId, moduleId: module.id, timeSpentSeconds: 0 },
+      });
+      setLearningMarked(true);
+      onProgress();
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      setMarking(false);
+    }
+  };
+
+  const submitQuiz = async () => {
+    if (!hasQuiz) return;
+    setSubmitting(true);
+    try {
+      const questions = module.quiz_json!;
+      const answersArr = questions.map((q, i) => answers[i] ?? '');
+      if (answersArr.some((a) => a === '')) {
+        alert('Answer every question before submitting.');
+        setSubmitting(false);
+        return;
+      }
+      const res = await apiClient<{ score: number; passed: boolean }>('/api/v1/training/assessments/submit', {
+        method: 'POST',
+        body: { enrollmentId, moduleId: module.id, answers: answersArr },
+      });
+      setResult(res);
+      onProgress();
+    } catch (e: any) {
+      alert(e.message || 'Failed to submit quiz');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="mt-4 border-t border-slate-700/60 pt-4">
+      {/* Learning material */}
+      <div className="rounded-lg border border-slate-700 bg-slate-900/40 p-4">
+        <h5 className="text-sm font-bold text-sky-300 mb-2">📖 Learning Material</h5>
+        <div className="text-sm text-slate-300 space-y-2 leading-relaxed">
+          <Markdown text={module.content_markdown} />
+        </div>
+      </div>
+
+      {/* Learning complete */}
+      {!learningMarked && (
+        <div className="mt-3">
+          <button
+            onClick={markComplete}
+            disabled={marking}
+            className="px-4 py-2 bg-sky-600 text-white rounded text-sm font-bold disabled:opacity-50"
+          >
+            {marking ? 'Saving...' : '✓ Mark Learning Complete'}
+          </button>
+          <p className="text-xs text-slate-500 mt-1">
+            Reading counts. Mark the material complete to unlock the quiz — the quiz is server-graded and needs 85%.
+          </p>
+        </div>
+      )}
+
+      {/* Quiz */}
+      {learningMarked && hasQuiz && !result && (
+        <div className="mt-4 rounded-lg border border-amber-400/20 bg-amber-400/5 p-4">
+          <h5 className="text-sm font-bold text-amber-300 mb-3">🧠 Certification Quiz — {module.quiz_json!.length} question{module.quiz_json!.length > 1 ? 's' : ''} · Pass: {module.passing_score || 85}%</h5>
+          {module.quiz_json!.map((q, qi) => (
+            <div key={qi} className="mb-4">
+              <p className="text-sm text-white font-bold mb-2">{qi + 1}. {q.question}</p>
+              <div className="space-y-1.5">
+                {q.options.map((opt, oi) => (
+                  <label
+                    key={oi}
+                    className={`block rounded border px-3 py-2 text-sm cursor-pointer transition-colors ${
+                      answers[qi] === opt
+                        ? 'border-amber-400 bg-amber-400/10 text-white'
+                        : 'border-slate-700 bg-slate-800/40 text-slate-300 hover:border-slate-500'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name={`q${qi}`}
+                      className="mr-2"
+                      checked={answers[qi] === opt}
+                      onChange={() => setAnswers((a) => ({ ...a, [qi]: opt }))}
+                    />
+                    {opt}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={submitQuiz}
+            disabled={submitting}
+            className="px-4 py-2 bg-amber-600 text-white rounded text-sm font-bold disabled:opacity-50"
+          >
+            {submitting ? 'Grading...' : 'Submit Quiz'}
+          </button>
+          {quizOpen && (
+            <div className="mt-2 text-xs text-slate-400">Quiz submitted.</div>
+          )}
+        </div>
+      )}
+
+      {/* Result */}
+      {result && (
+        <div className={`mt-4 rounded-lg border p-4 ${result.passed ? 'border-emerald-400/30 bg-emerald-400/5' : 'border-red-400/30 bg-red-400/5'}`}>
+          <p className={`font-bold ${result.passed ? 'text-emerald-300' : 'text-red-300'}`}>
+            {result.passed ? '✓ QUIZ PASSED' : '✗ NOT PASSED'} — {result.score}% (need {module.passing_score || 85}%)
+          </p>
+          <p className="text-sm text-slate-400 mt-1">
+            {result.passed
+              ? 'Module complete. Move to the next module or review the material anytime.'
+              : 'Review the learning material above and try again.'}
+          </p>
+          <div className="flex gap-2 mt-3">
+            {!result.passed && (
+              <button
+                onClick={() => { setResult(null); setAnswers({}); }}
+                className="px-4 py-2 bg-red-600 text-white rounded text-sm font-bold"
+              >
+                Retry Quiz
+              </button>
+            )}
+            <button
+              onClick={() => setResult(null)}
+              className="px-4 py-2 bg-slate-700 text-white rounded text-sm font-bold"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Resources tab (Sales Playbook, TAE Packet, briefings, product docs) ───
+
+const RESOURCE_KIND_LABEL: Record<string, { label: string; tone: string }> = {
+  briefing: { label: 'Sales Briefing', tone: 'bg-amber-400/20 text-amber-300' },
+  packet: { label: 'Onboarding Packet', tone: 'bg-emerald-400/20 text-emerald-300' },
+  playbook: { label: 'Playbook', tone: 'bg-sky-400/20 text-sky-300' },
+  product: { label: 'Product', tone: 'bg-purple-400/20 text-purple-300' },
+  quickstart: { label: 'Quickstart', tone: 'bg-cyan-400/20 text-cyan-300' },
+  checklist: { label: 'Checklist', tone: 'bg-pink-400/20 text-pink-300' },
+  document: { label: 'Document', tone: 'bg-slate-400/20 text-slate-300' },
+  manuals: { label: 'Manuals', tone: 'bg-blue-400/20 text-blue-300' },
+  template: { label: 'Template', tone: 'bg-teal-400/20 text-teal-300' },
+  map: { label: 'Territory', tone: 'bg-green-400/20 text-green-300' },
+};
+
+function ResourcesTab() {
+  const [resources, setResources] = useState<AcademyResource[] | null>(null);
+  const [open, setOpen] = useState<AcademyResource | null>(null);
+
+  useEffect(() => {
+    apiClient<AcademyResource[]>('/api/v1/academy/resources')
+      .then(setResources)
+      .catch((e) => console.error(e));
+  }, []);
+
+  if (!resources) return <div className="text-slate-400">Loading...</div>;
+
+  return (
+    <div>
+      <div className="bg-cyan-400/5 border border-cyan-400/20 rounded-lg p-4 mb-6">
+        <h2 className="text-lg font-bold text-cyan-300">Resources</h2>
+        <p className="text-sm text-slate-400 mt-1">
+          Foundational company documents — always accessible here, no digging through old emails.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {resources.map((r) => {
+          const meta = RESOURCE_KIND_LABEL[r.kind] || RESOURCE_KIND_LABEL.document;
+          return (
+            <button
+              key={r.slug}
+              onClick={() => setOpen(r)}
+              className="text-left border border-slate-700 rounded-lg p-4 bg-slate-800/30 hover:bg-slate-800/60 transition-colors"
+            >
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-xs px-2 py-0.5 rounded font-bold ${meta.tone}`}>{meta.label}</span>
+              </div>
+              <h3 className="font-bold text-white mt-2">{r.title}</h3>
+              {r.body_markdown && (
+                <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                  {r.body_markdown.split('\n').find((l) => l.trim() && !l.startsWith('#'))?.slice(0, 120) || 'Open to read'}
+                </p>
+              )}
+              {r.external_url && <p className="text-xs text-cyan-300 mt-1">Open external link →</p>}
+            </button>
+          );
+        })}
+      </div>
+
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl border border-slate-700 bg-[#070c13] p-6 shadow-2xl">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-0.5 rounded font-bold ${(RESOURCE_KIND_LABEL[open.kind] || RESOURCE_KIND_LABEL.document).tone}`}>
+                    {(RESOURCE_KIND_LABEL[open.kind] || RESOURCE_KIND_LABEL.document).label}
+                  </span>
+                </div>
+                <h2 className="text-xl font-bold text-white mt-2">{open.title}</h2>
+              </div>
+              <button onClick={() => setOpen(null)} className="text-slate-400 hover:text-white text-xl">✕</button>
+            </div>
+            <div className="text-sm text-slate-300 space-y-2 leading-relaxed">
+              {open.body_markdown ? <Markdown text={open.body_markdown} /> : (
+                <a href={open.external_url || '#'} target="_blank" rel="noreferrer" className="text-cyan-300 underline">
+                  Open {open.external_url}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tiny markdown renderer (headings, lists, bold, links, quotes) ───
+
+function Markdown({ text }: { text: string }) {
+  const blocks: React.ReactNode[] = [];
+  const lines = text.split('\n');
+  let i = 0;
+  let listBuf: { ordered: boolean; items: string[] } | null = null;
+  let paraBuf: string[] = [];
+
+  const flushPara = () => {
+    if (paraBuf.length) {
+      blocks.push(<p key={blocks.length} className="text-sm text-slate-300 leading-relaxed">{renderInline(paraBuf.join(' '))}</p>);
+      paraBuf = [];
+    }
+  };
+  const flushList = () => {
+    if (listBuf) {
+      const { ordered, items } = listBuf;
+      blocks.push(
+        ordered
+          ? <ol key={blocks.length} className="list-decimal ml-5 space-y-1">{items.map((it, idx) => <li key={idx}>{renderInline(it)}</li>)}</ol>
+          : <ul key={blocks.length} className="list-disc ml-5 space-y-1">{items.map((it, idx) => <li key={idx}>{renderInline(it)}</li>)}</ul>,
+      );
+      listBuf = null;
+    }
+  };
+
+  for (; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (!trimmed) { flushPara(); flushList(); continue; }
+
+    const h = trimmed.match(/^(#{1,4})\s+(.*)/);
+    if (h) {
+      flushPara(); flushList();
+      const level = Math.min(h[1].length + 2, 5);
+      const Tag = `h${level}` as 'h3' | 'h4' | 'h5';
+      blocks.push(<Tag key={blocks.length} className="font-bold text-white mt-3 mb-1">{renderInline(h[2])}</Tag>);
+      continue;
+    }
+
+    const quote = trimmed.match(/^>\s?(.*)/);
+    if (quote) {
+      flushPara(); flushList();
+      blocks.push(<blockquote key={blocks.length} className="border-l-2 border-slate-600 pl-3 text-slate-400 italic">{renderInline(quote[1])}</blockquote>);
+      continue;
+    }
+
+    const hr = /^---+$/.test(trimmed);
+    if (hr) {
+      flushPara(); flushList();
+      blocks.push(<hr key={blocks.length} className="border-slate-700 my-3" />);
+      continue;
+    }
+
+    const orderedMatch = trimmed.match(/^\d+[.)]\s+(.*)/);
+    const bulletMatch = trimmed.match(/^[-*]\s+(.*)/);
+    if (orderedMatch || bulletMatch) {
+      flushPara();
+      if (!listBuf || listBuf.ordered !== Boolean(orderedMatch)) {
+        flushList();
+        listBuf = { ordered: Boolean(orderedMatch), items: [] };
+      }
+      listBuf.items.push((orderedMatch || bulletMatch)![1]);
+      continue;
+    }
+
+    const checkbox = trimmed.match(/^-\s+\[([ xX])\]\s+(.*)/);
+    if (checkbox) {
+      flushPara(); flushList();
+      const done = checkbox[1].toLowerCase() === 'x';
+      blocks.push(
+        <div key={blocks.length} className="flex items-start gap-2">
+          <span className={done ? 'text-emerald-400' : 'text-slate-500'}>{done ? '☑' : '☐'}</span>
+          <span className={done ? 'text-slate-300 line-through opacity-60' : 'text-slate-300'}>{renderInline(checkbox[2])}</span>
+        </div>,
+      );
+      continue;
+    }
+
+    paraBuf.push(trimmed);
+  }
+  flushPara(); flushList();
+
+  return <>{blocks}</>;
+}
+
+function renderInline(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const regex = /(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let k = 0;
+  while ((m = regex.exec(text)) !== null) {
+    if (m.index > last) parts.push(<span key={k++}>{text.slice(last, m.index)}</span>);
+    const tok = m[0];
+    if (tok.startsWith('**')) {
+      parts.push(<strong key={k++} className="text-white">{tok.slice(2, -2)}</strong>);
+    } else {
+      const link = tok.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if (link) {
+        const href = link[2];
+        if (href.startsWith('http') || href.startsWith('/')) {
+          parts.push(
+            <a key={k++} href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className="text-cyan-300 underline">
+              {link[1]}
+            </a>,
+          );
+        } else {
+          parts.push(<span key={k++}>{link[1]}</span>);
+        }
+      }
+    }
+    last = m.index + tok.length;
+  }
+  if (last < text.length) parts.push(<span key={k++}>{text.slice(last)}</span>);
+  return parts;
+}

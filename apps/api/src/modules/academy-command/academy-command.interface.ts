@@ -54,6 +54,9 @@ export type ParticipantSummary = {
   pipelineValue: number;
   certificationStatus: string;
   isCertified: boolean;
+  certifiedAt: string | null;
+  certifiedBy: number | null;
+  academyVersion: string | null;
 };
 
 export type ParticipantDetail = ParticipantSummary & {
@@ -63,6 +66,18 @@ export type ParticipantDetail = ParticipantSummary & {
   rank: string | null;
   // Academy detail
   phaseProgress: Record<string, { completed: number; total: number }>;
+  moduleProgress: Array<{
+    module_id: number;
+    title: string;
+    phase: string;
+    order_index: number;
+    status: string | null;
+    started_at: string | null;
+    completed_at: string | null;
+    score: number | null;
+    passed: boolean | null;
+    last_attempt: string | null;
+  }>;
   quizResults: Array<{ module: string; score: number; passed: boolean; attempts: number; lastAttempt: string | null }>;
   coachReviews: Array<{ module: string; reviewedBy: string; reviewedAt: string | null }>;
   acknowledgments: number;

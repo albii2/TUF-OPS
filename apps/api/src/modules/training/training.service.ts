@@ -139,6 +139,7 @@ export async function getEnrollmentWithProgress(enrollmentId: number): Promise<T
     enrollment,
     modules,
     progress,
+    assessments: assessmentResult.rows,
     completionMetrics: {
       totalModules,
       completedModules,
@@ -261,14 +262,20 @@ export async function markModuleCompleted(
   return { progress, enrollment: updatedEnrollment };
 }
 
-export async function checkAndUpdateCertification(userId: number): Promise<boolean> {
+export async function checkAndUpdateCertification(userId: number, actorId?: number): Promise<boolean> {
   const userRes = await pool.query('SELECT role, hr_docs_completed, practical_exercise_completed, director_signed_off FROM users WHERE id = $1', [userId]);
   if (userRes.rows.length === 0) return false;
   const user = userRes.rows[0];
 
   // Admin, Regional Director, Director are exempt
   if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR' || user.role === 'OPERATIONS') {
-    await pool.query('UPDATE users SET is_certified = true WHERE id = $1', [userId]);
+    await pool.query(
+      `UPDATE users SET is_certified = true, certification_source = 'DATABASE', academy_version = 'v2',
+       certified_at = COALESCE(certified_at, NOW()),
+       certified_by = COALESCE(certified_by, $1)
+       WHERE id = $2`,
+      [actorId ?? null, userId]
+    );
     return true;
   }
 
@@ -305,47 +312,60 @@ export async function checkAndUpdateCertification(userId: number): Promise<boole
   const modulesCompleted = totalModules > 0 && completedModules >= totalModules;
   const isCertified = modulesCompleted && user.hr_docs_completed && user.practical_exercise_completed && user.director_signed_off;
 
-  await pool.query("UPDATE users SET is_certified = $1, certification_source = 'DATABASE' WHERE id = $2", [isCertified, userId]);
+  if (isCertified) {
+    await pool.query(
+      `UPDATE users SET is_certified = true, certification_source = 'DATABASE', academy_version = 'v2',
+       certified_at = COALESCE(certified_at, NOW()),
+       certified_by = COALESCE(certified_by, $1)
+       WHERE id = $2`,
+      [actorId ?? null, userId]
+    );
+  } else {
+    await pool.query(
+      "UPDATE users SET is_certified = false, certification_source = 'DATABASE' WHERE id = $1",
+      [userId]
+    );
+  }
   return isCertified;
 }
 
-export async function toggleHrDocs(userId: number, hrDocsCompleted: boolean): Promise<any> {
+export async function toggleHrDocs(userId: number, hrDocsCompleted: boolean, actorId?: number): Promise<any> {
   await pool.query(
     'UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2',
     [hrDocsCompleted, userId]
   );
-  await checkAndUpdateCertification(userId);
+  await checkAndUpdateCertification(userId, actorId);
   // Re-fetch to return fresh data (including updated is_certified)
   const fresh = await pool.query(
-    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified, certified_at, certified_by, academy_version FROM users WHERE id = $1',
     [userId]
   );
   return fresh.rows[0];
 }
 
-export async function togglePracticalExercise(userId: number, practicalExerciseCompleted: boolean): Promise<any> {
+export async function togglePracticalExercise(userId: number, practicalExerciseCompleted: boolean, actorId?: number): Promise<any> {
   await pool.query(
     'UPDATE users SET practical_exercise_completed = $1, updated_at = NOW() WHERE id = $2',
     [practicalExerciseCompleted, userId]
   );
-  await checkAndUpdateCertification(userId);
+  await checkAndUpdateCertification(userId, actorId);
   // Re-fetch to return fresh data (including updated is_certified)
   const fresh = await pool.query(
-    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified, certified_at, certified_by, academy_version FROM users WHERE id = $1',
     [userId]
   );
   return fresh.rows[0];
 }
 
-export async function toggleDirectorSignoff(userId: number, directorSignedOff: boolean): Promise<any> {
+export async function toggleDirectorSignoff(userId: number, directorSignedOff: boolean, actorId?: number): Promise<any> {
   await pool.query(
     'UPDATE users SET director_signed_off = $1, updated_at = NOW() WHERE id = $2',
     [directorSignedOff, userId]
   );
-  await checkAndUpdateCertification(userId);
+  await checkAndUpdateCertification(userId, actorId);
   // Re-fetch to return fresh data (including updated is_certified)
   const fresh = await pool.query(
-    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1',
+    'SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified, certified_at, certified_by, academy_version FROM users WHERE id = $1',
     [userId]
   );
   return fresh.rows[0];

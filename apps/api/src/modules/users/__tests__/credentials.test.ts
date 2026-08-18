@@ -1,13 +1,13 @@
 import { pool } from '@packages/database';
-import { generateTemporaryCredential, hashCredential, validatePermanentCredential, validateTemporaryCredential, verifyCredential } from '../credentials';
-import { __test, listUsers, seedInitialOwnerIfEmpty } from '../users.service';
+import { generateRandomPin, hashCredential, validatePin, verifyCredential } from '../credentials';
+import { __test, createAuthToken, verifyAuthToken, listUsers, seedInitialOwnerIfEmpty } from '../users.service';
 import type { SafeUser } from '../users.interface';
 
 jest.mock('@packages/database', () => ({
   pool: { query: jest.fn(async () => ({ rows: [] })) },
 }));
 
-const owner: SafeUser = { id: 7, name: 'Owner', email: 'owner@tuf.local', role: 'ADMIN', rank: null, tier: null, region: null, state_market: null, division: null, territory: null, subterritory: null, sport_focus: null, assigned_director_id: null, reports_to_user_id: null, status: 'ACTIVE', must_change_credential: false, is_certified: true, hr_docs_completed: true, director_signed_off: true, practical_exercise_completed: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+const owner: SafeUser = { id: 7, name: 'Owner', email: 'owner@tuf.local', role: 'ADMIN', rank: null, tier: null, region: null, state_market: null, division: null, territory: null, subterritory: null, sport_focus: null, assigned_director_id: null, reports_to_user_id: null, status: 'ACTIVE', must_change_credential: false, is_certified: true, hr_docs_completed: true, director_signed_off: true, practical_exercise_completed: true, last_login_at: null, login_count: 0, credential_version: 0, cohort: null, enrollment_date: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
 const rep: SafeUser = { ...owner, id: 8, role: 'REP', email: 'rep@tuf.local' };
 
 describe('secure user credentials', () => {
@@ -30,13 +30,12 @@ describe('secure user credentials', () => {
     await expect(verifyCredential('0000', hash)).resolves.toBe(false);
   });
 
-  it('generates temporary numeric credentials and validates weak permanent values', () => {
-    const temporaryCredential = generateTemporaryCredential();
-    expect(temporaryCredential).toMatch(/^\d{6}$/);
-    expect(() => validateTemporaryCredential('1234')).not.toThrow();
-    expect(() => validateTemporaryCredential('')).toThrow('Credential is required');
-    expect(() => validateTemporaryCredential('abc')).toThrow('Credential must be at least 4 numbers');
-    expect(() => validatePermanentCredential('1234')).toThrow('Choose a less obvious credential');
+  it('generates random numeric PINs and validates them', () => {
+    const pin = generateRandomPin();
+    expect(pin).toMatch(/^\d{4}$/);
+    expect(() => validatePin('1234')).not.toThrow();
+    expect(() => validatePin('')).toThrow('PIN is required');
+    expect(() => validatePin('abc')).toThrow('PIN must be exactly 4 digits');
   });
 
   it('sanitizes user records before API responses', () => {
@@ -49,13 +48,13 @@ describe('secure user credentials', () => {
   it('verifies signed auth tokens and rejects tampered actor identities', async () => {
     (pool.query as jest.Mock).mockResolvedValue({ rows: [owner] } as any);
 
-    const token = __test.createAuthToken(owner as any);
-    await expect(__test.verifyAuthToken(token)).resolves.toMatchObject({ id: 7, role: 'ADMIN' });
+    const token = createAuthToken(owner as any);
+    await expect(verifyAuthToken(token)).resolves.toMatchObject({ id: 7, role: 'ADMIN' });
 
     const [payload, signature] = token.split('.');
     const forgedPayload = Buffer.from(JSON.stringify({ userId: 1, expiresAt: Date.now() + 60_000 })).toString('base64url');
-    await expect(__test.verifyAuthToken(`${forgedPayload}.${signature}`)).resolves.toBeNull();
-    await expect(__test.verifyAuthToken(`${payload}.bad-signature`)).resolves.toBeNull();
+    await expect(verifyAuthToken(`${forgedPayload}.${signature}`)).resolves.toBeNull();
+    await expect(verifyAuthToken(`${payload}.bad-signature`)).resolves.toBeNull();
   });
 
   it('requires a real auth token secret outside local development', () => {
@@ -88,7 +87,7 @@ describe('secure user credentials', () => {
   });
 
   it('restricts user roster listing to owner/admin actors', async () => {
-    await expect(listUsers(rep)).rejects.toThrow('Only Owner/Admin users can manage credentials');
+    await expect(listUsers(rep)).rejects.toThrow('Only Owner/Admin/Director users can manage credentials');
 
     (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [owner] } as any);
     await expect(listUsers(owner)).resolves.toEqual([owner]);
