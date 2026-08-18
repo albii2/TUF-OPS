@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACAD-103 — DISCOVERY | TUF Academy</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg-card:#14141f;--bg-table-head:#1a1a2e;--bg-table-row:#12121c;--bg-table-alt:#181825;--bg-code:#0d0d18;--border:#2a2a3e;--text:#e2e8f0;--text-muted:#94a3b8;--text-dim:#64748b;--accent:#f0b90b;--green:#22c55e;--red:#ef4444;--blue:#60a5fa;--max-width:900px;--font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;--font-mono:'JetBrains Mono','Fira Code','Cascadia Code',monospace;--lh:1.75}*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}html{font-size:16px;scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:var(--lh);-webkit-font-smoothing:antialiased}.container{max-width:var(--max-width);margin:0 auto;padding:2.5rem 1.5rem 4rem}.manual-header{text-align:center;padding:3rem 0 2rem;border-bottom:1px solid var(--border);margin-bottom:2.5rem}.manual-header .module-code{font-size:.75rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}.manual-header h1{font-size:2.2rem;font-weight:700;color:#fff;line-height:1.25;margin-bottom:1rem}.manual-header .meta{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem 1.5rem;font-size:.8rem;color:var(--text-muted)}.toc{background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:1.5rem 2rem;margin-bottom:3rem}.toc h2{font-size:.85rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}.toc ol{list-style:none;counter-reset:toc-counter;padding:0}.toc ol li{counter-increment:toc-counter;padding:.3rem 0;font-size:.92rem}.toc ol li::before{content:counter(toc-counter)". ";color:var(--text-dim);font-weight:600}.toc a{color:var(--text);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}.toc a:hover{border-bottom-color:var(--accent);color:#fff}main h2{font-size:1.55rem;font-weight:700;color:#fff;margin:3rem 0 1rem;padding-top:1.5rem;border-top:1px solid var(--border)}main h2:first-of-type{border-top:none;margin-top:0;padding-top:0}main h3{font-size:1.15rem;font-weight:600;color:#f1f5f9;margin:2rem 0 .75rem}main h4{font-size:1rem;font-weight:600;color:var(--text-muted);margin:1.5rem 0 .5rem}main p{margin:0 0 1rem}main a{color:var(--blue);text-decoration:none;border-bottom:1px solid transparent}main a:hover{border-bottom-color:var(--blue)}strong,b{color:#fff;font-weight:600}blockquote{background:var(--bg-card);border-left:4px solid var(--accent);margin:1.5rem 0;padding:1.25rem 1.5rem;border-radius:0 8px 8px 0;font-style:italic;color:#f1f5f9}blockquote p{margin:0}blockquote p strong{font-style:normal}hr{border:none;border-top:1px solid var(--border);margin:2rem 0}table{width:100%;border-collapse:separate;border-spacing:0;margin:1.25rem 0 1.75rem;font-size:.88rem;border-radius:8px;overflow:hidden;border:1px solid var(--border)}thead th{background:var(--bg-table-head);color:var(--accent);font-weight:600;text-align:left;padding:.7rem 1rem;font-size:.8rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}tbody td{padding:.6rem 1rem;border-top:1px solid var(--border);vertical-align:top}tbody tr{background:var(--bg-table-row)}tbody tr:nth-child(even){background:var(--bg-table-alt)}pre{background:var(--bg-code);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin:1.25rem 0;overflow-x:auto;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;color:#e2e8f0;white-space:pre-wrap}code{font-family:var(--font-mono);font-size:.85em;background:rgba(255,255,255,.06);padding:.15em .4em;border-radius:4px;color:#f1f5f9}pre code{background:none;padding:0;border-radius:0;font-size:inherit}main ul,main ol{margin:.75rem 0 1.25rem;padding-left:1.5rem}main li{margin-bottom:.35rem}main li>ul,main li>ol{margin:.25rem 0}@media print{body{background:#fff;color:#111;font-size:11pt}.container{max-width:100%;padding:0 1in}.manual-header{border-bottom-color:#ccc}.manual-header h1{color:#111}.toc{background:#f5f5f5;border-color:#ddd}.toc a{color:#111}table{border-color:#ccc}thead th{background:#e5e5e5;color:#111}tbody td{border-top-color:#ccc}tbody tr{background:#fff}tbody tr:nth-child(even){background:#f9f9f9}blockquote{background:#f5f5f5;border-left-color:#999}pre{background:#f5f5f5;border-color:#ddd;color:#111}code{background:#eee;color:#111}main h2{color:#111;border-top-color:#ccc}main h3{color:#222}strong,b{color:#111}hr{border-top-color:#ccc}}
+</style>
+</head>
+<body><div class="container">
+<header class="manual-header"><div class="module-code">ACAD-103 — Module 03</div><h1>DISCOVERY</h1><div class="meta"><span>TUF Academy</span> <span>•</span> <span>Training Manual</span> <span>•</span> <span>Pre-Certification</span> <span>•</span> <span>4–6 Hours</span></div></header>
+
+<div class="toc"><h2>Table of Contents</h2><ol>
+<li><a href="#part-1-the-discovery-mindset">The Discovery Mindset</a></li>
+<li><a href="#part-2-the-spin-framework">The SPIN Framework</a></li>
+<li><a href="#part-3-situation-questions-bank">Situation Questions Bank</a></li>
+<li><a href="#part-4-problem-questions-bank">Problem Questions Bank</a></li>
+<li><a href="#part-5-implication-questions-bank">Implication Questions Bank</a></li>
+<li><a href="#part-6-need-payoff-questions-bank">Need-Payoff Questions Bank</a></li>
+<li><a href="#part-7-budget-discovery">Budget Discovery</a></li>
+<li><a href="#part-8-decision-maker-identification">Decision-Maker Identification</a></li>
+<li><a href="#part-9-timeline-mapping">Timeline Mapping</a></li>
+<li><a href="#part-10-multi-sport-discovery">Multi-Sport Discovery</a></li>
+<li><a href="#part-11-note-taking-templates">Note-Taking Templates</a></li>
+<li><a href="#part-12-discovery-to-demo-transition">Discovery to Demo Transition</a></li>
+<li><a href="#part-13-role-play-scenarios">20 Role-Play Scenarios</a></li>
+<li><a href="#knowledge-assessment-module-03">Knowledge Assessment</a></li>
+<li><a href="#using-this-manual-beyond-certification">Beyond Certification</a></li>
+</ol></div>
+<main>
+
+<p><strong>Classification:</strong> SALES TRAINING — COMPREHENSIVE MANUAL<br><strong>Audience:</strong> Territory Account Executives — Pre-Certification<br><strong>Status:</strong> AUTHORITATIVE — Required Study Before First Contact<br><strong>Estimated Study Time:</strong> 4–6 Hours (Self-Study + Role-Play)<br><strong>Manual Version:</strong> 3.0 — Field-Ready Edition</p>
+<hr>
+<blockquote><p><strong>"You have two ears and one mouth. Use them in that proportion."</strong></p></blockquote>
+<hr>
+
+<h2 id="part-1-the-discovery-mindset">PART 1: THE DISCOVERY MINDSET</h2>
+
+<h3>1.1 What Discovery Is</h3>
+<p><strong>Discovery is NOT a pitch. It's NOT a demo.</strong> Discovery is understanding a coach's program so deeply that when you present a solution, it feels inevitable — not like a sale.</p>
+<p>A great discovery call accomplishes four things:</p>
+<ol>
+<li>You understand the program — size, levels, sports, culture, current state</li>
+<li>The coach feels understood — probably for the first time by a vendor</li>
+<li>You've uncovered pain — the specific frustrations that create urgency</li>
+<li>You've built enough trust — the coach wants to see what you have</li>
+</ol>
+
+<h3>1.2 The Discovery Call Rules</h3>
+<p><strong>Rule 1: First 10 Minutes = Zero TUF, All Program</strong> — Most vendors start by talking about themselves. TUF starts by asking about the coach's program. And keeps asking.</p>
+<p><strong>Rule 2: Listen 80%, Talk 20%</strong> — For the first 15 minutes, if you're talking more than the coach, you're pitching — not discovering.</p>
+<p><strong>Rule 3: Don't Interrupt Pain</strong> — When a coach vents about their current vendor, let them. Don't jump in with solutions. Don't say "that's exactly why we built TUF." The more they articulate their frustration, the more they sell themselves on change.</p>
+<p><strong>Rule 4: Follow Emotion, Not Just Facts</strong> — "12 kids on varsity" is a fact. "I'm tired of watching my seniors wear boxy jerseys in their last team photo" is emotion. Discovery follows both.</p>
+<p><strong>Rule 5: The Coach Does 70% of the Talking</strong> — If you did most of the talking in a 20-minute discovery call, you failed. The coach should walk away thinking: "That rep really listened."</p>
+
+<h3>1.3 Discovery Call Structure</h3>
+<pre><code>MINUTE 0–2      GREETING + RAPPORT
+                "Coach, thanks for the time. I was looking at
+                [School]'s [sport] and I had some questions."
+
+MINUTE 2–5      SITUATION QUESTIONS
+                Program size, levels, current setup. Broad. Factual. Safe.
+
+MINUTE 5–10     PROBLEM QUESTIONS
+                What's not working? What would you change?
+                This is where pain surfaces.
+
+MINUTE 10–13    IMPLICATION QUESTIONS
+                What if it continues? What's the cost of doing nothing?
+                This creates urgency.
+
+MINUTE 13–15    NEED-PAYOFF QUESTIONS
+                What if it were solved? What would that mean?
+                This builds desire.
+
+MINUTE 15–20    THE ENERGY SHIFT
+                Coach signals interest → Deploy 4-lane moat.
+                Introduce PRO CUT. Transition to demo.</code></pre>
+
+<hr>
+
+<h2 id="part-2-the-spin-framework">PART 2: THE SPIN FRAMEWORK — ADAPTED FOR TUF</h2>
+
+<h3>2.1 What SPIN Is</h3>
+<p>SPIN (Situation, Problem, Implication, Need-Payoff) is one of the most validated sales methodologies in history. Developed by Neil Rackham from analysis of 35,000 sales calls.</p>
+<table>
+<thead><tr><th>Question Type</th><th>Purpose</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><strong>SITUATION</strong></td><td>Understand current reality</td><td>"How many kids in your program?"</td></tr>
+<tr><td><strong>PROBLEM</strong></td><td>Uncover dissatisfaction</td><td>"What's your biggest frustration with your uniforms?"</td></tr>
+<tr><td><strong>IMPLICATION</strong></td><td>Make the pain real</td><td>"What happens if uniforms arrive late for the season opener?"</td></tr>
+<tr><td><strong>NEED-PAYOFF</strong></td><td>Articulate the value of solving</td><td>"If the fit was sharp and delivery guaranteed, what would that mean?"</td></tr>
+</tbody>
+</table>
+
+<h3>2.2 SPIN Rules</h3>
+<table>
+<thead><tr><th>Do</th><th>Don't</th></tr></thead>
+<tbody>
+<tr><td>✅ Ask open-ended questions</td><td>❌ Ask leading questions that point to TUF</td></tr>
+<tr><td>✅ Let silence sit — the coach will fill it</td><td>❌ Jump in with solutions at first sign of pain</td></tr>
+<tr><td>✅ Follow emotional cues</td><td>❌ Stick rigidly to your question list</td></tr>
+<tr><td>✅ Use "tell me more" when they reveal pain</td><td>❌ Say "we can fix that" before understanding fully</td></tr>
+<tr><td>✅ Sequence: S → P → I → N</td><td>❌ Skip to Need-Payoff before establishing real problems</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="part-3-situation-questions-bank">PART 3: SITUATION QUESTIONS BANK</h2>
+
+<h3>3.1 Program Overview</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>What You're Listening For</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>"Coach, tell me about your program. How many kids? What levels?"</td><td>Size (small = budget-sensitive; large = multi-lane). Levels (JV, freshman, youth = expansion).</td></tr>
+<tr><td>2</td><td>"How many sports does [School] offer? Which are the biggest?"</td><td>Multi-sport opportunity.</td></tr>
+<tr><td>3</td><td>"What's the culture of your program? How would you describe it?"</td><td>Coach's identity. What they value beyond wins/losses.</td></tr>
+<tr><td>4</td><td>"How long have you been coaching here? What drew you here?"</td><td>Long tenure = deep community ties. New coach = authority to change vendors.</td></tr>
+<tr><td>5</td><td>"Tell me about your staff. How many assistants? How long with you?"</td><td>Large staff = more mouths. Long-tenured = established systems.</td></tr>
+</tbody>
+</table>
+
+<h3>3.2 Current Uniforms</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>What You're Listening For</th></tr></thead>
+<tbody>
+<tr><td>6</td><td>"What are you wearing now? Who's your provider?"</td><td>Competitive landscape.</td></tr>
+<tr><td>7</td><td>"How long have you been with them?"</td><td>Inertia risk. 10+ years = deep relationship or deep inertia.</td></tr>
+<tr><td>8</td><td>"Walk me through your setup. Home, away, alternates? What levels get new uniforms?"</td><td>Budget allocation. Rotation frequency.</td></tr>
+<tr><td>9</td><td>"What's your uniform budget look like? District-funded, booster-funded, or combo?"</td><td>Who you need to sell to.</td></tr>
+<tr><td>10</td><td>"How many uniforms do you typically order per season?"</td><td>Order volume. Revenue opportunity.</td></tr>
+</tbody>
+</table>
+
+<h3>3.3 Ordering Process</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>What You're Listening For</th></tr></thead>
+<tbody>
+<tr><td>11</td><td>"Walk me through your ordering process. Who's involved? Timeline?"</td><td>Decision-maker ID. Process friction.</td></tr>
+<tr><td>12</td><td>"When do you typically place your uniform order?"</td><td>Ordering window. Proposal timing.</td></tr>
+<tr><td>13</td><td>"Who makes the final call on vendors — you, the AD, booster club?"</td><td>Critical. Selling the wrong person wastes time.</td></tr>
+<tr><td>14</td><td>"Does the district have vendor contracts or preferred suppliers?"</td><td>Contract lock-in.</td></tr>
+</tbody>
+</table>
+
+<h3>3.4 Program Identity</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>What You're Listening For</th></tr></thead>
+<tbody>
+<tr><td>15</td><td>"When your team walks out on game day, how do you want them to look? Feel?"</td><td>Emotional trigger. The "why" behind the purchase.</td></tr>
+<tr><td>16</td><td>"What do your athletes care about most — fit, look, comfort?"</td><td>What excites the kids about TUF.</td></tr>
+<tr><td>17</td><td>"What do parents and boosters care about? What do they notice?"</td><td>Cost concerns vs. program image.</td></tr>
+</tbody>
+</table>
+
+<h3>3.5 Lane Discovery</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>Opportunity</th></tr></thead>
+<tbody>
+<tr><td>18</td><td>"What else is on your wish list beyond uniforms? Travel bags? Warmups? Spirit wear?"</td><td>Lane expansion. Listen for travel, fan gear, jackets.</td></tr>
+<tr><td>19</td><td>"Do you have a team store or spirit wear program? How's that working?"</td><td>Lane 3 opportunity.</td></tr>
+<tr><td>20</td><td>"How do you handle sizing? You do it yourself or vendor helps?"</td><td>Sizing pain. TUF sizing sessions = differentiator.</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="part-4-problem-questions-bank">PART 4: PROBLEM QUESTIONS BANK</h2>
+
+<h3>4.1 Fit and Quality</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>TUF Hook</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>"What's your biggest frustration with your current uniforms?"</td><td>Open-ended vent. Let them lead.</td></tr>
+<tr><td>2</td><td>"How's the fit? Are your athletes happy with how they look?"</td><td>"Boxy" = PRO CUT opportunity.</td></tr>
+<tr><td>3</td><td>"Ever looked at a team photo and thought 'those jerseys don't look right'?"</td><td>Permanent record of bad fit = motivation.</td></tr>
+<tr><td>4</td><td>"How do they hold up over a season? Stitching, fading, graphics?"</td><td>LOCK-FIT and sublimation opportunity.</td></tr>
+<tr><td>5</td><td>"How does the fabric feel late in the season? Breathe? Stay light?"</td><td>AIR-FORGE and POWER-STRETCH opportunity.</td></tr>
+</tbody>
+</table>
+
+<h3>4.2 Vendor Relationship</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>TUF Hook</th></tr></thead>
+<tbody>
+<tr><td>6</td><td>"How's your relationship with your current rep? Feel like a priority?"</td><td>"I can never reach him" = IRONCLAD GUARANTEE response.</td></tr>
+<tr><td>7</td><td>"When something goes wrong — wrong size, missing item — what happens?"</td><td>Service pain = IRONCLAD GUARANTEE opportunity.</td></tr>
+<tr><td>8</td><td>"Ever had a uniform order arrive late? What was that like?"</td><td>Late uniforms = angry parents, embarrassed athletes.</td></tr>
+<tr><td>9</td><td>"Does your vendor proactively reach out, or are you always chasing them?"</td><td>TUF's proactive check-in philosophy.</td></tr>
+</tbody>
+</table>
+
+<h3>4.3 Process and Logistics</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>TUF Hook</th></tr></thead>
+<tbody>
+<tr><td>10</td><td>"What's the most painful part of the ordering process?"</td><td>Sizing headaches, artwork delays, budget approval.</td></tr>
+<tr><td>11</td><td>"How do you handle lower levels — JV, freshman? Same quality?"</td><td>Level inequality = standardization opportunity.</td></tr>
+<tr><td>12</td><td>"How many different vendors are you juggling — uniforms, bags, spirit wear, jackets?"</td><td>Vendor fragmentation = 4-lane moat.</td></tr>
+</tbody>
+</table>
+
+<h3>4.4 Sport-Specific</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>Sport</th><th>TUF Hook</th></tr></thead>
+<tbody>
+<tr><td>13</td><td>"How do your football uniforms hold up through contact? Tearing at stress points?"</td><td>Football</td><td>LOCK-FIT.</td></tr>
+<tr><td>14</td><td>"How's the waistband on your basketball shorts? Bunching, twisting?"</td><td>Basketball</td><td>FLEX-WAIST. #1 pain point.</td></tr>
+<tr><td>15</td><td>"Do your baseball pants hold up to sliding? Knees after a season?"</td><td>Baseball</td><td>Durability. LOCK-FIT.</td></tr>
+<tr><td>16</td><td>"How do your uniforms perform in August two-a-days? Kids feel like they're wearing plastic bags?"</td><td>Football</td><td>AIR-FORGE.</td></tr>
+</tbody>
+</table>
+
+<h3>4.5 Deep Pain</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>Purpose</th></tr></thead>
+<tbody>
+<tr><td>17</td><td>"If you could change one thing with a magic wand — what would it be?"</td><td>Uncovers deepest frustration.</td></tr>
+<tr><td>18</td><td>"What's a uniform problem you've just learned to live with?"</td><td>Surfaces normalized pain.</td></tr>
+<tr><td>19</td><td>"If your athletes could choose, would they pick what you're wearing now?"</td><td>Athlete perspective. Kids are honest.</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="part-5-implication-questions-bank">PART 5: IMPLICATION QUESTIONS BANK</h2>
+<p>Implication makes the pain real. "The jerseys are boxy" is a mild complaint. "Those boxy jerseys are in every team photo, every newspaper article, every parent's Facebook post — that's the permanent record of our program" is motivation to change.</p>
+<table>
+<thead><tr><th>#</th><th>Problem</th><th>Implication Question</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Boxy fit</td><td>"When you look at your team photo in the school hallway — are you proud of how your athletes look?"</td></tr>
+<tr><td>2</td><td>Peeling graphics</td><td>"If graphics start peeling mid-season — do parents complain? Do your athletes feel self-conscious?"</td></tr>
+<tr><td>3</td><td>Late delivery</td><td>"If uniforms arrive a week before the first game, what does that do to your preparation? Your athletes' confidence?"</td></tr>
+<tr><td>4</td><td>Wrong sizes</td><td>"What happens when a senior gets a jersey that doesn't fit and there's no time to reorder?"</td></tr>
+<tr><td>5</td><td>Can't reach rep</td><td>"When you've got a problem and your rep is unreachable — who deals with the fallout?"</td></tr>
+<tr><td>6</td><td>Vendor fragmentation</td><td>"You're managing four different vendors. How much time goes to vendor management instead of coaching?"</td></tr>
+<tr><td>7</td><td>Poor durability</td><td>"If jerseys fall apart by playoffs, what message does that send about how much their program matters?"</td></tr>
+<tr><td>8</td><td>Budget constraints</td><td>"What's the hidden cost of cheap uniforms you replace every year vs. quality uniforms lasting three seasons?"</td></tr>
+<tr><td>9</td><td>Unequal levels</td><td>"If JV kids wear hand-me-downs while varsity gets new gear — what does that say about how you value them?"</td></tr>
+<tr><td>10</td><td>Bunching waistbands</td><td>"How many times in a game does a player adjust their shorts during a crucial possession?"</td></tr>
+<tr><td>11</td><td>Heavy fabric</td><td>"Fourth quarter, game on the line, kids wearing 10-pound jerseys from sweat — what does that do to performance?"</td></tr>
+<tr><td>12</td><td>Generic look</td><td>"When you line up against [rival] and they look sharp and your team looks... fine — what does that do to your kids' mindset?"</td></tr>
+</tbody>
+</table>
+
+<h3>Implication Follow-Up Phrases</h3>
+<ul>
+<li>"Tell me more about that."</li>
+<li>"What was that like?"</li>
+<li>"How did that affect the athletes / parents / your preparation?"</li>
+<li>"Has that happened more than once?"</li>
+</ul>
+
+<hr>
+
+<h2 id="part-6-need-payoff-questions-bank">PART 6: NEED-PAYOFF QUESTIONS BANK</h2>
+<p>Need-payoff questions help the coach articulate the value of solving their problems. They sell themselves. <strong>The best need-payoff questions don't mention TUF at all.</strong></p>
+<table>
+<thead><tr><th>#</th><th>Context</th><th>Need-Payoff Question</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>After discussing boxy fit</td><td>"If your athletes walked out in uniforms that fit like college players wear — sharp taper — what would that do for their confidence?"</td></tr>
+<tr><td>2</td><td>After discussing vendor unreliability</td><td>"Imagine one call solved any problem — and problems got fixed, period. What would it mean to not worry about uniforms?"</td></tr>
+<tr><td>3</td><td>After discussing vendor fragmentation</td><td>"One vendor for uniforms, travel, spirit wear, letterman jackets — one relationship — how would that change your life?"</td></tr>
+<tr><td>4</td><td>After discussing late deliveries</td><td>"Guaranteed uniforms in hand two weeks before the first game, every season — what would that do for your peace of mind?"</td></tr>
+<tr><td>5</td><td>After discussing durability</td><td>"Uniforms that look as sharp in the playoffs as Day 1 — no replacements for 3 seasons?"</td></tr>
+<tr><td>6</td><td>After discussing athlete complaints</td><td>"If your athletes put on a uniform and their first reaction was 'this feels different' — in a good way — what would that say?"</td></tr>
+<tr><td>7</td><td>After discussing budget concerns</td><td>"What if the uniform investment could partially pay for itself — through a team store where your program earns revenue?"</td></tr>
+<tr><td>8</td><td>After discussing waistband problems</td><td>"If your players never had to think about their waistbands during a game — what would that free up?"</td></tr>
+<tr><td>9</td><td>After discussing travel gear</td><td>"When your team walks into an away gym wearing a coordinated travel system — not random bags — what does that say about your program?"</td></tr>
+<tr><td>10</td><td>After discussing senior recognition</td><td>"When your seniors walk across the stage at the banquet, what should they be wearing that carries four years of memories?"</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="part-7-budget-discovery">PART 7: BUDGET DISCOVERY</h2>
+
+<h3>7.1 Budget Discovery Questions</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>What You're Learning</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>"How does uniform funding work in your district? School board, boosters, or mix?"</td><td>Budget source.</td></tr>
+<tr><td>2</td><td>"What's the ballpark you're working with for uniforms this season?"</td><td>Budget range. Which tier to propose.</td></tr>
+<tr><td>3</td><td>"What are you paying per uniform right now?"</td><td>Comparison anchor.</td></tr>
+<tr><td>4</td><td>"Has your uniform budget changed in the last few years? Up, down, flat?"</td><td>Budget trend.</td></tr>
+<tr><td>5</td><td>"When does the budget get finalized? Who approves?"</td><td>If locked, sell for next cycle. If open, urgency.</td></tr>
+<tr><td>6</td><td>"Do your boosters contribute? How active is the booster club?"</td><td>Active boosters can supplement.</td></tr>
+</tbody>
+</table>
+
+<h3>7.2 Pricing Conversation Rules</h3>
+<p><strong>Never discuss specific pricing until the coach has seen the value.</strong></p>
+<table>
+<thead><tr><th>Timing</th><th>What to Say</th></tr></thead>
+<tbody>
+<tr><td>Coach asks price early (before demo)</td><td>"Coach, I want to give you an accurate number based on what your program actually needs — not a generic price. Let me learn more first, then I'll put together something specific."</td></tr>
+<tr><td>Coach presses on price</td><td>"I understand budget is real. Let me show you what you're getting — PRO CUT fit, [sport standard], IRONCLAD GUARANTEE — then we'll talk numbers. Fair?"</td></tr>
+<tr><td>Coach says "just give me a ballpark"</td><td>"For a program your size, most schools invest between $X and $Y for a full uniform set. But that depends on exactly what you need. Let me put together something specific for [School]."</td></tr>
+</tbody>
+</table>
+
+<h3>7.3 The Value Frame</h3>
+<table>
+<thead><tr><th>Expense Frame</th><th>Investment Frame</th></tr></thead>
+<tbody>
+<tr><td>"This jersey costs $85."</td><td>"Your athletes will wear this for 3 seasons — about $28 per season."</td></tr>
+<tr><td>"The full set is $5,000."</td><td>"That's 25 athletes, 2 uniforms each, across varsity and JV — with IRONCLAD GUARANTEE."</td></tr>
+<tr><td>"We're more expensive than your vendor."</td><td>"The stock blank gets replaced next year. The TUF uniform is still sharp in Year 3. Different math."</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="part-8-decision-maker-identification">PART 8: DECISION-MAKER IDENTIFICATION</h2>
+
+<h3>8.1 Who Signs the Check?</h3>
+<table>
+<thead><tr><th>Role</th><th>Authority</th><th>How to Engage</th></tr></thead>
+<tbody>
+<tr><td><strong>Head Coach</strong></td><td>Recommends. Strong influence.</td><td>Primary relationship. User and champion.</td></tr>
+<tr><td><strong>Athletic Director</strong></td><td>Approves. Controls budget.</td><td>Must engage for significant deals.</td></tr>
+<tr><td><strong>Booster Club President</strong></td><td>Funds. Allocates money.</td><td>Critical for booster-funded programs. Sell team store model.</td></tr>
+<tr><td><strong>Principal</strong></td><td>Signs off. Usually rubber-stamps.</td><td>Rarely the target. AD handles.</td></tr>
+<tr><td><strong>Assistant Coach</strong></td><td>Influences. May handle logistics.</td><td>Don't ignore. Internal champion.</td></tr>
+</tbody>
+</table>
+
+<h3>8.2 Decision-Maker Discovery</h3>
+<ol>
+<li>"Who makes the final call on uniforms — you, or the AD?"</li>
+<li>"Walk me through the approval process. You decide to switch — what happens next?"</li>
+<li>"Who else needs to be in the room? Anyone whose opinion carries weight?"</li>
+<li>"Does the booster club have a say? Are they involved in funding?"</li>
+<li>"Has anyone else at the school expressed frustration with the current uniforms?"</li>
+</ol>
+
+<h3>8.3 Multi-Stakeholder Strategy</h3>
+<ol>
+<li><strong>Identify the champion.</strong> Who wants change the most?</li>
+<li><strong>Arm the champion.</strong> Give them talking points, a sample, a one-page summary.</li>
+<li><strong>Offer to present to the group.</strong> "Coach, I'd be happy to do 15 minutes for you and the AD."</li>
+<li><strong>Don't go around your champion.</strong> If the coach says the AD decides, ask for an introduction.</li>
+</ol>
+
+<hr>
+
+<h2 id="part-9-timeline-mapping">PART 9: TIMELINE MAPPING</h2>
+
+<h3>9.1 The School Budget Calendar</h3>
+<table>
+<thead><tr><th>Period</th><th>What's Happening</th><th>Your Action</th></tr></thead>
+<tbody>
+<tr><td><strong>JAN–FEB</strong></td><td>AD begins budget planning</td><td>"Coach, let's get TUF numbers in front of you before the budget locks."</td></tr>
+<tr><td><strong>MAR–APR</strong></td><td>Budget proposals submitted</td><td>Proposals must be in hand.</td></tr>
+<tr><td><strong>MAY–JUN</strong></td><td>Budget approved by school board</td><td>"Did the uniform budget get approved? Let's get the order in."</td></tr>
+<tr><td><strong>JUL 1</strong></td><td>New fiscal year begins</td><td>Fall sport orders finalize.</td></tr>
+</tbody>
+</table>
+
+<h3>9.2 Sport-Specific Ordering Windows</h3>
+<table>
+<thead><tr><th>Sport Season</th><th>Ordering Window</th><th>Urgency Trigger</th></tr></thead>
+<tbody>
+<tr><td><strong>Fall (Football, Volleyball, Soccer)</strong></td><td>MAR–APR (primary)</td><td>"Coach, let's lock in GRIND before spring ball."</td></tr>
+<tr><td><strong>Winter (Basketball, Hockey, Wrestling)</strong></td><td>JUL–AUG (primary)</td><td>"Coach, your kids are playing summer ball. Let's get OVERTIME locked in."</td></tr>
+<tr><td><strong>Spring (Baseball, Softball, Track)</strong></td><td>OCT–NOV (primary)</td><td>"Coach, fall ball. Let's lock in DIAMOND for spring."</td></tr>
+</tbody>
+</table>
+
+<h3>9.3 Timeline Discovery Questions</h3>
+<ol>
+<li>"When does your ordering cycle typically start for [season]?"</li>
+<li>"When do you need uniforms in hand? Hard deadline — first game, media day?"</li>
+<li>"When does the budget lock for next season? Still time to get a proposal in?"</li>
+<li>"What's been your lead time with your current vendor?"</li>
+<li>"Is there a booster club meeting or AD review coming up where uniform decisions are discussed?"</li>
+</ol>
+
+<hr>
+
+<h2 id="part-10-multi-sport-discovery">PART 10: MULTI-SPORT DISCOVERY</h2>
+
+<h3>10.1 Beyond the Initial Sport</h3>
+<p>You might be talking to a football coach. But that school also has basketball, baseball, softball, volleyball, and more. Every sport is a potential lane. Every coach is a champion in a different part of the department.</p>
+
+<h3>10.2 Multi-Sport Discovery Questions</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>Opportunity</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>"What other sports are big at [School]? Another program that could benefit?"</td><td>Opens door to other sports.</td></tr>
+<tr><td>2</td><td>"Does basketball use the same vendor as football, or do they do their own thing?"</td><td>Two-sport opportunity.</td></tr>
+<tr><td>3</td><td>"Is there a girls' sport that's been asking for better uniforms?"</td><td>Women's Division. FLEX-WAIST is powerful for girls' basketball.</td></tr>
+<tr><td>4</td><td>"Do lower levels — JV, freshman, middle school — get new uniforms or hand-me-downs?"</td><td>Volume opportunity.</td></tr>
+<tr><td>5</td><td>"When your athletes travel, what are they wearing? Coordinated gear?"</td><td>Lane 2 (ISSUE). Fastest cross-sell.</td></tr>
+<tr><td>6</td><td>"Does the school have a team store? Do fans have a way to buy program gear?"</td><td>Lane 3 (Team Stores).</td></tr>
+<tr><td>7</td><td>"What about letterman jackets? Who handles those?"</td><td>Lane 4 (LEGACY).</td></tr>
+</tbody>
+</table>
+
+<h3>10.3 The Multi-Sport Handoff</h3>
+<blockquote><p>"Coach, I'd love to connect with the basketball coach. Would you be comfortable making an introduction? Or I can reach out directly and mention we've been working with your football program. I want to make sure the whole department benefits, not just one sport."</p></blockquote>
+
+<hr>
+
+<h2 id="part-11-note-taking-templates">PART 11: NOTE-TAKING TEMPLATES</h2>
+
+<h3>11.1 Full Discovery Call Notes</h3>
+<pre><code>═══════════════════════════════════════════════════════════════
+DISCOVERY CALL NOTES
+═══════════════════════════════════════════════════════════════
+DATE: _______________    REP: _______________
+SCHOOL: _____________    COACH: _____________
+SPORT: ______________    PHONE: _____________
+═══════════════════════════════════════════════════════════════
+
+PROGRAM OVERVIEW
+Size (athletes): _____    Levels: V / JV / Fr / Youth
+Sports offered: _____________________________________________
+Conference: _____________    Classification: _______________
+Recent record: ______________________________________________
+
+CURRENT UNIFORMS
+Vendor: _______________    Years with vendor: _____
+Setup: Home / Away / Alternate / Practice
+Per-uniform cost: $_____
+Satisfaction (1–10): _____
+
+PAIN POINTS
+1. ___________________________________________________________
+2. ___________________________________________________________
+3. ___________________________________________________________
+Biggest frustration: _________________________________________
+
+BUDGET
+Source: District / Boosters / Combo
+Approx. budget: $___________    Cycle timing: _______________
+Booster club: Active / Inactive (contact: ___________)
+
+DECISION-MAKER MAP
+Primary: _______________    Influencers: ___________________
+Approval process: ___________________________________________
+
+TIMELINE
+Ordering window: _______________    Needed by: ______________
+
+MULTI-SPORT OPPORTUNITIES
+Other sports mentioned: _____________________________________
+Travel gear interest: Low / Medium / High
+Team store interest: Low / Medium / High
+Letterman jacket interest: Low / Medium / High
+
+NEXT STEPS
+[ ] Send follow-up email (within 24 hours)
+[ ] Send sample: GRIND / DIAMOND / OVERTIME
+[ ] Schedule demo/proposal: Date: _______________
+[ ] Add to CRM. Stage: _______________
+═══════════════════════════════════════════════════════════════</code></pre>
+
+<h3>11.2 Quick-Notes Field Card</h3>
+<pre><code>SCHOOL: ___________  COACH: ___________  DATE: _________
+CURRENT: Vendor: _____  Cost: $_____  Happy? 1-10: _____
+PAIN: ____________________________________________________
+BUDGET: Source: _______  Cycle: _______  Amt: $_____
+DM: Who signs? _______  Who influences? __________________
+TIMELINE: Order window: ______  Needed by: ______
+LANES: Travel? Y/N  Team Store? Y/N  Letterman? Y/N
+NEXT: ____________________________________________________</code></pre>
+
+<hr>
+
+<h2 id="part-12-discovery-to-demo-transition">PART 12: THE DISCOVERY TO DEMO TRANSITION</h2>
+
+<h3>12.1 When to Transition</h3>
+<p><strong>Ready signals:</strong> Coach mentioned a specific frustration you can solve. Coach asked "so what do you do differently?" Coach expressed curiosity. Coach acknowledged change might be worth considering. Tone shifted from defensive to open.</p>
+<p><strong>NOT ready signals:</strong> Short, guarded answers. No frustration revealed. "We're happy with what we have" — and meant it. Distracted, trying to get off the phone.</p>
+
+<h3>12.2 The Energy Shift Script</h3>
+<blockquote><p>"Coach, you just told me three things: [pain 1], [pain 2], and you wish you had [need-payoff]. Here's why we should talk further: TUF was built to solve exactly what you're describing."</p></blockquote>
+<p><strong>Then deploy the 4-lane moat:</strong></p>
+<blockquote><p>"We don't sell uniforms. We outfit programs. Four lanes — game day, travel, fans, tradition. One system. One look. One relationship. Nobody else thinks about your program that way."</p></blockquote>
+<p><strong>Then introduce the fit differentiator:</strong></p>
+<blockquote><p>"And everything we build — PRO CUT fit to college spec, LOCK-FIT construction, IRONCLAD GUARANTEE — is designed to solve the exact frustrations you described."</p></blockquote>
+<p><strong>Then transition to the demo:</strong></p>
+<blockquote><p>"Let me show you what this looks like. I've got a sample right here…"</p></blockquote>
+
+<h3>12.3 If the Coach Isn't Ready</h3>
+<blockquote><p>"Coach, I've learned a lot about your program — thank you. I don't want to pitch you if the timing isn't right. Let me leave you my card and a sample. If anything changes with your current situation, I'm here. No pressure."</p></blockquote>
+<p><strong>The sample is the Trojan horse. It sells when you're not in the room.</strong></p>
+
+<hr>
+
+<h2 id="part-13-role-play-scenarios">PART 13: 20 ROLE-PLAY SCENARIOS</h2>
+<p>Practice with your Director. Full discovery flow: S → P → I → N → Energy Shift.</p>
+
+<h3>Scenario 1: The Satisfied Coach</h3>
+<p><strong>Coach:</strong> Happy with Nike. No complaints.</p>
+<blockquote><p>"Honestly, we love Nike. Fit is good, delivery reliable, kids love the swoosh."</p></blockquote>
+<p><strong>Model Flow:</strong> 1. Situation 2. Problem: "Anything you'd change if you could?" 3. Implication: Skip. 4. Need-Payoff: "What if one vendor could handle uniforms, travel, team stores, and letterman jackets — one system?" 5. Energy Shift: "Coach, I'm not here to break a good thing. Let me leave you a GRIND sample."</p>
+
+<h3>Scenario 2: The Frustrated Basketball Coach</h3>
+<p><strong>Coach:</strong> Girls' Basketball. Uniforms boxy. Waistbands bunch. Graphics peeling.</p>
+<blockquote><p>"These uniforms are terrible. The girls hate them. Waistbands are a disaster."</p></blockquote>
+<p><strong>Model Flow:</strong> 1. Situation 2. Problem: vent about waistbands 3. Implication: "How many times in a game does a player adjust her shorts?" 4. Need-Payoff: "If the waistband stayed flat — what would that mean?" 5. Energy Shift: "Coach, you just described exactly what FLEX-WAIST solves."</p>
+
+<h3>Scenario 3: The Time-Pressed AD</h3>
+<p><strong>Coach:</strong> AD. 14 sports. 5 minutes.</p>
+<blockquote><p>"I've got 5 minutes. What do I need to know?"</p></blockquote>
+<p><strong>Model Flow:</strong> 1. Situation (30 sec) 2. Problem (1 min) 3. Implication (1 min) 4. Need-Payoff (30 sec) 5. Energy Shift (1 min): "That's exactly what we do. 15 minutes this week?"</p>
+
+<h3>Scenario 4: The "We Have No Money" Coach</h3>
+<p><strong>Coach:</strong> Small rural school. Zero budget. 6-year-old uniforms.</p>
+<blockquote><p>"We have zero budget. Booster club raises maybe $500 a year."</p></blockquote>
+<p><strong>Model Flow:</strong> 1. Situation 2. Problem: condition of current uniforms 3. Implication: "How do the girls feel wearing 6-year-old uniforms?" 4. Need-Payoff: "What if there were a way to fund new uniforms without touching your school budget?" 5. Energy Shift: "Coach, our team store model. Your program earns 15–25% on every sale."</p>
+
+<h3>Scenario 5: The Multi-Sport AD</h3>
+<p><strong>Coach:</strong> AD at large suburban school. 16 sports. Overwhelmed by vendor management.</p>
+<blockquote><p>"Managing all these vendors is a part-time job. But how can one company do 16 sports well?"</p></blockquote>
+<p><strong>Model Flow:</strong> 1. Situation 2. Problem: vendor management headache 3. Implication: "How much of your week goes to vendor management vs. leading the department?" 4. Need-Payoff: "One vendor with sport-specific expertise — what would that change?" 5. Energy Shift: "We don't try to do 'everything.' Four specific lanes."</p>
+
+<h3>Scenarios 6–20: Quick Reference</h3>
+<table>
+<thead><tr><th>#</th><th>Scenario</th><th>Key Challenge</th></tr></thead>
+<tbody>
+<tr><td>6</td><td>New Coach</td><td>Has authority. Needs everything. Build from scratch.</td></tr>
+<tr><td>7</td><td>Coach Near Retirement</td><td>25-year veteran. Inertia. "Done it this way forever."</td></tr>
+<tr><td>8</td><td>Parent-Coach</td><td>Volunteer. "I'm just a parent trying to help." Team store angle.</td></tr>
+<tr><td>9</td><td>Angry Coach</td><td>Uniforms 3 weeks late. Venting. Ready to switch.</td></tr>
+<tr><td>10</td><td>"Call the AD" Coach</td><td>Interested, no authority. Champion strategy.</td></tr>
+<tr><td>11</td><td>Private School Coach</td><td>Quality and prestige matter more than price. PRO CUT lead.</td></tr>
+<tr><td>12</td><td>Boys' Basketball Coach</td><td>AAU-connected. FLEX-WAIST differentiator.</td></tr>
+<tr><td>13</td><td>Volleyball Coach</td><td>Underserved. PRO CUT fit + team store.</td></tr>
+<tr><td>14</td><td>Hockey Coach</td><td>Minnesota hockey. ISSUE travel gear emphasis.</td></tr>
+<tr><td>15</td><td>Wrestling Coach</td><td>Durability focus. LOCK-FIT. Lightweight singlets.</td></tr>
+<tr><td>16</td><td>Soccer Coach</td><td>Club pipeline. Used to premium. DIAMOND or GRIND positioning.</td></tr>
+<tr><td>17</td><td>Track/XC Coach</td><td>Large roster. Low per-athlete budget. CAMP + team store.</td></tr>
+<tr><td>18</td><td>Booster Club President</td><td>Controls money. Revenue-share. Team store appeal.</td></tr>
+<tr><td>19</td><td>The "Ghost" Coach</td><td>Interested, disappears. Follow-up strategy.</td></tr>
+<tr><td>20</td><td>The Dream Coach</td><td>Ready to buy. Big program. All sports. Start one lane.</td></tr>
+</tbody>
+</table>
+
+<hr>
+
+<h2 id="appendix-a-spin-field-card">APPENDIX A: SPIN — FIELD CARD</h2>
+<pre><code>┌──────────────────────────────────────────────────────────────────┐
+│                    SPIN FOR TUF — FIELD CARD                     │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  S — SITUATION (First 5 min):                                    │
+│  "Tell me about your program."                                   │
+│  "What are you wearing now?"                                     │
+│  "Who makes the uniform decisions?"                              │
+│  "What's your timeline?"                                         │
+│                                                                  │
+│  P — PROBLEM (Minutes 5–10):                                     │
+│  "What's your biggest frustration?"                              │
+│  "What would you change if you could?"                           │
+│  "How's the fit? Delivery? Rep relationship?"                    │
+│                                                                  │
+│  I — IMPLICATION (Minutes 10–13):                                │
+│  "What happens when uniforms arrive late?"                       │
+│  "How does [pain] affect your athletes' confidence?"             │
+│  "What's the cost of another season with [problem]?"             │
+│                                                                  │
+│  N — NEED-PAYOFF (Minutes 13–15):                                │
+│  "If [problem] were solved, what would that mean?"               │
+│  "What would sharp fit + guaranteed delivery do?"                │
+│  "Imagine one vendor for all four lanes — what changes?"         │
+│                                                                  │
+│  RULE: 80% coach talking. 20% rep talking.                      │
+│  RULE: Don't pitch until the coach signals readiness.            │
+│  RULE: Follow pain points — "Tell me more about that."           │
+└──────────────────────────────────────────────────────────────────┘</code></pre>
+
+<hr>
+
+<h2 id="appendix-b-pain-to-solution-mapping">APPENDIX B: PAIN-TO-SOLUTION MAPPING</h2>
+<table>
+<thead><tr><th>If Coach Says…</th><th>Pain Point</th><th>TUF Solution</th><th>Standard</th></tr></thead>
+<tbody>
+<tr><td>"The jerseys look boxy"</td><td>Poor fit</td><td>Athletic-tapered, articulated sleeves</td><td>PRO CUT</td></tr>
+<tr><td>"The waistbands bunch up"</td><td>Basketball reversible problem</td><td>Engineered to stay flat, flips clean</td><td>FLEX-WAIST</td></tr>
+<tr><td>"They don't breathe"</td><td>Heat/sweat management</td><td>Thermal-mapped ventilation</td><td>AIR-FORGE</td></tr>
+<tr><td>"The graphics peel"</td><td>Poor decoration</td><td>Color bonded into fiber — can't peel</td><td>Full Sublimation</td></tr>
+<tr><td>"They fall apart"</td><td>Poor construction</td><td>Triple-stitched, taped seams</td><td>LOCK-FIT</td></tr>
+<tr><td>"Delivery is always late"</td><td>Unreliable vendor</td><td>Proactive timeline management + guarantee</td><td>IRONCLAD</td></tr>
+<tr><td>"I can never reach my rep"</td><td>Poor service</td><td>One relationship. One call. Real person.</td><td>IRONCLAD</td></tr>
+<tr><td>"I'm juggling 4 vendors"</td><td>Vendor fragmentation</td><td>One vendor, one system, four lanes</td><td>4-Lane Moat</td></tr>
+<tr><td>"We can't afford quality"</td><td>Budget constraint</td><td>Team store revenue. Multi-year durability.</td><td>Team Store (Lane 3)</td></tr>
+<tr><td>"JV gets hand-me-downs"</td><td>Unequal levels</td><td>Same quality standard across all levels</td><td>PRO CUT</td></tr>
+<tr><td>"Kids aren't proud"</td><td>Program identity</td><td>BUILT FOR THE PROGRAM</td><td>Brand</td></tr>
+</tbody>
+</table>
+
+<hr>
+<p><em>Discovery is where deals are won or lost. The rep who asks the best questions — and truly listens to the answers — builds trust that no competitor can break. Master discovery, and you master the TUF sales system.</em></p>
+<hr>
+
+<h2 id="knowledge-assessment-module-03">KNOWLEDGE ASSESSMENT — MODULE 03</h2>
+
+<h3>Scenario-Based Questions</h3>
+<p>Discovery isn't about asking the right questions from a list — it's about knowing which question to ask NEXT based on what the coach just said.</p>
+
+<h4>SCENARIO 1: The Hidden Pain Point</h4>
+<p><strong>Situation:</strong> You're on a discovery call with a head football coach. You ask: "How's the fit on your current uniforms?" He says: "They're fine. No complaints." But two minutes later, when you ask about his team photo, he pauses and says: "...well, the sleeves do look a little boxy in pictures."</p>
+<p><strong>Question:</strong> He just revealed a pain point he initially denied. What's your NEXT question — using the SPIN framework — that moves this from "mild observation" to "motivation to change"? Be specific: is it a Problem, Implication, or Need-Payoff question?</p>
+<hr>
+
+<h4>SCENARIO 2: The Emotional Pivot</h4>
+<p><strong>Situation:</strong> You're talking to a girls' basketball coach who's been venting for 3 minutes about her current vendor: late delivery, wrong sizes, peeling graphics. She's angry — the uniforms arrived 3 weeks late and her seniors played their first three games in old jerseys.</p>
+<p><strong>Question:</strong> She's given you plenty of Problem material. What's your NEXT SPIN move — and specifically, what Implication question do you ask that makes the pain about her ATHLETES, not about the vendor?</p>
+<hr>
+
+<h4>SCENARIO 3: The Product Application Question</h4>
+<p><strong>Situation:</strong> During discovery, a volleyball coach mentions three things: (1) her athletes complain the jerseys are boxy and unflattering, (2) the fabric doesn't breathe during tournament weekends when they play 4+ matches a day, and (3) she's tired of managing separate orders for uniforms, warmups, and spirit wear.</p>
+<p><strong>Question:</strong> Which THREE specific TUF solutions — one collection, one quality standard, and one lane — directly map to her three complaints? For each, write the one-sentence transition you'd use to introduce it during the Energy Shift.</p>
+<hr>
+
+<h4>SCENARIO 4: The Objection — "We're Happy with What We Have"</h4>
+<p><strong>Situation:</strong> You're on a discovery call with a baseball coach who's been with the same local vendor for 12 years. Every Situation question gets a positive answer. Every Problem question gets "nope, they're great."</p>
+<p><strong>Question:</strong> You can't force pain that isn't there. What's your graceful exit strategy that (a) acknowledges his satisfaction, (b) leaves behind a physical reminder of TUF, and (c) positions you as the first call he makes if anything changes?</p>
+
+<h3>Recall Foundation</h3>
+<ol>
+<li><strong>SPIN Framework:</strong> What does each letter stand for, and in what order should the question types generally flow?</li>
+<li><strong>Discovery Call Rules:</strong> What's the talk ratio rule (coach vs. rep) for the first 15 minutes?</li>
+<li><strong>Energy Shift:</strong> What are three signals that a coach is ready for the transition from discovery to demo?</li>
+</ol>
+
+<h3>Director Checkpoint</h3>
+<p>Complete a 15-minute role-play with your Director:</p>
+<ul>
+<li><strong>Full SPIN Sequence:</strong> Director plays a frustrated basketball coach. You execute Situation → Problem → Implication → Need-Payoff → Energy Shift.</li>
+<li><strong>The "No Pain" Coach:</strong> Director plays a satisfied football coach. You gracefully exit — acknowledge satisfaction, leave a sample, no pressure.</li>
+<li><strong>Multi-Sport Pivot:</strong> Mid-conversation, Director mentions the softball program is struggling. You pivot to multi-sport discovery.</li>
+</ul>
+
+<hr>
+
+<h2 id="using-this-manual-beyond-certification"></body></html>
+
+USING THIS MANUAL BEYOND CERTIFICATION</h2>
+<p>Discovery is the skill that separates TUF professionals from order-takers. This manual sharpens that skill — every week, not just during training.</p>
+
+<h3>When to Reference This Manual During Your Sales Week</h3>
+<table>
+<thead><tr><th>Moment</th><th>What to Pull Up</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td><strong>Pre-Discovery Call Prep</strong></td><td>Part 11: Note-Taking Templates</td><td>Have discovery notes template open. Review sport-specific problem questions.</td></tr>
+<tr><td><strong>During the Discovery Call</strong></td><td>Part 2: SPIN Framework</td><td>Glance at question type sequence: S → P → I → N.</td></tr>
+<tr><td><strong>Post-Discovery Call Debrief</strong></td><td>Appendix B: Pain-to-Solution Mapping</td><td>Map coach frustrations to TUF solutions.</td></tr>
+<tr><td><strong>Preparing for a Multi-Sport AD</strong></td><td>Part 10: Multi-Sport Discovery</td><td>Review the 7 multi-sport questions.</td></tr>
+<tr><td><strong>Before a Budget Conversation</strong></td><td>Part 7: Budget Discovery</td><td>Review the 6 budget discovery questions.</td></tr>
+</tbody>
+</table>
+
+<h3>Scripts to Keep Open on Your Phone</h3>
+<ul>
+<li><strong>The Energy Shift Language</strong> (Section 12.2)</li>
+<li><strong>The "Coach Isn't Ready" Exit</strong> (Section 12.3)</li>
+<li><strong>Implication Follow-Up Phrases</strong> (Section 5.3) — "Tell me more about that." "What was that like?"</li>
+</ul>
+
+<h3>Reference Tables to Bookmark</h3>
+<ul>
+<li><strong>SPIN Question Types Table</strong> (Section 2.2)</li>
+<li><strong>Problem Questions Bank</strong> (Part 4) — All 21 questions</li>
+<li><strong>Need-Payoff Questions</strong> (Part 6)</li>
+<li><strong>Pain-to-Solution Mapping</strong> (Appendix B)</li>
+<li><strong>Decision-Maker Map</strong> (Section 8.2)</li>
+</ul>
+
+<h3>Weekly Ritual: The Monday Morning 10-Minute Review</h3>
+<ol>
+<li><strong>Minutes 0–3:</strong> Review last week's discovery calls. Did you follow the SPIN sequence?</li>
+<li><strong>Minutes 3–6:</strong> Pick one SPIN question type you're weak on. Practice asking three of them out loud.</li>
+<li><strong>Minutes 6–8:</strong> Review the Pain-to-Solution Mapping (Appendix B). Practice energy shift language.</li>
+<li><strong>Minutes 8–10:</strong> Read the Discovery Call Rules out loud. Internalize Rule 3: Don't interrupt a pain point.</li>
+</ol>
+
+<h3>Coaching Guide</h3>
+<ul>
+<li><strong>"Play me your last discovery call."</strong> — Director maps your questions against the SPIN framework.</li>
+<li><strong>"I'm a coach with [specific pain point]. Ask me the Implication question."</strong> — Did you make the pain real?</li>
+<li><strong>"Give me the Energy Shift for a [sport] coach."</strong> — Director evaluates connection between what the coach said and TUF.</li>
+<li><strong>"You talked for 12 minutes. Coach talked for 8. What's wrong?"</strong> — Director holds you to 80/20 rule.</li>
+</ul>
+
+<h3>Quick Reference Card — Module 03</h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────┐
+│             TUF DISCOVERY — QUICK REFERENCE CARD                  │
+│             BUILT FOR THE PROGRAM                                 │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  SPIN SEQUENCE:                                                   │
+│  S — SITUATION (First 5 min): "Tell me about your program."      │
+│  P — PROBLEM (Min 5–10): "What's your biggest frustration?"      │
+│  I — IMPLICATION (Min 10–13): "What happens when [pain]?"        │
+│  N — NEED-PAYOFF (Min 13–15): "If [pain] were solved...?"        │
+│                                                                  │
+│  THE 5 DISCOVERY RULES:                                           │
+│  1. First 10 minutes: Zero TUF, all program.                     │
+│  2. 80% coach talking, 20% rep for first 15 min.                 │
+│  3. Don't interrupt a pain point. Let them vent.                 │
+│  4. Follow emotion, not just facts.                              │
+│  5. Coach should do 70% of the talking total.                    │
+│                                                                  │
+│  IMPLICATION FOLLOW-UPS:                                         │
+│  • "Tell me more about that."                                    │
+│  • "What was that like for your athletes?"                       │
+│  • "Has that happened more than once?"                           │
+│                                                                  │
+│  TOP 5 PROBLEM QUESTIONS:                                        │
+│  1. "What's your biggest frustration with your current uniforms?"│
+│  2. "How's the fit? Are your athletes happy?"                    │
+│  3. "Have you ever looked at a team photo and thought...?"       │
+│  4. "When something goes wrong, what happens?"                   │
+│  5. "How many vendors are you juggling right now?"               │
+│                                                                  │
+│  ENERGY SHIFT (when coach is ready):                             │
+│  "Coach, you just told me three things: [pain 1], [pain 2],      │
+│   and you wish you had [need-payoff]. TUF was built specifically │
+│   to solve exactly what you're describing."                       │
+│                                                                  │
+│  PRICE OBJECTION (before demo):                                  │
+│  "Coach, I want to give you an accurate number based on what     │
+│   your program needs — not a generic price. Let me learn more    │
+│   first, and then I'll put together something specific."         │
+│                                                                  │
+│  PAIN → SOLUTION (see Appendix B for full mapping)               │
+│  Boxy fit → PRO CUT    |    Peeling → Sublimation                │
+│  Late delivery → IRONCLAD    |   4 vendors → 4-Lane System       │
+└──────────────────────────────────────────────────────────────────┘</code></pre>
+
+<p><strong>BUILT FOR THE PROGRAM.</strong></p>
+</main></div>
+
+

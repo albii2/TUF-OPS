@@ -93,6 +93,15 @@ export interface TrainingEnrollmentWithProgress {
     enrollment: TrainingEnrollment;
     modules: TrainingModule[];
     progress: TrainingProgress[];
+    assessments: Array<{
+        id: number;
+        module_id: number;
+        enrollment_id: number;
+        score: number;
+        passed: boolean;
+        taken_at: Date;
+        created_at: Date;
+    }>;
     completionMetrics: {
         totalModules: number;
         completedModules: number;

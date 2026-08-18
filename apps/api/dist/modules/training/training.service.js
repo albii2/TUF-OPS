@@ -109,6 +109,7 @@ async function getEnrollmentWithProgress(enrollmentId) {
         enrollment,
         modules,
         progress,
+        assessments: assessmentResult.rows,
         completionMetrics: {
             totalModules,
             completedModules,
@@ -186,14 +187,17 @@ async function markModuleCompleted(enrollmentId, moduleId, timeSpentSeconds) {
     await checkAndUpdateCertification(enrollment.user_id);
     return { progress, enrollment: updatedEnrollment };
 }
-async function checkAndUpdateCertification(userId) {
+async function checkAndUpdateCertification(userId, actorId) {
     const userRes = await database_1.pool.query('SELECT role, hr_docs_completed, practical_exercise_completed, director_signed_off FROM users WHERE id = $1', [userId]);
     if (userRes.rows.length === 0)
         return false;
     const user = userRes.rows[0];
     // Admin, Regional Director, Director are exempt
     if (user.role === 'ADMIN' || user.role === 'REGIONAL_DIRECTOR' || user.role === 'DIRECTOR' || user.role === 'OPERATIONS') {
-        await database_1.pool.query('UPDATE users SET is_certified = true WHERE id = $1', [userId]);
+        await database_1.pool.query(`UPDATE users SET is_certified = true, certification_source = 'DATABASE', academy_version = 'v2',
+       certified_at = COALESCE(certified_at, NOW()),
+       certified_by = COALESCE(certified_by, $1)
+       WHERE id = $2`, [actorId ?? null, userId]);
         return true;
     }
     // Check enrollment
@@ -216,28 +220,36 @@ async function checkAndUpdateCertification(userId) {
     }).length;
     const modulesCompleted = totalModules > 0 && completedModules >= totalModules;
     const isCertified = modulesCompleted && user.hr_docs_completed && user.practical_exercise_completed && user.director_signed_off;
-    await database_1.pool.query("UPDATE users SET is_certified = $1, certification_source = 'DATABASE' WHERE id = $2", [isCertified, userId]);
+    if (isCertified) {
+        await database_1.pool.query(`UPDATE users SET is_certified = true, certification_source = 'DATABASE', academy_version = 'v2',
+       certified_at = COALESCE(certified_at, NOW()),
+       certified_by = COALESCE(certified_by, $1)
+       WHERE id = $2`, [actorId ?? null, userId]);
+    }
+    else {
+        await database_1.pool.query("UPDATE users SET is_certified = false, certification_source = 'DATABASE' WHERE id = $1", [userId]);
+    }
     return isCertified;
 }
-async function toggleHrDocs(userId, hrDocsCompleted) {
+async function toggleHrDocs(userId, hrDocsCompleted, actorId) {
     await database_1.pool.query('UPDATE users SET hr_docs_completed = $1, updated_at = NOW() WHERE id = $2', [hrDocsCompleted, userId]);
-    await checkAndUpdateCertification(userId);
+    await checkAndUpdateCertification(userId, actorId);
     // Re-fetch to return fresh data (including updated is_certified)
-    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [userId]);
+    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified, certified_at, certified_by, academy_version FROM users WHERE id = $1', [userId]);
     return fresh.rows[0];
 }
-async function togglePracticalExercise(userId, practicalExerciseCompleted) {
+async function togglePracticalExercise(userId, practicalExerciseCompleted, actorId) {
     await database_1.pool.query('UPDATE users SET practical_exercise_completed = $1, updated_at = NOW() WHERE id = $2', [practicalExerciseCompleted, userId]);
-    await checkAndUpdateCertification(userId);
+    await checkAndUpdateCertification(userId, actorId);
     // Re-fetch to return fresh data (including updated is_certified)
-    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [userId]);
+    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified, certified_at, certified_by, academy_version FROM users WHERE id = $1', [userId]);
     return fresh.rows[0];
 }
-async function toggleDirectorSignoff(userId, directorSignedOff) {
+async function toggleDirectorSignoff(userId, directorSignedOff, actorId) {
     await database_1.pool.query('UPDATE users SET director_signed_off = $1, updated_at = NOW() WHERE id = $2', [directorSignedOff, userId]);
-    await checkAndUpdateCertification(userId);
+    await checkAndUpdateCertification(userId, actorId);
     // Re-fetch to return fresh data (including updated is_certified)
-    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified FROM users WHERE id = $1', [userId]);
+    const fresh = await database_1.pool.query('SELECT id, name, hr_docs_completed, practical_exercise_completed, director_signed_off, is_certified, certified_at, certified_by, academy_version FROM users WHERE id = $1', [userId]);
     return fresh.rows[0];
 }
 async function submitModuleAssessment(enrollmentId, moduleId, answers) {

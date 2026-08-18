@@ -1,7 +1,14 @@
 import type { ChangeCredentialPayload, CreateUserPayload, LoginPayload, SafeUser } from './users.interface';
+declare function getAuthTokenSecret(): string;
 export declare function assertAuthTokenSecretConfigured(): void;
+/** Test-only access to internals (kept intentionally minimal). */
+export declare const __test: {
+    sanitizeUser: typeof sanitizeUser;
+    getAuthTokenSecret: typeof getAuthTokenSecret;
+};
 export declare function createAuthToken(user: SafeUser): string;
 export declare function verifyAuthToken(token?: string): Promise<SafeUser | null>;
+declare function sanitizeUser(row: any): SafeUser;
 export declare function getSafeUserById(id: number): Promise<SafeUser | null>;
 export declare function listUsers(actor?: SafeUser | null): Promise<SafeUser[]>;
 export declare function createUserWithTemporaryCredential(payload: CreateUserPayload, actor: SafeUser): Promise<{
@@ -25,4 +32,5 @@ export declare function seedInitialOwnerIfEmpty(initialCredential?: string): Pro
  * Only callable by users with INVITE_USER permission (Director+).
  */
 export declare function certifyUser(userId: number, actor: SafeUser): Promise<SafeUser>;
+export {};
 //# sourceMappingURL=users.service.d.ts.map
