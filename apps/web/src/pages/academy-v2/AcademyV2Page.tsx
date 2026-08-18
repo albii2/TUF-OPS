@@ -2345,8 +2345,10 @@ function ResourcesTab() {
 // ─── Tiny markdown renderer (headings, lists, bold, links, quotes) ───
 
 function Markdown({ text }: { text: string }) {
+  // training_modules content was seeded with literal \n sequences — normalize before rendering
+  const normalized = text.replace(/\\n/g, '\n').replace(/\\t/g, '    ');
   const blocks: React.ReactNode[] = [];
-  const lines = text.split('\n');
+  const lines = normalized.split('\n');
   let i = 0;
   let listBuf: { ordered: boolean; items: string[] } | null = null;
   let paraBuf: string[] = [];
