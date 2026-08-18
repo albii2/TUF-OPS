@@ -230,7 +230,9 @@ async function getParticipantDetail(userId, actor) {
     const activityTypeResult = await database_1.pool.query(`SELECT type, COUNT(*) as count
      FROM activities WHERE created_by = $1
      GROUP BY type`, [userId]);
-    const orderCountResult = await database_1.pool.query('SELECT COUNT(*) as count FROM orders WHERE created_by = $1', [userId]);
+    const orderCountResult = await database_1.pool.query(`SELECT COUNT(*) as count FROM orders o
+     JOIN opportunities opp ON opp.id = o.opportunity_id
+     WHERE opp.created_by = $1`, [userId]);
     // KB progress from training_assessments
     let quizResults = [];
     try {
