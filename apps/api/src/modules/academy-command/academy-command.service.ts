@@ -318,7 +318,9 @@ export async function getParticipantDetail(
   );
 
   const orderCountResult = await pool.query(
-    'SELECT COUNT(*) as count FROM orders WHERE created_by = $1',
+    `SELECT COUNT(*) as count FROM orders o
+     JOIN opportunities opp ON opp.id = o.opportunity_id
+     WHERE opp.created_by = $1`,
     [userId],
   );
 
