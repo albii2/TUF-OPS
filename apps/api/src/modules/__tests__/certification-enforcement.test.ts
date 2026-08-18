@@ -59,6 +59,7 @@ function makeRepUser(overrides: Partial<SafeUser> = {}): SafeUser {
     practical_exercise_completed: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    last_login_at: null,
     ...overrides,
   };
 }

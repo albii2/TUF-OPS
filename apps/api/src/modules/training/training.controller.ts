@@ -189,7 +189,7 @@ export async function toggleHrDocsHandler(request: FastifyRequest, reply: Fastif
     }
 
     const dbUserId = await resolveUserId(id);
-    const result = await toggleHrDocs(dbUserId, !!hrDocsCompleted);
+    const result = await toggleHrDocs(dbUserId, !!hrDocsCompleted, (request as any).currentUser?.id);
     return reply.send(result);
   } catch (error: any) {
     console.error(`[toggleHrDocsHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
@@ -216,7 +216,7 @@ export async function togglePracticalExerciseHandler(request: FastifyRequest, re
     }
 
     const dbUserId = await resolveUserId(id);
-    const result = await togglePracticalExercise(dbUserId, !!practicalExerciseCompleted);
+    const result = await togglePracticalExercise(dbUserId, !!practicalExerciseCompleted, (request as any).currentUser?.id);
     return reply.send(result);
   } catch (error: any) {
     console.error(`[togglePracticalExerciseHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);
@@ -243,7 +243,7 @@ export async function toggleDirectorSignoffHandler(request: FastifyRequest, repl
     }
 
     const dbUserId = await resolveUserId(id);
-    const result = await toggleDirectorSignoff(dbUserId, !!directorSignedOff);
+    const result = await toggleDirectorSignoff(dbUserId, !!directorSignedOff, (request as any).currentUser?.id);
     return reply.send(result);
   } catch (error: any) {
     console.error(`[toggleDirectorSignoffHandler] EXACT CAUGHT ERROR: ${error.message}`, error.stack);

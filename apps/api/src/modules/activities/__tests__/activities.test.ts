@@ -145,8 +145,8 @@ describe('RepActivity Service — Prospecting Activity Log', () => {
 
     // Create a test organization
     const orgResult = await pool.query(
-      `INSERT INTO organizations (name) VALUES ($1) RETURNING id`,
-      ['RepActivity Test Org']
+      `INSERT INTO organizations (name, created_by, updated_by) VALUES ($1, $2, $3) RETURNING id`,
+      ['RepActivity Test Org', userId, userId]
     );
     orgId = orgResult.rows[0].id;
 
