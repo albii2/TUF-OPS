@@ -1915,14 +1915,14 @@ function LearnTab({ userId }: { userId: number }) {
       // Enrollment exists?
       let enrollment: TrainingEnrollmentData;
       try {
-        enrollment = await apiClient<TrainingEnrollmentData>(`/api/v1/training/enrollment?userId=${userId}`);
+        enrollment = await apiClient<TrainingEnrollmentData>(`/training/enrollment?userId=${userId}`);
       } catch {
         // No enrollment yet — create one (role canonicalized server-side)
-        await apiClient('/api/v1/training/enrollment/start', {
+        await apiClient('/training/enrollment/start', {
           method: 'POST',
           body: { userId, role: user?.role || 'REP' },
         });
-        enrollment = await apiClient<TrainingEnrollmentData>(`/api/v1/training/enrollment?userId=${userId}`);
+        enrollment = await apiClient<TrainingEnrollmentData>(`/training/enrollment?userId=${userId}`);
       }
       setData(enrollment);
     } catch (e: any) {
@@ -2111,11 +2111,11 @@ function ModuleStudyView({
   const markComplete = async () => {
     setMarking(true);
     try {
-      await apiClient('/api/v1/training/progress/start', {
+      await apiClient('/training/progress/start', {
         method: 'POST',
         body: { enrollmentId, moduleId: module.id },
       });
-      await apiClient('/api/v1/training/progress/complete', {
+      await apiClient('/training/progress/complete', {
         method: 'POST',
         body: { enrollmentId, moduleId: module.id, timeSpentSeconds: 0 },
       });
@@ -2139,7 +2139,7 @@ function ModuleStudyView({
         setSubmitting(false);
         return;
       }
-      const res = await apiClient<{ score: number; passed: boolean }>('/api/v1/training/assessments/submit', {
+      const res = await apiClient<{ score: number; passed: boolean }>('/training/assessments/submit', {
         method: 'POST',
         body: { enrollmentId, moduleId: module.id, answers: answersArr },
       });
@@ -2274,7 +2274,7 @@ function ResourcesTab() {
   const [open, setOpen] = useState<AcademyResource | null>(null);
 
   useEffect(() => {
-    apiClient<AcademyResource[]>('/api/v1/academy/resources')
+    apiClient<AcademyResource[]>('/academy/resources')
       .then(setResources)
       .catch((e) => console.error(e));
   }, []);
