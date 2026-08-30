@@ -207,6 +207,22 @@ export default function AcademyCommandPage() {
     }
   }, [selectedUserId]);
 
+  // Hooks must be unconditional — computed before any early return below
+  const roster = data?.participants ?? [];
+  const sortedParticipants = useMemo(() => {
+    return [...roster].sort((a, b) => {
+      const statusOrder: Record<string, number> = {
+        STALLED: 0,
+        NEEDS_ATTENTION: 1,
+        AWAITING_REVIEW: 2,
+        ON_TRACK: 3,
+        ACADEMY_COMPLETE: 4,
+        CERTIFIED: 5,
+      };
+      return (statusOrder[a.academyStatus] ?? 9) - (statusOrder[b.academyStatus] ?? 9);
+    });
+  }, [roster]);
+
   // ─── Not Leadership → redirect ─────────────────────────────────────────
   if (user && !['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR'].includes(user.role)) {
     return (
@@ -252,7 +268,7 @@ export default function AcademyCommandPage() {
 
   if (!data) return null;
 
-  const { activeCohort, attentionRequired, recentActivity, participants } = data;
+  const { activeCohort, attentionRequired, recentActivity } = data;
 
   // Filter activities
   const filteredActivity = activityFilter === 'all'
@@ -264,20 +280,6 @@ export default function AcademyCommandPage() {
           return a.description.includes('opportunity') || a.description.includes('meeting');
         return a.eventType.toLowerCase().includes(activityFilter);
       });
-
-  const sortedParticipants = useMemo(() => {
-    return [...participants].sort((a, b) => {
-      const statusOrder: Record<string, number> = {
-        STALLED: 0,
-        NEEDS_ATTENTION: 1,
-        AWAITING_REVIEW: 2,
-        ON_TRACK: 3,
-        ACADEMY_COMPLETE: 4,
-        CERTIFIED: 5,
-      };
-      return (statusOrder[a.academyStatus] ?? 9) - (statusOrder[b.academyStatus] ?? 9);
-    });
-  }, [participants]);
 
   return (
     <div className="space-y-5">
