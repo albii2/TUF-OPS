@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Button, Input, Select } from '../components/primitives';
 import { createUser, listUsersAsync, resetUserCredential, updateUser, formatUserDisplay, type ManagedUser } from '../services/usersService';
+import { apiClient } from '../services/apiClient';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
 import type { TerritoryId } from '../data/mockSalesData';
@@ -37,13 +38,7 @@ export function UsersPage() {
 
   // Fetch users directly from API — bypasses caching issues
   useEffect(() => {
-    const stored = localStorage.getItem('tuf_ops_user_v3');
-    if (!stored) return;
-    const user = JSON.parse(stored);
-    const token = user.token;
-    if (!token) return;
-    fetch('/api/users', { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
+    apiClient<{ users?: Record<string, any>[] }>('/users')
       .then(data => {
         const list = Array.isArray(data) ? data : (data?.users || []);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
