@@ -19,6 +19,7 @@ export type SidebarKey =
   | 'production_requests'
   | 'orders'
   | 'academy'
+  | 'academy_command'
   | 'people'
   | 'certification_review'
   | 'documents'

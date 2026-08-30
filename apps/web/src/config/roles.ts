@@ -21,6 +21,7 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
   settings: { label: 'Settings', route: '/settings' },
   users: { label: 'Users', route: '/users' },
   academy: { label: 'TUF Academy', route: '/academy/v2' },
+  academy_command: { label: 'Academy Command', route: '/academy/command' },
   certification_review: { label: 'Certifications', route: '/admin/certification' },
   documents: { label: 'Documents', route: '/documents' },
   vendor_ops: { label: 'Vendor Ops', route: '/vendor-ops' },
@@ -35,22 +36,22 @@ export const allSidebarItems: Record<SidebarKey, { label: string; route: string 
 
 export const roleConfig: Record<Role, RoleConfig> = {
   ADMIN: {
-    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'vendor_ops', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'certification_review', 'settings'],
+    sidebarItems: ['dashboard', 'organizations', 'ecosystem', 'pipeline', 'invoices', 'ops_workspace', 'vendor_ops', 'performance', 'territory', 'messages', 'programs', 'users', 'academy', 'academy_command', 'certification_review', 'settings'],
     dashboardWidgets: ['Revenue at Risk', 'Near Close Pipeline', 'Payments Pending', 'Lane Penetration'],
     primaryActions: ['Unblock Strategic Deals', 'Expand Lanes', 'Coach Directors'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy/v2', '/admin/certification', '/documents', '/vendor-ops', '/vendors'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/orders', '/reports', '/settings', '/ops-workspace', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/users', '/academy/v2', '/academy/command', '/admin/certification', '/documents', '/vendor-ops', '/vendors'],
   },
   REGIONAL_DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'messages', 'programs', 'academy', 'academy_command'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy/v2', '/admin/certification'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy/v2', '/academy/command', '/admin/certification'],
   },
   DIRECTOR: {
-    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'invoices', 'messages', 'programs', 'academy', 'settings', 'certification_review', 'documents'],
+    sidebarItems: ['dashboard', 'pipeline', 'performance', 'organizations', 'ecosystem', 'territory', 'invoices', 'messages', 'programs', 'academy', 'academy_command', 'settings', 'certification_review', 'documents'],
     dashboardWidgets: ['Stuck Deals', 'Reps Needing Coaching', 'Near Close', 'Territory Coverage'],
     primaryActions: ['Coach Reps', 'Escalate Risk', 'Reassign Territory'],
-    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy/v2', '/admin/certification', '/orders', '/settings', '/documents'],
+    visiblePages: ['/dashboard', '/organizations', '/opportunities', '/ecosystem-pipeline', '/reports', '/territory', '/my-opportunities', '/team-opportunities', '/team-performance', '/earnings', '/academy/v2', '/academy/command', '/admin/certification', '/orders', '/settings', '/documents'],
   },
   REP: {
     sidebarItems: ['dashboard', 'pipeline', 'organizations', 'invoices', 'messages', 'academy', 'territory', 'settings'],

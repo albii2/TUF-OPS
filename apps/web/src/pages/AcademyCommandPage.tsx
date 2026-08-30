@@ -183,7 +183,7 @@ export default function AcademyCommandPage() {
   const fetchSummary = useCallback(async () => {
     try {
       setLoading(true);
-      const result = await apiClient<ExecutiveSummary>('/v1/academy/executive-summary');
+      const result = await apiClient<ExecutiveSummary>('/academy/executive-summary');
       setData(result);
       setError('');
     } catch (err: any) {
@@ -200,7 +200,7 @@ export default function AcademyCommandPage() {
   useEffect(() => {
     if (selectedUserId) {
       setDetailLoading(true);
-      apiClient<ParticipantDetail>(`/v1/academy/participants/${selectedUserId}`)
+      apiClient<ParticipantDetail>(`/academy/participants/${selectedUserId}`)
         .then(setDetail)
         .catch(() => setDetail(null))
         .finally(() => setDetailLoading(false));
