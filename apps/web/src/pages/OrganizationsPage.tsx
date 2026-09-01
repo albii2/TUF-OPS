@@ -5,13 +5,36 @@ import { markPageVisited } from '../lib/academy';
 import { Button, Card, DataTable, EmptyState, Input, Pagination, Select, type Column } from '../components/primitives';
 import { formatCurrency, formatDate } from '../utils/format';
 import { useOrganizations } from '../hooks/useOrganizations';
+import { useOpportunities } from '../hooks/useOpportunities';
 import { OrganizationImportPanel } from '../components/OrganizationImportPanel';
 import { getOrganizationPriorityScore } from '../services/businessSelectors';
 import { updateOrganization, deleteOrganization } from '../services/organizationsService';
 import { listUsers } from '../services/usersService';
-import type { CoverageStatus, TerritoryId } from '../data/mockSalesData';
+import type { CoverageStatus, Organization, TerritoryId } from '../data/mockSalesData';
 
 const DEFAULT_pageSize = 25;
+
+/** Launch cluster slugs → display names (Fall/Winter 2026 territory deployment). */
+const CLUSTER_LABELS: Record<string, string> = {
+  minneapolis_metro: 'Minneapolis Metro',
+  central_mn: 'Brainerd Lakes / Central MN',
+};
+
+function clusterLabel(cluster: string): string {
+  return CLUSTER_LABELS[cluster] ?? cluster.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
+type PriorityBucket = 'Priority A' | 'Priority B' | 'Enrichment Needed';
+
+const BUCKET_ORDER: PriorityBucket[] = ['Priority A', 'Priority B', 'Enrichment Needed'];
+
+/** Bucket the raw tuf_priority value into launch-cluster priority groups. Missing/unknown → Enrichment Needed. */
+function priorityBucket(org: Pick<Organization, 'tufPriority'>): PriorityBucket {
+  const p = (org.tufPriority || '').trim().toUpperCase();
+  if (p === 'A' || p === 'TIER_1' || p === 'HIGH') return 'Priority A';
+  if (p === 'B' || p === 'TIER_2' || p === 'MEDIUM') return 'Priority B';
+  return 'Enrichment Needed';
+}
 
 export function OrganizationsPage() {
   const navigate = useNavigate();
@@ -43,14 +66,44 @@ export function OrganizationsPage() {
 
   const { data: allOrganizations = [] } = useOrganizations({ refreshKey });
   const { data: filtered = [] } = useOrganizations({ search, status: status as any, rep, territory: territory as any, director, coverageStatus: coverageStatus as any, priority: priority as any, refreshKey });
+  const { data: opportunities = [] } = useOpportunities({ refreshKey });
+
+  // Pipeline stage per organization (most advanced open stage, if any) for cluster rows.
+  const stageByOrgId = useMemo(() => {
+    const rank = (s: string) => (s === 'CLOSED_WON' ? 5 : s === 'INVOICE_SENT' ? 4 : s === 'MOCKUP_STAGE' ? 3 : s === 'DISCOVERY' ? 2 : s === 'LEAD_ENGAGED' ? 1 : 0);
+    const map = new Map<string, string>();
+    for (const opp of opportunities) {
+      if (!opp.organizationId || opp.stage === 'CLOSED_LOST') continue;
+      const current = map.get(opp.organizationId);
+      if (!current || rank(opp.stage) > rank(current)) map.set(opp.organizationId, opp.stage);
+    }
+    return map;
+  }, [opportunities]);
+
+  // Fall/Winter 2026 launch-cluster grouping — only surfaced for reps whose accounts carry clusters.
+  const isRep = user?.role === 'REP';
+  const clustered = useMemo(() => filtered.filter((o) => Boolean(o.launchCluster)), [filtered]);
+  const nonClustered = useMemo(() => filtered.filter((o) => !o.launchCluster), [filtered]);
+  const showClusters = isRep && clustered.length > 0;
+  const clusterGroups = useMemo(() => {
+    const groups = new Map<string, Organization[]>();
+    for (const org of clustered) {
+      const key = org.launchCluster || 'unassigned';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(org);
+    }
+    return Array.from(groups.entries());
+  }, [clustered]);
 
   const managedUsers = listUsers();
   const reps = useMemo(() => Array.from(new Set([...allOrganizations.map((o) => o.assignedRep), ...managedUsers.filter((u) => u.role === 'REP' && u.status === 'ACTIVE').map((u) => u.displayName)])).filter(Boolean), [allOrganizations, managedUsers]);
   const directors = useMemo(() => Array.from(new Set([...managedUsers.filter((u) => u.role === 'DIRECTOR' && u.status === 'ACTIVE').map((u) => u.displayName), ...allOrganizations.map((o) => o.assignedDirector)])).filter(Boolean), [allOrganizations, managedUsers]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  // When cluster sections are shown, the flat table only carries non-clustered accounts.
+  const tableRows = showClusters ? nonClustered : filtered;
+  const totalPages = Math.max(1, Math.ceil(tableRows.length / pageSize));
   const safePage = Math.min(page, totalPages);
-  const prioritized = [...filtered].sort((a, b) => getOrganizationPriorityScore(b) - getOrganizationPriorityScore(a));
+  const prioritized = [...tableRows].sort((a, b) => getOrganizationPriorityScore(b) - getOrganizationPriorityScore(a));
   const paged = prioritized.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   const toggleSelected = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
@@ -153,15 +206,60 @@ export function OrganizationsPage() {
           </div>
         )}
 
-        {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(row) => navigate(`/organizations/${row.id}`)} /> : <EmptyState title='No organizations match filters' description='Try a different filter set.' />}
-        <div className="flex items-center justify-between">
-          <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
-          <Select value={String(pageSize)} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="ml-3 w-20">
-            <option value="25">25</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-          </Select>
-        </div>
+        {showClusters ? (
+          <div className='mb-4 space-y-4'>
+            {clusterGroups.map(([cluster, orgs]) => (
+              <Card key={cluster} title={`${clusterLabel(cluster)} Launch Cluster · ${orgs.length} accounts`}>
+                {BUCKET_ORDER.map((bucket) => {
+                  const bucketOrgs = orgs.filter((o) => priorityBucket(o) === bucket);
+                  if (!bucketOrgs.length) return null;
+                  return (
+                    <div key={bucket} className='mb-3 last:mb-0'>
+                      <p className='mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400'>{bucket} · {bucketOrgs.length}</p>
+                      <div className='divide-y divide-slate-800 rounded-lg border border-slate-800'>
+                        {bucketOrgs.map((org) => {
+                          const stage = stageByOrgId.get(org.id);
+                          return (
+                            <button
+                              key={org.id}
+                              type='button'
+                              onClick={() => navigate(`/organizations/${org.id}`)}
+                              className='flex w-full flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 text-left transition hover:bg-[#0f1a27]'
+                            >
+                              <span className='min-w-0 flex-1'>
+                                <span className='block truncate text-sm font-semibold text-slate-100'>{org.name}</span>
+                                <span className='block text-xs text-slate-400'>{org.city}, {org.state}</span>
+                              </span>
+                              <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${bucket === 'Priority A' ? 'border-cyan-400/50 bg-cyan-400/10 text-cyan-200' : bucket === 'Priority B' ? 'border-emerald-400/50 bg-emerald-400/10 text-emerald-200' : 'border-amber-400/50 bg-amber-400/10 text-amber-200'}`}>
+                                {bucket === 'Priority A' ? 'Priority A' : bucket === 'Priority B' ? 'Priority B' : 'Enrichment Needed'}
+                              </span>
+                              {stage ? (
+                                <span className='rounded-full border border-[#2f6bb3] bg-[#113055] px-2 py-0.5 text-[10px] font-medium text-[#dbeeff]'>{stage.replace(/_/g, ' ')}</span>
+                              ) : null}
+                              <span className='w-full text-xs text-cyan-300 sm:ml-auto sm:w-auto sm:text-right'>Action: {org.nextAction}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </Card>
+            ))}
+          </div>
+        ) : null}
+
+        {paged.length ? <DataTable columns={columns} rows={paged} getRowId={(r) => r.id} onRowClick={(row) => navigate(`/organizations/${row.id}`)} /> : showClusters ? null : <EmptyState title='No organizations match filters' description='Try a different filter set.' />}
+        {tableRows.length > 0 ? (
+          <div className="flex items-center justify-between">
+            <Pagination page={safePage} totalPages={totalPages} onPageChange={setPage} />
+            <Select value={String(pageSize)} onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }} className="ml-3 w-20">
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </Select>
+          </div>
+        ) : null}
       </Card>
     </div>
   );

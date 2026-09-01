@@ -4,6 +4,7 @@ import { useOpportunities } from '../hooks/useOpportunities';
 import { getStoredUser } from '../auth';
 import { getNearCloseOpportunities, getStaleOpportunities } from '../services/businessSelectors';
 import { formatCurrency } from '../utils/format';
+import { CampaignPanel } from '../components/CampaignPanel';
 
 const MONTHLY_ORDER_GOAL = 4;
 
@@ -65,6 +66,9 @@ export default function TAEHome() {
           Good Morning, {name}
         </h1>
       </div>
+
+      {/* Current Campaign — Fall/Winter 2026 */}
+      <CampaignPanel />
 
       {/* 4-Order Floor */}
       <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 flex items-center justify-between">

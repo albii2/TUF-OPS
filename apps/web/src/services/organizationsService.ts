@@ -46,6 +46,9 @@ function normalizeApiOrganization(raw: any): Organization {
     nextAction: 'Call primary contact and confirm sports coverage',
     lastActivity: raw.updated_at ? raw.updated_at.slice(0, 10) : new Date().toISOString().slice(0, 10),
     leadTier: rawPriority === 'TIER_1' ? 'TIER_1' : rawPriority === 'TIER_2' ? 'TIER_2' : rawPriority === 'TIER_3' ? 'TIER_3' : 'UNASSIGNED',
+    launchCluster: raw.launch_cluster ?? null,
+    tufPriority: raw.tuf_priority ?? null,
+    assignedRepId: raw.assigned_rep_id != null ? Number(raw.assigned_rep_id) : null,
     laneStatuses: {
       UNIFORM: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Confirm program needs' },
       TRAVEL_GEAR: { status: 'OPEN', estimatedValue: 0, activeOpportunityCount: 0, nextAction: 'Identify team gear needs' },

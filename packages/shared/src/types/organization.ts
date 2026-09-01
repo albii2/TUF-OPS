@@ -45,6 +45,10 @@ export interface Organization {
   nextAction: string;
   lastActivity: string;
   leadTier?: LeadTier;
+  /** Launch deployment cluster (e.g. 'minneapolis_metro', 'central_mn') — Fall/Winter 2026 territory grouping. */
+  launchCluster?: string | null;
+  /** Raw TUF priority from the organizations table (e.g. 'TIER_1' | 'TIER_2' | 'TIER_3'). */
+  tufPriority?: string | null;
   laneStatuses: Record<RevenueLane, LaneStatusEntry>;
   expansionRecommendation: string;
 }
