@@ -5,6 +5,7 @@ import type {
   ParticipantSummary,
   ParticipantDetail,
   ParticipantStatus,
+  AttentionFlag,
   AcademyActivityEvent,
   LogEventPayload,
 } from './academy-command.interface';
@@ -17,6 +18,26 @@ function daysBetween(a: string | null, b?: string): number {
   const now = b ? new Date(b).getTime() : Date.now();
   return Math.floor((now - then) / (1000 * 60 * 60 * 24));
 }
+
+function hoursBetween(a: string | null): number {
+  if (!a) return 999;
+  return (Date.now() - new Date(a).getTime()) / (1000 * 60 * 60);
+}
+
+/** Latest non-null timestamp (handles both academy events and quiz attempts). */
+function pickLatest(...values: Array<string | null | undefined>): string | null {
+  let latest: string | null = null;
+  for (const v of values) {
+    if (!v) continue;
+    if (!latest || new Date(v).getTime() > new Date(latest).getTime()) latest = v;
+  }
+  return latest;
+}
+
+const CURRENT_CAMPAIGN = 'Fall/Winter 2026 — Letterman Jackets + Team Stores';
+
+/** Statuses that keep a TAE operationally visible to leadership (CLOSED is excluded). */
+const VISIBLE_STATUSES = ['ACTIVE', 'ACTIVATION_PENDING', 'CERTIFICATION_COMPLETE', 'FIELD_READY'];
 
 function computeStatus(
   isCertified: boolean,
@@ -80,7 +101,9 @@ export async function getExecutiveSummary(actor?: SafeUser | null): Promise<Exec
   const ordersGenerated = participants.reduce((sum, p) => sum + p.orders, 0);
 
   const attentionRequired = participants.filter(
-    (p) => ['STALLED', 'NEEDS_ATTENTION', 'AWAITING_REVIEW'].includes(p.academyStatus),
+    (p) =>
+      ['STALLED', 'NEEDS_ATTENTION', 'AWAITING_REVIEW'].includes(p.academyStatus) ||
+      p.attentionFlags.length > 0,
   );
 
   const recentActivity = await getRecentActivityFeed(50);
@@ -108,15 +131,18 @@ export async function getExecutiveSummary(actor?: SafeUser | null): Promise<Exec
 export async function getParticipants(actor?: SafeUser | null): Promise<ParticipantSummary[]> {
   assertLeadership(actor);
 
-  // Get all non-ADMIN active users (TAEs, REPs, DIRECTORs in training)
+  // All operationally-visible TAEs (REP/DIRECTOR/REGIONAL_DIRECTOR) across the
+  // full personnel state machine. CLOSED records are preserved in the DB but
+  // must NOT surface operationally — they are excluded here.
   const usersResult = await pool.query(
-    `SELECT id, name, email, role, territory, state_market, cohort, enrollment_date,
+    `SELECT id, name, email, role, status, territory, state_market, cohort, enrollment_date, created_at,
             last_login_at, COALESCE(login_count, 0) as login_count,
             is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed,
             certified_at, certified_by, academy_version
      FROM users
-     WHERE status = 'ACTIVE' AND role IN ('REP', 'DIRECTOR', 'REGIONAL_DIRECTOR')
+     WHERE status = ANY($1) AND role IN ('REP', 'DIRECTOR', 'REGIONAL_DIRECTOR')
      ORDER BY name`,
+    [VISIBLE_STATUSES],
   );
 
   const users = usersResult.rows;
@@ -134,12 +160,42 @@ export async function getParticipants(actor?: SafeUser | null): Promise<Particip
     [userIds],
   );
 
-  // Get CRM stats per user
+  // v3 quiz attempts (source of truth for module completion + quiz scores)
+  const quizAttemptsResult = await pool.query(
+    `SELECT user_id, quiz_id, score, passed, attempted_at
+     FROM academy_v3_quiz_attempts
+     WHERE user_id = ANY($1)
+     ORDER BY attempted_at DESC`,
+    [userIds],
+  );
+
+  // Academy progress (phase gates, graduation)
+  const academyProgressResult = await pool.query(
+    `SELECT user_id, phase1_completed, phase2_completed, phase3_completed,
+            graduated, director_approved, started_at, completed_at
+     FROM academy_progress
+     WHERE user_id = ANY($1)`,
+    [userIds],
+  );
+
+  // CRM stats per user
   const orgStatsResult = await pool.query(
     `SELECT assigned_rep_id as user_id, COUNT(*) as count
      FROM organizations
      WHERE assigned_rep_id = ANY($1)
      GROUP BY assigned_rep_id`,
+    [userIds],
+  );
+
+  // Launch clusters per user (distinct launch_cluster values on their orgs)
+  const clusterResult = await pool.query(
+    `SELECT assigned_rep_id as user_id, launch_cluster
+     FROM organizations
+     WHERE assigned_rep_id = ANY($1)
+       AND launch_cluster IS NOT NULL
+       AND trim(launch_cluster) <> ''
+     GROUP BY assigned_rep_id, launch_cluster
+     ORDER BY assigned_rep_id, launch_cluster`,
     [userIds],
   );
 
@@ -193,6 +249,24 @@ export async function getParticipants(actor?: SafeUser | null): Promise<Particip
     userActivity[r.user_id].push(r);
   });
 
+  // Build v3 quiz attempts per user (sorted DESC by attempted_at)
+  const quizAttemptsByUser: Record<number, any[]> = {};
+  quizAttemptsResult.rows.forEach((r: any) => {
+    if (!quizAttemptsByUser[r.user_id]) quizAttemptsByUser[r.user_id] = [];
+    quizAttemptsByUser[r.user_id].push(r);
+  });
+
+  // Build academy progress per user
+  const progressByUser: Record<number, any> = {};
+  academyProgressResult.rows.forEach((r: any) => { progressByUser[r.user_id] = r; });
+
+  // Build launch clusters per user
+  const clusterMap: Record<number, string[]> = {};
+  clusterResult.rows.forEach((r: any) => {
+    if (!clusterMap[r.user_id]) clusterMap[r.user_id] = [];
+    clusterMap[r.user_id].push(r.launch_cluster);
+  });
+
   // Build knowledge progress from training_assessments
   // Using the training_assessments table for quiz data
   let knowledgeMap: Record<number, number> = {};
@@ -218,7 +292,10 @@ export async function getParticipants(actor?: SafeUser | null): Promise<Particip
 
   return users.map((user: any) => {
     const activities = userActivity[user.id] || [];
-    const lastAcademy = activities.length > 0 ? activities[0].created_at : null;
+    const quizAttempts = quizAttemptsByUser[user.id] || [];
+    const progress = progressByUser[user.id];
+    const lastQuizAttempt = quizAttempts.length > 0 ? quizAttempts[0].attempted_at : null;
+    const lastAcademy = pickLatest(activities.length > 0 ? activities[0].created_at : null, lastQuizAttempt);
     const lastActivity = lastAcademy || user.last_login_at;
     const daysInactive = daysBetween(lastActivity);
     const orgs = orgMap[user.id] || 0;
@@ -229,6 +306,29 @@ export async function getParticipants(actor?: SafeUser | null): Promise<Particip
     const productionPercent = computeProductionProgress(orgs, opps.count, orders);
     const isComplete = knowledgePercent >= 80 && productionPercent >= 40;
     const awaitingReview = activities.some((a) => a.event_type === 'MISSION_STATEMENT_SAVED') && !user.director_signed_off;
+
+    // ── Personnel state machine (Sept 2026 directive) ──
+    const quizScores = quizAttempts.map((a: any) => ({
+      quiz_id: a.quiz_id,
+      score: Number(a.score),
+      passed: a.passed,
+      attempted_at: a.attempted_at,
+    }));
+    const passedQuizIds = new Set(quizAttempts.filter((a: any) => a.passed).map((a: any) => a.quiz_id));
+    const attemptedQuizIds = new Set(quizAttempts.map((a: any) => a.quiz_id));
+    const modulesCompleted = passedQuizIds.size;
+    const modulesTotal = attemptedQuizIds.size;
+    const moduleCompletionPercent = modulesTotal > 0
+      ? Math.round((modulesCompleted / modulesTotal) * 100)
+      : 0;
+
+    const flags: AttentionFlag[] = [];
+    if (user.status === 'ACTIVE' && quizAttempts.length === 0 && !progress) flags.push('ACTIVATED_NOT_STARTED');
+    if (lastAcademy && hoursBetween(lastAcademy) > 72) flags.push('NO_ACTIVITY_72H');
+    if (quizAttempts.some((a: any) => !a.passed)) flags.push('FAILED_MODULE_RETRY');
+    const enrollmentRef = user.enrollment_date || user.created_at;
+    if (enrollmentRef && daysBetween(enrollmentRef) > 7 && !user.is_certified) flags.push('OVER_7D_INCOMPLETE');
+    if (user.is_certified && user.status !== 'FIELD_READY') flags.push('CERT_PENDING_APPROVAL');
 
     return {
       userId: user.id,
@@ -260,6 +360,19 @@ export async function getParticipants(actor?: SafeUser | null): Promise<Particip
       certifiedAt: user.certified_at,
       certifiedBy: user.certified_by,
       academyVersion: user.academy_version,
+      // ── Personnel state machine fields ──
+      activationStatus: user.status || 'ACTIVE',
+      ndaCompleted: user.hr_docs_completed || false,
+      enrollment: { cohort: user.cohort, date: user.enrollment_date },
+      modulesCompleted,
+      modulesTotal,
+      moduleCompletionPercent,
+      quizScores,
+      fieldReady: user.status === 'FIELD_READY',
+      accountsAssigned: orgs,
+      launchClusters: clusterMap[user.id] || [],
+      currentCampaign: CURRENT_CAMPAIGN,
+      attentionFlags: flags,
     };
   });
 }
@@ -271,10 +384,11 @@ export async function getParticipantDetail(
   assertLeadership(actor);
 
   const userResult = await pool.query(
-    `SELECT id, name, email, role, rank, tier, region, state_market, division, territory,
+    `SELECT id, name, email, role, status, rank, tier, region, state_market, division, territory,
             subterritory, sport_focus, cohort, enrollment_date,
             last_login_at, COALESCE(login_count, 0) as login_count,
             is_certified, hr_docs_completed, director_signed_off, practical_exercise_completed,
+            certified_at, certified_by, academy_version,
             created_at, updated_at
      FROM users WHERE id = $1`,
     [userId],
@@ -392,12 +506,16 @@ export async function getParticipantDetail(
     activitiesByType[r.type || 'unknown'] = Number(r.count);
   });
 
-  // Attention flags
-  const flags: string[] = [];
+  // Attention flags — directive flags (from summary) + detail-level signals
+  const legacyFlags: string[] = [];
   const daysSinceLogin = daysBetween(user.last_login_at);
-  if (daysSinceLogin >= 4) flags.push(`No login for ${daysSinceLogin} days`);
-  if (!user.territory) flags.push('No territory assigned');
-  if (!user.is_certified && user.hr_docs_completed && !user.director_signed_off) flags.push('Awaiting Director sign-off');
+  if (daysSinceLogin >= 4) legacyFlags.push(`No login for ${daysSinceLogin} days`);
+  if (!user.territory) legacyFlags.push('No territory assigned');
+  if (!user.is_certified && user.hr_docs_completed && !user.director_signed_off) legacyFlags.push('Awaiting Director sign-off');
+  const attentionFlags: AttentionFlag[] = [
+    ...(participantSummary?.attentionFlags || []),
+    ...(legacyFlags as AttentionFlag[]),
+  ];
 
   return {
     userId: user.id,
@@ -451,7 +569,19 @@ export async function getParticipantDetail(
     directorSignedOff: user.director_signed_off || false,
     practicalExerciseCompleted: user.practical_exercise_completed || false,
     certificationDate: user.certified_at || (user.is_certified ? user.updated_at : null),
-    attentionFlags: flags,
+    attentionFlags,
+    // ── Personnel state machine fields ──
+    activationStatus: user.status || participantSummary?.activationStatus || 'ACTIVE',
+    ndaCompleted: user.hr_docs_completed || false,
+    enrollment: participantSummary?.enrollment || { cohort: user.cohort, date: user.enrollment_date },
+    modulesCompleted: participantSummary?.modulesCompleted || 0,
+    modulesTotal: participantSummary?.modulesTotal || 0,
+    moduleCompletionPercent: participantSummary?.moduleCompletionPercent || 0,
+    quizScores: participantSummary?.quizScores || [],
+    fieldReady: user.status === 'FIELD_READY' || participantSummary?.fieldReady || false,
+    accountsAssigned: participantSummary?.accountsAssigned || 0,
+    launchClusters: participantSummary?.launchClusters || [],
+    currentCampaign: participantSummary?.currentCampaign || CURRENT_CAMPAIGN,
   };
 }
 

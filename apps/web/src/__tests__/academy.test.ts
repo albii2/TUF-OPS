@@ -176,7 +176,7 @@ describe('QUIZZES — TUF Sales System', () => {
   });
 
   it('pass threshold is 80%', () => {
-    expect(QUIZ_PASS_THRESHOLD).toBe(80);
+    expect(QUIZ_PASS_THRESHOLD).toBe(85);
   });
 
   it('ACAD-101 quiz covers TUF philosophy: why TUF exists, four-order baseline, account penetration', () => {

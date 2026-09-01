@@ -320,7 +320,7 @@ export const LEVEL_1_MODULES: AcademyModule[] = [
     description:
       'The 4-lane program system, 7 quality standards, 8 collections — know what TUF builds and why.',
     completionCriteria:
-      'Pass the product knowledge quiz (80%) and deliver a 5-minute product walkthrough to your Director.',
+      'Pass the product knowledge quiz (85%) and deliver a 5-minute product walkthrough to your Director.',
     demonstrateTask:
       'Deliver a 5-minute product walkthrough to your Director covering one collection, three quality standards with physical samples, and the 4-lane system.',
     philosophyPrinciple: 1, // We sell trust before apparel
@@ -477,7 +477,7 @@ export const DIRECTOR_MODULES: AcademyModule[] = [
     learnContent: [
       {
         heading: 'How Academy Certification Works',
-        body: 'Every rep moves through the same flow on every module:\n\nLearn → Demonstrate → Coach Review → Deploy.\n\nLearn: the rep studies the module content and passes the assessment at 80% or better.\n\nDemonstrate: the rep performs real work in the CRM — real organizations, real activities, real opportunities. Exercises are auto-detected from CRM data, not self-reported.\n\nCoach Review: you review the work and deliver written feedback. The rep must acknowledge it before moving on.\n\nDeploy: when every module is acknowledged and you approve the certification, the rep becomes a Level 1 Certified Territory Account Executive.\n\nYou are the quality gate in that flow. The system tracks progress; you judge readiness.',
+        body: 'Every rep moves through the same flow on every module:\n\nLearn → Demonstrate → Coach Review → Deploy.\n\nLearn: the rep studies the module content and passes the assessment at 85% or better.\n\nDemonstrate: the rep performs real work in the CRM — real organizations, real activities, real opportunities. Exercises are auto-detected from CRM data, not self-reported.\n\nCoach Review: you review the work and deliver written feedback. The rep must acknowledge it before moving on.\n\nDeploy: when every module is acknowledged and you approve the certification, the rep becomes a Level 1 Certified Territory Account Executive.\n\nYou are the quality gate in that flow. The system tracks progress; you judge readiness.',
       },
       {
         heading: 'The Coach Review',
@@ -694,7 +694,7 @@ export interface QuizResult {
   lastAttempt: string; // ISO date
 }
 
-export const QUIZ_PASS_THRESHOLD = 80;
+export const QUIZ_PASS_THRESHOLD = 85;
 
 /**
  * Quiz questions per module (5 questions each).

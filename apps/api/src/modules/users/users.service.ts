@@ -182,8 +182,33 @@ export async function resetUserCredential(targetUserId: number, actor: SafeUser)
   return { user, temporaryCredential: pin };
 }
 
-export async function setUserStatus(targetUserId: number, status: 'ACTIVE' | 'INACTIVE', actor: SafeUser) {
+/**
+ * Personnel state machine statuses (Sept 2026 directive):
+ * ACTIVATION_PENDING → ACTIVE → CERTIFICATION_COMPLETE → FIELD_READY.
+ * CLOSED removes the TAE from operational visibility (record preserved).
+ */
+export type UserLifecycleStatus =
+  | 'ACTIVE'
+  | 'INACTIVE'
+  | 'ACTIVATION_PENDING'
+  | 'CERTIFICATION_COMPLETE'
+  | 'FIELD_READY'
+  | 'CLOSED';
+
+const VALID_LIFECYCLE_STATUSES: UserLifecycleStatus[] = [
+  'ACTIVE',
+  'INACTIVE',
+  'ACTIVATION_PENDING',
+  'CERTIFICATION_COMPLETE',
+  'FIELD_READY',
+  'CLOSED',
+];
+
+export async function setUserStatus(targetUserId: number, status: UserLifecycleStatus, actor: SafeUser) {
   assertAdmin(actor);
+  if (!VALID_LIFECYCLE_STATUSES.includes(status)) {
+    throw new Error(`Invalid status: ${status}`);
+  }
   const result = await pool.query(
     'UPDATE users SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, email, role, status',
     [status, targetUserId],

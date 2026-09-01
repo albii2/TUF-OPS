@@ -41,6 +41,20 @@ interface ParticipantSummary {
   pipelineValue: number;
   certificationStatus: string;
   isCertified: boolean;
+  certifiedAt: string | null;
+  // ── Personnel state machine (Sept 2026 directive) ──
+  activationStatus: string;
+  ndaCompleted: boolean;
+  enrollment: { cohort: string | null; date: string | null };
+  modulesCompleted: number;
+  modulesTotal: number;
+  moduleCompletionPercent: number;
+  quizScores: Array<{ quiz_id: string; score: number; passed: boolean; attempted_at: string }>;
+  fieldReady: boolean;
+  accountsAssigned: number;
+  launchClusters: string[];
+  currentCampaign: string;
+  attentionFlags: string[];
 }
 
 interface ParticipantDetail extends ParticipantSummary {
@@ -135,6 +149,60 @@ function StatusBadge({ status }: { status: ParticipantStatus }) {
   );
 }
 
+// ─── Activation Status Badge (personnel state machine) ─────────────────────
+
+const ACTIVATION_STYLES: Record<string, string> = {
+  ACTIVE: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
+  ACTIVATION_PENDING: 'bg-amber-500/10 text-amber-300 border-amber-500/20',
+  CERTIFICATION_COMPLETE: 'bg-blue-500/10 text-blue-300 border-blue-500/20',
+  FIELD_READY: 'bg-purple-500/10 text-purple-300 border-purple-500/20',
+  INACTIVE: 'bg-slate-500/10 text-slate-400 border-slate-500/20',
+  CLOSED: 'bg-red-500/10 text-red-300 border-red-500/20',
+};
+
+function ActivationBadge({ status }: { status: string }) {
+  return (
+    <span
+      className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+        ACTIVATION_STYLES[status] || 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+      }`}
+    >
+      {status?.replace(/_/g, ' ') || 'UNKNOWN'}
+    </span>
+  );
+}
+
+// ─── Attention Flags ────────────────────────────────────────────────────────
+
+const FLAG_STYLES: Record<string, string> = {
+  ACTIVATED_NOT_STARTED: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
+  NO_ACTIVITY_72H: 'bg-orange-500/10 text-orange-300 border-orange-500/30',
+  FAILED_MODULE_RETRY: 'bg-red-500/10 text-red-300 border-red-500/30',
+  OVER_7D_INCOMPLETE: 'bg-rose-500/10 text-rose-300 border-rose-500/30',
+  CERT_PENDING_APPROVAL: 'bg-blue-500/10 text-blue-300 border-blue-500/30',
+};
+
+const FLAG_LABELS: Record<string, string> = {
+  ACTIVATED_NOT_STARTED: 'Activated, not started',
+  NO_ACTIVITY_72H: 'No activity 72h+',
+  FAILED_MODULE_RETRY: 'Failed module',
+  OVER_7D_INCOMPLETE: '7d+ incomplete',
+  CERT_PENDING_APPROVAL: 'Cert pending approval',
+};
+
+function FlagTag({ flag }: { flag: string }) {
+  return (
+    <span
+      className={`inline-block rounded border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide ${
+        FLAG_STYLES[flag] || 'bg-slate-500/10 text-slate-400 border-slate-500/30'
+      }`}
+      title={flag}
+    >
+      {FLAG_LABELS[flag] || flag}
+    </span>
+  );
+}
+
 // ─── Progress Bar ───────────────────────────────────────────────────────────
 
 function ProgressBar({ value, color = 'cyan' }: { value: number; color?: string }) {
@@ -179,6 +247,7 @@ export default function AcademyCommandPage() {
   const [detail, setDetail] = useState<ParticipantDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [activityFilter, setActivityFilter] = useState<string>('all');
+  const [attentionFilter, setAttentionFilter] = useState<'all' | 'attention'>('all');
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -209,8 +278,8 @@ export default function AcademyCommandPage() {
 
   // Hooks must be unconditional — computed before any early return below
   const roster = data?.participants ?? [];
-  const sortedParticipants = useMemo(() => {
-    return [...roster].sort((a, b) => {
+  const visibleParticipants = useMemo(() => {
+    const sorted = [...roster].sort((a, b) => {
       const statusOrder: Record<string, number> = {
         STALLED: 0,
         NEEDS_ATTENTION: 1,
@@ -221,7 +290,13 @@ export default function AcademyCommandPage() {
       };
       return (statusOrder[a.academyStatus] ?? 9) - (statusOrder[b.academyStatus] ?? 9);
     });
-  }, [roster]);
+    if (attentionFilter === 'attention') {
+      return sorted.filter((p) => (p.attentionFlags?.length ?? 0) > 0);
+    }
+    return sorted;
+  }, [roster, attentionFilter]);
+  const flaggedCount = roster.filter((p) => (p.attentionFlags?.length ?? 0) > 0).length;
+  const fieldReadyCount = roster.filter((p) => p.fieldReady).length;
 
   // ─── Not Leadership → redirect ─────────────────────────────────────────
   if (user && !['ADMIN', 'REGIONAL_DIRECTOR', 'DIRECTOR'].includes(user.role)) {
@@ -288,7 +363,7 @@ export default function AcademyCommandPage() {
         <div>
           <h1 className="text-xl font-black text-white">Academy Command</h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            {activeCohort.totalEnrolled} enrolled · {activeCohort.certified} certified
+            {activeCohort.totalEnrolled} enrolled · {activeCohort.certified} certified · {fieldReadyCount} field ready
           </p>
         </div>
         <button
@@ -298,6 +373,14 @@ export default function AcademyCommandPage() {
           Refresh
         </button>
       </div>
+
+      {/* ── Current Campaign ── */}
+      {data.participants[0]?.currentCampaign && (
+        <div className="flex items-center gap-2 rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-2">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-300">Campaign</span>
+          <span className="text-xs text-slate-200">{data.participants[0].currentCampaign}</span>
+        </div>
+      )}
 
       {/* ── Attention Required ── */}
       {attentionRequired.length > 0 && (
@@ -354,13 +437,26 @@ export default function AcademyCommandPage() {
       <div className="grid gap-5 lg:grid-cols-3">
         {/* ── Left: Participant Roster ── */}
         <div className="lg:col-span-2 space-y-4">
-          <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
-            Participant Roster
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
+              Participant Roster
+              {attentionFilter === 'attention' && (
+                <span className="ml-2 text-amber-400 normal-case">({visibleParticipants.length} flagged)</span>
+              )}
+            </h2>
+            <select
+              value={attentionFilter}
+              onChange={(e) => setAttentionFilter(e.target.value as 'all' | 'attention')}
+              className="rounded border border-slate-700 bg-[#050b12] px-2 py-1 text-[10px] text-slate-400"
+            >
+              <option value="all">All ({roster.length})</option>
+              <option value="attention">⚠ Attention ({flaggedCount})</option>
+            </select>
+          </div>
 
           {/* Mobile: card view */}
           <div className="block lg:hidden space-y-3">
-            {sortedParticipants.map((p) => (
+            {visibleParticipants.map((p) => (
               <button
                 key={p.userId}
                 onClick={() => setSelectedUserId(p.userId)}
@@ -372,8 +468,34 @@ export default function AcademyCommandPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-semibold text-white text-sm">{p.name}</div>
-                  <StatusBadge status={p.academyStatus} />
+                  <div className="flex items-center gap-1.5">
+                    <ActivationBadge status={p.activationStatus} />
+                    {p.fieldReady && (
+                      <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-300">
+                        FIELD READY
+                      </span>
+                    )}
+                  </div>
                 </div>
+                <div className="flex items-center justify-between mb-2">
+                  <StatusBadge status={p.academyStatus} />
+                  <span className="text-[10px] text-slate-500">
+                    {p.ndaCompleted ? (
+                      <span className="text-emerald-300">NDA ✓</span>
+                    ) : (
+                      <span className="text-slate-600">NDA —</span>
+                    )}
+                    {' · '}
+                    Modules {p.modulesCompleted}/{p.modulesTotal} ({p.moduleCompletionPercent}%)
+                  </span>
+                </div>
+                {p.attentionFlags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {p.attentionFlags.map((flag, i) => (
+                      <FlagTag key={i} flag={flag} />
+                    ))}
+                  </div>
+                )}
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-[10px]">
                     <span className="text-slate-500">Knowledge</span>
@@ -387,11 +509,20 @@ export default function AcademyCommandPage() {
                   <ProgressBar value={p.productionProgress} color="emerald" />
                 </div>
                 <div className="flex items-center gap-4 mt-2 text-[10px] text-slate-500">
-                  <span>{p.prospectsCreated} prospects</span>
+                  <span>{p.accountsAssigned} accounts</span>
                   <span>{p.meetings} meetings</span>
                   <span>{p.opportunities} opps</span>
                   <span>{p.orders} orders</span>
                 </div>
+                {p.launchClusters.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2 text-[9px] text-slate-500">
+                    {p.launchClusters.map((c) => (
+                      <span key={c} className="rounded border border-slate-700 px-1.5 py-0.5">
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </button>
             ))}
           </div>
@@ -403,9 +534,11 @@ export default function AcademyCommandPage() {
                 <tr className="text-left text-slate-400 font-medium">
                   <th className="p-3">Participant</th>
                   <th className="p-3">Status</th>
-                  <th className="p-3">Knowledge</th>
-                  <th className="p-3">Production</th>
-                  <th className="p-3">Prospects</th>
+                  <th className="p-3">Activation</th>
+                  <th className="p-3">NDA</th>
+                  <th className="p-3">Modules</th>
+                  <th className="p-3">Flags</th>
+                  <th className="p-3">Accounts</th>
                   <th className="p-3">Meetings</th>
                   <th className="p-3">Opps</th>
                   <th className="p-3">Orders</th>
@@ -413,7 +546,7 @@ export default function AcademyCommandPage() {
                 </tr>
               </thead>
               <tbody>
-                {sortedParticipants.map((p) => (
+                {visibleParticipants.map((p) => (
                   <tr
                     key={p.userId}
                     onClick={() => setSelectedUserId(p.userId)}
@@ -429,20 +562,59 @@ export default function AcademyCommandPage() {
                     </td>
                     <td className="p-3">
                       <StatusBadge status={p.academyStatus} />
+                      {p.fieldReady && (
+                        <div className="mt-1">
+                          <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-1.5 py-0.5 text-[9px] font-bold text-purple-300">
+                            FIELD READY
+                          </span>
+                        </div>
+                      )}
                     </td>
                     <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <ProgressBar value={p.knowledgeProgress} color="cyan" />
-                        <span className="text-slate-300 w-8 text-right">{p.knowledgeProgress}%</span>
-                      </div>
+                      <ActivationBadge status={p.activationStatus} />
                     </td>
                     <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <ProgressBar value={p.productionProgress} color="emerald" />
-                        <span className="text-slate-300 w-8 text-right">{p.productionProgress}%</span>
-                      </div>
+                      {p.ndaCompleted ? (
+                        <span className="text-emerald-300 font-bold">✓</span>
+                      ) : (
+                        <span className="text-slate-600">—</span>
+                      )}
                     </td>
-                    <td className="p-3 text-slate-300">{p.prospectsCreated}</td>
+                    <td className="p-3">
+                      <details className="group">
+                        <summary className="cursor-pointer list-none text-slate-300">
+                          {p.modulesCompleted}/{p.modulesTotal}{' '}
+                          <span className="text-slate-500">({p.moduleCompletionPercent}%)</span>
+                          {p.quizScores.length > 0 && (
+                            <span className="ml-1 text-cyan-400 group-open:hidden">▸</span>
+                          )}
+                        </summary>
+                        {p.quizScores.length > 0 && (
+                          <div className="mt-1 space-y-0.5 max-w-[220px]">
+                            {p.quizScores.map((q, i) => (
+                              <div key={i} className="flex items-center justify-between gap-2 text-[9px]">
+                                <span className="truncate text-slate-500">{q.quiz_id}</span>
+                                <span className={q.passed ? 'text-emerald-300' : 'text-red-300'}>
+                                  {q.score}%{q.passed ? '' : ' ✗'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </details>
+                    </td>
+                    <td className="p-3">
+                      {p.attentionFlags.length > 0 ? (
+                        <div className="flex flex-wrap gap-1 max-w-[180px]">
+                          {p.attentionFlags.map((flag, i) => (
+                            <FlagTag key={i} flag={flag} />
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-slate-600">—</span>
+                      )}
+                    </td>
+                    <td className="p-3 text-slate-300">{p.accountsAssigned}</td>
                     <td className="p-3 text-slate-300">{p.meetings}</td>
                     <td className="p-3 text-slate-300">{p.opportunities}</td>
                     <td className="p-3 text-slate-300">{p.orders}</td>
@@ -573,14 +745,22 @@ function DetailPanel({
         </button>
       </div>
 
-      <StatusBadge status={detail.academyStatus} />
+      <div className="flex items-center gap-2 flex-wrap">
+        <StatusBadge status={detail.academyStatus} />
+        <ActivationBadge status={detail.activationStatus} />
+        {detail.fieldReady && (
+          <span className="rounded-full border border-purple-500/30 bg-purple-500/10 px-2 py-0.5 text-[10px] font-bold text-purple-300">
+            FIELD READY
+          </span>
+        )}
+      </div>
 
       {/* Attention Flags */}
       {detail.attentionFlags.length > 0 && (
-        <div className="rounded-lg border border-red-500/10 bg-red-500/5 p-2">
+        <div className="rounded-lg border border-red-500/10 bg-red-500/5 p-2 space-y-1">
           {detail.attentionFlags.map((flag, i) => (
-            <div key={i} className="text-[10px] text-red-300">
-              ⚠ {flag}
+            <div key={i} className="flex items-center gap-1.5">
+              <FlagTag flag={flag} />
             </div>
           ))}
         </div>
@@ -602,6 +782,36 @@ function DetailPanel({
           </div>
           <ProgressBar value={detail.productionProgress} color="emerald" />
         </div>
+      </div>
+
+      {/* Modules + Quiz Scores */}
+      <div className="rounded-lg border border-slate-700/50 p-2">
+        <div className="flex items-center justify-between text-[10px] mb-1">
+          <span className="text-slate-500">Modules Completed</span>
+          <span className="text-white font-bold">
+            {detail.modulesCompleted}/{detail.modulesTotal} ({detail.moduleCompletionPercent}%)
+          </span>
+        </div>
+        <ProgressBar value={detail.moduleCompletionPercent} color="amber" />
+        {detail.quizScores.length > 0 && (
+          <details className="group mt-2">
+            <summary className="cursor-pointer list-none text-[10px] font-bold text-cyan-300 uppercase tracking-wider">
+              Quiz Scores ({detail.quizScores.length}) <span className="text-cyan-400">▸</span>
+            </summary>
+            <div className="mt-1.5 space-y-1">
+              {detail.quizScores.map((q, i) => (
+                <div key={i} className="flex items-center justify-between text-[10px]">
+                  <span className="text-slate-400 truncate max-w-[150px]">{q.quiz_id}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={q.passed ? 'text-emerald-300' : 'text-red-300'}>{q.score}%</span>
+                    <span className="text-slate-600">{q.passed ? 'PASS' : 'FAIL'}</span>
+                    <span className="text-slate-600">{formatDate(q.attempted_at)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </details>
+        )}
       </div>
 
       {/* Key Stats */}
@@ -665,6 +875,12 @@ function DetailPanel({
           <div className="text-slate-300">{detail.loginCount}</div>
         </div>
         <div>
+          <span className="text-slate-500">Last Academy Activity</span>
+          <div className="text-slate-300">
+            {detail.lastAcademyActivity ? formatTimeAgo(detail.lastAcademyActivity) : 'Never'}
+          </div>
+        </div>
+        <div>
           <span className="text-slate-500">Days Since Activity</span>
           <div className={`${detail.daysSinceMeaningfulActivity >= 4 ? 'text-red-300 font-bold' : 'text-slate-300'}`}>
             {detail.daysSinceMeaningfulActivity}
@@ -673,13 +889,44 @@ function DetailPanel({
         <div>
           <span className="text-slate-500">Enrolled</span>
           <div className="text-slate-300">
-            {detail.enrollmentDate ? formatDate(detail.enrollmentDate) : 'Unknown'}
+            {detail.enrollment.date ? formatDate(detail.enrollment.date) : 'Unknown'}
+            {detail.enrollment.cohort ? ` · ${detail.enrollment.cohort}` : ''}
           </div>
+        </div>
+        <div>
+          <span className="text-slate-500">Certified At</span>
+          <div className="text-slate-300">
+            {detail.certifiedAt ? formatDate(detail.certifiedAt) : '—'}
+          </div>
+        </div>
+      </div>
+
+      {/* Accounts + Launch Clusters + Campaign */}
+      <div className="rounded-lg border border-slate-700/50 p-2 space-y-1">
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="text-slate-500">Accounts Assigned</span>
+          <span className="text-slate-300">{detail.accountsAssigned}</span>
+        </div>
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="text-slate-500">Launch Clusters</span>
+          <span className="text-slate-300">
+            {detail.launchClusters.length > 0 ? detail.launchClusters.join(', ') : '—'}
+          </span>
+        </div>
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="text-slate-500">Campaign</span>
+          <span className="text-slate-300 truncate max-w-[180px]">{detail.currentCampaign}</span>
         </div>
       </div>
 
       {/* Certification Status */}
       <div className="rounded-lg border border-slate-700/50 p-2 space-y-1">
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="text-slate-500">NDA (HR Docs)</span>
+          <span className={detail.ndaCompleted ? 'text-emerald-300' : 'text-slate-600'}>
+            {detail.ndaCompleted ? '✓' : '—'}
+          </span>
+        </div>
         <div className="flex items-center justify-between text-[10px]">
           <span className="text-slate-500">HR Docs</span>
           <span className={detail.hrDocsCompleted ? 'text-emerald-300' : 'text-slate-600'}>
