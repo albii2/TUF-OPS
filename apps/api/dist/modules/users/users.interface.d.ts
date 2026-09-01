@@ -1,5 +1,9 @@
 export type UserRole = 'ADMIN' | 'REGIONAL_DIRECTOR' | 'DIRECTOR' | 'REP' | 'sales_rep' | 'OPS' | 'OWNER' | 'OPERATIONS';
-export type UserStatus = 'ACTIVE' | 'INACTIVE';
+/**
+ * Personnel state machine (Sept 2026 directive):
+ * ACTIVATION_PENDING → ACTIVE → CERTIFICATION_COMPLETE → FIELD_READY; CLOSED = removed from ops.
+ */
+export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'ACTIVATION_PENDING' | 'CERTIFICATION_COMPLETE' | 'FIELD_READY' | 'CLOSED';
 export type SafeUser = {
     id: number;
     name: string;

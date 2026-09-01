@@ -179,8 +179,19 @@ async function resetUserCredential(targetUserId, actor) {
     await audit('CREDENTIAL_RESET', user.id, actor.id, { reason: 'admin_reset' });
     return { user, temporaryCredential: pin };
 }
+const VALID_LIFECYCLE_STATUSES = [
+    'ACTIVE',
+    'INACTIVE',
+    'ACTIVATION_PENDING',
+    'CERTIFICATION_COMPLETE',
+    'FIELD_READY',
+    'CLOSED',
+];
 async function setUserStatus(targetUserId, status, actor) {
     assertAdmin(actor);
+    if (!VALID_LIFECYCLE_STATUSES.includes(status)) {
+        throw new Error(`Invalid status: ${status}`);
+    }
     const result = await database_1.pool.query('UPDATE users SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING id, name, email, role, status', [status, targetUserId]);
     if (!result.rows[0])
         throw new Error('User not found');

@@ -9,6 +9,17 @@ export type AcademyActivityEvent = {
     created_at: string;
 };
 export type ParticipantStatus = 'ON_TRACK' | 'NEEDS_ATTENTION' | 'STALLED' | 'AWAITING_REVIEW' | 'ACADEMY_COMPLETE' | 'CERTIFIED';
+/**
+ * Attention flags from the Sept 1 2026 personnel directive.
+ * Computed per participant so leadership can isolate flagged TAEs.
+ */
+export type AttentionFlag = 'ACTIVATED_NOT_STARTED' | 'NO_ACTIVITY_72H' | 'FAILED_MODULE_RETRY' | 'OVER_7D_INCOMPLETE' | 'CERT_PENDING_APPROVAL';
+export type QuizScoreSummary = {
+    quiz_id: string;
+    score: number;
+    passed: boolean;
+    attempted_at: string;
+};
 export type ParticipantSummary = {
     userId: number;
     name: string;
@@ -39,6 +50,22 @@ export type ParticipantSummary = {
     certifiedAt: string | null;
     certifiedBy: number | null;
     academyVersion: string | null;
+    activationStatus: string;
+    ndaCompleted: boolean;
+    enrollment: {
+        cohort: string | null;
+        date: string | null;
+    };
+    modulesCompleted: number;
+    modulesTotal: number;
+    /** Module-based completion (modules_completed / modules_total). */
+    moduleCompletionPercent: number;
+    quizScores: QuizScoreSummary[];
+    fieldReady: boolean;
+    accountsAssigned: number;
+    launchClusters: string[];
+    currentCampaign: string;
+    attentionFlags: AttentionFlag[];
 };
 export type ParticipantDetail = ParticipantSummary & {
     territory: string | null;
@@ -82,7 +109,7 @@ export type ParticipantDetail = ParticipantSummary & {
     directorSignedOff: boolean;
     practicalExerciseCompleted: boolean;
     certificationDate: string | null;
-    attentionFlags: string[];
+    attentionFlags: AttentionFlag[];
 };
 export type ExecutiveSummary = {
     activeCohort: {

@@ -19,7 +19,13 @@ export declare function resetUserCredential(targetUserId: number, actor: SafeUse
     user: SafeUser;
     temporaryCredential: string;
 }>;
-export declare function setUserStatus(targetUserId: number, status: 'ACTIVE' | 'INACTIVE', actor: SafeUser): Promise<any>;
+/**
+ * Personnel state machine statuses (Sept 2026 directive):
+ * ACTIVATION_PENDING → ACTIVE → CERTIFICATION_COMPLETE → FIELD_READY.
+ * CLOSED removes the TAE from operational visibility (record preserved).
+ */
+export type UserLifecycleStatus = 'ACTIVE' | 'INACTIVE' | 'ACTIVATION_PENDING' | 'CERTIFICATION_COMPLETE' | 'FIELD_READY' | 'CLOSED';
+export declare function setUserStatus(targetUserId: number, status: UserLifecycleStatus, actor: SafeUser): Promise<any>;
 export declare function updateUser(targetUserId: number, patch: Record<string, any>, actor: SafeUser): Promise<SafeUser | null>;
 export declare function loginWithCredential(payload: LoginPayload): Promise<{
     user: SafeUser;
