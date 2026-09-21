@@ -16,6 +16,7 @@ import { userRoutes } from './modules/users/users.routes';
 import { academyCommandRoutes } from './modules/academy-command/academy-command.routes';
 import { academyResourcesRoutes } from './modules/academy-resources/academy-resources.routes';
 import { academyV2Routes } from './modules/academy-v2/academy-v2.routes';
+import { intakeRoutes } from './modules/intake/intake.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -137,6 +138,16 @@ server.register(trainingRoutes, { prefix: '/api/v1/training' });
 server.register(academyCommandRoutes, { prefix: '/api/v1/academy' });
 server.register(academyResourcesRoutes, { prefix: '/api/v1/academy/resources' });
 server.register(academyV2Routes, { prefix: '/api/v1/academy-v2' });
+// Executive intake — Lighthouse, status checks, decisions.
+//
+// The module, its controller, its service and its frontend consumers (Executive Command Center,
+// CEO Home, Executive Intake) all already existed; only this registration was missing, so every
+// /intake/* call returned 404 and those pages rendered empty instead of failing loudly. Mounted at
+// /api/v1/intake to match every other module (the SPA calls /intake/* and apiClient prepends /api/v1).
+//
+// Authorization lives in the module (see intake.routes.ts): the global authMiddleware hook only PARSES
+// a token — it does not reject anonymous callers — so mounting an unguarded module would expose it.
+server.register(intakeRoutes, { prefix: '/api/v1/intake' });
 server.register(announcementRoutes, { prefix: '/api/v1' });
 server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(userRoutes, { prefix: '/api/v1' });  // frontend compat for /users paths

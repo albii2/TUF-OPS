@@ -20,6 +20,7 @@ const users_routes_1 = require("./modules/users/users.routes");
 const academy_command_routes_1 = require("./modules/academy-command/academy-command.routes");
 const academy_resources_routes_1 = require("./modules/academy-resources/academy-resources.routes");
 const academy_v2_routes_1 = require("./modules/academy-v2/academy-v2.routes");
+const intake_routes_1 = require("./modules/intake/intake.routes");
 const users_service_1 = require("./modules/users/users.service");
 const database_1 = require("@packages/database");
 const auth_1 = require("./auth");
@@ -130,6 +131,16 @@ server.register(training_routes_1.trainingRoutes, { prefix: '/api/v1/training' }
 server.register(academy_command_routes_1.academyCommandRoutes, { prefix: '/api/v1/academy' });
 server.register(academy_resources_routes_1.academyResourcesRoutes, { prefix: '/api/v1/academy/resources' });
 server.register(academy_v2_routes_1.academyV2Routes, { prefix: '/api/v1/academy-v2' });
+// Executive intake — Lighthouse, status checks, decisions.
+//
+// The module, its controller, its service and its frontend consumers (Executive Command Center,
+// CEO Home, Executive Intake) all already existed; only this registration was missing, so every
+// /intake/* call returned 404 and those pages rendered empty instead of failing loudly. Mounted at
+// /api/v1/intake to match every other module (the SPA calls /intake/* and apiClient prepends /api/v1).
+//
+// Authorization lives in the module (see intake.routes.ts): the global authMiddleware hook only PARSES
+// a token — it does not reject anonymous callers — so mounting an unguarded module would expose it.
+server.register(intake_routes_1.intakeRoutes, { prefix: '/api/v1/intake' });
 server.register(announcements_routes_1.announcementRoutes, { prefix: '/api/v1' });
 server.register(users_routes_1.userRoutes, { prefix: '/api/v1/auth' });
 server.register(users_routes_1.userRoutes, { prefix: '/api/v1' }); // frontend compat for /users paths
