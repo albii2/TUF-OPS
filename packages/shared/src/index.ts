@@ -47,3 +47,72 @@ export type {
   OrderStage,
   Activity,
 } from './types/order.js';
+
+// -----------------------------
+// TUF Ops 2.0 canonical types (ADDITIVE)
+// -----------------------------
+export type {
+  CommonFields,
+  CommonPriority,
+  CommonState,
+  RequiredCommonField,
+} from './types/common-fields.js';
+
+export type { Market } from './types/market.js';
+export { MarketState, MARKET_STATES, MARKET_FORWARD_STATES } from './types/market.js';
+export { MarketPriority, MARKET_PRIORITIES } from './types/market.js';
+
+export type {
+  RevenueOpportunity,
+  RevenueOpportunityEngine,
+} from './types/revenue-opportunity.js';
+export {
+  REVENUE_OPPORTUNITY_ENGINES,
+  TeamUniformsState,
+  TEAM_UNIFORMS_STATES,
+  TEAM_UNIFORMS_FORWARD_STATES,
+  IssueState,
+  ISSUE_STATES,
+} from './types/revenue-opportunity.js';
+
+export type { LetteredDeployment } from './types/lettered-deployment.js';
+export {
+  LetteredState,
+  LETTERED_STATES,
+  LETTERED_LIFECYCLE_STATES,
+} from './types/lettered-deployment.js';
+
+export type {
+  MarketMetric,
+  UtmReferralSummary,
+  ProductionFulfillmentSummary,
+} from './types/market-metric.js';
+
+// TUF Ops 2.0 state machines (ADDITIVE)
+export {
+  MARKET_TRANSITIONS,
+  MARKET_ENTRY_STATE,
+  MARKET_TERMINAL_STATES,
+  canTransition as canTransitionMarket,
+} from './state-machines/market.js';
+
+export {
+  LETTERED_TRANSITIONS,
+  LETTERED_ENTRY_STATE,
+  LETTERED_TERMINAL_STATES,
+  canTransition as canTransitionLettered,
+} from './state-machines/lettered.js';
+
+export {
+  TEAM_UNIFORMS_TRANSITIONS,
+  TEAM_UNIFORMS_ENTRY_STATE,
+  TEAM_UNIFORMS_TERMINAL_STATES,
+  canTransition as canTransitionTeamUniforms,
+} from './state-machines/team-uniforms.js';
+
+export {
+  ISSUE_TRANSITIONS,
+  ISSUE_ENTRY_STATE,
+  ISSUE_TERMINAL_STATES,
+  canTransition as canTransitionIssue,
+} from './state-machines/issue.js';

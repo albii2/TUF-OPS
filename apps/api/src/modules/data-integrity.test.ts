@@ -100,7 +100,15 @@ describe('v0.9.0 data integrity hardening', () => {
     });
 
     await expect(createOrderFromOpportunity(opportunity.id)).rejects.toThrow('Only CLOSED_WON opportunities can be converted to orders');
-    await expect(pool.query('INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4)', [opportunity.id, org.id, 'TEAM_STORE', 'CREATED'])).rejects.toMatchObject({ code: '23514' });
+    // Phase 0 finding (docs/2.0/CLASSIFICATION.md §4; docs/2.0/GATE0_CLOSEOUT.md item 4): this
+    // DB-layer assertion used to expect SQLSTATE 23514 from an `orders` CHECK constraint rejecting
+    // deal_type='TEAM_STORE'. No such CHECK exists — `orders.deal_type` is free-text with no
+    // constraint at all (migration 1776400300000_create-orders-table.js; only `orders.status` has a
+    // CHECK). The 23514 came from the BEFORE INSERT trigger orders_closed_won_opportunity_trigger
+    // (migration 1900000021001_update_order_trigger.js), which rejects the row because the referenced
+    // opportunity is not CLOSED_WON. Assert that real trigger behaviour instead of the phantom
+    // constraint, so this test can no longer pass coincidentally.
+    await expect(pool.query('INSERT INTO orders (opportunity_id, organization_id, deal_type, status) VALUES ($1, $2, $3, $4)', [opportunity.id, org.id, 'TEAM_STORE', 'CREATED'])).rejects.toThrow('Only CLOSED_WON opportunities can be converted to orders');
 
     await updateOpportunityStage(opportunity.id, OpportunityStage.CONTACTED, 1);
     await updateOpportunityStage(opportunity.id, OpportunityStage.DISCOVERY, 1);
