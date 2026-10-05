@@ -1,133 +1,199 @@
 import { useMemo, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { useMarkets } from '../../hooks/useMarkets';
-import { dueLabel, formatMarketNumber } from '../markets/markets.view';
-import { buildCommandBrief, COMMAND_COPY, type RevenueRow } from './command.view';
+import { useCommandQueue } from '../../hooks/useCommandQueue';
+import {
+  COMMAND_QUEUE_COPY,
+  buildCommandQueue,
+  type CommandQueueReady,
+  type ObligationView,
+} from './command.view';
 
 /**
- * COMMAND — the actionable operating surface (plan §2.4, §2.6). It is NOT a
- * vanity dashboard: every region below is driven by real 2.0 state and renders
- * an honest empty state ("No action required") rather than a placeholder
- * number. It answers five questions on one screen.
+ * COMMAND — the actionable operating surface (plan §2.4, §2.6).
+ *
+ * It answers exactly one question: **what needs to be done today?** Every row
+ * is a real obligation from `GET /api/v1/tasks/command`, ordered overdue first,
+ * then due today, then upcoming, each resolving:
+ *
+ *   STATE -> OBJECTIVE -> OWNER -> NEXT ACTION -> DEADLINE -> BLOCKER
+ *
+ * It is NOT a vanity dashboard and it NEVER fabricates: when the endpoint is
+ * missing or failing it renders an honest "not yet available" state, when there
+ * is genuinely nothing to do it says so, and a market with no next action is
+ * shown separately — never as if it had one.
  */
 export function CommandPage({ now = new Date() }: { now?: Date }) {
-  const { markets, loading, error } = useMarkets();
-  const brief = useMemo(() => buildCommandBrief(markets, now), [markets, now]);
-
-  if (loading) {
-    return <div className="rounded-xl border border-[var(--border)] bg-[#0a121b] p-5 text-sm text-[var(--text-secondary)]">Loading command state…</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-xl border border-rose-500/40 bg-rose-500/5 p-5 text-sm text-rose-200">
-        <p className="font-semibold">Command state unavailable</p>
-        <p className="mt-1 text-rose-200/80">{error}</p>
-        <p className="mt-1 text-xs text-rose-200/60">Nothing is shown rather than numbers that are not real.</p>
-      </div>
-    );
-  }
+  const { lookup, loading } = useCommandQueue();
+  const queue = useMemo(() => buildCommandQueue(lookup, loading, now), [lookup, loading, now]);
 
   return (
     <div className="space-y-4">
       <header className="rounded-lg panel p-4">
         <h1 className="text-lg font-black tracking-[0.12em] text-[#dff5ff]">COMMAND</h1>
         <p className="mt-1 text-xs text-[var(--text-secondary)]">
-          Actionable operating surface. Driven by real 2.0 state — never a fabricated number.
+          What needs to be done today? Driven by real market/task state — never a fabricated task or number.
         </p>
-        <p className="mt-2 text-xs text-[var(--text-secondary)]" data-testid="command-markets-scope">
-          {brief.totalMarkets > 0
-            ? `${brief.totalMarkets} activated market${brief.totalMarkets === 1 ? '' : 's'} in scope`
-            : 'No markets activated yet'}
-        </p>
+        {queue.kind === 'ready' ? (
+          <p className="mt-2 text-xs text-[var(--text-secondary)]" data-testid="command-scope">
+            {queue.total} obligation{queue.total === 1 ? '' : 's'} in the queue
+          </p>
+        ) : null}
       </header>
 
-      {/* 1. What requires action today? */}
-      <Panel title="What requires action today?" testId="region-action-today">
-        {brief.requiresActionToday.length === 0 ? (
-          <p className="text-sm text-emerald-200" data-testid="no-action-required">{COMMAND_COPY.noActionRequired}</p>
-        ) : (
+      {queue.kind === 'loading' ? (
+        <Panel title="Loading" testId="command-loading">
+          <p className="text-sm text-[var(--text-secondary)]" data-testid="command-loading-copy">
+            {COMMAND_QUEUE_COPY.loading}
+          </p>
+        </Panel>
+      ) : null}
+
+      {queue.kind === 'unavailable' ? (
+        <Panel title={queue.title} testId="command-unavailable">
+          <p className="text-sm text-rose-200/90" data-testid="command-unavailable-detail">
+            {queue.detail}
+          </p>
+          <p className="mt-1 text-xs text-rose-200/60">
+            Nothing is shown rather than tasks that are not real.
+          </p>
+        </Panel>
+      ) : null}
+
+      {queue.kind === 'empty' ? (
+        <Panel title="What needs to be done today?" testId="command-empty">
+          <p className="text-sm text-emerald-200" data-testid="command-empty-title">
+            {queue.title}
+          </p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">{queue.detail}</p>
+        </Panel>
+      ) : null}
+
+      {queue.kind === 'ready' ? <ReadyQueue queue={queue} /> : null}
+    </div>
+  );
+}
+
+function ReadyQueue({ queue }: { queue: CommandQueueReady }) {
+  return (
+    <>
+      <ObligationGroup
+        title={COMMAND_QUEUE_COPY.overdueHeading}
+        tone="overdue"
+        testId="region-overdue"
+        rows={queue.overdue}
+      />
+      <ObligationGroup
+        title={COMMAND_QUEUE_COPY.dueTodayHeading}
+        tone="due-today"
+        testId="region-due-today"
+        rows={queue.dueToday}
+      />
+      <ObligationGroup
+        title={COMMAND_QUEUE_COPY.upcomingHeading}
+        tone="upcoming"
+        testId="region-upcoming"
+        rows={queue.upcoming}
+      />
+      {queue.noAction.length > 0 ? (
+        <Panel title={COMMAND_QUEUE_COPY.noActionHeading} testId="region-no-action">
+          <p className="mb-2 text-xs text-[var(--text-secondary)]">{COMMAND_QUEUE_COPY.noActionDetail}</p>
           <ul className="space-y-2">
-            {brief.requiresActionToday.map((market) => (
-              <li key={market.id} className="flex flex-wrap items-baseline justify-between gap-2 rounded-lg border border-[var(--border)] bg-[#0a121b] p-3">
-                <MarketChip market={market} />
-                <span className="text-sm">{market.nextAction || '—'}</span>
-                <span className="text-xs font-semibold text-amber-200">{dueLabel(market, now)}</span>
-              </li>
+            {queue.noAction.map((row) => (
+              <ObligationCard key={row.id} row={row} tone="no-action" />
             ))}
           </ul>
-        )}
-        {brief.requiresActionToday.length === 0 ? (
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">{COMMAND_COPY.noActionDetail}</p>
-        ) : null}
-      </Panel>
+        </Panel>
+      ) : null}
+    </>
+  );
+}
 
-      {/* 2. Which markets are advancing? */}
-      <Panel title="Which markets are advancing?" testId="region-advancing">
-        {brief.advancing.length === 0 ? (
-          <p className="text-sm text-[var(--text-secondary)]">{COMMAND_COPY.noAdvancing}</p>
-        ) : (
-          <ul className="flex flex-wrap gap-2">
-            {brief.advancing.map((market) => (
-              <li key={market.id}>
-                <MarketChip market={market} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+function ObligationGroup({
+  title,
+  tone,
+  testId,
+  rows,
+}: {
+  title: string;
+  tone: string;
+  testId: string;
+  rows: ObligationView[];
+}) {
+  return (
+    <Panel title={title} testId={testId}>
+      {rows.length === 0 ? (
+        <p className="text-sm text-[var(--text-secondary)]" data-testid={`${testId}-empty`}>
+          Nothing in this band.
+        </p>
+      ) : (
+        <ul className="space-y-2">
+          {rows.map((row) => (
+            <ObligationCard key={row.id} row={row} tone={tone} />
+          ))}
+        </ul>
+      )}
+    </Panel>
+  );
+}
 
-      {/* 3. Which are stalled? */}
-      <Panel title="Which markets are stalled?" testId="region-stalled">
-        {brief.stalled.length === 0 ? (
-          <>
-            <p className="text-sm text-emerald-200">{COMMAND_COPY.noStalled}</p>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">{COMMAND_COPY.noStalledDetail}</p>
-          </>
-        ) : (
-          <ul className="space-y-2">
-            {brief.stalled.map((market) => (
-              <li key={market.id} className="flex flex-wrap items-baseline justify-between gap-2 rounded-lg border border-rose-500/30 bg-rose-500/5 p-3">
-                <MarketChip market={market} />
-                <span className="text-xs text-rose-200">
-                  {market.blocker ? `Blocked: ${market.blocker}` : dueLabel(market, now)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Panel>
+const TONE_RING: Record<string, string> = {
+  overdue: 'border-rose-500/50 bg-rose-500/5',
+  'due-today': 'border-amber-500/50 bg-amber-500/5',
+  upcoming: 'border-[var(--border)] bg-[#0a121b]',
+  'no-action': 'border-slate-600/50 bg-slate-500/5',
+};
 
-      {/* 4. Where is revenue? */}
-      <Panel title="Where is revenue?" testId="region-revenue">
-        {!brief.revenue.hasData ? (
-          <>
-            <p className="text-sm text-[var(--text-secondary)]">{COMMAND_COPY.noRevenue}</p>
-            <p className="mt-1 text-xs text-[var(--text-secondary)]">{COMMAND_COPY.noRevenueDetail}</p>
-          </>
+function ObligationCard({ row, tone }: { row: ObligationView; tone: string }) {
+  return (
+    <li
+      className={`rounded-lg border p-3 ${TONE_RING[tone] ?? TONE_RING.upcoming}`}
+      data-testid={`obligation-${row.marketNumberDisplay}`}
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <Link
+          to={row.marketPath}
+          className="font-mono text-xs font-semibold text-[#1FB6FF] hover:underline"
+        >
+          {row.marketNumberDisplay} · {row.schoolName}
+        </Link>
+        {row.hasBlocker ? (
+          <span className="text-xs font-semibold text-rose-200" data-testid="obligation-blocker">
+            Blocked: {row.blocker}
+          </span>
         ) : (
-          <ul className="space-y-2">
-            {brief.revenue.rows.map((row) => (
-              <RevenueLine key={row.market.id} row={row} />
-            ))}
-          </ul>
+          <span className="text-xs text-[var(--text-secondary)]" data-testid="obligation-blocker">
+            {row.blocker}
+          </span>
         )}
-      </Panel>
+      </div>
+      <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs sm:grid-cols-3">
+        <Field label={COMMAND_QUEUE_COPY.state} value={row.state} testId="obligation-state" />
+        <Field label={COMMAND_QUEUE_COPY.owner} value={row.owner} testId="obligation-owner" />
+        <Field label={COMMAND_QUEUE_COPY.deadline} value={row.deadlineLabel} testId="obligation-deadline" />
+        <Field label={COMMAND_QUEUE_COPY.objective} value={row.objective} testId="obligation-objective" full />
+        <Field label={COMMAND_QUEUE_COPY.nextAction} value={row.nextAction} testId="obligation-next-action" full />
+      </dl>
+    </li>
+  );
+}
 
-      {/* 5. What is the next best action? */}
-      <Panel title="What is the next best action?" testId="region-next-best">
-        {!brief.nextBestAction ? (
-          <p className="text-sm text-[var(--text-secondary)]">{COMMAND_COPY.noNextAction}</p>
-        ) : (
-          <div className="rounded-lg border border-[#1FB6FF]/50 bg-[#0d2234] p-3">
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <MarketChip market={brief.nextBestAction.market} />
-              <span className="text-xs text-[#cdeaff]">{brief.nextBestAction.reason}</span>
-            </div>
-            <p className="mt-2 text-sm text-[#dff5ff]">{brief.nextBestAction.market.nextAction || '—'}</p>
-          </div>
-        )}
-      </Panel>
+function Field({
+  label,
+  value,
+  testId,
+  full,
+}: {
+  label: string;
+  value: string;
+  testId: string;
+  full?: boolean;
+}) {
+  return (
+    <div className={full ? 'sm:col-span-3 col-span-2' : ''}>
+      <dt className="text-[10px] uppercase tracking-wide text-[var(--text-secondary)]">{label}</dt>
+      <dd className="text-[var(--text-primary)]" data-testid={testId}>
+        {value}
+      </dd>
     </div>
   );
 }
@@ -138,26 +204,5 @@ function Panel({ title, testId, children }: { title: string; testId: string; chi
       <h2 className="text-sm font-semibold text-[var(--text-primary)]">{title}</h2>
       <div className="mt-2">{children}</div>
     </section>
-  );
-}
-
-function MarketChip({ market }: { market: { marketNumber: number; schoolName: string | null } }) {
-  return (
-    <Link to={`/ops/markets/${market.marketNumber}`} className="font-mono text-xs font-semibold text-[#1FB6FF] hover:underline">
-      {formatMarketNumber(market.marketNumber)} · {market.schoolName ?? 'Market'}
-    </Link>
-  );
-}
-
-function RevenueLine({ row }: { row: RevenueRow }) {
-  return (
-    <li className="rounded-lg border border-[var(--border)] bg-[#0a121b] p-3">
-      <MarketChip market={row.market} />
-      <div className="mt-1 flex flex-wrap gap-3 text-xs text-[var(--text-secondary)]">
-        <span>Team Uniforms: {row.teamUniforms ?? '—'}</span>
-        <span>LETTERED: {row.lettered ?? '—'}</span>
-        <span>ISSUE: {row.issue ?? '—'}</span>
-      </div>
-    </li>
   );
 }
