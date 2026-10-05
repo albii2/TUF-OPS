@@ -18,6 +18,7 @@ import { academyResourcesRoutes } from './modules/academy-resources/academy-reso
 import { academyV2Routes } from './modules/academy-v2/academy-v2.routes';
 import { intakeRoutes } from './modules/intake/intake.routes';
 import { marketsRoutes } from './modules/markets/markets.routes';
+import { letteredRoutes } from './modules/lettered/lettered.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -156,6 +157,14 @@ server.register(intakeRoutes, { prefix: '/api/v1/intake' });
 // Authorization is enforced per-route through the approved auth boundary
 // (VIEW_MARKETS for reads; ACTIVATE_MARKET for the sole activation gateway).
 server.register(marketsRoutes, { prefix: '/api/v1/markets' });
+
+// ── TUF Ops 2.0 LETTERED (Wave 3A) ──────────────────────────────
+// LETTERED's own deployment lifecycle (never the generic opportunity
+// lifecycle), nested under a Market. Reads drive from `lettered_deployments`
+// joined to `markets`; Drops OS stays the system of record for consumer
+// commerce. Authorization is enforced per-route through the approved auth
+// boundary (VIEW_MARKETS).
+server.register(letteredRoutes, { prefix: '/api/v1/lettered' });
 server.register(announcementRoutes, { prefix: '/api/v1' });
 server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(userRoutes, { prefix: '/api/v1' });  // frontend compat for /users paths
