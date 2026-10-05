@@ -10,6 +10,7 @@
  */
 import type { MarketRecord } from '../services/marketsService';
 import type { LetteredLookup } from '../services/letteredService';
+import type { MarketMetricRecord, MetricsLookup } from '../services/metricsService';
 import {
   MARKET_DETAIL_COPY,
   buildDropsPanel,
@@ -232,11 +233,119 @@ describe('buildLetteredPanel — consumes the new endpoint honestly', () => {
   });
 });
 
-describe('buildDropsPanel — honest not-yet-wired state', () => {
-  it('renders a NOT_WIRED status with no numbers', () => {
-    const panel = buildDropsPanel();
-    expect(panel.status).toBe('NOT_WIRED');
-    expect(panel.message).toMatch(/not yet wired/i);
-    expect(panel.detail).toMatch(/never a fabricated number|no commerce figure/i);
+describe('buildDropsPanel — the read-only commerce panel (Wave 4B)', () => {
+  const metric = (partial: Partial<MarketMetricRecord> = {}): MarketMetricRecord => ({
+    storeStatus: null,
+    lifecycleStatus: null,
+    orderCount: null,
+    orderValue: null,
+    units: null,
+    attributionSummary: null,
+    storeUrl: null,
+    publishedAt: null,
+    fetchedAt: '2026-10-05T11:30:00.000Z',
+    stale: false,
+    ...partial,
+  });
+
+  const available = (partial: Partial<MarketMetricRecord> = {}) => {
+    const panel = buildDropsPanel({ ok: true, metric: metric(partial) }, false);
+    expect(panel.kind).toBe('available');
+    if (panel.kind !== 'available') throw new Error('expected available');
+    return panel;
+  };
+
+  it('(a) renders the real summary fields and an "as of" time from a populated snapshot', () => {
+    const panel = available({
+      storeStatus: 'PUBLISHED',
+      lifecycleStatus: 'LIVE',
+      orderCount: 42,
+      orderValue: 3150.5,
+      units: 130,
+      attributionSummary: 'facebook · social · 18 attributed',
+    });
+
+    const byKey = Object.fromEntries(panel.rows.map((row) => [row.key, row]));
+    expect(byKey.storefront.value).toBe('PUBLISHED · LIVE');
+    expect(byKey.orders.value).toBe('42');
+    expect(byKey.orderValue.value).toBe('3150.5');
+    expect(byKey.units.value).toBe('130');
+    expect(byKey.attribution.value).toMatch(/facebook/);
+
+    // Only the approved summary fields are rendered.
+    expect(panel.rows.map((row) => row.key)).toEqual([
+      'storefront',
+      'orders',
+      'orderValue',
+      'units',
+      'attribution',
+    ]);
+    expect(panel.hasAnyValue).toBe(true);
+    expect(panel.stale).toBe(false);
+    expect(panel.hasFetchedAt).toBe(true);
+    expect(panel.asOfLabel).toMatch(/^As of /);
+    expect(panel.fetchedAtAbsolute).not.toBe('');
+    // A populated snapshot carries the timestamp through untouched.
+    expect(panel.metric.fetchedAt).toBe('2026-10-05T11:30:00.000Z');
+  });
+
+  it('(b) visibly marks a STALE snapshot as stale', () => {
+    const panel = available({ orderCount: 5, orderValue: 100, stale: true });
+    expect(panel.stale).toBe(true);
+    expect(panel.statusLabel).toBe(MARKET_DETAIL_COPY.dropsStale);
+    expect(panel.statusTone).toBe('stale');
+  });
+
+  it('(c) renders the honest "not yet available" state on a missing/failing endpoint — no throw, no numbers', () => {
+    const failed: MetricsLookup = { ok: false, error: 'API request failed: 404' };
+    const panel = buildDropsPanel(failed, false);
+    expect(panel.kind).toBe('unavailable');
+    if (panel.kind === 'unavailable') {
+      expect(panel.title).toBe(MARKET_DETAIL_COPY.dropsUnavailable);
+      expect(panel.detail).toMatch(/not answering yet/i);
+      // There is no rows collection and therefore no number to leak.
+      expect('rows' in panel).toBe(false);
+    }
+    // A null lookup while not loading is treated as unavailable too (no throw).
+    expect(buildDropsPanel(null, false).kind).toBe('unavailable');
+    // Loading short-circuits before anything else.
+    expect(buildDropsPanel(null, true).kind).toBe('loading');
+  });
+
+  it('(d) renders "no data" (never 0) when a metric is absent', () => {
+    const panel = available();
+    expect(panel.hasAnyValue).toBe(false);
+    for (const row of panel.rows) {
+      expect(row.hasValue).toBe(false);
+      expect(row.value).toBe(MARKET_DETAIL_COPY.dropsNoData);
+      expect(row.value).not.toMatch(/^0$/);
+    }
+  });
+
+  it('does not conflate a reported 0 with absent data — a real 0 stays 0', () => {
+    const panel = available({ orderCount: 0, orderValue: 0, units: 0 });
+    const byKey = Object.fromEntries(panel.rows.map((row) => [row.key, row]));
+    expect(byKey.orders).toMatchObject({ value: '0', hasValue: true });
+    expect(byKey.orderValue).toMatchObject({ value: '0', hasValue: true });
+    expect(byKey.units).toMatchObject({ value: '0', hasValue: true });
+    // The unattributed field is still the honest empty state, not a zero.
+    expect(byKey.attribution).toMatchObject({ value: MARKET_DETAIL_COPY.dropsNoData, hasValue: false });
+    expect(panel.hasAnyValue).toBe(true);
+  });
+
+  it('renders the honest "no snapshot yet" state when the endpoint answers with no metric', () => {
+    const panel = buildDropsPanel({ ok: true, metric: null }, false);
+    expect(panel.kind).toBe('none');
+    if (panel.kind === 'none') {
+      expect(panel.title).toBe(MARKET_DETAIL_COPY.dropsNone);
+      expect('rows' in panel).toBe(false);
+    }
+  });
+
+  it('(e) a universe-only record is never a market, so no Drops panel data source exists', () => {
+    const universeOnly = { id: 501, name: 'Universe Only Academy', state: 'MN' } as unknown as MarketRecord;
+    expect(isMarketRecord(universeOnly)).toBe(false);
+    // No market detail ⇒ the page never reaches the Drops panel for this record.
+    expect(buildMarketDetail(universeOnly, now)).toBeNull();
   });
 });

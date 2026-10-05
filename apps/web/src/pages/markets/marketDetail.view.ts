@@ -15,6 +15,7 @@
 import { LETTERED_LIFECYCLE_STATES, LETTERED_STATES } from '@tuf/shared';
 import type { MarketRecord } from '../../services/marketsService';
 import type { LetteredDeploymentRecord, LetteredLookup } from '../../services/letteredService';
+import type { MarketMetricRecord, MetricsLookup } from '../../services/metricsService';
 import { dueLabel } from './markets.view';
 
 /** Honest copy for every empty state on the page. No number, ever. */
@@ -40,9 +41,20 @@ export const MARKET_DETAIL_COPY = {
   letteredNone: 'No LETTERED deployment activated for this market yet.',
   letteredNextActionNone: 'No next action recorded',
   dropsTitle: 'Drops OS commerce',
-  dropsNotWired: 'Drops OS commerce not yet wired',
-  dropsNotWiredDetail:
-    'Wave 4 connects the read-only Drops metrics (orders, revenue, AOV, attribution). Until then no commerce figure is shown — the contract forbids a fabricated number (R8).',
+  dropsLoading: 'Loading Drops OS commerce…',
+  dropsUnavailable: 'Drops commerce not yet available',
+  dropsUnavailableDetail:
+    'The market metrics endpoint is not answering yet. Nothing is shown rather than a placeholder commerce figure (R8 forbids a fabricated number).',
+  dropsNone: 'No Drops commerce snapshot yet',
+  dropsNoneDetail:
+    'No snapshot has been cached for this market yet. No figure is shown rather than a zero that is not real.',
+  dropsStale: 'STALE',
+  dropsSnapshot: 'SNAPSHOT',
+  dropsStaleNotice:
+    'This snapshot is marked stale by the backend — the figures below are what TUF Ops last knew, not live commerce.',
+  dropsNoData: 'no data',
+  dropsNoSyncTime: 'sync time not recorded',
+  dropsReadOnly: 'Read-only · Drops OS is the system of record',
 } as const;
 
 /** A single revenue-engine status row (honest empty state when unreported). */
@@ -242,23 +254,132 @@ export function buildLetteredPanel(
   };
 }
 
-export type DropsPanelView = {
-  title: string;
-  status: 'NOT_WIRED';
-  message: string;
-  detail: string;
+/** One rendered summary row of the Drops commerce panel. */
+export type DropsSummaryRow = {
+  key: 'storefront' | 'orders' | 'orderValue' | 'units' | 'attribution';
+  label: string;
+  /** Display string — the honest "no data" copy when absent. */
+  value: string;
+  /** False when the backend did not report this metric (never a fake value). */
+  hasValue: boolean;
 };
 
+export type DropsPanelView =
+  | { kind: 'loading'; title: string }
+  | { kind: 'unavailable'; title: string; detail: string }
+  | { kind: 'none'; title: string; detail: string }
+  | {
+      kind: 'available';
+      title: string;
+      rows: DropsSummaryRow[];
+      hasAnyValue: boolean;
+      hasFetchedAt: boolean;
+      fetchedAtAbsolute: string;
+      asOfLabel: string;
+      stale: boolean;
+      statusLabel: string;
+      statusTone: 'stale' | 'snapshot';
+      readOnlyLabel: string;
+      metric: MarketMetricRecord;
+    };
+
+/** Deterministic number rendering: no invented currency, no locale surprises. */
+function formatMetricNumber(value: number): string {
+  return String(value);
+}
+
+function storefrontValue(metric: MarketMetricRecord): string | null {
+  const parts = [metric.storeStatus, metric.lifecycleStatus].filter(
+    (part): part is string => typeof part === 'string' && part.length > 0,
+  );
+  // Collapse a duplicated status (store and lifecycle often carry the same word).
+  const unique = parts.filter((part, index) => parts.indexOf(part) === index);
+  return unique.length > 0 ? unique.join(' · ') : null;
+}
+
 /**
- * The Drops commerce panel's honest state: not yet wired (Wave 4). It renders
- * the shape of what will arrive and explicitly says no figure is shown yet.
- * It never renders a number.
+ * Build the Drops commerce panel's view from a MarketMetric lookup.
+ *
+ * `loading` short-circuits. A `null` lookup with `loading === false` is treated
+ * as unavailable (defensive). `ok:false` is the honest "not yet available"
+ * state; `ok:true, metric:null` is the honest "no snapshot yet" state. When a
+ * snapshot is present, every metric is rendered from real data or the honest
+ * "no data" copy — never a fabricated number and never a fake zero.
  */
-export function buildDropsPanel(): DropsPanelView {
+export function buildDropsPanel(lookup: MetricsLookup | null, loading: boolean): DropsPanelView {
+  if (loading) return { kind: 'loading', title: MARKET_DETAIL_COPY.dropsTitle };
+
+  if (!lookup || lookup.ok === false) {
+    return {
+      kind: 'unavailable',
+      title: MARKET_DETAIL_COPY.dropsUnavailable,
+      detail: MARKET_DETAIL_COPY.dropsUnavailableDetail,
+    };
+  }
+
+  if (lookup.metric === null) {
+    return {
+      kind: 'none',
+      title: MARKET_DETAIL_COPY.dropsNone,
+      detail: MARKET_DETAIL_COPY.dropsNoneDetail,
+    };
+  }
+
+  const metric = lookup.metric;
+
+  const storefront = storefrontValue(metric);
+  const rows: DropsSummaryRow[] = [
+    {
+      key: 'storefront',
+      label: 'Storefront / collection status',
+      value: storefront ?? MARKET_DETAIL_COPY.dropsNoData,
+      hasValue: storefront !== null,
+    },
+    {
+      key: 'orders',
+      label: 'Orders',
+      value: metric.orderCount !== null ? formatMetricNumber(metric.orderCount) : MARKET_DETAIL_COPY.dropsNoData,
+      hasValue: metric.orderCount !== null,
+    },
+    {
+      key: 'orderValue',
+      label: 'Order value (as reported by Drops)',
+      value: metric.orderValue !== null ? formatMetricNumber(metric.orderValue) : MARKET_DETAIL_COPY.dropsNoData,
+      hasValue: metric.orderValue !== null,
+    },
+    {
+      key: 'units',
+      label: 'Units',
+      value: metric.units !== null ? formatMetricNumber(metric.units) : MARKET_DETAIL_COPY.dropsNoData,
+      hasValue: metric.units !== null,
+    },
+    {
+      key: 'attribution',
+      label: 'Attribution',
+      value: metric.attributionSummary ?? MARKET_DETAIL_COPY.dropsNoData,
+      hasValue: metric.attributionSummary !== null,
+    },
+  ];
+
+  const fetchedAtAbsolute = formatAbsolute(metric.fetchedAt);
+  const hasFetchedAt = fetchedAtAbsolute !== '';
+  const asOfLabel = hasFetchedAt
+    ? `As of ${fetchedAtAbsolute}`
+    : `As of ${MARKET_DETAIL_COPY.dropsNoSyncTime}`;
+
   return {
+    kind: 'available',
     title: MARKET_DETAIL_COPY.dropsTitle,
-    status: 'NOT_WIRED',
-    message: MARKET_DETAIL_COPY.dropsNotWired,
-    detail: MARKET_DETAIL_COPY.dropsNotWiredDetail,
+    rows,
+    hasAnyValue: rows.some((row) => row.hasValue),
+    hasFetchedAt,
+    fetchedAtAbsolute,
+    asOfLabel,
+    // Staleness is only ever the backend's call (metricsService.resolveStale).
+    stale: metric.stale,
+    statusLabel: metric.stale ? MARKET_DETAIL_COPY.dropsStale : MARKET_DETAIL_COPY.dropsSnapshot,
+    statusTone: metric.stale ? 'stale' : 'snapshot',
+    readOnlyLabel: MARKET_DETAIL_COPY.dropsReadOnly,
+    metric,
   };
 }

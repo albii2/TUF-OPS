@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useMarkets } from '../../hooks/useMarkets';
 import { useLetteredDeployment } from '../../hooks/useLetteredDeployment';
+import { useMarketMetrics } from '../../hooks/useMarketMetrics';
 import { formatMarketNumber, priorityTone, urgencyOf, urgencyTone } from './markets.view';
 import {
   MARKET_DETAIL_COPY,
@@ -15,12 +16,18 @@ import {
  * walk works: identity/state, priority, owner, objective, next action + due
  * date (the single most important thing), blocker, the universe relationship
  * the market was activated from, the three revenue-engine statuses, the
- * LETTERED deployment panel (consuming the backend endpoint being built this
- * wave), and the Drops commerce panel (honest not-yet-wired state).
+ * LETTERED deployment panel, and the Drops commerce panel.
  *
- * Hard rules: no fabricated numbers; a record without a `marketNumber` is never
- * rendered as a Market; a missing/failing LETTERED endpoint renders an honest
- * "not yet available" state.
+ * Wave 4B replaces the Drops panel's explicit 'NOT WIRED' state with a real
+ * read-only commerce panel driven by `GET /markets/:idOrNumber/metrics` (the
+ * MarketMetric cache snapshot). It renders only the approved summary fields +
+ * the snapshot's fetched_at, marks stale snapshots plainly, and degrades to an
+ * honest "not yet available" / "no data" state on a missing endpoint or an
+ * absent value.
+ *
+ * Hard rules: no fabricated numbers (never a fake zero); a record without a
+ * `marketNumber` is never rendered as a Market; a missing/failing endpoint
+ * renders an honest "not yet available" state.
  */
 export function MarketDetailPage({ now = new Date() }: { now?: Date }) {
   const { marketNumber } = useParams();
@@ -33,12 +40,13 @@ export function MarketDetailPage({ now = new Date() }: { now?: Date }) {
 
   // Hooks are all called before any early return so the hook order is stable.
   const { lookup, loading: letteredLoading } = useLetteredDeployment(market?.marketNumber);
+  const { lookup: metricLookup, loading: metricsLoading } = useMarketMetrics(market?.marketNumber);
   const detail = useMemo(() => (market ? buildMarketDetail(market, now) : null), [market, now]);
   const letteredPanel = useMemo(
     () => buildLetteredPanel(lookup, letteredLoading, now),
     [lookup, letteredLoading, now],
   );
-  const dropsPanel = useMemo(() => buildDropsPanel(), []);
+  const dropsPanel = useMemo(() => buildDropsPanel(metricLookup, metricsLoading), [metricLookup, metricsLoading]);
 
   if (loading) {
     return (
@@ -181,18 +189,93 @@ export function MarketDetailPage({ now = new Date() }: { now?: Date }) {
       {/* LETTERED deployment — consumes GET /markets/:idOrNumber/lettered */}
       <LetteredPanelView panel={letteredPanel} />
 
-      {/* Drops OS commerce — honest not-yet-wired state (Wave 4). */}
-      <section className="rounded-lg panel p-4" data-testid="drops-panel">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">{dropsPanel.title}</h2>
-          <span className="rounded-full border border-slate-600 px-2 py-0.5 text-[10px] font-semibold text-slate-300" data-testid="drops-status">
-            NOT WIRED
-          </span>
-        </div>
-        <p className="mt-2 text-sm text-[var(--text-secondary)]" data-testid="drops-message">{dropsPanel.message}</p>
-        <p className="mt-1 text-xs text-[var(--text-secondary)]">{dropsPanel.detail}</p>
-      </section>
+      {/* Drops OS commerce — read-only MarketMetric snapshot (Wave 4B). */}
+      <DropsPanelView panel={dropsPanel} />
     </div>
+  );
+}
+
+const DROPS_ROW_TESTIDS: Record<string, string> = {
+  storefront: 'drops-storefront',
+  orders: 'drops-orders',
+  orderValue: 'drops-order-value',
+  units: 'drops-units',
+  attribution: 'drops-attribution',
+};
+
+function DropsPanelView({ panel }: { panel: ReturnType<typeof buildDropsPanel> }) {
+  return (
+    <section className="rounded-lg panel p-4" data-testid="drops-panel">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-sm font-semibold text-[var(--text-primary)]">{panel.title}</h2>
+        {panel.kind === 'available' ? (
+          <span
+            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+              panel.statusTone === 'stale'
+                ? 'border-amber-500/60 bg-amber-500/10 text-amber-200'
+                : 'border-[#23557a] bg-[#0e2131] text-[#cdeaff]'
+            }`}
+            data-testid="drops-status"
+          >
+            {panel.statusLabel}
+          </span>
+        ) : panel.kind !== 'loading' ? (
+          <span
+            className="rounded-full border border-slate-600 px-2 py-0.5 text-[10px] font-semibold text-slate-300"
+            data-testid="drops-status"
+          >
+            NOT AVAILABLE
+          </span>
+        ) : null}
+      </div>
+
+      {panel.kind === 'loading' ? (
+        <p className="mt-2 text-sm text-[var(--text-secondary)]" data-testid="drops-loading">
+          {MARKET_DETAIL_COPY.dropsLoading}
+        </p>
+      ) : panel.kind === 'unavailable' ? (
+        <div className="mt-2" data-testid="drops-unavailable">
+          <p className="text-sm font-medium text-amber-100">{panel.title}</p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">{panel.detail}</p>
+        </div>
+      ) : panel.kind === 'none' ? (
+        <div className="mt-2" data-testid="drops-none">
+          <p className="text-sm font-medium text-[var(--text-secondary)]">{panel.title}</p>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">{panel.detail}</p>
+        </div>
+      ) : (
+        <div className="mt-2 space-y-3" data-testid="drops-available">
+          {panel.stale ? (
+            <p
+              className="rounded-lg border border-amber-500/50 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100"
+              data-testid="drops-stale"
+              role="status"
+            >
+              {MARKET_DETAIL_COPY.dropsStaleNotice}
+            </p>
+          ) : null}
+
+          <p className="text-xs text-[var(--text-secondary)]" data-testid="drops-as-of">
+            {panel.asOfLabel}
+          </p>
+
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            {panel.rows.map((row) => (
+              <Field
+                key={row.key}
+                label={row.label}
+                value={row.value}
+                testId={DROPS_ROW_TESTIDS[row.key]}
+              />
+            ))}
+          </div>
+
+          <p className="text-[10px] text-[var(--text-secondary)]" data-testid="drops-read-only">
+            {panel.readOnlyLabel}
+          </p>
+        </div>
+      )}
+    </section>
   );
 }
 
