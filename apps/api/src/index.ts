@@ -20,6 +20,7 @@ import { intakeRoutes } from './modules/intake/intake.routes';
 import { marketsRoutes } from './modules/markets/markets.routes';
 import { letteredRoutes } from './modules/lettered/lettered.routes';
 import { integrationRoutes } from './modules/integration/drops.routes';
+import { commandRoutes } from './modules/tasks/command.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -174,6 +175,13 @@ server.register(letteredRoutes, { prefix: '/api/v1/lettered' });
 // number. Authorization is enforced per-route through the approved auth
 // boundary (VIEW_MARKETS); both routes are GET.
 server.register(integrationRoutes, { prefix: '/api/v1/integration' });
+
+// ── TUF Ops 2.0 COMMAND + Task engine (Wave 5A) ─────────────────
+// "What needs to be done today?", driven by REAL Markets/tasks/state — never a
+// fabricated metric. Read-only GETs ordered overdue -> today -> upcoming; an
+// honest empty board when there is nothing. Authorization is enforced per-route
+// through the approved auth boundary (VIEW_MARKETS).
+server.register(commandRoutes, { prefix: '/api/v1/command' });
 server.register(announcementRoutes, { prefix: '/api/v1' });
 server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(userRoutes, { prefix: '/api/v1' });  // frontend compat for /users paths

@@ -90,6 +90,14 @@ export type {
   MarketMetricCacheSnapshot,
 } from './types/market-metric.js';
 
+// TUF Ops 2.0 Task engine (ADDITIVE — Wave 5A)
+export type {
+  Task,
+  TaskBucket,
+  TaskEntityKind,
+} from './types/task.js';
+export { TaskState, TASK_STATES, TASK_BUCKETS } from './types/task.js';
+
 // TUF Ops 2.0 state machines (ADDITIVE)
 export {
   MARKET_TRANSITIONS,
