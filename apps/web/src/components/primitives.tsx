@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
-import type { LaneStatus, OpportunityStage, RevenueLane } from '../data/mockSalesData';
+import type { LaneStatus, OpportunityStage, RevenueLane } from '@tuf/shared';
 import { getLaneLabel } from '../utils/naming';
 
 export function Card({ title, children, className = '' }: { title?: string; children: ReactNode; className?: string }) {

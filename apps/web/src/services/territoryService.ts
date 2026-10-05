@@ -1,6 +1,6 @@
 import { getStoredUser } from '../auth';
 import { repCoverage, territories, untouchedAccountsQueue } from '../data/territoryMock';
-import type { TerritoryId } from '../data/mockSalesData';
+import type { TerritoryId } from '@tuf/shared';
 import { listOrganizations } from './organizationsService';
 import { getManagedTerritoriesForDirector } from './usersService';
 

@@ -5,7 +5,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
 import { getStoredUser } from '../auth';
 import { getOrderDueDate } from '../services/orderWorkflow';
-import type { Order } from '../data/mockSalesData';
+import type { Order } from '@tuf/shared';
 
 const PRODUCTION_STAGES = [
   { key: 'ORDER_RECEIVED', label: '1. Order Received', color: 'bg-blue-400/20 text-blue-200 border-blue-400/30' },

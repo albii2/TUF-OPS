@@ -1,4 +1,4 @@
-import type { RevenueLane } from '../data/mockSalesData';
+import type { RevenueLane } from '@tuf/shared';
 
 export function toTitleCase(value: string): string {
   return value

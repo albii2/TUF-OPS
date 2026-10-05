@@ -7,7 +7,7 @@ import {
   queryKeys,
 } from '../api';
 import type { OrderListParams } from '../services/ordersService';
-import type { Order } from '../data/mockSalesData';
+import type { Order } from '@tuf/shared';
 
 export function useOrders(params: OrderListParams) {
   return useQuery<Order[]>({

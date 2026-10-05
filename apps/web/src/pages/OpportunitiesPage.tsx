@@ -7,7 +7,7 @@ import { getNearCloseOpportunities } from '../services/businessSelectors';
 import { canCreateOpportunity } from '../services/roleScope';
 import { deleteOpportunity } from '../services/opportunitiesService';
 import { markPageVisited } from '../lib/academy';
-import type { OpportunityStage, Opportunity } from '../data/mockSalesData';
+import type { OpportunityStage, Opportunity } from '@tuf/shared';
 
 const PAGE_SIZE = 100;
 

@@ -1,4 +1,4 @@
-import type { Opportunity, Order } from '../data/mockSalesData';
+import type { Opportunity, Order } from '@tuf/shared';
 import { daysSince } from './kpiUtils';
 import { getViewer } from './roleScope';
 

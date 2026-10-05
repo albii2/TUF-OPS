@@ -3,7 +3,7 @@ import { Card } from '../components/primitives';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useTerritories } from '../hooks/useTerritory';
-import type { TerritoryId } from '../data/mockSalesData';
+import type { TerritoryId } from '@tuf/shared';
 import { formatCurrency } from '../utils/format';
 
 const zoneColor: Record<TerritoryId, string> = {

@@ -1,5 +1,5 @@
 import type { AppUser, Role } from '../types';
-import type { TerritoryId } from '../data/mockSalesData';
+import type { TerritoryId } from '@tuf/shared';
 import { apiClient } from './apiClient';
 import { getApiBaseUrl } from './apiBaseUrl';
 

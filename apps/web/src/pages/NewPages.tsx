@@ -7,7 +7,7 @@ import { buildOpportunityDisplayName, normalizeAccountName } from '../utils/nami
 import { createOrganization } from '../services/organizationsService';
 import { createOpportunity } from '../services/opportunitiesService';
 import { useOrganizations } from '../hooks/useOrganizations';
-import type { TerritoryId } from '../data/mockSalesData';
+import type { TerritoryId } from '@tuf/shared';
 import { useToast } from '../components/toast';
 import { listUsers } from '../services/usersService';
 

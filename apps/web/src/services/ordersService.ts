@@ -1,4 +1,4 @@
-import type { Opportunity, Order, RevenueLane, Activity } from '../data/mockSalesData';
+import type { Opportunity, Order, RevenueLane, Activity } from '@tuf/shared';
 import { apiClient } from './apiClient';
 
 export type OrderListParams = {

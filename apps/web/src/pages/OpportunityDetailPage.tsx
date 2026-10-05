@@ -10,7 +10,7 @@ import { neededItemOptions, type CreativePriority, type CreativeRequestType, typ
 import { SPORT_OPTIONS, REVENUE_LANES } from '../config/business';
 import { getLaneLabel } from '../utils/naming';
 import { deleteOpportunity, logOpportunityActivity, addOpportunityLane, removeOpportunityLane, updateOpportunityStage } from '../services/opportunitiesService';
-import type { Opportunity, OpportunityStage, RevenueLane } from '../data/mockSalesData';
+import type { Opportunity, OpportunityStage, RevenueLane } from '@tuf/shared';
 import { daysSince } from '../services/kpiUtils';
 import { canAdvanceOpportunity, getAdvanceDeniedMessage } from '../services/roleScope';
 import { notify } from '../services/feedbackService';

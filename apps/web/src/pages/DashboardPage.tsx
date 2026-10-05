@@ -5,7 +5,7 @@ import { getStoredUser } from '../auth';
 import { markPageVisited } from '../lib/academy';
 import { ForgePanel } from '../components/ForgePanel';
 import type { Role } from '../types';
-import type { Activity } from '../data/mockSalesData';
+import type { Activity } from '@tuf/shared';
 import { useActivities } from '../hooks/useReports';
 import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
 import { useOpportunities } from '../hooks/useOpportunities';

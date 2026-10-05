@@ -1,4 +1,4 @@
-import type { Opportunity, Organization } from '../data/mockSalesData';
+import type { Opportunity, Organization } from '@tuf/shared';
 
 const DAY_MS = 1000 * 60 * 60 * 24;
 

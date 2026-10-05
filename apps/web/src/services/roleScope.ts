@@ -1,6 +1,6 @@
 import { getStoredUser } from '../auth';
 import type { AppUser } from '../types';
-import type { Opportunity, Order, Organization, TerritoryId } from '../data/mockSalesData';
+import type { Opportunity, Order, Organization, TerritoryId } from '@tuf/shared';
 import { getManagedRepNamesForDirector, getManagedTerritoriesForDirector } from './usersService';
 
 export function getViewer() {

@@ -1,4 +1,4 @@
-import { organizations, opportunities, teamMembers } from './mockSalesData';
+import { organizations, opportunities, teamMembers } from './__fixtures__/mockSalesData';
 import type { TerritoryId } from '@tuf/shared';
 
 export type Territory = {

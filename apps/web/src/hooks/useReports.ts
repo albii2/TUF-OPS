@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { listActivities, type ActivityParams } from '../services/activitiesService';
 import { getReportsSummary } from '../services/reportsService';
 import { queryKeys } from '../api';
-import type { Activity } from '../data/mockSalesData';
+import type { Activity } from '@tuf/shared';
 
 export function useReports() {
   return useQuery({

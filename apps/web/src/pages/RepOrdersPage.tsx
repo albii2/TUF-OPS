@@ -5,7 +5,7 @@ import { formatCurrency, formatDate } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
 import { getStoredUser } from '../auth';
 import { getOrderStageLabel, getOrderRisk, getOrderDueDate } from '../services/orderWorkflow';
-import type { Order } from '../data/mockSalesData';
+import type { Order } from '@tuf/shared';
 
 export function RepOrdersPage() {
   const navigate = useNavigate();

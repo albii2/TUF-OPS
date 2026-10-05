@@ -1,5 +1,5 @@
 import { Card } from '../components/primitives';
-import { opportunities, orders, teamMembers } from '../data/mockSalesData';
+import { opportunities, orders, teamMembers } from '../data/__fixtures__/mockSalesData';
 import { formatCurrency } from '../utils/format';
 
 const MONTHLY_ORDER_GOAL = 4;

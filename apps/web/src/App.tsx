@@ -1,6 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { AppShell } from './components/AppShell';
+import { Ops2Shell } from './components/nav2/Ops2Shell';
+import { CommandPage } from './pages/command/CommandPage';
+import { MarketsWarBoardPage } from './pages/markets/MarketsWarBoardPage';
+import { MarketDetailPage } from './pages/markets/MarketDetailPage';
+import { Nav2PlaceholderPage } from './pages/nav2/Nav2PlaceholderPage';
 import { getStoredUser, fetchCurrentUser } from './auth';
 import { LoginPage } from './pages/LoginPage';
 import { ForgePage } from './pages/ForgePage';
@@ -115,6 +120,31 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage setUser={setUser} />} />
+      {/*
+        ── TUF Ops 2.0 spine (Wave 2B) ──────────────────────────────
+        The approved §2.4 surface, mounted under its own shell so the 2.0 IA
+        does not disturb the 1.0 shell during the rebuild. COMMAND + MARKETS +
+        Market detail are real; the remaining approved leaves are honest
+        placeholders until their waves.
+      */}
+      <Route
+        path="/ops"
+        element={
+          <Protected user={user}>
+            <Ops2Shell user={user as AppUser} setUser={setUser} />
+          </Protected>
+        }
+      >
+        <Route index element={<Navigate to="command" replace />} />
+        <Route path="command" element={<CommandPage />} />
+        <Route path="markets" element={<MarketsWarBoardPage />} />
+        <Route path="markets/:marketNumber" element={<MarketDetailPage />} />
+        <Route path="sell/*" element={<Nav2PlaceholderPage />} />
+        <Route path="operate/*" element={<Nav2PlaceholderPage />} />
+        <Route path="people/*" element={<Nav2PlaceholderPage />} />
+        <Route path="intelligence/*" element={<Nav2PlaceholderPage />} />
+        <Route path="admin" element={<Nav2PlaceholderPage />} />
+      </Route>
       <Route
         element={
           <Protected user={user}>

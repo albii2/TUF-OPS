@@ -1,5 +1,5 @@
 import { Card } from '../components/primitives';
-import { orders, opportunities } from '../data/mockSalesData';
+import { orders, opportunities } from '../data/__fixtures__/mockSalesData';
 import { formatCurrency } from '../utils/format';
 
 const REP_COMMISSION_RATE = 0.08;

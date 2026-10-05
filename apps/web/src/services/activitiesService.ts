@@ -1,4 +1,4 @@
-import type { Activity } from '../data/mockSalesData';
+import type { Activity } from '@tuf/shared';
 import { apiClient } from './apiClient';
 
 export type ActivityParams = {

@@ -4,7 +4,7 @@ import { GlassCard } from './ui';
 import { useOrganizations } from '../hooks/useOrganizations';
 import { useOpportunities } from '../hooks/useOpportunities';
 import { useTerritories } from '../hooks/useTerritory';
-import type { RevenueLane, TerritoryId } from '../data/mockSalesData';
+import type { RevenueLane, TerritoryId } from '@tuf/shared';
 import { formatCurrency } from '../utils/format';
 import { getLaneLabel } from '../utils/naming';
 

@@ -1,4 +1,4 @@
-import { REVENUE_LANES as revenueLanes } from '../config/business';
+import { REVENUE_LANES as revenueLanes } from '../../config/business';
 import type { TeamMember, Organization, Opportunity, Order, Activity } from '@tuf/shared';
 
 export type {

@@ -9,7 +9,7 @@ import { getManagedRepNamesForDirector, listUsers } from '../services/usersServi
 import { Card, DataTable, type Column, SmallKpi } from '../components/primitives';
 import { formatCurrency } from '../utils/format';
 import { useOrders } from '../hooks/useOrders';
-import type { TerritoryId } from '../data/mockSalesData';
+import type { TerritoryId } from '@tuf/shared';
 
 export function TerritoryPage() {
   const user = getStoredUser();

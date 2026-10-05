@@ -6,7 +6,7 @@
 import { getOrganizationById } from './organizationsService';
 import { listOpportunities } from './opportunitiesService';
 import { listActivities } from './activitiesService';
-import type { RevenueLane } from '../data/mockSalesData';
+import type { RevenueLane } from '@tuf/shared';
 
 // ── Types ──
 

@@ -1,4 +1,4 @@
-import type { CoverageStatus, Organization, TerritoryId } from '../data/mockSalesData';
+import type { CoverageStatus, Organization, TerritoryId } from '@tuf/shared';
 import { apiClient } from './apiClient';
 import type { Role } from '../types';
 

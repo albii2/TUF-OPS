@@ -5,7 +5,7 @@ import {
   queryKeys,
 } from '../api';
 import type { OrganizationListParams } from '../services/organizationsService';
-import type { Organization } from '../data/mockSalesData';
+import type { Organization } from '@tuf/shared';
 
 export function useOrganizations(params: OrganizationListParams) {
   return useQuery<Organization[]>({

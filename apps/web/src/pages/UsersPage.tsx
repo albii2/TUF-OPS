@@ -4,7 +4,7 @@ import { createUser, listUsersAsync, resetUserCredential, updateUser, formatUser
 import { apiClient } from '../services/apiClient';
 import { getStoredUser } from '../auth';
 import type { Role } from '../types';
-import type { TerritoryId } from '../data/mockSalesData';
+import type { TerritoryId } from '@tuf/shared';
 import { useToast } from '../components/toast';
 
 function formatActivityDate(value?: string) {

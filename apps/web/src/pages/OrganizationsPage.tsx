@@ -9,7 +9,7 @@ import { OrganizationImportPanel } from '../components/OrganizationImportPanel';
 import { getOrganizationPriorityScore } from '../services/businessSelectors';
 import { updateOrganization, deleteOrganization } from '../services/organizationsService';
 import { listUsers } from '../services/usersService';
-import type { CoverageStatus, TerritoryId } from '../data/mockSalesData';
+import type { CoverageStatus, TerritoryId } from '@tuf/shared';
 
 const DEFAULT_pageSize = 25;
 

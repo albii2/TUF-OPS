@@ -7,7 +7,7 @@ import { useOpportunityById } from '../hooks/useOpportunities';
 import { useOrganizationById } from '../hooks/useOrganizations';
 import { useActivities } from '../hooks/useReports';
 import { updateOrder } from '../services/ordersService';
-import type { Order } from '../data/mockSalesData';
+import type { Order } from '@tuf/shared';
 import { notify } from '../services/feedbackService';
 import {
   BLOCKER_FIELDS,

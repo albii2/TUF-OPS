@@ -7,7 +7,7 @@ import {
   queryKeys,
 } from '../api';
 import type { OpportunityListParams } from '../services/opportunitiesService';
-import type { Opportunity } from '../data/mockSalesData';
+import type { Opportunity } from '@tuf/shared';
 
 export function useOpportunities(params: OpportunityListParams) {
   return useQuery<Opportunity[]>({
