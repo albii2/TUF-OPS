@@ -1,6 +1,7 @@
 {
   "name": "tuf-ops-monorepo",
   "private": true,
+  "packageManager": "pnpm@9.1.0",
   "scripts": {
     "build": "pnpm build:v1",
     "build:v1": "pnpm --filter @apps/api build && pnpm --filter web build",

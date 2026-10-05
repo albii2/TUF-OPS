@@ -102,13 +102,40 @@ counts identical before/after: 272 / 1088 / 252 / 3
    literals containing the string `INSERT INTO markets` (a self-referential false positive). Reworded
    those two log strings; the scan logic remains strict and unchanged.
 
-## 8. Open items (UNKNOWN — flagged, not resolved)
+## 8. Open items
 
-1. **CSV 273 vs legacy 272.** `apps/web/src/assets/tuf_mn_leads_final.csv` contains **273** data rows
-   (273 distinct school names) while legacy `organizations WHERE lead_source='tuf_mn_leads_final.csv'`
-   = **272**, and the import loaded 272. The legacy database independently confirms 272, so the import
-   is correct — but **the extra CSV row was not identified.** One query would resolve it. Until then,
-   272 stands as the verified universe.
-2. **The enriched CSV was not found on disk** (`tuf_leads_final_enriched.csv`). Only its 16-row effect
-   inside the legacy database is confirmed — which is sufficient for the exclusion, but the source file
-   itself is unlocated.
+### 8.1 CSV 273 vs legacy 272 — **RESOLVED**: the extra row is `Big Lake High School` (CSV line 18)
+
+The canonical CSV `apps/web/src/assets/tuf_mn_leads_final.csv` has **273** data rows (header = line 1;
+data = lines 2–274) and **273** distinct school names. Legacy
+`organizations WHERE lead_source='tuf_mn_leads_final.csv'` = **272**. A case/whitespace-insensitive diff
+of the two name sets shows the CSV set is a strict superset of the legacy final-csv set, with **exactly one**
+CSV name missing from legacy: **`Big Lake High School`**, at **CSV line 18**.
+
+Why it is absent from the legacy final-csv set: the school *is* in the legacy database, but under a
+**different `lead_source`**. Legacy `organizations.id = 430` — `Big Lake High School`, `state='MN'`,
+`city='Big Lake'` — carries `lead_source='tuf_leads_final_enriched.csv'`, with `postal_code` NULL and
+`lead_metadata = '{}'` (a low-fidelity stub), created `2026-07-17 16:39:35`. That timestamp is **after** the
+entire legacy `tuf_mn_leads_final.csv` batch (created `2026-06-14 01:57` … `2026-06-27 19:39`). No other
+`Big Lake` row exists anywhere in legacy `organizations`.
+
+Assessment: `Big Lake High School` is a **legitimate Minnesota high school**, not a test/placeholder,
+duplicate, or malformed row — MSHSL `https://www.mshsl.org/schools/big-lake-high-school`; Big Lake, MN
+55309; enrollment 798; athletics director Mark Kuisle `m.kuisle@biglakeschools.org`. The legacy
+`tuf_mn_leads_final.csv` import simply never carried it; its only legacy record entered later through the
+ad-hoc "enriched" prototype stream that §1 excludes.
+
+**Ruling: the verified universe count remains 272, and no data was changed.** Because the extra row is a
+legitimate school, promoting it (which would make the universe 273) is a **founder decision**, not an
+automatic correction:
+
+- *Evidence for counting it:* CSV line 18 is high-fidelity — full address, ZIP 55309, enrollment, AD, sport URLs.
+- *Evidence for leaving 272:* the only legacy record is the excluded enriched-source stub (§1).
+
+### 8.2 `tuf_leads_final_enriched.csv` source file — **STILL UNLOCATED** (exclusion preserved)
+
+Re-searched quickly across the repository and the usual home locations (`~/Repos`, `~/Downloads`,
+`~/Documents`, `~/Desktop`, `~/tuf-ops-backups`); the file was **not** found on disk, and no
+`tuf_leads_final*` file other than the canonical CSV is present. The exclusion in §1 therefore continues
+to rest on the 16-row effect inside the legacy database (legacy ids `1, 2, 3, 4, 342, 346, 354, 355, 359,
+360, 410, 418, 420, 430, 459, 526`) — which remains sufficient for the decision. **No change.**
