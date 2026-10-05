@@ -116,3 +116,19 @@ export {
   ISSUE_TERMINAL_STATES,
   canTransition as canTransitionIssue,
 } from './state-machines/issue.js';
+
+// -----------------------------
+// TUF Ops 2.0 canonical navigation (ADDITIVE — Wave 2A)
+// -----------------------------
+export type {
+  CanonicalRole,
+  NavItem,
+  NavSection,
+} from './navigation.js';
+export {
+  CANONICAL_ROLES,
+  NAVIGATION,
+  isVisibleTo,
+  navigationForRole,
+  allNavigationRoutes,
+} from './navigation.js';

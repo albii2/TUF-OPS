@@ -17,6 +17,7 @@ import { academyCommandRoutes } from './modules/academy-command/academy-command.
 import { academyResourcesRoutes } from './modules/academy-resources/academy-resources.routes';
 import { academyV2Routes } from './modules/academy-v2/academy-v2.routes';
 import { intakeRoutes } from './modules/intake/intake.routes';
+import { marketsRoutes } from './modules/markets/markets.routes';
 import { assertAuthTokenSecretConfigured, seedInitialOwnerIfEmpty } from './modules/users/users.service';
 import { pool } from '@packages/database';
 import { authMiddleware, permissionErrorHandler } from './auth';
@@ -148,6 +149,13 @@ server.register(academyV2Routes, { prefix: '/api/v1/academy-v2' });
 // Authorization lives in the module (see intake.routes.ts): the global authMiddleware hook only PARSES
 // a token — it does not reject anonymous callers — so mounting an unguarded module would expose it.
 server.register(intakeRoutes, { prefix: '/api/v1/intake' });
+
+// ── TUF Ops 2.0 Markets (Wave 2A) ───────────────────────────────
+// The operational Markets surface. Source is `markets` ONLY — `organizations`
+// is the read-only Market Universe and never appears as an operational list.
+// Authorization is enforced per-route through the approved auth boundary
+// (VIEW_MARKETS for reads; ACTIVATE_MARKET for the sole activation gateway).
+server.register(marketsRoutes, { prefix: '/api/v1/markets' });
 server.register(announcementRoutes, { prefix: '/api/v1' });
 server.register(userRoutes, { prefix: '/api/v1/auth' });
 server.register(userRoutes, { prefix: '/api/v1' });  // frontend compat for /users paths

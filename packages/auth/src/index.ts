@@ -1,9 +1,12 @@
 import { getPermissions, type Permission } from './permissions.js';
 import { normalizeRole, type Role } from './roles.js';
+import { PermissionDenied } from './errors.js';
 
 export * from './roles.js';
 export * from './permissions.js';
 export * from './stages.js';
+export * from './errors.js';
+export * from './authorization.js';
 
 export interface User {
   id: string | number;
@@ -11,14 +14,6 @@ export interface User {
   roles?: Array<Role | string>;
 }
 
-export class PermissionDenied extends Error {
-  statusCode = 403;
-
-  constructor(message: string) {
-    super(message);
-    this.name = 'PermissionDenied';
-  }
-}
 
 export function hasPermission(userOrRole: User | Role | string | null | undefined, permission: Permission): boolean {
   if (!userOrRole) return false;
