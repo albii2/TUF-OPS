@@ -86,6 +86,8 @@ export type {
   MarketMetric,
   UtmReferralSummary,
   ProductionFulfillmentSummary,
+  MarketMetricValueProvenance,
+  MarketMetricCacheSnapshot,
 } from './types/market-metric.js';
 
 // TUF Ops 2.0 state machines (ADDITIVE)

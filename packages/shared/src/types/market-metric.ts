@@ -142,3 +142,66 @@ export interface MarketMetric {
 
   // NO LINE ITEMS. Any per-order / per-item field is forbidden here.
 }
+
+/**
+ * TUF Ops 2.0 — Wave 4A additions (ADDITIVE; the `MarketMetric` shape above is
+ * unchanged).
+ *
+ * DROPS_CONTRACT.md §5.3/§5.4 fixes two facts the base `MarketMetric` interface
+ * does not express: a cached commerce value may be ABSENT (Drops did not report
+ * it, or the key was never synced), and each value records its PROVENANCE. The
+ * persisted cache row (`market_metrics`) is therefore the nullable snapshot
+ * below, not the "all values known" `MarketMetric` above. Nothing here widens
+ * the frozen R8 field set (§4); it only types NULL-vs-known and provenance.
+ */
+
+/**
+ * Provenance of a cached commerce value (DROPS_CONTRACT §5.4). `REPORTED` is the
+ * value Drops returned; `DERIVED` is a value TUF Ops computed — in MVP the ONLY
+ * value TUF Ops ever derives is the AOV fallback (`revenue / order_count`).
+ */
+export type MarketMetricValueProvenance = 'REPORTED' | 'DERIVED';
+
+/**
+ * The persisted `market_metrics` cache snapshot for one Drops key. Summary
+ * numbers only; a `null` commerce field means "Drops did not report this" — it
+ * is rendered as "no data yet", never as `0` (DROPS_CONTRACT §6 #3, GATE0).
+ *
+ * HARD RULE: NO LINE ITEMS. There is no per-order / per-item field anywhere.
+ */
+export interface MarketMetricCacheSnapshot {
+  /** Drops key part 1 (DROPS_CONTRACT §4.1 #1). */
+  dropsOrganizationId: string;
+  /** Drops key part 2 (DROPS_CONTRACT §4.1 #2). */
+  dropsCollectionId: string;
+  /** Optional Drops drop id where distinct from the collection. */
+  dropsDropId?: string | null;
+
+  /** TUF-side soft references (routing/discovery), not Drops fields. */
+  marketId?: number | null;
+  letteredDeploymentId?: number | null;
+
+  /** §4.2 operational / lifecycle. */
+  storeUrl?: string | null;
+  storeStatus?: string | null;
+  lifecycleStatus?: string | null;
+  publishedAt?: string | null;
+
+  /** §4.3 commerce — null means "not reported", never assumed zero. */
+  orderCount?: number | null;
+  revenue?: number | null;
+  aov?: number | null;
+  /** §5.4 — `REPORTED` unless the AOV fallback was used. */
+  aovProvenance?: MarketMetricValueProvenance | null;
+  firstOrderAt?: string | null;
+
+  /** §4.4 attribution — bounded aggregate summaries only. */
+  utmSummary?: UtmReferralSummary | null;
+  referralSummary?: UtmReferralSummary | null;
+
+  /** §4.5 fulfillment / production — aggregate only, never line items. */
+  fulfillmentSummary?: ProductionFulfillmentSummary | null;
+
+  /** §4.6 — TUF-owned; advances ONLY on a successful read. */
+  lastSyncAt: string;
+}
